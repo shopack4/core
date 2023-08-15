@@ -63,7 +63,7 @@ $this->params['breadcrumbs'][] = $this->title;
           'mstTitle',
           // 'mstParamsPrefix',
           // 'mstParamsSuffix',
-          'mstIsSystem:booleanean',
+          'mstIsSystem:boolean',
           [
             'class' => \shopack\base\frontend\widgets\grid\EnumDataColumn::class,
             'enumClass' => enuMessageTemplateStatus::class,

@@ -55,7 +55,7 @@ class MessageTemplateModel extends RestClientActiveRecord
 	}
 
 	public function canDelete() {
-		return true; //($this->mstStatus != enuMessageStatus::Removed);
+		return ($this->mstIsSystem == false);
 	}
 
 	public function canUndelete() {
