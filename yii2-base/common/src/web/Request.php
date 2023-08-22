@@ -15,7 +15,7 @@ class Request extends \yii\web\Request
 
 		$timezone = $_COOKIE['_timezone'] ?? null; //$this->getCookies()->getValue("_timezone");
 		if ($timezone)
-			Yii::$app->formatter->timeZone = $timezone;
+			Yii::$app->formatter->timeZone = 'GMT' . $timezone;
 
 		//just for non POST requests:
 		if (empty($this->parsers['multipart/form-data']))

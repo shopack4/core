@@ -85,7 +85,7 @@ class OfflinePaymentController extends BaseRestController
 		;
 
 		if ($model !== null) {
-			if ($justForMe && ($model->ofpOwnerUserID != Yii::$app->user->id))
+			if ($justForMe && ($model['ofpOwnerUserID'] != Yii::$app->user->id))
 				throw new ForbiddenHttpException('access denied');
 
 			return $model;

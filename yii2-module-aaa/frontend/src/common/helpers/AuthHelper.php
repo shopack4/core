@@ -12,7 +12,7 @@ use shopack\aaa\frontend\common\models\ChallengeForm;
 
 class AuthHelper
 {
-  static function redirectToChallenge(ChallengeForm $challengeModel)
+  static function redirectToChallenge(ChallengeForm $challengeModel, $donelink = null)
   {
     $request = Yii::$app->getRequest();
     $csrfMetaTags = Html::csrfMetaTags();

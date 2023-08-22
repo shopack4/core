@@ -181,10 +181,10 @@ class AuthController extends BaseController
     ]);
   }
 
-  public function actionLogin()
+  public function actionLogin($donelink = null)
   {
     if (!Yii::$app->user->isGuest)
-      return $this->goHome();
+      return $this->redirect($donelink ?? Yii::$app->getHomeUrl());
 
     $resultStatus = 200;
     $resultData = null;
@@ -196,7 +196,7 @@ class AuthController extends BaseController
       $result = $model->login();
 
       if ($result === true)
-        return $this->goHome();
+        return $this->redirect($donelink ?? Yii::$app->getHomeUrl());
 
       if ($result === 'challenge') {
         $challengeModel = new ChallengeForm();
@@ -205,7 +205,7 @@ class AuthController extends BaseController
         $challengeModel->key = $model->mobile;
         $challengeModel->rememberMe = $model->rememberMe;
 
-        return AuthHelper::redirectToChallenge($challengeModel);
+        return AuthHelper::redirectToChallenge($challengeModel, $donelink);
       }
 
       if (is_array($result)) {
@@ -248,10 +248,10 @@ class AuthController extends BaseController
   //     return $this->goHome();
   // }
 
-  public function actionLoginByMobile()
+  public function actionLoginByMobile($donelink = null)
   {
     if (!Yii::$app->user->isGuest)
-      return $this->goHome();
+      return $this->redirect($donelink ?? Yii::$app->getHomeUrl());
 
     Yii::$app->controller->layout = "/login";
 
@@ -266,7 +266,7 @@ class AuthController extends BaseController
       $result = $model->process();
 
       if ($result === true)
-        return $this->goHome();
+        return $this->redirect($donelink ?? Yii::$app->getHomeUrl());
 
       if ($result === 'challenge') {
         $challengeModel = new ChallengeForm();
@@ -275,7 +275,7 @@ class AuthController extends BaseController
         $challengeModel->key = $model->mobile;
         $challengeModel->rememberMe = $model->rememberMe;
 
-        return AuthHelper::redirectToChallenge($challengeModel);
+        return AuthHelper::redirectToChallenge($challengeModel, $donelink);
       }
 
       if (is_array($result)) {
@@ -320,7 +320,8 @@ class AuthController extends BaseController
     $type = null,
     $key = null,
     $value = null,
-    $rememberMe = false
+    $rememberMe = false,
+    $donelink = null
   ) {
     $model = new ChallengeForm();
     $post = Yii::$app->request->post();
@@ -366,7 +367,7 @@ class AuthController extends BaseController
       $result = $model->process();
 
       if ($result === true)
-        return $this->goHome();
+        return $this->redirect($donelink ?? Yii::$app->getHomeUrl());
 
       if (is_array($result)) {
         list ($resultStatus, $resultData) = $result;

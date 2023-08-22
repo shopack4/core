@@ -38,7 +38,6 @@ $this->params['breadcrumbs'][] = $this->title;
           [
             'class' => 'kartik\grid\SerialColumn',
           ],
-          'mstID',
           [
             'class' => 'kartik\grid\ExpandRowColumn',
             'value' => function ($model, $key, $index, $column) {
@@ -53,6 +52,7 @@ $this->params['breadcrumbs'][] = $this->title;
               return '<pre class="text-start">' . str_replace('\n', '<br>', $model->mstBody) . '</pre>';
             },
           ],
+          'mstID',
           'mstKey',
           [
             'class' => \shopack\base\frontend\widgets\grid\EnumDataColumn::class,

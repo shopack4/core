@@ -72,9 +72,9 @@ class VoucherSearchModel extends VoucherModel
 			return $dataProvider;
 		}
 
-		if (isset($this->vchOwnerUserID))
+		if (empty($this->vchOwnerUserID) == false)
 			$query->andWhere(['vchOwnerUserID' => $this->vchOwnerUserID]);
-		else if (isset($params['vchOwnerUserID']))
+		else if (empty($params['vchOwnerUserID']) == false)
 			$query->andWhere(['vchOwnerUserID' => $params['vchOwnerUserID']]);
 
 		$this->applySearchValuesInQuery($query);

@@ -94,8 +94,14 @@ JS;
 				</div>
 				<hr>
 				<div class="col">
-					<?= Html::a(Yii::t('aaa', 'Signup'), 'signup', ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
-					<?= Html::a(Yii::t('aaa', 'Login By Password'), 'login', ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
+					<?= Html::a(Yii::t('aaa', 'Signup'), [
+						'signup',
+						'donelink' => $_GET['donelink'] ?? null,
+					], ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
+					<?= Html::a(Yii::t('aaa', 'Login By Password'), [
+						'login',
+						'donelink' => $_GET['donelink'] ?? null,
+					], ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
 				</div>
 			</div>
 

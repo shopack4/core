@@ -51,29 +51,29 @@ class MessageController extends Controller
 
       Yii::$app->messageManager->processQueue($maxItemCount);
 
-		} catch(\Exception $e) {
+    } catch(\Exception $e) {
       echo $e->getMessage();
-			Yii::error($e, __METHOD__);
-		}
+      Yii::error($e, __METHOD__);
+    }
 
     return ExitCode::OK;
   }
 
-    //must be called by cron
-    public function actionSendBirthdayGreetings()
-    {
-      try {
+  //must be called by cron
+  public function actionSendBirthdayGreetings()
+  {
+    try {
 
-        $rowsCount = Yii::$app->messageManager->sendBirthdayGreetings();
-        if ($rowsCount > 0)
-          echo "new messages: {$rowsCount}";
+      $rowsCount = Yii::$app->messageManager->sendBirthdayGreetings();
+      if ($rowsCount > 0)
+        echo "new messages: {$rowsCount}";
 
-      } catch(\Exception $e) {
-        echo $e->getMessage();
-        Yii::error($e, __METHOD__);
-      }
-
-      return ExitCode::OK;
+    } catch(\Exception $e) {
+      echo $e->getMessage();
+      Yii::error($e, __METHOD__);
     }
+
+    return ExitCode::OK;
+  }
 
 }

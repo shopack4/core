@@ -63,6 +63,8 @@ $this->params['breadcrumbs'][] = $this->title;
             'attribute' => 'msgUserID',
             'format' => 'raw',
             'value' => function ($model, $key, $index, $widget) {
+              if (empty($model->msgUserID))
+                return null;
               return Html::a($model->user->displayName(), Yii::$app->getModule('aaa')->createUserViewUrl($model->msgUserID));
             },
           ],

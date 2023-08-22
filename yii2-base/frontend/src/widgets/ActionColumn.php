@@ -35,6 +35,8 @@ class ActionColumn extends \kartik\grid\ActionColumn
 		// 'data-popup-size' => 'lg',
 	];
 
+	public $filterOptions = ['class' => 'text-center'];
+
 	public function init()
 	{
 		$this->noWrap = true;
@@ -121,6 +123,24 @@ class ActionColumn extends \kartik\grid\ActionColumn
 					$link = Html::a($label, $url, $options);
 					return $notBs3 ? $link : "<li>{$link}</li>\n";
 			};
+	}
+
+	protected function renderFilterCellContent()
+	{
+		// return $this->grid->emptyCell;
+
+		$view = $this->grid->getView();
+		$id = $this->grid->options['id'];
+		$view->registerJs("$('#{$id}-search-button').on('click', function() {
+			$('#$id').yiiGridView('applyFilter');
+		});");
+
+		return Html::button(Yii::t('app', 'Search'),
+			[
+				'class' => 'btn btn-sm btn-outline-secondary',
+				'id' => $id . '-search-button',
+				'name' => $id . '-search-button',
+			]);
 	}
 
 }

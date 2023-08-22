@@ -28,7 +28,6 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
     [
       'class' => 'kartik\grid\SerialColumn',
     ],
-    'ofpID',
     [
       'class' => 'kartik\grid\ExpandRowColumn',
       'value' => function ($model, $key, $index, $column) {
@@ -45,6 +44,7 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
         return $model->ofpComment;
       },
     ],
+    'ofpID',
     [
       'attribute' => 'ofpImageFileID',
       // 'label' => '',

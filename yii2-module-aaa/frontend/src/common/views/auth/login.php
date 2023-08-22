@@ -54,7 +54,10 @@ $this->params['breadcrumbs'][] = $this->title;
 					<?= $form->field($model, 'rememberMe')->checkbox([], true) ?>
 				</div>
 				<div class="col text-end">
-					<?= Html::a(Yii::t('aaa', 'Forgot Password'), 'request-forgot-password', ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'request-forgot-password-button']) ?>
+					<?= Html::a(Yii::t('aaa', 'Forgot Password'), [
+						'request-forgot-password',
+						'donelink' => $_GET['donelink'] ?? null,
+					], ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'request-forgot-password-button']) ?>
 					<?= Html::submitButton(Yii::t('aaa', 'Login'), ['class' => 'btn btn-primary btn-sm', 'name' => 'login-button']); ?>
 				</div>
 			</div>
@@ -66,8 +69,14 @@ $this->params['breadcrumbs'][] = $this->title;
 			</div>
 			<hr>
 			<div class="col">
-				<?= Html::a(Yii::t('aaa', 'Signup'), 'signup', ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
-				<?= Html::a(Yii::t('aaa', 'Login By Mobile'), 'login-by-mobile', ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
+				<?= Html::a(Yii::t('aaa', 'Signup'), [
+					'signup',
+					'donelink' => $_GET['donelink'] ?? null,
+				], ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
+				<?= Html::a(Yii::t('aaa', 'Login By Mobile'), [
+					'login-by-mobile',
+					'donelink' => $_GET['donelink'] ?? null,
+				], ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
 			</div>
 		</div>
 

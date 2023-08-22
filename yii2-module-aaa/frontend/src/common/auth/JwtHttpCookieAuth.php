@@ -6,6 +6,7 @@
 namespace shopack\aaa\frontend\common\auth;
 
 use Yii;
+use shopack\base\common\helpers\Url;
 
 class JwtHttpCookieAuth extends \yii\filters\auth\AuthMethod
 {
@@ -44,7 +45,11 @@ class JwtHttpCookieAuth extends \yii\filters\auth\AuthMethod
 
   public function handleFailure($response)
   {
-    return $response->redirect(\Yii::$app->user->loginUrl);
+    $loginUrl = (array)Yii::$app->user->loginUrl;
+
+    $loginUrl['donelink'] = Url::current([], true);
+
+    return $response->redirect($loginUrl);
   }
 
 }
