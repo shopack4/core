@@ -18,6 +18,8 @@ class Module
 	extends \shopack\base\common\base\BaseModule
 	implements BootstrapInterface
 {
+	public $allowSignup = true;
+
 	/*
 		default:
 			'globalUserViewLink' => [

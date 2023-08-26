@@ -17,7 +17,7 @@ class AuthHelper
     $request = Yii::$app->getRequest();
     $csrfMetaTags = Html::csrfMetaTags();
     $csrfToken = $request->getCsrfToken();
-    $challengeUrl = Url::to(['challenge']);
+    $challengeUrl = Url::to(['challenge', 'donelink' => $donelink]);
     $formName = $challengeModel->formName();
 
     $html =<<<HTML

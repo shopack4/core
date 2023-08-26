@@ -63,8 +63,10 @@ class User extends BaseUser
 			return false;
 
 		$exp = $jwtPayload['exp'];
-		$exp = number_format((float)$exp, 6, '.', '');
-		$exp = \DateTimeImmutable::createFromFormat('U.u', $exp);
+		if (($exp instanceof \DateTimeImmutable) == false) {
+			$exp = number_format((float)$exp, 6, '.', '');
+			$exp = \DateTimeImmutable::createFromFormat('U.u', $exp);
+		}
 
 		$now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 

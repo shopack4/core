@@ -11,6 +11,7 @@ use shopack\base\backend\helpers\AuthHelper;
 use yii\web\UnprocessableEntityHttpException;
 use yii\web\UnauthorizedHttpException;
 use shopack\aaa\common\enums\enuUserStatus;
+use shopack\base\common\helpers\GeneralHelper;
 
 class LoginForm extends Model
 {
@@ -104,15 +105,15 @@ class LoginForm extends Model
     if ($this->validate('input') == false)
       throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
 
-    list ($normalizedInput, $type) = AuthHelper::recognizeLoginPhrase($this->input);
+    list ($normalizedInput, $type) = GeneralHelper::recognizeLoginPhrase($this->input);
 
-    if ($type == AuthHelper::PHRASETYPE_EMAIL) {
+    if ($type == GeneralHelper::PHRASETYPE_EMAIL) {
       $this->_inputName = 'email';
       $this->email = $normalizedInput;
-    } else if ($type == AuthHelper::PHRASETYPE_MOBILE) {
+    } else if ($type == GeneralHelper::PHRASETYPE_MOBILE) {
       $this->_inputName = 'mobile';
       $this->mobile = $normalizedInput;
-    } else if ($type == AuthHelper::PHRASETYPE_SSID) {
+    } else if ($type == GeneralHelper::PHRASETYPE_SSID) {
       $this->_inputName = 'ssid';
       $this->ssid = $normalizedInput;
     } else

@@ -7,6 +7,7 @@ namespace shopack\aaa\backend\models;
 
 use yii\base\Model;
 use shopack\aaa\backend\models\ForgotPasswordRequestModel;
+use shopack\base\common\helpers\GeneralHelper;
 
 //<a href='{{panel-address}}/aaa/auth/password-reset-by-forgot-code?input={{email}}&code={{code}}'>OK</a>
 class PasswordResetByForgotCodeForm extends Model
@@ -29,7 +30,7 @@ class PasswordResetByForgotCodeForm extends Model
     if ($this->validate() == false)
       return false;
 
-    // list ($normalizedInput, $inputType) = AuthHelper::checkLoginPhrase($this->input, false);
+    // list ($normalizedInput, $inputType) = GeneralHelper::checkLoginPhrase($this->input, false);
 
 		return ForgotPasswordRequestModel::acceptCode($this->input, $this->code, $this->newPassword);
   }

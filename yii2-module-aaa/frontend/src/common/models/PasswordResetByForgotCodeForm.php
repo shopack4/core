@@ -34,6 +34,7 @@ class PasswordResetByForgotCodeForm extends Model
   public function attributeLabels()
 	{
 		return [
+			'code' => Yii::t('aaa', 'Code'),
       'newPassword'    => Yii::t('aaa', 'New Password'),
       'retypePassword' => Yii::t('aaa', 'Retype Password'),
 		];
@@ -54,10 +55,44 @@ class PasswordResetByForgotCodeForm extends Model
       ]
     );
 
+    if ($resultStatus < 200 || $resultStatus >= 300) {
+      return [$resultStatus, $resultData];
+      // throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+    }
+
+    return true; //[$resultStatus, $resultData['result']];
+  }
+
+  public function getTimerInfo()
+  {
+    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/forgot-password-timer-info',
+      HttpHelper::METHOD_POST,
+      [],
+      [
+        'input' => $this->input,
+      ]
+    );
+
     if ($resultStatus < 200 || $resultStatus >= 300)
       throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
 
-    return true; //[$resultStatus, $resultData['result']];
+    return $resultData['result'];
+  }
+
+  public function resend()
+  {
+    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-forgot-password',
+      HttpHelper::METHOD_POST,
+      [],
+      [
+        'input' => $this->input,
+      ]
+    );
+
+    if ($resultStatus < 200 || $resultStatus >= 300)
+      throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+
+    return [$resultStatus, $resultData['result']];
   }
 
 }

@@ -41,7 +41,7 @@ use shopack\base\frontend\widgets\FormBuilder;
 	<?php $builder->beginFooter(); ?>
 		<div class="card-footer">
 			<div class="float-end">
-				<?= Html::activeSubmitButton($model) ?>
+				<?= Html::activeSubmitButton($model, 'تغییر') ?>
 			</div>
 			<div>
 				<?= Html::formErrorSummary($model); ?>

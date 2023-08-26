@@ -20,8 +20,8 @@ class UserModel extends RestClientActiveRecord
   // public $usrID;
   public $username;
   // public $password;
-  public $firstName;
-  public $lastName;
+  // public $firstName;
+  // public $lastName;
   // public $usrEmail;
   // public $usrMobile;
   // public $authKey;
@@ -50,6 +50,8 @@ class UserModel extends RestClientActiveRecord
       'usrFirstName_en'       => Yii::t('aaa', 'First Name (en)'),
       'usrLastName'           => Yii::t('aaa', 'Last Name'),
       'usrLastName_en'        => Yii::t('aaa', 'Last Name (en)'),
+      'usrFatherName'         => Yii::t('aaa', 'Father Name'),
+      'usrFatherName_en'      => Yii::t('aaa', 'Father Name (en)'),
       'usrEmail'              => Yii::t('aaa', 'Email'),
       'usrEmailApprovedAt'    => Yii::t('aaa', 'Email Approved At'),
       'usrMobile'             => Yii::t('aaa', 'Mobile'),
@@ -110,11 +112,14 @@ class UserModel extends RestClientActiveRecord
 
   public static function findIdentityByAccessToken($token, $type = null)
   {
-    $parts = explode('.', $token);
-    if (count($parts) != 3)
-      return null;
+    // $parts = explode('.', $token);
+    // if (count($parts) != 3)
+    //   return null;
+    // $jwtPayload = base64_decode($parts[1]);
+    // $jwtPayload = json_decode($jwtPayload, true);
 
-    $jwtPayload = json_decode(base64_decode($parts[1]), true);
+    $parsedToken = Yii::$app->jwt->parser->parse($token);
+    $jwtPayload = $parsedToken->claims()->all();
 
     //validate
     if (Yii::$app->user->validateJwtPayload($jwtPayload) == false)
@@ -130,8 +135,8 @@ class UserModel extends RestClientActiveRecord
     $user->usrMobile = $user->jwtPayload['mobile'] ?? null;
 
     $user->username = $user->jwtPayload['username'] ?? null;
-    $user->firstName = $user->jwtPayload['firstName'] ?? null;
-    $user->lastName = $user->jwtPayload['lastName'] ?? null;
+    $user->usrFirstName = $user->jwtPayload['firstName'] ?? null;
+    $user->usrLastName = $user->jwtPayload['lastName'] ?? null;
 
     return $user;
   }

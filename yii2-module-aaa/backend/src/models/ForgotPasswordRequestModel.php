@@ -16,7 +16,7 @@ use yii\web\UnprocessableEntityHttpException;
 use shopack\aaa\backend\models\UserModel;
 use shopack\aaa\backend\models\MessageModel;
 use shopack\aaa\common\enums\enuMessageStatus;
-use shopack\base\backend\helpers\GeneralHelper;
+use shopack\base\common\helpers\GeneralHelper;
 use shopack\aaa\common\enums\enuForgotPasswordRequestKeyType;
 use shopack\aaa\common\enums\enuForgotPasswordRequestMessageType;
 use shopack\aaa\common\enums\enuForgotPasswordRequestStatus;
@@ -96,7 +96,7 @@ class ForgotPasswordRequestModel extends AAAActiveRecord
   ) {
     $fnGetConst = function($value) { return "'{$value}'"; };
 
-    list ($normalizedInput, $inputType) = AuthHelper::checkLoginPhrase($emailOrMobile, false);
+    list ($normalizedInput, $inputType) = GeneralHelper::checkLoginPhrase($emailOrMobile, false);
 
     // if ($inputType != $type)
     //   throw new UnauthorizedHttpException('input type is not correct');
@@ -183,6 +183,9 @@ SQLSTR;
              AND fprStatus IN ({$fnGetConst(enuForgotPasswordRequestStatus::New)}, {$fnGetConst(enuForgotPasswordRequestStatus::Sent)})
 SQLSTR;
       static::getDb()->createCommand($qry)->execute();
+
+      //kz@2023 08 26
+      $models = null;
     }
 
     $settings = Yii::$app->params['settings'];
@@ -207,7 +210,7 @@ SQLSTR;
         $cfgPath = implode('.', [
           'AAA',
           'forgotPasswordRequest',
-          $inputType == AuthHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile',
+          $inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile',
           'resend-ttl'
         ]);
         $resendTTL = ArrayHelper::getValue($settings, $cfgPath, 120);
@@ -225,7 +228,7 @@ SQLSTR;
 
     if (empty($userID)) {
       $userModel = UserModel::find()
-        ->andWhere(['usr' . ($inputType == AuthHelper::PHRASETYPE_EMAIL ? 'Email' : 'Mobile') => $normalizedInput])
+        ->andWhere(['usr' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'Email' : 'Mobile') => $normalizedInput])
         ->andWhere(['!=', 'usrStatus', enuUserStatus::Removed])
         ->one();
 
@@ -253,7 +256,7 @@ SQLSTR;
       $cfgPath = implode('.', [
         'AAA',
         'forgotPasswordRequest',
-        $inputType == AuthHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile',
+        $inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile',
         'expire-ttl'
       ]);
       $expireTTL = ArrayHelper::getValue($settings, $cfgPath, 20 * 60);
@@ -316,9 +319,68 @@ SQLSTR;
     return ($codeIsNew ? 'code sent' : 'code resent');
   }
 
+  static function getTimerInfo($emailOrMobile)
+  {
+    list ($normalizedInput, $inputType) = GeneralHelper::checkLoginPhrase($emailOrMobile, false);
+
+    //find current
+    //------------------------------
+    $models = ForgotPasswordRequestModel::find()
+      ->addSelect([
+        '*',
+        'fprExpireAt <= NOW() AS IsExpired',
+        'TIME_TO_SEC(TIMEDIFF(NOW(), COALESCE(fprSentAt, fprLastRequestAt))) AS ElapsedSeconds',
+      ])
+      ->joinWith('user', "INNER JOIN")
+      ->where(['or',
+        ['usrEmail' => $normalizedInput],
+        ['usrMobile' => $normalizedInput]
+      ])
+      ->andWhere(['in', 'fprStatus', [
+        enuForgotPasswordRequestStatus::New, enuForgotPasswordRequestStatus::Sent]])
+      ->limit(2)
+      // ->asArray()
+      ->all();
+
+    if (empty($models))
+      throw new UnauthorizedHttpException('invalid ' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile') . ' and/or code');
+
+    if (count($models) > 1)
+      throw new UnauthorizedHttpException('more than one request found');
+
+    $forgotPasswordRequestModel = $models[0];
+
+    $seconds = 0;
+
+    if ($forgotPasswordRequestModel->IsExpired) {
+      // $forgotPasswordRequestModel->fprStatus = enuForgotPasswordRequestStatus::Expired;
+      // $forgotPasswordRequestModel->save();
+
+      // throw new UnauthorizedHttpException('code expired');
+    } else {
+      $settings = Yii::$app->params['settings'];
+      $cfgPath = implode('.', [
+        'AAA',
+        'forgotPasswordRequest',
+        $inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile',
+        'resend-ttl'
+      ]);
+      $resendTTL = ArrayHelper::getValue($settings, $cfgPath, 120);
+
+      if ($forgotPasswordRequestModel->ElapsedSeconds < $resendTTL)
+        $seconds = $resendTTL - $forgotPasswordRequestModel->ElapsedSeconds;
+    }
+
+    return [
+      // 'fprid' => $forgotPasswordRequestModel->aprID,
+      'ttl' => $seconds,
+      'remained' => GeneralHelper::formatTimeFromSeconds($seconds),
+    ];
+  }
+
   static function acceptCode($emailOrMobile, $code, $newPassword)
   {
-    list ($normalizedInput, $inputType) = AuthHelper::checkLoginPhrase($emailOrMobile, false);
+    list ($normalizedInput, $inputType) = GeneralHelper::checkLoginPhrase($emailOrMobile, false);
 
     //find current
     //------------------------------
@@ -340,7 +402,7 @@ SQLSTR;
       ->all();
 
     if (empty($models))
-      throw new UnauthorizedHttpException('invalid ' . ($inputType == AuthHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile') . ' and/or code');
+      throw new UnauthorizedHttpException('invalid ' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile') . ' and/or code');
 
     if (count($models) > 1)
       throw new UnauthorizedHttpException('more than one request found');

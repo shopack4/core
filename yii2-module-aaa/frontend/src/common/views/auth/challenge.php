@@ -8,9 +8,7 @@
 
 use shopack\base\frontend\widgets\ActiveForm;
 use shopack\base\frontend\helpers\Html;
-// use yii\bootstrap5\Html;
 use shopack\base\common\helpers\Url;
-use yii\web\View;
 
 $this->title = Yii::t('aaa', 'Challenge');
 $this->params['breadcrumbs'][] = $this->title;
@@ -20,7 +18,9 @@ $this->params['breadcrumbs'][] = $this->title;
 	<h1 class="mb-4">ورود کد عبور یکبار مصرف</h1>
 
 	<?php
-		$challengeUrl = Url::to(['challenge']);
+		$challengeUrl = Url::to(['challenge',
+			'donelink' => $_GET['donelink'] ?? null,
+		]);
 	// 	$currentUrl = Url::to();
 	// 	if ($currentUrl != $challengeUrl) {
 	// 		$js =<<<JS
@@ -80,17 +80,17 @@ $this->params['breadcrumbs'][] = $this->title;
 
 	<div class="form-group">
 		<div class="col text-end">
-		<?php
-			if (empty($timerInfo) == false)
-				echo Html::submitButton(Yii::t('aaa', 'Verify'), ['class' => 'btn btn-primary btn-sm', 'name' => 'verify-code']);
+			<?php
+				if (empty($timerInfo) == false)
+					echo Html::submitButton(Yii::t('aaa', 'Verify'), ['class' => 'btn btn-primary btn-sm', 'name' => 'verify-code']);
 
-			echo " ";
+				echo " ";
 
-			//---------------------
-			$waitMessage = Yii::t('aaa', 'For resend code, please wait {0}');
-			$resendMessage = Yii::t('aaa', 'Resend Code');
-			$ttl = $timerInfo['ttl'] ?? 0;
-			$js =<<<JS
+				//---------------------
+				$waitMessage = Yii::t('aaa', 'For resend code, please wait {0}');
+				$resendMessage = Yii::t('aaa', 'Resend Code');
+				$ttl = $timerInfo['ttl'] ?? 0;
+				$js =<<<JS
 function resendCode(event) {
 	$('#resend').val('1');
 	$('#{$form->id}').on('beforeValidateAttribute', function (event, attribute) {
@@ -116,34 +116,34 @@ function countdownResendButton(event) {
 	}
 }
 JS;
-			$this->registerJs($js, \yii\web\View::POS_END);
+				$this->registerJs($js, \yii\web\View::POS_END);
 
-			if (empty($timerInfo) == false)
-				$this->registerJs('timerInterval = window.setInterval(countdownResendButton, 1000);', \yii\web\View::POS_READY);
+				if (empty($timerInfo) == false)
+					$this->registerJs('timerInterval = window.setInterval(countdownResendButton, 1000);', \yii\web\View::POS_READY);
 
-			$btnOptions = [
-				'class' => 'btn btn-outline-primary btn-sm',
-				'id' => 'btn-resend-code',
-				'name' => 'btn-resend-code',
-				'onclick' => 'resendCode();',
-			];
+				$btnOptions = [
+					'class' => 'btn btn-outline-primary btn-sm',
+					'id' => 'btn-resend-code',
+					'name' => 'btn-resend-code',
+					'onclick' => 'resendCode();',
+				];
 
-			if (empty($timerInfo))
-				echo Html::button($resendMessage, $btnOptions);
-			else {
-				$btnOptions['disabled'] = true;
-				$msg = strtr($waitMessage, [
-					'{0}' => $timerInfo['remained'],
-				]);
-				echo Html::button($msg, $btnOptions);
-			}
-		?>
+				if (empty($timerInfo))
+					echo Html::button($resendMessage, $btnOptions);
+				else {
+					$btnOptions['disabled'] = true;
+					$msg = strtr($waitMessage, [
+						'{0}' => $timerInfo['remained'],
+					]);
+					echo Html::button($msg, $btnOptions);
+				}
+			?>
 		</div>
 		<div>
-		<?php
-			if (empty($message) == false)
-				echo $message;
-		?>
+			<?php
+				if (empty($message) == false)
+					echo $message;
+			?>
 		</div>
 		<hr>
 		<div class="col">

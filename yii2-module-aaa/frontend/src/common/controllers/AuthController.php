@@ -18,10 +18,11 @@ use shopack\aaa\frontend\common\models\LoginByMobileForm;
 use shopack\aaa\frontend\common\models\ChallengeForm;
 use shopack\aaa\frontend\common\helpers\AuthHelper;
 use shopack\aaa\frontend\common\models\ApproveCodeForm;
-use shopack\aaa\frontend\common\models\PasswordSetForm;
+// use shopack\aaa\frontend\common\models\PasswordSetForm;
 use shopack\aaa\frontend\common\models\PasswordChangeForm;
 use shopack\aaa\frontend\common\models\PasswordResetByForgotCodeForm;
 use shopack\aaa\frontend\common\models\RequestForgotPasswordForm;
+use shopack\base\common\helpers\GeneralHelper;
 
 class AuthController extends BaseController
 {
@@ -131,7 +132,10 @@ class AuthController extends BaseController
 
   public function actionSignup()
   {
-    if (!Yii::$app->user->isGuest)
+    if (Yii::$app->controller->module->allowSignup == false)
+      return $this->goHome();
+
+    if (Yii::$app->user->isGuest == false)
       return $this->goHome();
 
     $resultStatus = 200;
@@ -156,6 +160,7 @@ class AuthController extends BaseController
           $challengeModel->realm = 'signup';
           $challengeModel->type = $challenge;
           $challengeModel->key = $model->mobile;
+          $challengeModel->login = true;
           $challengeModel->rememberMe = $model->rememberMe;
 
           return AuthHelper::redirectToChallenge($challengeModel);
@@ -183,7 +188,7 @@ class AuthController extends BaseController
 
   public function actionLogin($donelink = null)
   {
-    if (!Yii::$app->user->isGuest)
+    if (Yii::$app->user->isGuest == false)
       return $this->redirect($donelink ?? Yii::$app->getHomeUrl());
 
     $resultStatus = 200;
@@ -203,6 +208,7 @@ class AuthController extends BaseController
         $challengeModel->realm = 'login-by-mobile';
         $challengeModel->type = $model->challenge;
         $challengeModel->key = $model->mobile;
+        $challengeModel->login = true;
         $challengeModel->rememberMe = $model->rememberMe;
 
         return AuthHelper::redirectToChallenge($challengeModel, $donelink);
@@ -218,6 +224,7 @@ class AuthController extends BaseController
         //   $challengeModel->realm = 'login-by-mobile';
         //   $challengeModel->type = $challenge;
         //   $challengeModel->key = $model->mobile;
+        //   $challengeModel->login = true;
         //   $challengeModel->rememberMe = $model->rememberMe;
 
         //   return AuthHelper::redirectToChallenge($challengeModel);
@@ -244,16 +251,25 @@ class AuthController extends BaseController
 
   // public function actionRequestLoginByMobileCode()
   // {
-  //   if (!Yii::$app->user->isGuest)
+  //   if (Yii::$app->user->isGuest == false)
   //     return $this->goHome();
   // }
 
-  public function actionLoginByMobile($donelink = null)
-  {
-    if (!Yii::$app->user->isGuest)
+  public function actionLoginByMobile(
+    $donelink = null,
+    $realm = null,
+    $signupIfNotExists = false
+  ) {
+    if (Yii::$app->user->isGuest == false)
       return $this->redirect($donelink ?? Yii::$app->getHomeUrl());
 
-    Yii::$app->controller->layout = "/login";
+    if (empty($realm))
+      $realm = 'login-by-mobile';
+
+    if (str_starts_with($realm, 'login'))
+      Yii::$app->controller->layout = "/login";
+    // else
+      // Yii::$app->controller->layout = '/' . $realm;
 
     $resultStatus = 200;
     $resultData = null;
@@ -262,6 +278,8 @@ class AuthController extends BaseController
     $showCreateNewUser = false;
 
     $model = new LoginByMobileForm();
+    $model->signupIfNotExists = $signupIfNotExists;
+
     if ($model->load(Yii::$app->request->post())) {
       $result = $model->process();
 
@@ -270,9 +288,10 @@ class AuthController extends BaseController
 
       if ($result === 'challenge') {
         $challengeModel = new ChallengeForm();
-        $challengeModel->realm = 'login-by-mobile';
+        $challengeModel->realm = $realm;
         $challengeModel->type = $model->challenge;
         $challengeModel->key = $model->mobile;
+        $challengeModel->login = true;
         $challengeModel->rememberMe = $model->rememberMe;
 
         return AuthHelper::redirectToChallenge($challengeModel, $donelink);
@@ -288,6 +307,7 @@ class AuthController extends BaseController
         //   $challengeModel->realm = 'login-by-mobile';
         //   $challengeModel->type = $challenge;
         //   $challengeModel->key = $model->mobile;
+        //   $challengeModel->login = true;
         //   $challengeModel->rememberMe = $model->rememberMe;
 
         //   return AuthHelper::redirectToChallenge($challengeModel);
@@ -331,6 +351,7 @@ class AuthController extends BaseController
       $model->type = $type;
       $model->key = $key;
       $model->value = $value;
+      $model->login = str_starts_with($model->realm, 'login');
       $model->rememberMe = $rememberMe;
     }
 
@@ -462,6 +483,7 @@ class AuthController extends BaseController
         $challengeModel->realm = 'accept-approval';
         $challengeModel->type = $model->challenge;
         $challengeModel->key = $model->mobile;
+        $challengeModel->login = true;
         $challengeModel->rememberMe = $model->rememberMe;
 
         return AuthHelper::redirectToChallenge($challengeModel);
@@ -477,6 +499,7 @@ class AuthController extends BaseController
         //   $challengeModel->realm = 'login-by-mobile';
         //   $challengeModel->type = $challenge;
         //   $challengeModel->key = $model->mobile;
+        //   $challengeModel->login = true;
         //   $challengeModel->rememberMe = $model->rememberMe;
 
         //   return AuthHelper::redirectToChallenge($challengeModel);
@@ -499,23 +522,23 @@ class AuthController extends BaseController
   }
 
   //for users without password
-  public function actionPasswordSet()
+/*  public function actionPasswordSet()
   {
 		if (Yii::$app->user->isGuest)
 			return $this->goHome();
 
-		$model = $this->findUserModel();
+		$userModel = $this->findUserModel();
 
-    if ($model->isSoftDeleted())
+    if ($userModel->isSoftDeleted())
       throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
-    if ($model->hasPassword)
+    if ($userModel->hasPassword)
       throw new BadRequestHttpException('شما قبلا نام رمز تعیین کرده‌اید.');
 
-    if (empty($model->usrEmailApprovedAt))
+    if (empty($userModel->usrEmailApprovedAt))
       throw new BadRequestHttpException('لطفا ایمیل خود را تایید کنید.');
 
-    if (empty($model->usrMobileApprovedAt))
+    if (empty($userModel->usrMobileApprovedAt))
       throw new BadRequestHttpException('لطفا موبایل خود را تایید کنید.');
 
     $model = new PasswordSetForm();
@@ -544,22 +567,23 @@ class AuthController extends BaseController
       'model' => $model,
     ]);
   }
-
+*/
   //for users with password
   public function actionPasswordChange()
   {
 		if (Yii::$app->user->isGuest)
 			return $this->goHome();
 
-		$model = $this->findUserModel();
+		$userModel = $this->findUserModel();
 
-    if ($model->isSoftDeleted())
+    if ($userModel->isSoftDeleted())
       throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
-    if ($model->hasPassword == false)
-      throw new BadRequestHttpException('شما قبلا نام رمز تعیین نکرده‌اید.');
+    // if ($model->hasPassword == false)
+    //   throw new BadRequestHttpException('شما قبلا نام رمز تعیین نکرده‌اید.');
 
     $model = new PasswordChangeForm();
+    $model->hasPassword = $userModel->hasPassword;
 
     $formPosted = $model->load(Yii::$app->request->post());
     $done = false;
@@ -598,8 +622,15 @@ class AuthController extends BaseController
       if ($formPosted)
         $done = $model->process();
 
-      if ($done)
-        $message = Yii::t('aaa', 'A new password reset link has been sent to the given email');
+      if ($done) {
+        if (GeneralHelper::isEmail($model->input)) {
+          $message = Yii::t('aaa', 'A new password reset link has been sent to the given email');
+        } else {
+          return $this->redirect(['password-reset-by-forgot-code',
+            'input' => $model->input,
+          ]);
+        }
+      }
     } catch (\Throwable $exp) {
       $message = $exp->getMessage();
     }
@@ -611,26 +642,94 @@ class AuthController extends BaseController
     ]);
   }
 
-  public function actionPasswordResetByForgotCode($input, $code)
-  {
+  public function actionPasswordResetByForgotCode(
+    $input,
+    $code = null
+  ) {
     $model = new PasswordResetByForgotCodeForm();
     $model->input = $input;
     $model->code = $code;
 
-    $formPosted = $model->load(Yii::$app->request->post());
-    $done = false;
-    try {
-      if ($formPosted)
-        $done = $model->process();
-    } catch (\Throwable $exp) {
-      $model->addError(null, $exp->getMessage());
+    $post = Yii::$app->request->post();
+    $formPosted = $model->load($post);
+
+    $timerInfo = null;
+    $resultStatus = 200;
+    $resultData = null;
+    $messageText = '';
+
+    if (isset($post['resend']) && $post['resend'] == 1) {
+      list ($resultStatus, $resultData) = $model->resend();
+
+      if (isset($resultData['message'])) {
+        $messageText = $resultData['message'];
+        unset($resultData['message']);
+        $messageText = Yii::t('aaa', $messageText, $resultData);
+        // $model->addError(null, $messageText);
+
+        $timerInfo = [
+          'ttl' => $resultData['ttl'],
+          'remained' => $resultData['remained'],
+        ];
+      }
+
+    } else if ($formPosted) {
+      $result = $model->process();
+
+      if ($result === true) {
+        return $this->redirect(['password-reset-by-forgot-code-done']);
+      }
+
+      if (is_array($result)) {
+        list ($resultStatus, $resultData) = $result;
+
+        if (isset($resultData['message'])) {
+          $messageText = $resultData['message'];
+          unset($resultData['message']);
+          $messageText = Yii::t('aaa', $messageText, $resultData);
+        }
+
+        if ($messageText == 'code expired') {
+          $timerInfo = [
+            'ttl' => 0,
+            'remained' => 0,
+          ];
+        } else if (key_exists('ttl', $resultData)) {
+          $timerInfo = [
+            'ttl' => $resultData['ttl'],
+            'remained' => $resultData['remained'],
+          ];
+        // } else {
+        //   $timerInfo = $model->getTimerInfo();
+        }
+      // } else { //$result === false
+      //   $timerInfo = $model->getTimerInfo();
+      }
+    // } else {
+    //   $timerInfo = $model->getTimerInfo();
     }
 
-    if ($done)
-      return $this->redirect(['password-reset-by-forgot-code-done']);
+    if ($timerInfo === null) {
+      try {
+        $timerInfo = $model->getTimerInfo();
+      } catch (\Throwable $th) {
+        $a = 0;
+      }
+    }
+
+    list ($normalizedInput, $keyType) = GeneralHelper::recognizeLoginPhrase($model->input, false);
+
+    $params = [
+      'model' => $model,
+      'timerInfo' => $timerInfo,
+      'resultStatus' => $resultStatus,
+      'resultData' => $resultData,
+      'message' => $messageText,
+      'keyType' => $keyType,
+    ];
 
     return $this->render('passwordResetByForgotCode', [
-      'model' => $model,
+      'params' => $params,
     ]);
   }
 

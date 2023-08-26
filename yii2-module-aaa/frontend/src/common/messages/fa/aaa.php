@@ -21,6 +21,8 @@ return [
 	'Forgot Password' => 'فراموشی رمز',
 	'Has Password' => 'رمز ورود',
 
+	'Are you sure you want to logout?' => 'آیا می‌خواهید خارج شوید؟',
+
 	'ERROR_MOBILE_NOT_EXISTS' => 'این شماره موبایل در سیستم وجود ندارد.',
 
 	'Approved' => 'تایید شده',
@@ -50,6 +52,23 @@ return [
 	'CODE_SENT' => 'کد ارسال شد',
 	'CODE_RESENT' => 'کد مجددا ارسال شد',
 	'THE_WAITING_TIME_HAS_NOT_ELAPSED' => 'زمان انتظار سپری نشده است. باقی مانده: {remained}',
+	'EMAIL_IS_NOT_YOURS' => 'این ایمیل متعلق به شما نیست.',
+	'MOBILE_IS_NOT_YOURS' => 'این موبایل متعلق به شما نیست.',
+
+	'invalid email' => 'ایمیل اشتباه است',
+	'invalid mobile' => 'موبایل اشتباه است',
+	'invalid email and/or code' => 'ایمیل یا کد اشتباه است',
+	'invalid mobile and/or code' => 'موبایل یا کد اشتباه است',
+	'more than one request found' => 'بیش از یک درخواست وجود دارد',
+	'incorrect key type' => 'نوع کلید اشتباه است',
+	'this code applied before' => 'این کد قبلا استفاده شده است',
+	'code not sent to the client' => 'کد هنوز به مقصد نرسیده است',
+	'code expired' => 'کد منقضی شده است',
+
+
+
+
+
 
 	'Users' => 'کاربران',
 	'List Users' => 'لیست کاربران',
@@ -256,6 +275,7 @@ return [
 	'New Password' => 'رمز جدید',
 	'Retype Password' => 'تکرار رمز',
 	'Retype New Password' => 'تکرار رمز جدید',
+	'Current Password Not Provided' => 'رمز فعلی وارد نشده است',
 	'Incorrect Current Password' => 'رمز فعلی صحیح نیست',
 	'Password Changed' => 'رمز ورود تغییر کرد',
 	'Name' => 'عنوان',
@@ -295,6 +315,7 @@ return [
 	'ShID' => 'شماره شناسنامه',
 	'SSN' => 'کد ملی',
 	'Father Name' => 'نام پدر',
+	'Father Name (en)' => 'نام پدر لاتین',
 	'Birth Location' => 'محل تولد',
 
 	'Not Set' => 'نامشخص',
@@ -338,7 +359,7 @@ return [
 	'Mobile was Unapprove.' => 'عدم تایید موبایل انجام شد.',
 	'This mobile confirm token is not empty.' => 'کد تایید مویابل خالی نیست.',
 	'Mobile confirm token generated successfully.' => 'کد تایید موبایل ایجاد شد.',
-	'Code' => 'شناسه',
+	'Code' => 'کد',
 	'Report' => 'گزارش',
 	'Reports' => 'گزارش‌ها',
 	'Search {item}' => 'جستجوی {item}',
@@ -517,5 +538,8 @@ return [
 
 	'Request Forgot Password Code' => 'فراموشی رمز',
 	'A new password reset link has been sent to the given email' => 'لینک بازنشانی رمز جدید به ایمیل داده شده ارسال شد.',
+
+	'Do you want the mobile verification code to be sent to {mobile}?' => 'آیا می‌خواهید کد تایید موبایل دوباره به شماره {mobile} ارسال شود؟',
+	'Do you want the email verification code to be sent to {email}?' => 'آیا می‌خواهید کد تایید ایمیل دوباره به {email} ارسال شود؟',
 
 ];

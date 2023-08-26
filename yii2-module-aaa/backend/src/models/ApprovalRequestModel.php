@@ -13,7 +13,7 @@ use yii\web\UnprocessableEntityHttpException;
 use yii\web\HttpException;
 use shopack\aaa\backend\classes\AAAActiveRecord;
 use shopack\base\backend\helpers\AuthHelper;
-use shopack\base\backend\helpers\GeneralHelper;
+use shopack\base\common\helpers\GeneralHelper;
 use shopack\aaa\backend\models\UserModel;
 use shopack\aaa\backend\models\MessageModel;
 use shopack\aaa\common\enums\enuMessageStatus;
@@ -34,6 +34,14 @@ class ApprovalRequestModel extends AAAActiveRecord
   const ERROR_USER_NOT_FOUND = [
     'status' => 401,
     'message' => 'USER_NOT_FOUND',
+  ];
+  const ERROR_EMAIL_IS_NOT_YOURS = [
+    'status' => 401,
+    'message' => 'EMAIL_IS_NOT_YOURS',
+  ];
+  const ERROR_MOBILE_IS_NOT_YOURS = [
+    'status' => 401,
+    'message' => 'MOBILE_IS_NOT_YOURS',
   ];
 
   public static function sendHttpError($errorInfo, $errorParams = []) {
@@ -124,7 +132,7 @@ class ApprovalRequestModel extends AAAActiveRecord
   ) {
     $fnGetConst = function($value) { return "'{$value}'"; };
 
-    list ($normalizedInput, $inputType) = AuthHelper::checkLoginPhrase($emailOrMobile, false);
+    list ($normalizedInput, $inputType) = GeneralHelper::checkLoginPhrase($emailOrMobile, false);
 
     // if ($inputType != $type)
     //   throw new UnauthorizedHttpException('input type is not correct');
@@ -159,8 +167,8 @@ SQLSTR;
     $models = ApprovalRequestModel::find()
       ->addSelect([
         '*',
+        'aprExpireAt <= NOW() AS IsExpired',
         'TIME_TO_SEC(TIMEDIFF(NOW(), COALESCE(aprSentAt, aprLastRequestAt))) AS ElapsedSeconds',
-        'aprExpireAt <= NOW() AS IsExpired'
       ])
       ->joinWith('user', "INNER JOIN")
       ->where(['aprKey' => $normalizedInput])
@@ -189,13 +197,16 @@ SQLSTR;
              AND aprStatus IN ({$fnGetConst(enuApprovalRequestStatus::New)}, {$fnGetConst(enuApprovalRequestStatus::Sent)})
 SQLSTR;
       static::getDb()->createCommand($qry)->execute();
+
+      //kz@2023 08 26
+      $models = null;
     }
 
     $settings = Yii::$app->params['settings'];
     $cfgPath = implode('.', [
       'AAA',
       'approvalRequest',
-      $inputType == AuthHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile',
+      $inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile',
       'resend-ttl'
     ]);
     $resendTTL = ArrayHelper::getValue($settings, $cfgPath, 120);
@@ -236,12 +247,18 @@ SQLSTR;
       }
     }
 
-    if (empty($userID)) {
-      $userModel = UserModel::find()
-        ->andWhere(['usr' . ($inputType == AuthHelper::PHRASETYPE_EMAIL ? 'Email' : 'Mobile') => $normalizedInput])
-        ->andWhere(['!=', 'usrStatus', enuUserStatus::Removed])
-        ->one();
+    //---------------------------
+    $userModel = UserModel::find()
+      ->andWhere(['usr' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'Email' : 'Mobile') => $normalizedInput])
+      ->andWhere(['!=', 'usrStatus', enuUserStatus::Removed])
+      ->one();
 
+    if ($userModel && (empty($userID) == false) && ($userID != $userModel->usrID)) {
+      self::sendHttpError($inputType == GeneralHelper::PHRASETYPE_EMAIL
+        ? self::ERROR_EMAIL_IS_NOT_YOURS : self::ERROR_MOBILE_IS_NOT_YOURS);
+    }
+
+    if (empty($userID)) {
       if (!$userModel && $forLogin == false)
         self::sendHttpError(self::ERROR_USER_NOT_FOUND);
 
@@ -253,6 +270,7 @@ SQLSTR;
       }
     }
 
+    //---------------------------
     $codeIsNew = false;
 
     if (empty($code)) {
@@ -263,12 +281,12 @@ SQLSTR;
       else if ($inputType == enuApprovalRequestKeyType::Mobile)
         $code = strval(rand(123456, 987654));
       else
-        throw new UnauthorizedHttpException("invalid input type {$inputType}");
+        throw new UnauthorizedHttpException('invalid input type {$inputType}');
 
       $cfgPath = implode('.', [
         'AAA',
         'approvalRequest',
-        $inputType == AuthHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile',
+        $inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile',
         'expire-ttl'
       ]);
       $expireTTL = ArrayHelper::getValue($settings, $cfgPath, 20 * 60);
@@ -336,6 +354,7 @@ SQLSTR;
 
     return [
       'message' => $codeIsNew ? 'CODE_SENT' : 'CODE_RESENT',
+      // 'aprid' => $approvalRequestModel->aprID,
       'ttl' => $resendTTL,
       'remained' => GeneralHelper::formatTimeFromSeconds($resendTTL),
     ];
@@ -343,26 +362,27 @@ SQLSTR;
 
   static function getTimerInfo($emailOrMobile)
   {
-    list ($normalizedInput, $inputType) = AuthHelper::checkLoginPhrase($emailOrMobile, false);
+    list ($normalizedInput, $inputType) = GeneralHelper::checkLoginPhrase($emailOrMobile, false);
 
     //find current
     //------------------------------
     $models = ApprovalRequestModel::find()
       ->addSelect([
         '*',
+        'aprExpireAt <= NOW() AS IsExpired',
         'TIME_TO_SEC(TIMEDIFF(NOW(), COALESCE(aprSentAt, aprLastRequestAt))) AS ElapsedSeconds',
-        'aprExpireAt <= NOW() AS IsExpired'
       ])
       ->joinWith('user', "INNER JOIN")
       ->where(['aprKey' => $normalizedInput])
       ->andWhere(['aprKeyType' => $inputType])
-      ->andWhere(['in', 'aprStatus', [enuApprovalRequestStatus::New, enuApprovalRequestStatus::Sent]])
+      ->andWhere(['in', 'aprStatus', [
+        enuApprovalRequestStatus::New, enuApprovalRequestStatus::Sent]])
       ->limit(2)
       // ->asArray()
       ->all();
 
     if (empty($models))
-      throw new UnauthorizedHttpException('invalid ' . ($inputType == AuthHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile'));
+      throw new UnauthorizedHttpException('invalid ' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile'));
 
     if (count($models) > 1)
       throw new UnauthorizedHttpException('more than one request found');
@@ -381,7 +401,7 @@ SQLSTR;
       $cfgPath = implode('.', [
         'AAA',
         'approvalRequest',
-        $inputType == AuthHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile',
+        $inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile',
         'resend-ttl'
       ]);
       $resendTTL = ArrayHelper::getValue($settings, $cfgPath, 120);
@@ -391,6 +411,7 @@ SQLSTR;
     }
 
     return [
+      // 'aprid' => $approvalRequestModel->aprID,
       'ttl' => $seconds,
       'remained' => GeneralHelper::formatTimeFromSeconds($seconds),
     ];
@@ -401,7 +422,7 @@ SQLSTR;
   {
     $result = [];
 
-    list ($normalizedInput, $inputType) = AuthHelper::checkLoginPhrase($emailOrMobile, false);
+    list ($normalizedInput, $inputType) = GeneralHelper::checkLoginPhrase($emailOrMobile, false);
 
     $messageTableName = MessageModel::tableName();
 
@@ -410,7 +431,7 @@ SQLSTR;
     $models = ApprovalRequestModel::find()
       ->addSelect([
         '*',
-        'aprExpireAt <= NOW() AS IsExpired'
+        'aprExpireAt <= NOW() AS IsExpired',
       ])
       ->joinWith('user', "INNER JOIN")
       ->where(['aprKey' => $normalizedInput])
@@ -422,7 +443,7 @@ SQLSTR;
       ->all();
 
     if (empty($models))
-      throw new UnauthorizedHttpException('invalid ' . ($inputType == AuthHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile') . ' and/or code');
+      throw new UnauthorizedHttpException('invalid ' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile') . ' and/or code');
 
     if (count($models) > 1)
       throw new UnauthorizedHttpException('more than one request found');

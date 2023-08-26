@@ -18,67 +18,10 @@ use shopack\aaa\backend\models\RoleModel;
 use shopack\aaa\common\enums\enuRole;
 use shopack\aaa\common\enums\enuUserStatus;
 use shopack\aaa\common\enums\enuSessionStatus;
+use shopack\base\common\helpers\GeneralHelper;
 
 class AuthHelper
 {
-  const PHRASETYPE_EMAIL  = 'E';
-  const PHRASETYPE_MOBILE = 'M';
-  const PHRASETYPE_SSID   = 'S';
-  const PHRASETYPE_NONE   = 'N';
-
-  static function isEmail($email)
-  {
-    if (strpos($email, '@') !== false) {
-      if (filter_var($email, FILTER_VALIDATE_EMAIL) !== false)
-        return true;
-
-      throw new UnprocessableEntityHttpException('Invalid email address');
-    }
-
-    return false;
-  }
-
-  static function recognizeLoginPhrase($input, $checkSSID = true)
-  {
-    $input = strtolower(trim($input));
-
-    if (empty($input))
-      return [$input, static::PHRASETYPE_NONE];
-
-    //email
-    if (static::isEmail($input))
-      return [$input, static::PHRASETYPE_EMAIL];
-
-    //mobile
-    try {
-      $phone = PhoneHelper::normalizePhoneNumber($input);
-      if ($phone)
-        return [$phone, static::PHRASETYPE_MOBILE];
-    } catch(\Exception $exp) {
-      $message = $exp->getMessage();
-    }
-
-    //ssid
-    if ($checkSSID) {
-      $sidMatched = preg_match('/^[0-9]{8,10}$/', $input);
-      if ($sidMatched === 1)
-        return [$input, static::PHRASETYPE_SSID];
-    }
-
-    //
-    return [$input, static::PHRASETYPE_NONE];
-  }
-
-  static function checkLoginPhrase($input, $checkSSID = true)
-  {
-    list ($normalizedInput, $type) = static::recognizeLoginPhrase($input, $checkSSID);
-
-    if ($type == AuthHelper::PHRASETYPE_NONE)
-      throw new UnprocessableEntityHttpException('Invalid input');
-
-    return [$normalizedInput, $type];
-  }
-
   static function doLogin($user, bool $rememberMe = false, ?Array $additionalInfo = [])
   {
     if ($user->usrStatus == enuUserStatus::NewForLoginByMobile) {
@@ -128,16 +71,21 @@ class AuthHelper
     $expire = $now->modify("+{$ttl} second");
 
     $token = Yii::$app->jwt->getBuilder()
-      ->identifiedBy($sessionModel->ssnID) //Yii::$app->session->id)	// Configures the id (jti claim)
+      ->identifiedBy($sessionModel->ssnID) //Yii::$app->session->id) // Configures the id (jti claim)
       ->issuedAt($now)
       ->expiresAt($expire)
       ->withClaim('privs', $privs)
       ->withClaim('uid', $user->usrID)
-      ->withClaim('email', $user->usrEmail)
-      ->withClaim('mobile', $user->usrMobile)
-      // ->withClaim('firstName', $model->user->usrFirstName)
-      // ->withClaim('lastName', $model->user->usrLastName)
     ;
+
+    if (empty($user->usrEmail) == false)
+      $token->withClaim('email', $user->usrEmail);
+    if (empty($user->usrMobile) == false)
+      $token->withClaim('mobile', $user->usrMobile);
+    if (empty($user->usrFirstName) == false)
+      $token->withClaim('firstName', $user->usrFirstName);
+    if (empty($user->usrLastName) == false)
+      $token->withClaim('lastName', $user->usrLastName);
 
     if ($rememberMe)
       $token->withClaim('rmmbr', 1);
@@ -158,12 +106,11 @@ class AuthHelper
         $token->withClaim('mustApprove', implode(',', $mustApprove));
     }
 
-    $token = $token
-      ->getToken(
-        Yii::$app->jwt->getConfiguration()->signer(),
-        Yii::$app->jwt->getConfiguration()->signingKey()
-      )
-      ->toString();
+    $token = $token->getToken(
+      Yii::$app->jwt->getConfiguration()->signer(),
+      Yii::$app->jwt->getConfiguration()->signingKey()
+    );
+    $token = $token->toString();
 
     //update session
     //-----------------------

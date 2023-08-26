@@ -23,9 +23,9 @@ use shopack\aaa\backend\models\ApproveCodeForm;
 use shopack\aaa\backend\models\ApprovalRequestModel;
 use shopack\aaa\backend\models\ForgotPasswordRequestModel;
 use shopack\aaa\backend\models\PasswordResetByForgotCodeForm;
-use shopack\aaa\backend\models\PasswordSetForm;
+// use shopack\aaa\backend\models\PasswordSetForm;
 use shopack\aaa\backend\models\PasswordChangeForm;
-use shopack\base\backend\helpers\GeneralHelper;
+use shopack\base\common\helpers\GeneralHelper;
 
 class AuthController extends BaseRestController
 {
@@ -46,6 +46,7 @@ class AuthController extends BaseRestController
 			'request-approval-code',
 			'accept-approval',
 			'request-forgot-password',
+			'forgot-password-timer-info',
 			'password-reset-by-forgot-code',
 			'challenge',
 			'challenge-timer-info',
@@ -161,11 +162,17 @@ class AuthController extends BaseRestController
 		$userModel = $result['userModel'];
 
 		if ($userModel) {
-			list ($token, $mustApprove) = AuthHelper::doLogin($userModel, $bodyParams['rememberMe'] ?? false);
+			if ($bodyParams['rememberMe'] ?? false) {
+				list ($token, $mustApprove) = AuthHelper::doLogin($userModel, $bodyParams['rememberMe'] ?? false);
+
+				return [
+					'token' => $token,
+					'mustApprove' => $mustApprove,
+				];
+			}
 
 			return [
-				'token' => $token,
-				'mustApprove' => $mustApprove,
+				'result' => true,
 			];
 		}
 
@@ -233,6 +240,29 @@ class AuthController extends BaseRestController
 	}
 
 	/**
+	 * key
+	 */
+	public function actionForgotPasswordTimerInfo()
+	{
+		$bodyParams = Yii::$app->request->getBodyParams();
+
+		if (empty($bodyParams['input']))
+			throw new NotFoundHttpException("parameters not provided");
+
+		return [
+			'result' => ForgotPasswordRequestModel::getTimerInfo($bodyParams['input']),
+		];
+
+		// $seconds = 120;
+		// return [
+		// 	'timer' => [
+		// 		'ttl' => $seconds,
+		// 		'remained' => GeneralHelper::formatTimeFromSeconds($seconds),
+		// 	],
+		// ];
+	}
+
+	/**
 	 * input
 	 * code
 	 * newPassword
@@ -256,7 +286,7 @@ class AuthController extends BaseRestController
 	 * userID
 	 * newPassword
 	 */
-	public function actionPasswordSet()
+/*	public function actionPasswordSet()
 	{
 		PrivHelper::checkPriv('aaa/auth/passwordSet');
 
@@ -272,7 +302,7 @@ class AuthController extends BaseRestController
 			'result' => true,
 		];
 	}
-
+*/
 	/**
 	 * oldPassword
 	 * newPassword

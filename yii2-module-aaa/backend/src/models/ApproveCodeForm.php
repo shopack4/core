@@ -9,6 +9,7 @@ use yii\base\Model;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\aaa\backend\models\ApprovalRequestModel;
 use shopack\base\backend\helpers\AuthHelper;
+use shopack\base\common\helpers\GeneralHelper;
 
 //<a href='{{panel-address}}/aaa/auth/accept-approval?input={{email}}&code={{code}}'>Accept</a>
 class ApproveCodeForm extends Model
@@ -29,7 +30,7 @@ class ApproveCodeForm extends Model
     if ($this->validate() == false)
       return false;
 
-    // list ($normalizedInput, $inputType) = AuthHelper::checkLoginPhrase($this->input, false);
+    // list ($normalizedInput, $inputType) = GeneralHelper::checkLoginPhrase($this->input, false);
 
 		$result = ApprovalRequestModel::acceptCode($this->input, $this->code);
 

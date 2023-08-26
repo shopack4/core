@@ -58,7 +58,7 @@ class RowDatesAttributesBehavior extends AttributesBehavior
 					if (empty(Yii::$app->components['user']))
 						return null;
 
-					if (!Yii::$app->user->isGuest)
+					if (Yii::$app->user->isGuest == false)
 						return Yii::$app->user->id;
 					if (!empty($this->owner->{$this->createdByAttribute}))
 						return $this->owner->{$this->createdByAttribute};

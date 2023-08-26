@@ -6,19 +6,29 @@
 namespace shopack\aaa\frontend\common\auth;
 
 use Yii;
+use yii\filters\VerbFilter;
 use shopack\aaa\frontend\common\auth\JwtHttpCookieAuth;
 
 class BaseController extends \shopack\base\frontend\classes\BaseController
 {
 	const BEHAVIOR_AUTHENTICATOR = 'authenticator';
+	const BEHAVIOR_VERBS = 'verbs';
 
 	public function behaviors()
 	{
 		$behaviors = parent::behaviors();
 
-		$behaviors[static::BEHAVIOR_AUTHENTICATOR] = [
+		$behaviors[self::BEHAVIOR_AUTHENTICATOR] = [
 			'class' => JwtHttpCookieAuth::class,
 		];
+
+		$behaviors[self::BEHAVIOR_VERBS] = [
+      'class' => VerbFilter::class,
+      'actions' => [
+        'delete' => ['POST'],
+        'undelete' => ['POST'],
+      ],
+    ];
 
 		return $behaviors;
 	}

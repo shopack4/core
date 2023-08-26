@@ -63,7 +63,7 @@ class Html extends \yii\bootstrap5\Html
 
 		return static::a($text, $url, array_replace_recursive([
 			'title' => $text,
-			'class' => ['btn', 'btn-sm', 'btn-' . $btn],
+			'class' => $btn ? ['btn', 'btn-sm', 'btn-' . $btn] : null,
 			'data' => [
 				'confirm' => $message,
 				'method' => 'post',
@@ -205,9 +205,11 @@ class Html extends \yii\bootstrap5\Html
 		// if (isset($options['done']))
 			// shopack\base\widgets\ActiveForm::doneParam
 
-		return Html::submitButton($caption, [
-			'class' => 'btn btn-' . (($model->isNewRecord ?? true) ? 'success' : 'primary'),
-		]);
+		$options = array_replace_recursive([
+			'class' => ['btn', 'btn-' . (($model->isNewRecord ?? true) ? 'success' : 'primary')],
+		], $options);
+
+		return Html::submitButton($caption, $options);
 	}
 
 	public static function formatRowDates(

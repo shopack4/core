@@ -13,6 +13,7 @@ use shopack\base\common\helpers\HttpHelper;
 
 class PasswordChangeForm extends Model
 {
+  public $hasPassword = null;
 	public $curPassword;
 	public $newPassword;
 	public $retypePassword;
@@ -21,7 +22,15 @@ class PasswordChangeForm extends Model
   {
     return [
       [['curPassword', 'newPassword', 'retypePassword'], 'string'],
-      [['curPassword', 'newPassword', 'retypePassword'], 'required'],
+
+      ['curPassword',
+        'required',
+        'when' => function ($model) {
+          return $model->hasPassword;
+        }
+      ],
+
+      [['newPassword', 'retypePassword'], 'required'],
 
       ['retypePassword', 'compare',
         'compareAttribute' => 'newPassword',

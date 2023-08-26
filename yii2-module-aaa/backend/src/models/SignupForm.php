@@ -10,6 +10,7 @@ use yii\web\UnprocessableEntityHttpException;
 use yii\web\UnauthorizedHttpException;
 use shopack\base\common\helpers\PhoneHelper;
 use shopack\aaa\backend\models\UserModel;
+use shopack\base\common\helpers\GeneralHelper;
 
 class SignupForm extends Model
 {
@@ -52,16 +53,16 @@ class SignupForm extends Model
 		if (!$model->usrMobile)
 			throw new UnprocessableEntityHttpException('Invalid mobile number');
 
-		// list ($normalizedInput, $type) = AuthHelper::recognizeLoginPhrase($this->input);
+		// list ($normalizedInput, $type) = GeneralHelper::recognizeLoginPhrase($this->input);
 
     /*
-		if ($type == AuthHelper::PHRASETYPE_EMAIL) {
+		if ($type == GeneralHelper::PHRASETYPE_EMAIL) {
 			$this->_inputName = 'email';
 			$model->usrEmail = $normalizedInput;
-		} else if ($type == AuthHelper::PHRASETYPE_MOBILE) {
+		} else if ($type == GeneralHelper::PHRASETYPE_MOBILE) {
 			$this->_inputName = 'mobile';
 			$model->usrMobile = $normalizedInput;
-		// } else if ($type == AuthHelper::PHRASETYPE_SSID) {
+		// } else if ($type == GeneralHelper::PHRASETYPE_SSID) {
 		// 	$this->_inputName = 'ssid';
 		// 	$model->usrSSID = $normalizedInput;
 		} else

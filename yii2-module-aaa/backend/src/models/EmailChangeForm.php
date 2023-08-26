@@ -11,6 +11,7 @@ use yii\web\UnauthorizedHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\base\backend\helpers\AuthHelper;
 use shopack\aaa\backend\models\ApprovalRequestModel;
+use shopack\base\common\helpers\GeneralHelper;
 
 class EmailChangeForm extends Model
 {
@@ -33,7 +34,7 @@ class EmailChangeForm extends Model
     if ($this->validate() == false)
       throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
 
-    if (AuthHelper::isEmail($this->email) == false)
+    if (GeneralHelper::isEmail($this->email) == false)
       throw new UnprocessableEntityHttpException("Invalid email");
 
     $user = UserModel::findOne(Yii::$app->user->id);

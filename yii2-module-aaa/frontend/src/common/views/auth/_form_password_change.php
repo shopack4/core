@@ -16,13 +16,18 @@ use shopack\base\frontend\widgets\FormBuilder;
 
 		$builder = $form->getBuilder();
 
-		$builder->fields([
-			['curPassword',
-				'type' => FormBuilder::FIELD_PASSWORD,
-				'widgetOptions' => [
-					'style' => 'direction:ltr',
+		if ($model->hasPassword) {
+			$builder->fields([
+				['curPassword',
+					'type' => FormBuilder::FIELD_PASSWORD,
+					'widgetOptions' => [
+						'style' => 'direction:ltr',
+					],
 				],
-			],
+			]);
+		}
+
+		$builder->fields([
 			['newPassword',
 				'type' => FormBuilder::FIELD_PASSWORD,
 				'widgetOptions' => [
@@ -41,7 +46,7 @@ use shopack\base\frontend\widgets\FormBuilder;
 	<?php $builder->beginFooter(); ?>
 		<div class="card-footer">
 			<div class="float-end">
-				<?= Html::activeSubmitButton($model) ?>
+				<?= Html::activeSubmitButton($model, $model->hasPassword ? 'تغییر' : 'ذخیره') ?>
 			</div>
 			<div>
 				<?= Html::formErrorSummary($model); ?>

@@ -11,6 +11,7 @@ use yii\web\UnauthorizedHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\HttpHelper;
 
+/*
 class PasswordSetForm extends Model
 {
 	public $newPassword;
@@ -57,3 +58,4 @@ class PasswordSetForm extends Model
   }
 
 }
+*/

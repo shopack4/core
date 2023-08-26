@@ -10,6 +10,7 @@ use yii\base\Model;
 use yii\web\NotFoundHttpException;
 
 //called from auth/password-set (by logged in user profile page)
+/*
 class PasswordSetForm extends Model
 {
   public $newPassword;
@@ -50,3 +51,4 @@ class PasswordSetForm extends Model
   }
 
 }
+*/

@@ -13,13 +13,20 @@ use shopack\base\common\helpers\HttpHelper;
 
 class MobileChangeForm extends Model
 {
-  public $phase; //1:get mobile, 2:get code
+  // public $phase; //1:get mobile, 2:get code
+  // public $aprid = null;
   public $mobile;
 
   public function rules()
   {
     return [
-      ['mobile', 'required'],
+      // ['aprid', 'integer'],
+      ['mobile',
+        'required',
+        // 'when' => function ($model) {
+        //   return (empty($model->aprid));
+        // },
+      ],
     ];
   }
 
@@ -27,9 +34,15 @@ class MobileChangeForm extends Model
 	{
 		return [
 			'mobile' => Yii::t('aaa', 'Mobile'),
+			// 'code' => Yii::t('aaa', 'Code'),
 		];
 	}
 
+  /**
+   * return:
+   *  1: phase 1 passed and aprid created
+   *  true: code approved
+   */
   public function process()
   {
     if (Yii::$app->user->isGuest)
@@ -38,18 +51,29 @@ class MobileChangeForm extends Model
     if ($this->validate() == false)
       throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/user/mobile-change',
-      HttpHelper::METHOD_POST,
-      [],
-      [
-        'mobile' => $this->mobile,
-      ]
-    );
+    // if (empty($this->aprid)) {
+      list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/user/mobile-change',
+        HttpHelper::METHOD_POST,
+        [],
+        [
+          'mobile' => $this->mobile,
+        ]
+      );
 
-    if ($resultStatus < 200 || $resultStatus >= 300)
-      throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+      if ($resultStatus < 200 || $resultStatus >= 300)
+        throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
 
-    return true; //[$resultStatus, $resultData['result']];
+      // $this->aprid = intval($resultData['aprid']);
+
+      return true; //[$resultStatus, $resultData['result']];
+    // }
+
+
+
+
+
+
+    // return false;
   }
 
 }

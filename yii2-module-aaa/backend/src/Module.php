@@ -46,8 +46,10 @@ class Module
 						'POST accept-approval' => 'accept-approval',
 
 						'POST request-forgot-password' => 'request-forgot-password',
+						'POST forgot-password-timer-info' => 'forgot-password-timer-info',
 						'POST password-reset-by-forgot-code' => 'password-reset-by-forgot-code',
-						'POST password-set' => 'password-set',
+
+						// 'POST password-set' => 'password-set',
 						'POST password-change' => 'password-change',
 					],
 				],

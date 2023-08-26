@@ -8,6 +8,7 @@ use shopack\base\frontend\widgets\DetailView;
 use shopack\base\frontend\widgets\tabs\Tabs;
 use shopack\aaa\common\enums\enuGender;
 use shopack\aaa\common\enums\enuUserStatus;
+use shopack\base\common\helpers\GeneralHelper;
 
 $this->title = Yii::t('aaa', 'My Profile');
 $this->params['breadcrumbs'][] = $this->title;
@@ -158,16 +159,16 @@ $this->params['breadcrumbs'][] = $this->title;
 							$ret = [];
 
 							$ret[] = "<div class='float-end'>";
-							if (empty($model->usrEmailApprovedAt)) {
+							if ((empty($model->usrEmail) == false) && empty($model->usrEmailApprovedAt)) {
 								$ret[] = Html::confirmButton(Yii::t('aaa', 'Resend Email Approval'), ['resend-email-approval'],
-								'آیا می‌خواهید کد تایید ایمیل دوباره ارسال شود؟',
+								Yii::t('aaa', 'Do you want the email verification code to be sent to {email}?', ['email' => Html::span($model->usrEmail, ['class' => ['d-inline-block', 'dir-ltr']])]),
 								[
 									'class' => ['btn', 'btn-sm', 'btn-outline-primary'],
 									'ajax' => 'post',
 								]);
 							}
 							$ret[] = "</div>";
-							$ret[] = Yii::$app->formatter->asJalaliWithTime($model->usrEmailApprovedAt);
+							$ret[] = Yii::$app->formatter->asJalaliWithTime($model->usrEmailApprovedAt, 'تایید نشده');
 							$ret[] = "<div class='clearfix'></div>";
 
 							return implode(' ', $ret);
@@ -205,21 +206,21 @@ $this->params['breadcrumbs'][] = $this->title;
 							$ret = [];
 
 							$ret[] = "<div class='float-end'>";
-							if (empty($model->usrMobileApprovedAt)) {
+							if ((empty($model->usrMobile) == false) && empty($model->usrMobileApprovedAt)) {
 								$ret[] = Html::confirmButton(Yii::t('aaa', 'Resend Mobile Approval'), ['resend-mobile-approval'],
-								'آیا می‌خواهید کد تایید موبایل دوباره ارسال شود؟',
+								Yii::t('aaa', 'Do you want the mobile verification code to be sent to {mobile}?', ['mobile' => Html::span($model->usrMobile, ['class' => ['d-inline-block', 'dir-ltr']])]),
 								[
 									'class' => ['btn', 'btn-sm', 'btn-outline-primary'],
 									'ajax' => 'post',
 								]);
-								$ret[] = Html::a(Yii::t('aaa', 'Approve Mobile'), ['mobile-approve'], [
+								$ret[] = Html::a(Yii::t('aaa', 'Approve Mobile'), ['approve-code', 'kt' => GeneralHelper::PHRASETYPE_MOBILE], [
 									'class' => ['btn', 'btn-sm', 'btn-outline-primary'],
 									'modal' => true,
 									'id' => 'mobile-approve-link',
 								]);
 							}
 							$ret[] = "</div>";
-							$ret[] = Yii::$app->formatter->asJalaliWithTime($model->usrMobileApprovedAt);
+							$ret[] = Yii::$app->formatter->asJalaliWithTime($model->usrMobileApprovedAt, 'تایید نشده');
 							$ret[] = "<div class='clearfix'></div>";
 
 							return implode(' ', $ret);
@@ -232,17 +233,21 @@ $this->params['breadcrumbs'][] = $this->title;
 							$ret = [];
 
 							$ret[] = "<div class='float-end'>";
-							if ($model->hasPassword) {
-								$ret[] = Html::a(Yii::t('aaa', 'Change Password'), ['auth/password-change'], [
-									'class' => ['btn', 'btn-sm', 'btn-outline-primary'],
-									'modal' => true,
-								]);
-							} else {
-								$ret[] = Html::a(Yii::t('aaa', 'Set Password'), ['auth/password-set'], [
-									'class' => ['btn', 'btn-sm', 'btn-outline-primary'],
-									'modal' => true,
-								]);
-							}
+							if ($model->hasPassword)
+								$caption = Yii::t('aaa', 'Change Password');
+							else
+								$caption = Yii::t('aaa', 'Set Password');
+
+							$ret[] = Html::a($caption, ['auth/password-change'], [
+								'class' => ['btn', 'btn-sm', 'btn-outline-primary'],
+								'modal' => true,
+							]);
+							// } else {
+							// 	$ret[] = Html::a(Yii::t('aaa', 'Set Password'), ['auth/password-set'], [
+							// 		'class' => ['btn', 'btn-sm', 'btn-outline-primary'],
+							// 		'modal' => true,
+							// 	]);
+
 							$ret[] = "</div>";
 
 							$ret[] = Html::div($model->hasPassword ? 'دارد' : 'ندارد');
@@ -269,25 +274,25 @@ $this->params['breadcrumbs'][] = $this->title;
 				$tabs->endTabPage();
 			?>
 
-			<?php $tabs->beginTabPage(Yii::t('aaa', 'Privileges'), 'privileges'); ?>
 			<?php
-				echo DetailView::widget([
-					'model' => $model,
-					'enableEditMode' => false,
-					'attributes' => [
-						[
-							'attribute' => 'usrRoleID',
-							'value' => $model->usrRoleID ? $model->role->rolName : null,
-						],
-						[
-							'attribute' => 'usrPrivs',
-							'visible' => $model->canViewColumn('usrPrivs'),
-							'value' => json_encode($model->usrPrivs),
-						],
-					],
-				]);
+				// $tabs->beginTabPage(Yii::t('aaa', 'Privileges'), 'privileges');
+				// echo DetailView::widget([
+				// 	'model' => $model,
+				// 	'enableEditMode' => false,
+				// 	'attributes' => [
+				// 		[
+				// 			'attribute' => 'usrRoleID',
+				// 			'value' => $model->usrRoleID ? $model->role->rolName : null,
+				// 		],
+				// 		[
+				// 			'attribute' => 'usrPrivs',
+				// 			'visible' => $model->canViewColumn('usrPrivs'),
+				// 			'value' => json_encode($model->usrPrivs),
+				// 		],
+				// 	],
+				// ]);
+				// $tabs->endTabPage();
 			?>
-			<?php $tabs->endTabPage(); ?>
 
 			<?php /* $tabs->newAjaxTabPage(Yii::t('aaa', 'Deleted Accounts'), [
           '/aaa/profile/deleted-accounts'

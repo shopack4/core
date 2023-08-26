@@ -18,7 +18,8 @@ class PasswordChangeForm extends Model
   public function rules()
   {
     return [
-      ['curPassword', 'required'],
+      ['curPassword', 'string'],
+
       ['newPassword', 'required'],
     ];
   }
@@ -36,8 +37,13 @@ class PasswordChangeForm extends Model
 		if (!$userModel)
 			throw new NotFoundHttpException('user not found');
 
-		if ($userModel->validatePassword($this->curPassword) == false)
-			throw new ForbiddenHttpException('incorrect current password');
+    if ($userModel->hasPassword) {
+      if (empty($this->curPassword))
+        throw new ForbiddenHttpException('Current Password Not Provided');
+
+		  if ($userModel->validatePassword($this->curPassword) == false)
+			  throw new ForbiddenHttpException('Incorrect Current Password');
+    }
 
 		$userModel->usrPassword = $this->newPassword;
 		return $userModel->save();

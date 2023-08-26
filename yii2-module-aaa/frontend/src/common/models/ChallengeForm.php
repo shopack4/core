@@ -15,6 +15,7 @@ class ChallengeForm extends Model
   public $type;
   public $key;
   public $value;
+  public $login = true;
   public $rememberMe = true;
 
   public function rules()
@@ -44,14 +45,23 @@ class ChallengeForm extends Model
     if ($this->validate() == false)
       return false;
 
+    $params = [
+      'key' => $this->key,
+      'value' => $this->value,
+    ];
+
+    if ($this->login) {
+      // $params['login'] = [
+      //   'rememberMe' => $this->rememberMe,
+      // ];
+
+      $params['rememberMe'] = $this->rememberMe;
+    }
+
     list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/challenge',
       HttpHelper::METHOD_POST,
       [],
-      [
-        'key' => $this->key,
-        'value' => $this->value,
-        'rememberMe' => $this->rememberMe,
-      ]
+      $params
     );
 
     // if ($resultStatus < 200 || $resultStatus >= 300)
