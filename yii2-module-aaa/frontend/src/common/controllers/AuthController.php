@@ -268,8 +268,8 @@ class AuthController extends BaseController
 
     if (str_starts_with($realm, 'login'))
       Yii::$app->controller->layout = "/login";
-    // else
-      // Yii::$app->controller->layout = '/' . $realm;
+    else
+      Yii::$app->controller->layout = '/' . $realm;
 
     $resultStatus = 200;
     $resultData = null;
@@ -332,6 +332,7 @@ class AuthController extends BaseController
       'resultData' => $resultData,
       'message' => $messageText,
       'showCreateNewUser'=> $showCreateNewUser,
+      'realm' => $realm,
     ]);
   }
 
@@ -364,6 +365,8 @@ class AuthController extends BaseController
 
     if (str_starts_with($model->realm, 'login'))
       Yii::$app->controller->layout = "/login";
+    else
+      Yii::$app->controller->layout = '/' . $model->realm;
 
     $timerInfo = null;
     $resultStatus = 200;

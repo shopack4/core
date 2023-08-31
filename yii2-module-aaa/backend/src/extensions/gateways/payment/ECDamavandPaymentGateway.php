@@ -7,6 +7,7 @@ namespace shopack\aaa\backend\extensions\gateways\payment;
 
 use Yii;
 use yii\web\UnprocessableEntityHttpException;
+use shopack\base\common\helpers\Json;
 use shopack\aaa\backend\classes\BasePaymentGateway;
 use shopack\aaa\backend\classes\IPaymentGateway;
 use shopack\aaa\common\enums\enuPaymentGatewayType;
@@ -103,7 +104,7 @@ class ECDamavandPaymentGateway
 			$params['Language'] = 'fa';
 			$params['CheckSum'] =	$check_sum;
 
-			$data_string = json_encode($params);
+			$data_string = Json::encode($params);
 
 			$curl = curl_init();
 
@@ -132,7 +133,7 @@ class ECDamavandPaymentGateway
 			//{"State":0,"Res":"","ErrorDescription":"","ErrorCode":"124"}
 
 			$response = $this->throwIfFailed($response);
-			// $response = json_decode($response, true);
+			// $response = Json::decode($response, true);
 
 			// $res_State						= $response['State'] ?? 0;
 			$res_Res							= $response['Res'] ?? '';
@@ -214,7 +215,7 @@ class ECDamavandPaymentGateway
 			$params = [
 				'Token'	=> $res_Token,
 			];
-			$data_string = json_encode($params);
+			$data_string = Json::encode($params);
 
 			$curl = curl_init();
 			curl_setopt_array($curl, [
@@ -235,7 +236,7 @@ class ECDamavandPaymentGateway
 				throw new \Exception('cURL Error #:' . $err);
 
 			$response = $this->throwIfFailed($response);
-			// $response = json_decode($response, true);
+			// $response = Json::decode($response);
 
 			// $res_State						= $response['State'] ?? 0;
 			// $res_Res							= $response['Res'] ?? '';
@@ -265,7 +266,7 @@ class ECDamavandPaymentGateway
 		$params = [
 			'Token'	=> $token,
 		];
-		$data_string = json_encode($params);
+		$data_string = Json::encode($params);
 
 		$curl = curl_init();
 		curl_setopt_array($curl, [
@@ -289,7 +290,7 @@ class ECDamavandPaymentGateway
 			return [];
 
 		if (is_array($response) == false)
-			$response = json_decode($response, true);
+			$response = Json::decode($response);
 
 		$res_State						= $response['State'] ?? 0;
 		// $res_Res							= $response['Res'] ?? '';

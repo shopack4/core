@@ -7,7 +7,7 @@ namespace shopack\base\frontend\widgets\fancytree;
 
 use yii\base\Widget;
 use shopack\base\frontend\helpers\Html;
-use yii\helpers\Json;
+use shopack\base\common\helpers\Json;
 
 /**
  * Sample:
@@ -66,8 +66,8 @@ class Fancytree extends Widget
 			];
 		}
 
-		$encodedUrl = json_encode($url);
-		$encodedCache = json_encode($this->cache);
+		$encodedUrl = Json::encode($url);
+		$encodedCache = Json::encode($this->cache);
 		$this->options['lazyLoad'] = new \yii\web\JsExpression(<<<EOJS
 function(event, data) {
 	var node = data.node;
@@ -116,9 +116,9 @@ EOJS
 	public function run(): string
 	{
 		$id = empty($this->options['id']) ? 'fancytree-' . $this->getId() : $this->options['id'];
-		$selector = json_encode("#{$id}");
+		$selector = Json::encode("#{$id}");
 		if ($this->activeNode) {
-			// $activeNode = json_encode($this->activeNode);
+			// $activeNode = Json::encode($this->activeNode);
 			$activeNode = $this->activeNode;
 			$this->options['init'] = new \yii\web\JsExpression(<<<EOJS
 function(event, data) {

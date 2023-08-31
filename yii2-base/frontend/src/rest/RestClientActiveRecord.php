@@ -8,6 +8,7 @@ namespace shopack\base\frontend\rest;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\BaseActiveRecord;
+use shopack\base\common\helpers\Json;
 use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\validators\JsonValidator;
 
@@ -118,7 +119,7 @@ abstract class RestClientActiveRecord extends BaseActiveRecord
           && $info[enuColumnInfo::type] === $JsonValidator_class
           && empty($this->$column) == false
       ) {
-        $this->$column = json_decode($this->$column, true);
+        $this->$column = Json::decode($this->$column);
         $this->setOldAttribute($column, $this->$column);
       }
     }

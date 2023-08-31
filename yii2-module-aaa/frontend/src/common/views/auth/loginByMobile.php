@@ -92,21 +92,23 @@ JS;
 						}
 					?>
 				</div>
-				<hr>
-				<div class="col">
-					<?php
-						if (Yii::$app->controller->module->allowSignup) {
-							echo Html::a(Yii::t('aaa', 'Signup'), [
-								'signup',
-								'donelink' => $_GET['donelink'] ?? null,
-							], ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']);
-						}
-					?>
-					<?= Html::a(Yii::t('aaa', 'Login By Password'), [
-						'login',
-						'donelink' => $_GET['donelink'] ?? null,
-					], ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
-				</div>
+				<?php if (str_starts_with($realm, 'login')): ?>
+					<hr>
+					<div class="col">
+						<?php
+							if (Yii::$app->controller->module->allowSignup) {
+								echo Html::a(Yii::t('aaa', 'Signup'), [
+									'signup',
+									'donelink' => $_GET['donelink'] ?? null,
+								], ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']);
+							}
+						?>
+						<?= Html::a(Yii::t('aaa', 'Login By Password'), [
+							'login',
+							'donelink' => $_GET['donelink'] ?? null,
+						], ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
+					</div>
+				<?php endif; ?>
 			</div>
 
 		<?php ActiveForm::end();

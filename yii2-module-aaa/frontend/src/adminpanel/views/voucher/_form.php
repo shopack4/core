@@ -3,6 +3,7 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
+use shopack\base\common\helpers\Json;
 use shopack\base\common\helpers\Url;
 use shopack\base\frontend\widgets\Select2;
 use shopack\base\frontend\widgets\DepDrop;
@@ -66,12 +67,12 @@ use yii\web\JsExpression;
 		$getVoucherParamsSchemaUrl = Url::to(['plugin-params-schema']) . '?key=';
 		$strGtwPluginParameters = '{}';
 		if (($model->vchPluginName !== null) && ($model->vchPluginParameters !== null))
-			$strGtwPluginParameters = json_encode($model->vchPluginParameters);
+			$strGtwPluginParameters = Json::encode($model->vchPluginParameters);
 
 		$getVoucherRestrictionsSchemaUrl = Url::to(['plugin-restrictions-schema']) . '?key=';
 		$strGtwRestrictions = '{}';
 		if (($model->vchPluginName !== null) && ($model->vchRestrictions !== null))
-			$strGtwRestrictions = json_encode($model->vchRestrictions);
+			$strGtwRestrictions = Json::encode($model->vchRestrictions);
 
 		$builder->fields([
 			'vchPluginName',

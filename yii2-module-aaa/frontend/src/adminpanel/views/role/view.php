@@ -5,6 +5,7 @@
 
 /** @var yii\web\View $this */
 
+use shopack\base\common\helpers\Json;
 use shopack\base\frontend\widgets\PopoverX;
 use shopack\base\frontend\helpers\Html;
 use shopack\base\frontend\widgets\DetailView;
@@ -73,7 +74,7 @@ $this->params['breadcrumbs'][] = $this->title;
           'rolName',
           [
             'attribute' => 'rolPrivs',
-            'value' => json_encode($model->rolPrivs),
+            'value' => Json::encode($model->rolPrivs),
           ],
           // [
           //   'attribute' => 'rolStatus',

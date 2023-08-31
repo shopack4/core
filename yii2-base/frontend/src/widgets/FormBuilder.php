@@ -190,7 +190,12 @@ class FormBuilder extends \yii\base\Component
 						$widgetOptions = ArrayHelper::getValue($field, 'widgetOptions', []);
 
 						if ($type == static::FIELD_PERCENT) {
+
+							//*******************************
+
 							throw new \Exception('not implemented yet!');
+
+							//*******************************
 
 							//todo: (vvvvvi) regex for percentage
 							$type = $field['type'] = static::FIELD_WIDGET;
@@ -393,7 +398,14 @@ class FormBuilder extends \yii\base\Component
 									break;
 
 								case static::FIELD_CHECKBOX:
-									$_field->checkbox($widgetOptions[0] ?? [], $widgetOptions[1] ?? null);
+									$checkboxOptions = $widgetOptions[0] ?? [];
+									$enclosedByLabel = $widgetOptions[1] ?? null;
+									if ($enclosedByLabel
+										&& empty($checkboxOptions['label'])
+										&& (empty($label) == false)
+									)
+										$checkboxOptions['label'] = $label;
+									$_field->checkbox($checkboxOptions, $enclosedByLabel);
 									break;
 
 								case static::FIELD_CHECKBOXLIST:
@@ -436,6 +448,7 @@ class FormBuilder extends \yii\base\Component
 	// Html::dump($field, $command, $params);
 						switch ($command) {
 							case '@col':
+							case '@cols':
 								while ($beginColCount > 0) {
 									echo Html::endTag('div'); //col
 									--$beginColCount;
@@ -449,7 +462,7 @@ class FormBuilder extends \yii\base\Component
 								else
 									$colWidth = 'col-sm-' . intval(12 / $col_count);
 
-								$vertical = isset($params['vertical']);
+								$vertical = (isset($params['vertical']) && $params['vertical']);
 								if ($vertical) {
 									echo Html::beginTag('div', ['class' => $colWidth]);
 									++$beginColCount;

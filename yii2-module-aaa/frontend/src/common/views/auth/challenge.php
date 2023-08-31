@@ -145,11 +145,13 @@ JS;
 					echo $message;
 			?>
 		</div>
-		<hr>
-		<div class="col">
-			<?= Html::a(Yii::t('aaa', 'Signup'), 'signup', ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
-			<?= Html::a(Yii::t('aaa', 'Login By Password'), 'login', ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
-		</div>
+		<?php if (str_starts_with($model->realm, 'login')): ?>
+			<hr>
+			<div class="col">
+				<?= Html::a(Yii::t('aaa', 'Signup'), 'signup', ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
+				<?= Html::a(Yii::t('aaa', 'Login By Password'), 'login', ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
+			</div>
+		<?php endif; ?>
 	</div>
 
 	<?php ActiveForm::end(); ?>

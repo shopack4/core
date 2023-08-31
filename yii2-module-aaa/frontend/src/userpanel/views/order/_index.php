@@ -42,7 +42,7 @@ use shopack\aaa\frontend\common\models\VoucherModel;
           {
             "key": "e219ad40-61c0-4e10-b264-9dd31d5ffe8a",
             "qty": 2,
-            "desc": "عضویت خانه موسیقی از 1400/10/28 تا پایان1402/10/27 به مدت 2 سال",
+            "desc": "عضویت خانه موسیقی از 1400/10/28 تا1402/10/27 به مدت 2 سال",
             "error": "Page not found.",
             "slbid": 1,
             "maxqty": 2,

@@ -7,6 +7,7 @@ namespace shopack\aaa\frontend\common\components;
 
 use Yii;
 use yii\web\User as BaseUser;
+use shopack\base\common\helpers\Json;
 use shopack\base\frontend\helpers\PrivHelper;
 
 class User extends BaseUser
@@ -33,13 +34,13 @@ class User extends BaseUser
     if ($authCookie == null)
 			return null;
 
-		$authCookie = json_decode($authCookie, true);
+		$authCookie = Json::decode($authCookie);
 		$authCookie = $authCookie[1];
 
 		// $jwtPayload = explode('.', $authCookie);
 		// $jwtPayload = $jwtPayload[1];
 		// $jwtPayload = base64_decode($jwtPayload);
-		// $jwtPayload = json_decode($jwtPayload, true);
+		// $jwtPayload = Json::decode($jwtPayload);
 
 		// if ($this->validateJwtPayload($jwtPayload) == false) {
 		// 	//is remember me checked? -> renew jwt

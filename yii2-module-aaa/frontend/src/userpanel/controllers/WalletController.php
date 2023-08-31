@@ -9,6 +9,7 @@ use Yii;
 use yii\web\NotFoundHttpException;
 use yii\web\BadRequestHttpException;
 use yii\web\UnprocessableEntityHttpException;
+use shopack\base\common\helpers\Json;
 use shopack\base\frontend\helpers\Html;
 use shopack\aaa\common\enums\enuOnlinePaymentStatus;
 use shopack\aaa\common\enums\enuVoucherType;
@@ -92,7 +93,7 @@ class WalletController extends BaseCrudController
     if ($onlinePaymentModel->voucher->vchType != enuVoucherType::Credit)
       throw new UnprocessableEntityHttpException('Incorrect Voucher type (not credit)');
 
-    $vchItems = json_decode($onlinePaymentModel->voucher->vchItems, true);
+    $vchItems = Json::decode($onlinePaymentModel->voucher->vchItems);
     if (empty($vchItems['inc-wallet-id']))
       throw new UnprocessableEntityHttpException('Incorrect Voucher (not for wallet)');
 

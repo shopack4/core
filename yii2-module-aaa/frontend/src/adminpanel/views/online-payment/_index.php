@@ -5,6 +5,7 @@
 
 /** @var yii\web\View $this */
 
+use shopack\base\common\helpers\Json;
 use shopack\base\frontend\widgets\grid\GridView;
 use shopack\base\frontend\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
@@ -39,7 +40,7 @@ use shopack\aaa\frontend\common\models\OnlinePaymentModel;
         if (empty($model->onpResult))
           return '';
 
-        return '<pre class="dir-ltr">' . json_encode($model->onpResult, JSON_UNESCAPED_UNICODE) . '</pre>';
+        return '<pre class="dir-ltr">' . Json::encode($model->onpResult) . '</pre>';
       },
     ],
   ];

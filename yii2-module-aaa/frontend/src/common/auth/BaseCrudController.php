@@ -104,7 +104,12 @@ abstract class BaseCrudController extends BaseController
   {
     $model = new $this->modelClass;
     $model->applyDefaultValuesFromColumnsInfo();
-    $this->actionCreate_afterCreateModel($model);
+
+    list ($viewName, $formName) = $this->actionCreate_afterCreateModel($model);
+    if (empty($viewName))
+      $viewName = 'create';
+    if (empty($formName))
+      $formName = '_form';
 
 		$formPosted = $model->load(Yii::$app->request->post());
 		$done = false;
@@ -130,7 +135,7 @@ abstract class BaseCrudController extends BaseController
         ]);
       }
 
-      return $this->renderAjaxModal('_form', [
+      return $this->renderAjaxModal($formName, [
         'model' => $model,
       ]);
     }
@@ -138,7 +143,7 @@ abstract class BaseCrudController extends BaseController
     if ($done)
       return $this->redirect(['view', 'id' => $model->primaryKeyValue()]);
 
-    return $this->render('create', [
+    return $this->render($viewName, [
       'model' => $model,
     ]);
   }

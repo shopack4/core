@@ -81,18 +81,24 @@ class RsaPublic extends BaseObject
 	 * @see http://cn2.php.net/manual/en/function.openssl-public-encrypt.php
 	 */
 	public function encrypt($data) {
-		$maxlength = $this->getMaxEncryptCharSize();
 		$output = '';
-		while ($data) {
-			$input = substr($data, 0, $maxlength);
-			$data = substr($data, $maxlength);
+		$key = $this->getKey();
+		$chunkSize = $this->getMaxEncryptCharSize();
+		$chunks = str_split($data, $chunkSize);
+
+		foreach ($chunks as $chunk) {
+		// while ($data) {
+		// 	$chunk = substr($data, 0, $chunkSize);
+		// 	$data = substr($data, $chunkSize);
 			$encrypted = '';
-			$result = openssl_public_encrypt($input, $encrypted, $this->getKey());
-			if ($result === false) {
+			$result = openssl_public_encrypt($chunk, $encrypted, $key);
+
+			if ($result === false)
 				return null;
-			}
-			$output.=$encrypted;
+
+				$output .= $encrypted;
 		}
+
 		return base64_encode($output);
 	}
 
@@ -103,19 +109,25 @@ class RsaPublic extends BaseObject
 	 * @see http://cn2.php.net/manual/en/function.openssl-public-decrypt.php
 	 */
 	public function decrypt($data) {
-		$maxlength = $this->getCertChars();
 		$output = '';
+		$key = $this->getKey();
 		$data = base64_decode($data);
-		while ($data) {
-			$input = substr($data, 0, $maxlength);
-			$data = substr($data, $maxlength);
+		$chunkSize = $this->getCertChars();
+		$chunks = str_split($data, $chunkSize);
+
+		foreach ($chunks as $chunk) {
+		// while ($data) {
+		// 	$chunk = substr($data, 0, $chunkSize);
+		// 	$data = substr($data, $chunkSize);
 			$decrypted = '';
-			$result = openssl_public_decrypt($input, $decrypted, $this->getKey());
-			if ($result === false) {
+			$result = openssl_public_decrypt($chunk, $decrypted, $key);
+
+			if ($result === false)
 				return null;
-			}
-			$output.=$decrypted;
+
+			$output .= $decrypted;
 		}
+
 		return $output;
 	}
 

@@ -5,9 +5,10 @@
 
 namespace shopack\aaa\backend\extensions\gateways\payment;
 
+use GuzzleHttp\Client;
 use Yii;
 use yii\web\UnprocessableEntityHttpException;
-use GuzzleHttp\Client;
+use shopack\base\common\helpers\Json;
 use shopack\aaa\common\enums\enuPaymentGatewayType;
 use shopack\aaa\backend\classes\BasePaymentGateway;
 use shopack\aaa\backend\classes\IPaymentGateway;
@@ -86,7 +87,7 @@ class AsanPardakhtPaymentGateway
 
 		return [
 			'status_code' => $response->getStatusCode(),
-			'content' => json_decode($response->getBody()->getContents(), true),
+			'content' => Json::decode($response->getBody()->getContents()),
 		];
 	}
 

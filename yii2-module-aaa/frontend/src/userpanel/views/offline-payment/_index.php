@@ -97,7 +97,9 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
       ],
       [
         'class' => \shopack\base\frontend\widgets\ActionColumn::class,
-        'header' => OfflinePaymentModel::canCreate() ? Html::createButton() : Yii::t('app', 'Actions'),
+        'header' => OfflinePaymentModel::canCreate() ? Html::createButton(null, null, [
+          'data-popup-size' => 'lg',
+        ]) : Yii::t('app', 'Actions'),
         'template' => '{update} {delete}{undelete}',
         'visibleButtons' => [
           'update' => function ($model, $key, $index) {

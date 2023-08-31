@@ -6,6 +6,7 @@
 namespace shopack\base\backend\rest;
 
 use Yii;
+use shopack\base\common\helpers\Json;
 use shopack\base\backend\rest\RestServerQuery;
 
 abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
@@ -47,7 +48,7 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 		if (empty($queryParams[$this->filterKey]))
 			return;
 
-		$query->where = json_decode($queryParams[$this->filterKey], true);
+		$query->where = Json::decode($queryParams[$this->filterKey]);
 
 		// $filters =
 		// foreach ($filters as $filter) {

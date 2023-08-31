@@ -8,6 +8,7 @@ namespace shopack\aaa\backend\extensions\gateways\sms;
 use Yii;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
+use shopack\base\common\helpers\Json;
 // use shopack\base\helpers\Url;
 // use shopack\base\common\helpers\Html;
 // use shopack\base\helpers\ArrayHelper;
@@ -111,7 +112,7 @@ class AsanakSmsGateway
 					|| empty($resultData['refID']))
 				return new SmsSendResult(false, $resultData['message'] ?? null);
 
-			// $result = json_decode($result, true);
+			// $result = Json::decode($result);
 
 			return new SmsSendResult(true, $result['status'] ?? null, $result['refID'] ?? null);
 

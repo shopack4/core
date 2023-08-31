@@ -9,7 +9,10 @@ use Yii;
 use yii\base\Model;
 use yii\web\UnauthorizedHttpException;
 use yii\web\UnprocessableEntityHttpException;
+use yii\db\Expression;
+use yii\web\NotFoundHttpException;
 use Ramsey\Uuid\Uuid;
+use shopack\base\common\helpers\Json;
 use shopack\base\common\validators\GroupRequiredValidator;
 use shopack\base\backend\helpers\AuthHelper;
 use shopack\aaa\common\enums\enuUserStatus;
@@ -18,8 +21,6 @@ use shopack\aaa\backend\models\VoucherModel;
 use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\backend\models\BasketForm;
-use yii\db\Expression;
-use yii\web\NotFoundHttpException;
 
 class BasketItemForm extends Model
 {
@@ -34,7 +35,7 @@ class BasketItemForm extends Model
 		else
 			$data = RsaPublic::model(Yii::$app->controller->module->servicesPublicKeys[$service])->decrypt($data);
 
-		$data = json_decode($data, true);
+		$data = Json::decode($data);
 
 		$userid    = $data['userid'];
 		$service   = $data['service'];
@@ -84,7 +85,7 @@ class BasketItemForm extends Model
       // 'service'   => $service,
       // 'slbkey'    => $slbkey,
       // 'slbid'     => $slbid,
-			// 'desc' 			=> $desc,
+      // 'desc'      => $desc,
       // 'qty'       => $qty,
       // 'unitprice' => $unitprice,
     ]);
@@ -130,9 +131,9 @@ class BasketItemForm extends Model
             //2.2: increase wallet amount
             $walletTableName = WalletModel::tableName();
             $qry =<<<SQL
-				UPDATE	{$walletTableName}
-					 SET	walRemainedAmount = walRemainedAmount + {$walletReturnAmount}
-				 WHERE	walID = {$walletModel->walID}
+  UPDATE {$walletTableName}
+     SET walRemainedAmount = walRemainedAmount + {$walletReturnAmount}
+   WHERE walID = {$walletModel->walID}
 SQL;
             $rowsCount = Yii::$app->db->createCommand($qry)->execute();
 

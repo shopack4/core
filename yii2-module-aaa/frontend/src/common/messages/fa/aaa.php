@@ -19,7 +19,7 @@ return [
 	'User Name' => 'نام کاربری',
 	'Password' => 'رمز ورود',
 	'Forgot Password' => 'فراموشی رمز',
-	'Has Password' => 'رمز ورود',
+	'Has Password' => 'رمز ورود دارد؟',
 
 	'Are you sure you want to logout?' => 'آیا می‌خواهید خارج شوید؟',
 

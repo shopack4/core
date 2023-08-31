@@ -5,6 +5,7 @@
 
 /** @var yii\web\View $this */
 
+use shopack\base\common\helpers\Json;
 use shopack\base\frontend\widgets\grid\GridView;
 use shopack\base\frontend\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
@@ -48,11 +49,11 @@ $this->params['breadcrumbs'][] = $this->title;
               $details = [];
 
               if (empty($model->msgInfo) == false) {
-                $details[] = '<pre class="dir-ltr">Info: ' . json_encode($model->msgInfo, JSON_UNESCAPED_UNICODE) . '</pre>';
+                $details[] = '<pre class="dir-ltr">Info: ' . Json::encode($model->msgInfo) . '</pre>';
               }
 
               if (empty($model->msgResult) == false) {
-                $details[] = '<pre class="dir-ltr">Result: ' . json_encode($model->msgResult, JSON_UNESCAPED_UNICODE) . '</pre>';
+                $details[] = '<pre class="dir-ltr">Result: ' . Json::encode($model->msgResult) . '</pre>';
               }
 
               return implode('', $details);

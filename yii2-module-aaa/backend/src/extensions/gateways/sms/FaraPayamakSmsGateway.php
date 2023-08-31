@@ -9,6 +9,7 @@ use Yii;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use Farapayamak\Rest_Client;
+use shopack\base\common\helpers\Json;
 use shopack\aaa\backend\classes\BaseSmsGateway;
 use shopack\aaa\backend\classes\SmsSendResult;
 use shopack\aaa\backend\classes\ISmsGateway;
@@ -86,7 +87,7 @@ class FaraPayamakSmsGateway
 			if ($result["RetStatus"] != 1)
 				return new SmsSendResult(false, $result["StrRetStatus"], $result["RetStatus"]);
 
-			// $result = json_decode($result, true);
+			// $result = Json::decode($result);
 
 			return new SmsSendResult(true, null, $result["Value"]);
 

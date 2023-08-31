@@ -8,6 +8,7 @@ namespace shopack\aaa\backend\extensions\gateways\sms;
 use Yii;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
+use shopack\base\common\helpers\Json;
 use shopack\aaa\backend\classes\BaseSmsGateway;
 use shopack\aaa\backend\classes\SmsSendResult;
 use shopack\aaa\backend\classes\ISmsGateway;
@@ -76,7 +77,7 @@ class ModirPayamakSmsGateway
 				'uname'		=> $this->extensionModel->gtwPluginParameters[self::PARAM_USERNAME],
 				'pass'		=> $this->extensionModel->gtwPluginParameters[self::PARAM_PASSWORD],
 				'from'		=> $from,
-				'to'			=> json_encode([$to]),
+				'to'			=> Json::encode([$to]),
 				'message'	=> urlencode(trim($message)),
 				'op'			=>'send',
 			];
@@ -100,7 +101,7 @@ class ModirPayamakSmsGateway
 			if ($resultStatus < 200 || $resultStatus >= 300 || is_array($resultData))
 				return new SmsSendResult(false, $resultData[1] ?? null, $resultData[0] ?? null);
 
-			// $result = json_decode($result, true);
+			// $result = Json::decode($result);
 
 			return new SmsSendResult(true, null, $resultData);
 

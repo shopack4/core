@@ -6,6 +6,7 @@
 namespace shopack\base\common\base;
 
 use Yii;
+use shopack\base\common\helpers\Json;
 
 trait ApplicationInstanceIDTrait
 {
@@ -14,13 +15,13 @@ trait ApplicationInstanceIDTrait
 		$path = Yii::getAlias('@app') . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'params-local.json';
 		$content = [];
 		if (file_exists($path))
-			$content = json_decode(file_get_contents($path), true);
+			$content = Json::decode(file_get_contents($path));
 
 		$instanceID = $content['instanceID'] ?? null;
 		if (empty($instanceID)) {
 			$instanceID = Yii::$app->id . '-' . uniqid(true);
 			$content['instanceID'] = $instanceID;
-			file_put_contents($path, json_encode($content, JSON_PRETTY_PRINT));
+			file_put_contents($path, Json::encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 		}
 
 		return $instanceID;

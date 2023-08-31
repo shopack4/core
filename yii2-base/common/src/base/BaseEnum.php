@@ -143,7 +143,7 @@ abstract class BaseEnum extends BaseObject
 
 		$result = [];
 		foreach ($list as $k => $v) {
-			if (is_numeric($k))
+			if ((empty($set) == false) && is_numeric($k))
 				$k = $v;
 
 			if (isset($lookupList[$k]))

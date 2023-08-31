@@ -6,11 +6,12 @@
 namespace shopack\base\frontend\widgets\datetime;
 
 use Yii;
-use yii\helpers\Json;
 use yii\base\InvalidParamException;
 use yii\widgets\InputWidget;
 use yii\web\JsExpression;
 use shopack\base\frontend\helpers\Html;
+use shopack\base\common\helpers\Json;
+use shopack\base\common\helpers\ArrayHelper;
 
 //TODO: use this
 //https://github.com/babakhani/pwt.datepicker/issues/80
@@ -64,8 +65,7 @@ class DatePicker extends InputWidget
 
 	public function init()
 	{
-		if ($this->withTime)
-		{
+		if ($this->withTime) {
 			$this->defaultClientOptions['format'] = 'YYYY/MM/DD h:mm a';
 			$this->defaultClientOptions['altFormat'] = 'YYYY/MM/DD hh:mm:s';
 			$this->defaultClientOptions['timePicker'] = [
@@ -126,26 +126,24 @@ class DatePicker extends InputWidget
 	\$('#{$containerID}').trigger('change');
 },
 JS;
-		if ($this->rangeSelector !== false)
-		{
+		if ($this->rangeSelector !== false) {
 			$dpOtherVarID = 'datepicker_' . strtolower(str_replace('-', '_', $this->rangeSelector['otherID'])) . '_date';
 			$isFrom = (!isset($this->rangeSelector['isFrom']) || $this->rangeSelector['isFrom']);
-			if ($isFrom)
-			{
+			if ($isFrom) {
 				$js = "var {$dpVarID}, {$dpOtherVarID};\n";
 				$dt = 'minDate';
 				//focus TO datepicker when FROM selected
 				$toID = strtolower($this->rangeSelector['otherID']) . '-date';
 				$js2 = "\$('#{$toID}').focus();";
-			}
-			else
-			{
+			} else {
 				$dt = 'maxDate';
 				$js2 = "";
 			}
 
-			if (isset($this->clientOptions['defaultDate']) && ($this->clientOptions['defaultDate'] !== null) && !empty($this->clientOptions['defaultDate']))
-			{
+			if (isset($this->clientOptions['defaultDate'])
+				&& ($this->clientOptions['defaultDate'] !== null)
+				&& !empty($this->clientOptions['defaultDate'])
+			) {
 				$d = strtotime($this->clientOptions['defaultDate']);
 				$view->registerJs("{$dpOtherVarID}.options = {{$dt}: {$d}000};");
 			}
@@ -205,32 +203,35 @@ if ((v == null) || (v == 'undefined') || (v == '')) {
 JS;
 		$view->registerJs($js, \yii\web\View::POS_END);
 
-		if ($this->allowClear)
-		{
-			if (isset($this->field->addon['append']))
-			{
+		if ($this->allowClear) {
+			if (isset($this->field->addon['append'])) {
 				if (!ArrayHelper::isIndexed($this->field->addon['append']))
 					$this->field->addon['append'] = [$this->field->addon['append']];
-			}
-			else
+			} else
 				$this->field->addon['append'] = [];
-			$this->field->addon['append'][] = [
+
+			array_unshift($this->field->addon['append'], [
 				'asButton' => true,
 				'content' =>
-					Html::button('x', [
-						'id' => "btn-{$dpVarID}-clear",
-						'class' => 'btn   btn-default',
-						'onclick' => "clearDatepicker();",
-						'data' => [
-							'hdn-id' => $this->options['id'],
-							'cntr-id' => $containerID,
-							'datepicker-id' => $dpVarID,
-						],
-					]),
+					Html::tag('span',
+						Html::button('x', [
+							'id' => "btn-{$dpVarID}-clear",
+							'class' => 'btn btn-sm',
+							'onclick' => "clearDatepicker();",
+							'data' => [
+								'hdn-id' => $this->options['id'],
+								'cntr-id' => $containerID,
+								'datepicker-id' => $dpVarID,
+							],
+						]),
+						[
+							'class' => 'input-group-text',
+							'style' => 'padding: 0',
+						])
 				// 'options' => [
 					// 'class' => 'btn   btn-default',
 				// ],
-			];
+			]);
 
 			$js =<<<JS
 function clearDatepicker(e)
@@ -263,24 +264,17 @@ JS;
 
 		// get formatted date value
 		if ($this->hasModel())
-		{
 			$value = Html::getAttributeValue($this->model, $this->attribute);
-		}
 		else
-		{
 			$value = $this->value;
-		}
-		if (($value !== null) && !empty($value))
-		{
+
+		if (($value !== null) && !empty($value)) {
 			// format value according to dateFormat
-			try
-			{
+			try {
 				//BUG: converted to persian digit
 				//$value = Yii::$app->formatter->asDate($value, $this->dateFormat);
-			}
-			catch(InvalidParamException $e)
-			{
-			}
+			} catch(InvalidParamException $e) {}
+
 			$this->clientOptions['defaultDate'] = $value;
 		}
 		$this->clientOptions['initialValue'] = (($value !== null) && !empty($value));
@@ -289,18 +283,14 @@ JS;
 		$options = $this->clientOptions;
 		//$options['value'] = $value;
 
-		if ($this->inline === false)
-		{
+		if ($this->inline === false) {
 			//render a text input
-			if ($this->hasModel())
-			{
+			if ($this->hasModel()) {
 				$opt = [
 					'id' => $this->options['id'],
 				];
 				$contents[] = Html::activeHiddenInput($this->model, $this->attribute, $opt);
-			}
-			else
-			{
+			} else {
 				$this->options['id'] = $this->name;
 				$opt = [
 					'id' => $this->options['id'],
@@ -310,22 +300,16 @@ JS;
 
 			$ii = $this->options['id'];
 			$options['id'] = $this->options['id'] = $this->options['id'] . '-date';
-			$contents[] = Html::textInput($this->options['id'], $value, $options);
+			array_unshift($contents, Html::textInput($this->options['id'], $value, $options));
 			$options['id'] = $this->options['id'] = $ii;
-		}
-		else
-		{
+		} else {
+			$contents[] = Html::tag('div', null, $this->containerOptions);
+
 			// render an inline date picker with hidden input
 			if ($this->hasModel())
-			{
 				$contents[] = Html::activeHiddenInput($this->model, $this->attribute, $options);
-			}
 			else
-			{
 				$contents[] = Html::hiddenInput($this->name, $value, $options);
-			}
-
-			$contents[] = Html::tag('div', null, $this->containerOptions);
 		}
 
 		return implode("\n", $contents);

@@ -3,6 +3,7 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
+use shopack\base\common\helpers\Json;
 use shopack\base\common\helpers\Url;
 use shopack\base\frontend\widgets\Select2;
 use shopack\base\frontend\widgets\DepDrop;
@@ -66,12 +67,12 @@ use yii\web\JsExpression;
 		$getWalletParamsSchemaUrl = Url::to(['plugin-params-schema']) . '?key=';
 		$strGtwPluginParameters = '{}';
 		if (($model->walPluginName !== null) && ($model->walPluginParameters !== null))
-			$strGtwPluginParameters = json_encode($model->walPluginParameters);
+			$strGtwPluginParameters = Json::encode($model->walPluginParameters);
 
 		$getWalletRestrictionsSchemaUrl = Url::to(['plugin-restrictions-schema']) . '?key=';
 		$strGtwRestrictions = '{}';
 		if (($model->walPluginName !== null) && ($model->walRestrictions !== null))
-			$strGtwRestrictions = json_encode($model->walRestrictions);
+			$strGtwRestrictions = Json::encode($model->walRestrictions);
 
 		$builder->fields([
 			'walPluginName',

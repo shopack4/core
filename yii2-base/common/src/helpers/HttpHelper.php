@@ -6,6 +6,7 @@
 namespace shopack\base\common\helpers;
 
 use Yii;
+use shopack\base\common\helpers\Json;
 use shopack\base\common\classes\Curl;
 
 class HttpHelper
@@ -56,8 +57,11 @@ class HttpHelper
     */
     if ($resultStatus < 200 || $resultStatus >= 300) {
       if (isset($response['message'])) {
-        $json = json_decode($response['message'], true);
-        if ($json === null)
+        try {
+          $json = Json::decode($response['message']);
+        } catch (\Throwable $th) { }
+
+        if (empty($json))
           $resultData = [
             'message' => $response['message']
           ];
@@ -158,7 +162,7 @@ class HttpHelper
   // {
   //   $fnFormat = function($message) {
   //     if (is_array($message) == false)
-  //       $message = json_decode($message, true);
+  //       $message = Json::decode($message);
 
   //     if (is_array($message)) {
   //       $messageText = array_shift($message);

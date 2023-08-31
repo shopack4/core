@@ -17,6 +17,7 @@ use yii\base\InvalidParamException;
 use yii\base\InvalidArgumentException;
 use yii\web\HttpException;
 use yii\web\ServerErrorHttpException;
+use shopack\base\common\helpers\Json;
 use shopack\base\frontend\rest\RestClientQueryInterface;
 // use shopack\base\frontend\rest\Model;
 use shopack\base\frontend\rest\RestClientActiveRecord;
@@ -535,6 +536,12 @@ class RestClientQuery
   /**
    * @inheritdoc
    */
+  public function noLimit()
+  {
+    $this->_limit = 0;
+    return $this;
+  }
+
   public function limit($limit)
   {
     if (empty($limit))
@@ -877,7 +884,7 @@ class RestClientQuery
     if (empty($this->where))
       return;
 
-    $query[$this->filterKey] = json_encode($this->where);
+    $query[$this->filterKey] = Json::encode($this->where);
   }
 
   /**

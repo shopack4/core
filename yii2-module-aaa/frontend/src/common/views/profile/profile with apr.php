@@ -3,6 +3,7 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
+use shopack\base\common\helpers\Json;
 use shopack\base\frontend\widgets\tabs\Tabs;
 use shopack\base\frontend\helpers\Html;
 use shopack\base\frontend\widgets\DetailView;
@@ -276,7 +277,7 @@ $this->params['breadcrumbs'][] = $this->title;
 						[
 							'attribute' => 'usrPrivs',
 							'visible' => $model->canViewColumn('usrPrivs'),
-							'value' => json_encode($model->usrPrivs),
+							'value' => Json::encode($model->usrPrivs),
 						],
 					],
 				]);

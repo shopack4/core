@@ -6,6 +6,7 @@
 namespace shopack\aaa\frontend\common\models;
 
 use Yii;
+use shopack\base\common\helpers\Json;
 use shopack\base\frontend\rest\RestClientActiveRecord;
 use shopack\aaa\common\enums\enuUserStatus;
 
@@ -116,7 +117,7 @@ class UserModel extends RestClientActiveRecord
     // if (count($parts) != 3)
     //   return null;
     // $jwtPayload = base64_decode($parts[1]);
-    // $jwtPayload = json_decode($jwtPayload, true);
+    // $jwtPayload = Json::decode($jwtPayload);
 
     $parsedToken = Yii::$app->jwt->parser->parse($token);
     $jwtPayload = $parsedToken->claims()->all();

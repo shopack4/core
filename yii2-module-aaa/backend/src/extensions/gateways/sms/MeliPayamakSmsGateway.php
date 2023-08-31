@@ -7,6 +7,7 @@ namespace shopack\aaa\backend\extensions\gateways\sms;
 
 use Yii;
 use Melipayamak\MelipayamakApi;
+use shopack\base\common\helpers\Json;
 use shopack\aaa\backend\classes\BaseSmsGateway;
 use shopack\aaa\backend\classes\SmsSendResult;
 use shopack\aaa\backend\classes\ISmsGateway;
@@ -93,7 +94,7 @@ class MeliPayamakSmsGateway
 				//"{"Message":"An unexpected error occured"}"
 			}
 
-			$response = json_decode($response, true);
+			$response = Json::decode($response);
 			// echo $response->Value; //RecId or Error Number
 
 			$RetStatus	= $response["RetStatus"] ?? 0;

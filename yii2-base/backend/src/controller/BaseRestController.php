@@ -28,9 +28,18 @@ class BaseRestController extends BaseController
 
 	public function queryAllToResponse($query)
 	{
+		$noLimit = false;
+		if (array_key_exists('per-page', $_GET)) {
+			if ($_GET['per-page'] == 0)
+				$noLimit = true;
+		}
+
 		$dataProvider = new ActiveDataProvider([
 			'query' => $query,
 		]);
+
+		if ($noLimit)
+			$dataProvider->setPagination(false);
 
 		$totalCount = $dataProvider->getTotalCount();
 		Yii::$app->response->headers->add('X-Pagination-Total-Count', $totalCount);

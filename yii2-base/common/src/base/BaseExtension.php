@@ -5,6 +5,8 @@
 
 namespace shopack\base\common\base;
 
+use shopack\base\common\helpers\Json;
+
 class BaseExtension extends \yii\base\Component
 {
 	public $extensionModel = null;
@@ -154,8 +156,8 @@ class BaseExtension extends \yii\base\Component
 
 		$ret = [];
 		$hash_stack = [];
-		// $ret = json_encode(ArrayHelper::map($values, "tag", "value"));
-		// $ret = json_decode($ret, false);
+		// $ret = Json::encode(ArrayHelper::map($values, "tag", "value"));
+		// $ret = Json::decode($ret, false);
 // die(print_r($values, true));
 		foreach ($values as $key => $val)
 		{

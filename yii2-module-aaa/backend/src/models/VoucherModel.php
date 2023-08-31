@@ -8,6 +8,7 @@ namespace shopack\aaa\backend\models;
 use Yii;
 use yii\db\Expression;
 use yii\web\UnprocessableEntityHttpException;
+use shopack\base\common\helpers\Json;
 use shopack\aaa\backend\classes\AAAActiveRecord;
 use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\common\enums\enuVoucherStatus;
@@ -100,7 +101,7 @@ class VoucherModel extends AAAActiveRecord
 		// $qty       = $voucherItem['qty'];
 		// $unitprice = $voucherItem['unitprice'];
 
-		$data = json_encode($voucherItem);
+		$data = Json::encode($voucherItem);
 
 		if (empty(Yii::$app->controller->module->servicesPublicKeys[$service]))
 			$data = base64_encode($data);

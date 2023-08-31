@@ -56,7 +56,7 @@ use shopack\aaa\frontend\common\models\GeoCountryModel;
 				'type' => FormBuilder::FIELD_WIDGET,
 				'widget' => Select2::class,
 				'widgetOptions' => [
-					'data' => ArrayHelper::map(GeoCountryModel::find()->asArray()->all(), 'cntrID', 'cntrName'),
+					'data' => ArrayHelper::map(GeoCountryModel::find()->asArray()->noLimit()->all(), 'cntrID', 'cntrName'),
 					'options' => [
 						'placeholder' => Yii::t('app', '-- Choose --'),
 						'dir' => 'rtl',

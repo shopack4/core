@@ -9,6 +9,7 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\i18n\PhpMessageSource;
 use yii\validators\Validator;
+use shopack\base\common\helpers\Json;
 
 class GroupRequiredValidator extends Validator
 {
@@ -84,7 +85,7 @@ class GroupRequiredValidator extends Validator
 	{
 		$attributes = is_array($this->in) ? $this->in : preg_split('/\s*,\s*/', $this->in, -1, PREG_SPLIT_NO_EMPTY);
 		// $attributes = array_map('strtolower', $attributes); // yii lowercases attributes
-		$attributesJson = json_encode(array_map('strtolower', $attributes));
+		$attributesJson = Json::encode(array_map('strtolower', $attributes));
 		$attributesLabels = [];
 		foreach ($attributes as $attr) {
 			$attributesLabels[] = '"' . $model->getAttributeLabel($attr) . '"';

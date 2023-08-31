@@ -5,6 +5,7 @@
 
 /** @var yii\web\View $this */
 
+use shopack\base\common\helpers\Json;
 use shopack\base\frontend\widgets\PopoverX;
 use shopack\base\frontend\widgets\DetailView;
 use shopack\base\frontend\helpers\Html;
@@ -113,7 +114,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                       'attribute' => 'usrPrivs',
                       'visible' => $model->canViewColumn('usrPrivs'),
-                      'value' => json_encode($model->usrPrivs),
+                      'value' => Json::encode($model->usrPrivs),
                     ],
                     [
                       'attribute' => 'hasPassword',

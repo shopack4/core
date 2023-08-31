@@ -7,6 +7,7 @@ namespace shopack\base\common\classes;
 
 use Yii;
 use yii\web\ServerErrorHttpException;
+use shopack\base\common\helpers\Json;
 use shopack\base\common\helpers\Url;
 
 class Curl {
@@ -230,7 +231,7 @@ class Curl {
       //convert $response string to json array
       if (empty($response) == false) {
         $org = $response;
-        $response = json_decode($response, true);
+        $response = Json::decode($response);
         if ($response === null) {
           $response = [
             'message' => $org,

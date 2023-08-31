@@ -32,38 +32,52 @@ class Formatter extends \yii\i18n\Formatter
 		return $this->createNumberFormatter(NumberFormatter::CURRENCY);
 	}
 
-	private static $num_map = [
-		// '0' => '۰',
-		// '1' => '۱',
-		// '2' => '۲',
-		// '3' => '۳',
-		// '4' => '۴',
-		// '5' => '۵',
-		// '6' => '۶',
-		// '7' => '۷',
-		// '8' => '۸',
-		// '9' => '۹',
+
+	private static $en2fa_map = [
 		',' => '٬'
 	]
 	// '.' => '٫',
 	// '-' => '',
 	;
+
+	private static $num_map = [
+		'0' => '۰',
+		'1' => '۱',
+		'2' => '۲',
+		'3' => '۳',
+		'4' => '۴',
+		'5' => '۵',
+		'6' => '۶',
+		'7' => '۷',
+		'8' => '۸',
+		'9' => '۹',
+		',' => '٬'
+	]
+	// '.' => '٫',
+	// '-' => '',
+	;
+
 	public function asPersian($value, $nullValue = null)
 	{
 		if ($value === null)
 			return ($nullValue === null ? $this->nullDisplay : $nullValue);
 
 		$_out = '';
-		/*
-		 * foreach ($value as $c)
-		 * {
-		 * if (isset(self::$num_map[$c]))
-		 * //if (array_key_exists($c, self::num_map))
-		 * $_out = self::$num_map[$c];
-		 * else
-		 * $_out = $c;
-		 * }
-		 */
+
+		$keys = "/[" . implode("", array_keys(self::$en2fa_map)) . "]/";
+		$_out = preg_replace_callback($keys, function ($matches) {
+			return self::$en2fa_map[$matches[0]];
+		}, $value);
+
+		return $_out;
+	}
+
+	public function asPersianNum($value, $nullValue = null)
+	{
+		if ($value === null)
+			return ($nullValue === null ? $this->nullDisplay : $nullValue);
+
+		$_out = '';
 
 		$keys = "/[" . implode("", array_keys(self::$num_map)) . "]/";
 		$_out = preg_replace_callback($keys, function ($matches) {

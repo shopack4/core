@@ -4,6 +4,7 @@
  */
 
 use yii\web\JsExpression;
+use shopack\base\common\helpers\Json;
 use shopack\base\common\helpers\Url;
 use shopack\base\frontend\widgets\Select2;
 use shopack\base\frontend\widgets\DepDrop;
@@ -66,12 +67,12 @@ use shopack\aaa\common\enums\enuGatewayStatus;
 		$getGatewayParamsSchemaUrl = Url::to(['plugin-params-schema']) . '?key=';
 		$strGtwPluginParameters = '{}';
 		if (($model->gtwPluginName !== null) && ($model->gtwPluginParameters !== null))
-			$strGtwPluginParameters = json_encode($model->gtwPluginParameters);
+			$strGtwPluginParameters = Json::encode($model->gtwPluginParameters);
 
 		$getGatewayRestrictionsSchemaUrl = Url::to(['plugin-restrictions-schema']) . '?key=';
 		$strGtwRestrictions = '{}';
 		if (($model->gtwPluginName !== null) && ($model->gtwRestrictions !== null))
-			$strGtwRestrictions = json_encode($model->gtwRestrictions);
+			$strGtwRestrictions = Json::encode($model->gtwRestrictions);
 
 		$builder->fields([
 			'gtwPluginName',

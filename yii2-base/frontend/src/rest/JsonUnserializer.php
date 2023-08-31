@@ -5,7 +5,7 @@
 
 namespace shopack\base\frontend\rest;
 
-use yii\helpers\Json;
+use shopack\base\common\helpers\Json;
 use shopack\base\frontend\rest\Unserializer;
 
 /**

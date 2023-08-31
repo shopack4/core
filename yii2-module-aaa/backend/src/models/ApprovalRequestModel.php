@@ -7,10 +7,11 @@ namespace shopack\aaa\backend\models;
 
 use Yii;
 use yii\db\Expression;
-use shopack\base\common\helpers\ArrayHelper;
 use yii\web\UnauthorizedHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use yii\web\HttpException;
+use shopack\base\common\helpers\Json;
+use shopack\base\common\helpers\ArrayHelper;
 use shopack\aaa\backend\classes\AAAActiveRecord;
 use shopack\base\backend\helpers\AuthHelper;
 use shopack\base\common\helpers\GeneralHelper;
@@ -48,7 +49,7 @@ class ApprovalRequestModel extends AAAActiveRecord
     if (empty($errorParams))
       $message = $errorInfo['message'];
     else
-      $message = json_encode(array_merge([$errorInfo['message']], $errorParams));
+      $message = Json::encode(array_merge([$errorInfo['message']], $errorParams));
 
     throw new HttpException(
       $errorInfo['status'],
