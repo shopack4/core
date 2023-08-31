@@ -101,13 +101,13 @@ class ActionColumn extends \kartik\grid\ActionColumn
 					if ($name === 'delete') {
 							$item = !empty($this->grid->itemLabelSingle) ? $this->grid->itemLabelSingle : Yii::t('kvgrid', 'item');
 							$options['data-method'] = 'post';
-							$options['data-confirm'] = Yii::t('kvgrid', 'Are you sure to delete this {item}?', ['item' => $item]);
+							$options['data-confirm'] = Yii::t('app', 'Are you sure you want to delete this {item}?', ['item' => $item]);
 					}
 					// kz >>
 					if ($name === 'undelete') {
 						$item = !empty($this->grid->itemLabelSingle) ? $this->grid->itemLabelSingle : Yii::t('kvgrid', 'item');
 						$options['data-method'] = 'post';
-						$options['data-confirm'] = Yii::t('app', 'Are you sure to un-delete this {item}?', ['item' => $item]);
+						$options['data-confirm'] = Yii::t('app', 'Are you sure you want to un-delete this {item}?', ['item' => $item]);
 					}
 					// kz <<
 					$options = array_replace_recursive($options, $this->buttonOptions, $this->$opts);

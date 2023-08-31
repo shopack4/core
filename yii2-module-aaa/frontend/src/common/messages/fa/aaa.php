@@ -429,10 +429,6 @@ return [
 	'Distance' => 'فاصله',
 
 	'My Location ({locname})' => 'موقعیت من ({locname})',
-	'Are you sure you want to delete this item?' => 'آیا از حذف این آیتم اطمینان دارید؟',
-	'Are you sure you want to delete this item and all subitems?' => 'آیا از حذف این آیتم و تمام زیر مجموعه‌ی آن اطمینان دارید؟',
-	"Are you sure you want to delete this item?\n{name}" => "آیا از حذف این آیتم اطمینان دارید؟\n{name}",
-	"Are you sure you want to delete this item and all subitems?\n{name}" => "آیا از حذف این آیتم و تمام زیر مجموعه‌ی آن اطمینان دارید؟\n{name}",
 
 	'Are you sure you want to approve email of this user?' => 'آیا می‌خواهید این ایمیل تایید شود؟',
 	'Are you sure you want to send approve email to this user?' => 'آیا می‌خواهید ایمیل تایید به کاربر ارسال شود؟',

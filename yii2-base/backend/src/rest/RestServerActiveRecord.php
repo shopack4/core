@@ -61,7 +61,7 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 		unset ($queryParams[$this->filterKey]);
 	}
 
-	private function _fillQueryOrderByPart(&$queryParams, &$query)
+	public function _fillQueryOrderByPart(&$queryParams, &$query)
 	{
 		if (empty($queryParams[$this->orderByKey]))
 			return;

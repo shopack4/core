@@ -187,4 +187,34 @@ class ArrayHelper extends \yii\helpers\ArrayHelper
 		return implode($seperator, $out);
 	}
 
+	public static function filterNullOrEmpty($arr, $removeZero = false)
+	{
+		if (empty($arr)) {
+			return null;
+		}
+
+		foreach ($arr as $k => $v) {
+			if (is_array($v)) {
+				$v = self::filterNullOrEmpty($v, $removeZero);
+			}
+
+			if (($v === '')
+					|| ($removeZero && (($v === 0) || ($v === '0')))
+					|| (is_array($v) && (count($v) == 0))
+			) {
+				$v = null;
+			}
+
+			if ($v === null)
+				unset($arr[$k]);
+			else
+				$arr[$k] = $v;
+		}
+
+		if (count($arr) == 0)
+			return null;
+
+		return $arr;
+	}
+
 }

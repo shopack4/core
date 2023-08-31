@@ -82,18 +82,28 @@ abstract class BaseCrudController extends BaseController
     return $this->render('index', $viewParams);
   }
 
+  public function actionView_afterFindModel($model)
+  {
+  }
+
   public function actionView($id)
   {
 		$model = $this->findModel($id);
+
+    list ($viewName, $formName) = $this->actionView_afterFindModel($model);
+    if (empty($viewName))
+      $viewName = 'view';
+    if (empty($formName))
+      $formName = '_view';
 
     $params = [
       'model' => $model,
 		];
 
 		if (Yii::$app->request->isAjax)
-			return $this->renderJson($this->renderAjax('_view', $params));
+			return $this->renderJson($this->renderAjax($formName, $params));
 
-    return $this->render('view', $params);
+    return $this->render($viewName, $params);
   }
 
   public function actionCreate_afterCreateModel(&$model)
@@ -148,14 +158,19 @@ abstract class BaseCrudController extends BaseController
     ]);
   }
 
-  public function actionUpdate_afterCreateModel(&$model)
+  public function actionUpdate_afterFindModel(&$model)
   {
   }
 
   public function actionUpdate($id)
   {
 		$model = $this->findModel($id);
-    $this->actionUpdate_afterCreateModel($model);
+
+    list ($viewName, $formName) = $this->actionUpdate_afterFindModel($model);
+    if (empty($viewName))
+      $viewName = 'update';
+    if (empty($formName))
+      $formName = '_form';
 
     if ($model->isSoftDeleted())
       throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
@@ -184,7 +199,7 @@ abstract class BaseCrudController extends BaseController
         ]);
       }
 
-      return $this->renderAjaxModal('_form', [
+      return $this->renderAjaxModal($formName, [
         'model' => $model,
       ]);
     }
@@ -192,7 +207,7 @@ abstract class BaseCrudController extends BaseController
     if ($done)
       return $this->redirect(['view', 'id' => $model->primaryKeyValue()]);
 
-    return $this->render('update', [
+    return $this->render($viewName, [
       'model' => $model
     ]);
   }

@@ -28,6 +28,8 @@ class BaseRestController extends BaseController
 
 	public function queryAllToResponse($query)
 	{
+		$query->asArray();
+
 		$noLimit = false;
 		if (array_key_exists('per-page', $_GET)) {
 			if ($_GET['per-page'] == 0)
