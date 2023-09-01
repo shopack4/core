@@ -440,6 +440,17 @@ trait UserModelTrait
 		return $this->hasOne($className, ['ctvID' => 'usrCityOrVillageID']);
 	}
 
+  public function getBirthCityOrVillage() {
+		$className = get_called_class();
+
+		if (str_contains($className, '\\backend\\'))
+			$className = '\shopack\aaa\backend\models\GeoCityOrVillageModel';
+		else
+			$className = '\shopack\aaa\frontend\common\models\GeoCityOrVillageModel';
+
+		return $this->hasOne($className, ['ctvID' => 'usrBirthCityID']);
+	}
+
   public function getTown() {
 		$className = get_called_class();
 

@@ -66,6 +66,7 @@ class UserModel extends RestClientActiveRecord
       'usrPasswordCreatedAt'  => Yii::t('aaa', 'Password Created At'),
       'usrMustChangePassword' => Yii::t('aaa', 'Must Change Password'),
 			'usrBirthDate'          => Yii::t('aaa', 'Birth Date'),
+      'usrBirthCityID'        => Yii::t('aaa', 'Birth Location'),
 			'usrCountryID'          => Yii::t('aaa', 'Country'),
 			'usrStateID'            => Yii::t('aaa', 'State'),
 			'usrCityOrVillageID'    => Yii::t('aaa', 'City Or Village'),
@@ -73,6 +74,7 @@ class UserModel extends RestClientActiveRecord
 			'usrHomeAddress'        => Yii::t('aaa', 'Home Address'),
 			'usrZipCode'            => Yii::t('aaa', 'Zip Code'),
 			'usrImage'              => Yii::t('aaa', 'Image'),
+			'usrImageFileID'        => Yii::t('aaa', 'Image'),
       'usrStatus'             => Yii::t('app', 'Status'),
       'usrCreatedAt'          => Yii::t('app', 'Created At'),
       'usrCreatedBy'          => Yii::t('app', 'Created By'),
@@ -84,7 +86,7 @@ class UserModel extends RestClientActiveRecord
       'usrRemovedBy'          => Yii::t('app', 'Removed By'),
       'usrRemovedBy_User'     => Yii::t('app', 'Removed By'),
 
-      'hasPassword'           => Yii::t('aaa', 'Password'),
+      'hasPassword'           => Yii::t('aaa', 'Has Password'),
     ];
 	}
 

@@ -31,7 +31,7 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 		$queryParams = Yii::$app->request->getQueryParams();
 
 		//-------------
-		$this->_fillQueryOrderByPart($queryParams, $query);
+		$this->fillQueryOrderByPart($queryParams, $query);
 
 		//-------------
 		$this->_fillQueryFilterPart($queryParams, $query);
@@ -61,7 +61,7 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 		unset ($queryParams[$this->filterKey]);
 	}
 
-	public function _fillQueryOrderByPart(&$queryParams, &$query)
+	public function fillQueryOrderByPart(&$queryParams, &$query)
 	{
 		if (empty($queryParams[$this->orderByKey]))
 			return;

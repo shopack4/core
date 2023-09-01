@@ -51,8 +51,10 @@ class BaseRestController extends BaseController
 			return null;
 		}
 
+		$allModels = $dataProvider->getModels();
+
 		return [
-			'data' => $dataProvider->getModels(),
+			'data' => $allModels,
 			'pagination' => [
 				'totalCount' => $totalCount,
 			],
