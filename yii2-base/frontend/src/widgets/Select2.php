@@ -14,9 +14,12 @@ class Select2 extends \kartik\widgets\Select2
 	{
 		$isModal = Yii::$app->request->isAjax;
 		if ($isModal) {
-			$ajax_popupSize = 'sm';
 			if (isset($_GET['ajax_popupSize']))
 				$ajax_popupSize = $_GET['ajax_popupSize'];
+			else if (isset($_POST['ajax_popupSize']))
+				$ajax_popupSize = $_POST['ajax_popupSize'];
+			else
+				$ajax_popupSize = 'sm';
 
 			$this->pluginOptions = array_replace_recursive($this->pluginOptions, [
 				'dropdownParent' => new JsExpression("$('#modal-{$ajax_popupSize}')"),

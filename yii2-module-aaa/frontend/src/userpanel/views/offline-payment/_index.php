@@ -101,6 +101,10 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
           'data-popup-size' => 'lg',
         ]) : Yii::t('app', 'Actions'),
         'template' => '{update} {delete}{undelete}',
+        'updateOptions' => [
+          'modal' => true,
+          'data-popup-size' => 'lg',
+        ],
         'visibleButtons' => [
           'update' => function ($model, $key, $index) {
             return $model->canUpdate();

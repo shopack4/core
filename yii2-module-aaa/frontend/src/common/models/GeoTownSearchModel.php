@@ -6,6 +6,7 @@
 namespace shopack\aaa\frontend\common\models;
 
 use yii\base\Model;
+use yii\web\ServerErrorHttpException;
 use shopack\base\frontend\rest\RestClientDataProvider;
 use shopack\aaa\frontend\common\models\GeoTownModel;
 
@@ -52,6 +53,7 @@ class GeoTownSearchModel extends GeoTownModel
 
 		if (!$this->validate()) {
 			// uncomment the following line if you do not want to return any records when validation fails
+			throw new ServerErrorHttpException('Unknown error sh01');
 			// $query->where('0=1');
 			return $dataProvider;
 		}

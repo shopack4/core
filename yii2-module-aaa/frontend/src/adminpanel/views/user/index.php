@@ -116,8 +116,14 @@ $this->params['breadcrumbs'][] = $this->title;
           ],
           [
             'class' => \shopack\base\frontend\widgets\ActionColumn::class,
-            'header' => UserModel::canCreate() ? Html::createButton() : Yii::t('app', 'Actions'),
+            'header' => UserModel::canCreate() ? Html::createButton(null, null, [
+              'data-popup-size' => 'lg',
+            ]) : Yii::t('app', 'Actions'),
             'template' => '{update} {delete}{undelete}',
+            'updateOptions' => [
+              'modal' => true,
+              'data-popup-size' => 'lg',
+            ],
             'visibleButtons' => [
               'update' => function ($model, $key, $index) {
                 return $model->canUpdate();

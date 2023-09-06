@@ -24,8 +24,7 @@ class DetailView extends BaseDetailView
 
 	public function init()
 	{
-		if ($this->cols > 1)
-		{
+		if ($this->cols > 1) {
 			$section = [];
 			$attrs = [];
 			$lastcol = [];

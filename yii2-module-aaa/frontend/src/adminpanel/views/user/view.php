@@ -13,6 +13,9 @@ use shopack\base\frontend\widgets\tabs\Tabs;
 use shopack\aaa\frontend\common\models\UserModel;
 use shopack\aaa\common\enums\enuUserStatus;
 use shopack\aaa\common\enums\enuGender;
+use shopack\aaa\common\enums\enuUserEducationLevel;
+use shopack\aaa\common\enums\enuUserMaritalStatus;
+use shopack\aaa\common\enums\enuUserMilitaryStatus;
 
 $this->title = Yii::t('aaa', 'User') . ': ' . $model->displayName();
 $this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
@@ -24,7 +27,11 @@ $this->params['breadcrumbs'][] = $this->title;
   <div class='card border-default'>
 		<div class='card-header bg-default'>
 			<div class="float-end">
-        <?= UserModel::canCreate() ? Html::createButton() : '' ?>
+        <?= UserModel::canCreate() ? Html::createButton(null, null, [
+          'data' => [
+            'popup-size' => 'lg',
+          ],
+        ]) : '' ?>
         <?php
           PopoverX::begin([
             // 'header' => 'Hello world',
@@ -88,6 +95,48 @@ $this->params['breadcrumbs'][] = $this->title;
                       'value' => enuUserStatus::getLabel($model->usrStatus),
                     ],
                     [
+                      'attribute' => 'usrGender',
+                      'value' => enuGender::getLabel($model->usrGender),
+                    ],
+                    [
+                      'group' => 'true',
+                    ],
+                    'usrFirstName',
+                    'usrFirstName_en',
+                    'usrLastName',
+                    'usrLastName_en',
+                    'usrFatherName',
+                    'usrFatherName_en',
+                    [
+                      'attribute' => 'usrBirthCityID',
+                      'value' => $model->birthCityOrVillage->ctvName ?? null,
+                    ],
+                    'usrBirthDate:jalali',
+                    'usrSSID',
+
+                    [
+                      'attribute' => 'usrEducationLevel',
+                      'value' => enuUserEducationLevel::getLabel($model->usrEducationLevel),
+                    ],
+                    'usrFieldOfStudy',
+                    'usrYearOfGraduation',
+                    'usrEducationPlace',
+                    [
+                      'attribute' => 'usrMaritalStatus',
+                      'value' => enuUserMaritalStatus::getLabel($model->usrMaritalStatus),
+                    ],
+                    [
+                      'attribute' => 'usrMilitaryStatus',
+                      'value' => enuUserMilitaryStatus::getLabel($model->usrMilitaryStatus),
+                    ],
+
+                    [
+                      'group' => 'true',
+                      'label' => 'اطلاعات ورود و دسترسی',
+                      'isVertical' => false,
+                      'groupOptions' => ['class' => 'info-row'],
+                    ],
+                    [
                       'attribute' => 'usrEmail',
                       'valueColOptions' => ['class' => ['dir-ltr', 'text-start']],
                     ],
@@ -97,15 +146,11 @@ $this->params['breadcrumbs'][] = $this->title;
                       'format' => 'phone',
                     ],
                     'usrMobileApprovedAt:jalaliWithTime',
-                    'usrSSID',
                     [
-                      'attribute' => 'usrGender',
-                      'value' => enuGender::getLabel($model->usrGender),
+                      'attribute' => 'hasPassword',
+                      'format' => 'boolean',
                     ],
-                    'usrFirstName',
-                    'usrFirstName_en',
-                    'usrLastName',
-                    'usrLastName_en',
+                    'usrPasswordCreatedAt:jalaliWithTime',
                     [
                       'attribute' => 'usrRoleID',
                       'label' => 'جایگاه دسترسی',
@@ -116,13 +161,13 @@ $this->params['breadcrumbs'][] = $this->title;
                       'visible' => $model->canViewColumn('usrPrivs'),
                       'value' => Json::encode($model->usrPrivs),
                     ],
+
                     [
-                      'attribute' => 'hasPassword',
-                      'format' => 'boolean',
-                      // 'value' => $model->hasPassword ? Yii::t('app', 'Has') : Yii::t('app', 'Has not'),
+                      'group' => 'true',
+                      'label' => 'محل سکونت',
+                      'isVertical' => true,
+                      'groupOptions' => ['class' => 'info-row'],
                     ],
-                    'usrPasswordCreatedAt:jalaliWithTime',
-                    'usrBirthDate:jalali',
                     [
                       'attribute' => 'usrCountryID',
                       'value' => $model->country->cntrName ?? null,
@@ -140,6 +185,10 @@ $this->params['breadcrumbs'][] = $this->title;
                       'value' => $model->town->twnName ?? null,
                     ],
                     'usrZipCode',
+                    [
+                      'group' => 'true',
+                      // 'label' => 'محل سکونت',
+                    ],
                     'usrHomeAddress',
                   ],
                 ]);
@@ -152,7 +201,11 @@ $this->params['breadcrumbs'][] = $this->title;
                     $buttons = [];
 
                     if ($model->canUpdate()) {
-                      $buttons[] = Html::updateButton(null, ['id' => $model->usrID]);
+                      $buttons[] = Html::updateButton(null, ['id' => $model->usrID], [
+                        'data' => [
+                          'popup-size' => 'lg',
+                        ],
+                      ]);
                       $buttons[] = Html::updateButton('تعیین رمز', ['/aaa/user/password-reset', 'id' => $model->usrID], [
                         'btn' => 'warning',
                       ]);

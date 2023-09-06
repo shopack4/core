@@ -136,13 +136,25 @@ trait ActiveRecordTrait
 				}
 			}
 
+			$fnAddRules = function($newRules) use (&$rules, $isSearchModel) {
+				foreach ($newRules as $k => $newRule) {
+					if ($isSearchModel && ($newRule[1] == 'required')) {
+						unset($newRules[$k]);
+					}
+				}
+
+				if (empty($newRules) == false)
+					$rules = array_merge_recursive($rules, $newRules);
+			};
+
 			if ($isSearchModel == false) {
 				if (method_exists($this, 'traitExtraRules'))
 					$rules = array_merge_recursive($rules, $this->traitExtraRules());
 			}
 
-			if (method_exists($this, 'extraRules'))
-				$rules = array_merge_recursive($rules, $this->extraRules());
+			if (method_exists($this, 'extraRules')) {
+				$fnAddRules($this->extraRules());
+			}
 
 			self::$_rules[$_class] = $rules;
 		}

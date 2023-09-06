@@ -65,10 +65,35 @@ return [
 	'code not sent to the client' => 'کد هنوز به مقصد نرسیده است',
 	'code expired' => 'کد منقضی شده است',
 
+	'Education Level' => 'سطح تحصیلات',
+	'Field Of Study' => 'رشته تحصیلی',
+	'Year Of Graduation' => 'سال اخذ مدرک',
+	'Education Place' => 'محل تحصیل',
+	'Marital Status' => 'وضعیت تاهل',
+	'Military Status' => 'وضعیت سربازی',
 
+	//enuUserEducationLevel:
+	'Student' => 'دانش آموز',
+	'Under Diploma' => 'زیر دیپلم',
+	'Diploma' => 'دیپلم',
+	'University Student' => 'دانشجو',
+	'Associate' => 'فوق دیپلم',
+	'Bachelor' => 'لیسانس',
+	'Master' => 'فوق لیسانس',
+	'PhD' => 'دکترای علمی',
+	'Post Doctoral'  => 'فوق دکترای علمی',
+	'MD' => 'پزشک',
 
+	//enuUserMaritalStatus:
+	'Not Married' => 'مجرد',
+	'Married' => 'متاهل',
 
-
+	//enuUserMilitaryStatus:
+	'Lack Of Need' => 'عدم نیاز',
+	'Subject To Military Service' => 'مشمول',
+	'In The Army' => 'در حال سربازی',
+	'Done' => 'انجام شده',
+	'Exempted From Military Service' => 'معاف',
 
 	'Users' => 'کاربران',
 	'List Users' => 'لیست کاربران',

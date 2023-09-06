@@ -13,6 +13,9 @@ use shopack\base\frontend\widgets\DepDrop;
 use shopack\base\frontend\widgets\datetime\DatePicker;
 use shopack\aaa\common\enums\enuGender;
 use shopack\aaa\frontend\common\models\GeoCountryModel;
+use shopack\aaa\common\enums\enuUserEducationLevel;
+use shopack\aaa\common\enums\enuUserMaritalStatus;
+use shopack\aaa\common\enums\enuUserMilitaryStatus;
 ?>
 
 <div class='user-form'>
@@ -38,6 +41,8 @@ use shopack\aaa\frontend\common\models\GeoCountryModel;
 			['usrFirstName_en'],
 			['usrLastName'],
 			['usrLastName_en'],
+			['usrFatherName'],
+			['usrFatherName_en'],
 			['usrSSID'],
 			[
 				'usrBirthDate',
@@ -51,6 +56,53 @@ use shopack\aaa\frontend\common\models\GeoCountryModel;
 					],
 				],
 			],
+
+			['usrEducationLevel',
+				'type' => FormBuilder::FIELD_WIDGET,
+				'widget' => Select2::class,
+				'widgetOptions' => [
+					'data' => enuUserEducationLevel::getList(),
+					'options' => [
+						'placeholder' => Yii::t('app', '-- Choose --'),
+						'dir' => 'rtl',
+					],
+					'pluginOptions' => [
+						'allowClear' => true,
+					],
+				],
+			],
+			['usrFieldOfStudy'],
+			['usrYearOfGraduation'],
+			['usrEducationPlace'],
+			['usrMaritalStatus',
+				'type' => FormBuilder::FIELD_WIDGET,
+				'widget' => Select2::class,
+				'widgetOptions' => [
+					'data' => enuUserMaritalStatus::getList(),
+					'options' => [
+						'placeholder' => Yii::t('app', '-- Choose --'),
+						'dir' => 'rtl',
+					],
+					'pluginOptions' => [
+						'allowClear' => true,
+					],
+				],
+			],
+			['usrMilitaryStatus',
+				'type' => FormBuilder::FIELD_WIDGET,
+				'widget' => Select2::class,
+				'widgetOptions' => [
+					'data' => enuUserMilitaryStatus::getList(),
+					'options' => [
+						'placeholder' => Yii::t('app', '-- Choose --'),
+						'dir' => 'rtl',
+					],
+					'pluginOptions' => [
+						'allowClear' => true,
+					],
+				],
+			],
+
 			[
 				'usrCountryID',
 				'type' => FormBuilder::FIELD_WIDGET,
@@ -109,7 +161,7 @@ use shopack\aaa\frontend\common\models\GeoCountryModel;
 						'depends' => ["{$formName}-usrstateid"],
 						'initialize' => true,
 						// 'initDepends' => ["{$formName}-usrcountryid", "{$formName}-usrstateid"],
-						'url' => Url::to(['/aaa/geo-city-or-village/depdrop-list', 'sel' => $model->usrStateID]),
+						'url' => Url::to(['/aaa/geo-city-or-village/depdrop-list', 'sel' => $model->usrCityOrVillageID]),
 						'loadingText' => Yii::t('app', 'Loading...'),
 					],
 				],
@@ -133,7 +185,7 @@ use shopack\aaa\frontend\common\models\GeoCountryModel;
 						'depends' => ["{$formName}-usrcityorvillageid"],
 						'initialize' => true,
 						'initDepends' => ["{$formName}-usrcountryid"], //, "{$formName}-usrstateid", "{$formName}-usrcityorvillageid"],
-						'url' => Url::to(['/aaa/geo-town/depdrop-list', 'sel' => $model->usrStateID]),
+						'url' => Url::to(['/aaa/geo-town/depdrop-list', 'sel' => $model->usrTownID]),
 						'loadingText' => Yii::t('app', 'Loading...'),
 					],
 				],

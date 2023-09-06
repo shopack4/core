@@ -7,6 +7,7 @@ namespace shopack\aaa\frontend\common\models;
 
 use Yii;
 use yii\base\Model;
+use yii\web\ServerErrorHttpException;
 use yii\web\ForbiddenHttpException;
 use shopack\base\frontend\rest\RestClientDataProvider;
 use shopack\aaa\frontend\common\models\WalletTransactionModel;
@@ -65,6 +66,7 @@ class WalletTransactionSearchModel extends WalletTransactionModel
 
 		if (!$this->validate()) {
 			// uncomment the following line if you do not want to return any records when validation fails
+			throw new ServerErrorHttpException('Unknown error sh01');
 			// $query->where('0=1');
 			return $dataProvider;
 		}

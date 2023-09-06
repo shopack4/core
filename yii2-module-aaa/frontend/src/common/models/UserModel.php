@@ -75,6 +75,14 @@ class UserModel extends RestClientActiveRecord
 			'usrZipCode'            => Yii::t('aaa', 'Zip Code'),
 			'usrImage'              => Yii::t('aaa', 'Image'),
 			'usrImageFileID'        => Yii::t('aaa', 'Image'),
+
+      'usrEducationLevel'     => Yii::t('aaa', 'Education Level'),
+      'usrFieldOfStudy'       => Yii::t('aaa', 'Field Of Study'),
+      'usrYearOfGraduation'   => Yii::t('aaa', 'Year Of Graduation'),
+      'usrEducationPlace'     => Yii::t('aaa', 'Education Place'),
+      'usrMaritalStatus'      => Yii::t('aaa', 'Marital Status'),
+      'usrMilitaryStatus'     => Yii::t('aaa', 'Military Status'),
+
       'usrStatus'             => Yii::t('app', 'Status'),
       'usrCreatedAt'          => Yii::t('app', 'Created At'),
       'usrCreatedBy'          => Yii::t('app', 'Created By'),

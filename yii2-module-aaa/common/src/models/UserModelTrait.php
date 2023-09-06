@@ -59,6 +59,14 @@ new: must be add to the model lables, index and view
 'usrWorkPhones',
 'usrWebsite',
 'usrImageFileID',
+
+'usrEducationLevel',
+'usrFieldOfStudy',
+'usrYearOfGraduation',
+'usrEducationPlace',
+'usrMaritalStatus',
+'usrMilitaryStatus',
+
 'usrStatus',
 'usrCreatedAt',
 'usrCreatedBy',
@@ -338,6 +346,56 @@ trait UserModelTrait
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => false, //true
       ],
+
+      'usrEducationLevel' => [
+        enuColumnInfo::type       => ['string', 'max' => 1],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => true,
+      ],
+      'usrFieldOfStudy' => [
+        enuColumnInfo::type       => ['string', 'max' => 128],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => 'like',
+      ],
+      'usrYearOfGraduation' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => true,
+      ],
+      'usrEducationPlace' => [
+        enuColumnInfo::type       => ['string', 'max' => 128],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => true,
+      ],
+      'usrMaritalStatus' => [
+        enuColumnInfo::type       => ['string', 'max' => 1],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => true,
+      ],
+      'usrMilitaryStatus' => [
+        enuColumnInfo::type       => ['string', 'max' => 1],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => true,
+      ],
+
       'usrStatus' => [
         enuColumnInfo::isStatus   => true,
         enuColumnInfo::type       => ['string', 'max' => 1],

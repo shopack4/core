@@ -10,6 +10,9 @@ use shopack\base\frontend\widgets\tabs\Tabs;
 use shopack\aaa\common\enums\enuGender;
 use shopack\aaa\common\enums\enuUserStatus;
 use shopack\base\common\helpers\GeneralHelper;
+use shopack\aaa\common\enums\enuUserEducationLevel;
+use shopack\aaa\common\enums\enuUserMaritalStatus;
+use shopack\aaa\common\enums\enuUserMilitaryStatus;
 
 $this->title = Yii::t('aaa', 'My Profile');
 $this->params['breadcrumbs'][] = $this->title;
@@ -42,7 +45,7 @@ $this->params['breadcrumbs'][] = $this->title;
 										'model' => $model,
 										'enableEditMode' => false,
 										'cols' => 2,
-										'isVertical' => true,
+										'isVertical' => false,
 										'attributes' => [
 											'usrID',
 											[
@@ -53,12 +56,61 @@ $this->params['breadcrumbs'][] = $this->title;
 												'attribute' => 'usrGender',
 												'value' => enuGender::getLabel($model->usrGender),
 											],
-											'usrSSID',
+											[
+												'group' => 'true',
+											],
 											'usrFirstName',
 											'usrFirstName_en',
 											'usrLastName',
 											'usrLastName_en',
+											'usrFatherName',
+											'usrFatherName_en',
+											[
+												'attribute' => 'usrBirthCityID',
+												'value' => $model->birthCityOrVillage->ctvName ?? null,
+											],
 											'usrBirthDate:jalali',
+
+											[
+												'attribute' => 'usrEmail',
+												'valueColOptions' => ['class' => ['dir-ltr', 'text-start']],
+											],
+											// 'usrEmailApprovedAt:jalaliWithTime',
+											[
+												'attribute' => 'usrMobile',
+												'format' => 'phone',
+											],
+											// 'usrMobileApprovedAt:jalaliWithTime',
+											'usrSSID',
+											[
+												'attribute' => 'hasPassword',
+												'format' => 'boolean',
+												// 'value' => $model->hasPassword ? Yii::t('app', 'Has') : Yii::t('app', 'Has not'),
+											],
+											// 'usrPasswordCreatedAt:jalaliWithTime',
+
+											[
+												'attribute' => 'usrEducationLevel',
+												'value' => enuUserEducationLevel::getLabel($model->usrEducationLevel),
+											],
+											'usrFieldOfStudy',
+											'usrYearOfGraduation',
+											'usrEducationPlace',
+											[
+												'attribute' => 'usrMaritalStatus',
+												'value' => enuUserMaritalStatus::getLabel($model->usrMaritalStatus),
+											],
+											[
+												'attribute' => 'usrMilitaryStatus',
+												'value' => enuUserMilitaryStatus::getLabel($model->usrMilitaryStatus),
+											],
+
+											[
+												'group' => 'true',
+												'label' => 'محل سکونت',
+												'isVertical' => true,
+												'groupOptions' => ['class' => 'info-row'],
+											],
 											[
 												'attribute' => 'usrCountryID',
 												'value' => $model->country->cntrName ?? null,
@@ -76,6 +128,10 @@ $this->params['breadcrumbs'][] = $this->title;
 												'value' => $model->town->twnName ?? null,
 											],
 											'usrZipCode',
+											[
+												'group' => 'true',
+												// 'label' => 'محل سکونت',
+											],
 											'usrHomeAddress',
 										],
 									]);
