@@ -162,7 +162,7 @@ class AsanPardakhtSoapPaymentGateway
 		if ($ResCode != '0' && $ResCode != '00') {
 			throw new UnprocessableEntityHttpException('payment failed ($ResCode)');
 			// //echo 'تراکنش ناموفق<br>خطای شماره: '.$ResCode;
-			// echo '<div class="error-bank">تراکنش شما ناموفق میباشد</div>';
+			// echo '<div class="error-bank">تراکنش شما ناموفق می‌باشد</div>';
 			// exit();
 		}
 
@@ -463,7 +463,7 @@ public function successinvoice()
 	$LastFourDigitOfPAN = $RetArr[7];
 	if ($ResCode != '0' && $ResCode != '00') {
 			//echo 'تراکنش ناموفق<br>خطای شماره: '.$ResCode;
-			echo '<div class="error-bank">تراکنش شما ناموفق میباشد</div>';
+			echo '<div class="error-bank">تراکنش شما ناموفق می‌باشد</div>';
 			exit();
 	}
 	try {
@@ -572,7 +572,7 @@ public function success()
 	$LastFourDigitOfPAN = $RetArr[7];
 	if ($ResCode != '0' && $ResCode != '00') {
 			//echo 'تراکنش ناموفق<br>خطای شماره: '.$ResCode;
-			echo '<div class="error-bank">تراکنش شما ناموفق میباشد</div>';
+			echo '<div class="error-bank">تراکنش شما ناموفق می‌باشد</div>';
 			exit();
 	}
 	try {
