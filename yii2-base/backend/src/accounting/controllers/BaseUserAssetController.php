@@ -11,10 +11,10 @@ use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use yii\data\ActiveDataProvider;
 use shopack\base\common\helpers\ExceptionHelper;
-use shopack\base\backend\controller\BaseRestController;
+use shopack\base\backend\controller\BaseCrudController;
 use shopack\base\backend\helpers\PrivHelper;
 
-class BaseUserAssetController extends BaseRestController
+class BaseUserAssetController extends BaseCrudController
 {
 	public function behaviors()
 	{

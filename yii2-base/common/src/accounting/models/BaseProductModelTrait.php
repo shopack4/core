@@ -9,6 +9,7 @@ use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
+use shopack\base\common\accounting\enums\enuProductStatus;
 
 /*
 'untID',
@@ -16,7 +17,7 @@ use shopack\base\common\validators\JsonValidator;
 'untName',
 'untI18NData',
 */
-trait BaseUnitModelTrait
+trait BaseProductModelTrait
 {
   public function primaryKeyValue() {
 		return $this->untID;
