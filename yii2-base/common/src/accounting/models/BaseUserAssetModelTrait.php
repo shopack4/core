@@ -214,4 +214,14 @@ trait BaseUserAssetModelTrait
 		return $this->hasOne($className, ['usrID' => 'uasRemovedBy']);
 	}
 
+  abstract public static function getSaleableModelClass();
+	public function getSaleable() {
+		return $this->hasOne($this->getSaleableModelClass(), ['slbID' => 'uasSaleableID']);
+	}
+
+  abstract public static function getCouponModelClass();
+	public function getCoupon() {
+		return $this->hasOne($this->getCouponModelClass(), ['cpnID' => 'uasCouponID']);
+	}
+
 }

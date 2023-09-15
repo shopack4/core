@@ -227,15 +227,9 @@ trait BaseProductModelTrait
 		return $this->hasOne($className, ['usrID' => 'prdRemovedBy']);
 	}
 
-	// public function getUnit() {
-	// 	$className = get_called_class();
-
-	// 	if (str_contains($className, '\\backend\\'))
-	// 		$className = '\shopack\aaa\backend\models\UserModel';
-	// 	else
-	// 		$className = '\shopack\aaa\frontend\common\models\UserModel';
-
-	// 	return $this->hasOne($className, ['untID' => 'prdUnitID']);
-	// }
+  abstract public static function getUnitModelClass();
+	public function getUnit() {
+		return $this->hasOne($this->getUnitModelClass(), ['untID' => 'prdUnitID']);
+	}
 
 }

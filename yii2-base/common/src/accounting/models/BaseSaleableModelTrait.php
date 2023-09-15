@@ -38,7 +38,7 @@ use shopack\base\common\accounting\enums\enuSaleableStatus;
 'slbRemovedAt',
 'slbRemovedBy',
 */
-trait BaseProductModelTrait
+trait BaseSaleableModelTrait
 {
   public static $primaryKey = ['slbID'];
 
@@ -220,15 +220,9 @@ trait BaseProductModelTrait
 		return $this->hasOne($className, ['usrID' => 'slbRemovedBy']);
 	}
 
-	// public function getProduct() {
-	// 	$className = get_called_class();
-
-	// 	if (str_contains($className, '\\backend\\'))
-	// 		$className = '\shopack\aaa\backend\models\UserModel';
-	// 	else
-	// 		$className = '\shopack\aaa\frontend\common\models\UserModel';
-
-	// 	return $this->hasOne($className, ['untID' => 'slbProductID']);
-	// }
+  abstract public static function getProductModelClass();
+	public function getProduct() {
+		return $this->hasOne($this->getProductModelClass(), ['prdID' => 'slbProductID']);
+	}
 
 }
