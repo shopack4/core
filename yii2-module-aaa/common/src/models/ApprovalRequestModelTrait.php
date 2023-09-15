@@ -7,6 +7,7 @@ namespace shopack\aaa\common\models;
 
 use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
 use shopack\aaa\common\enums\enuApprovalRequestStatus;
 
 /*
@@ -30,7 +31,9 @@ use shopack\aaa\common\enums\enuApprovalRequestStatus;
 */
 trait ApprovalRequestModelTrait
 {
-  public function primaryKeyValue() {
+  public static $primaryKey = ['aprID'];
+
+	public function primaryKeyValue() {
 		return $this->aprID;
 	}
 
@@ -108,7 +111,7 @@ trait ApprovalRequestModelTrait
         enuColumnInfo::default    => enuApprovalRequestStatus::New,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
       ],
 
       'aprCreatedAt' => ModelColumnHelper::CreatedAt(),

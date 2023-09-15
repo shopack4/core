@@ -17,7 +17,6 @@ class OfflinePaymentModel extends RestClientActiveRecord
 	// use \shopack\base\common\models\UploadedFilesTrait;
 
 	public static $resourceName = 'aaa/offline-payment';
-  public static $primaryKey = ['ofpID'];
 
 	public function attributeLabels()
 	{

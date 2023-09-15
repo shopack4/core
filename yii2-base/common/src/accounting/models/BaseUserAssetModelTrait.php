@@ -12,43 +12,206 @@ use shopack\base\common\validators\JsonValidator;
 use shopack\base\common\accounting\enums\enuUserAssetStatus;
 
 /*
-'untID',
-'untUUID',
-'untName',
-'untI18NData',
+'uasID',
+'uasUUID',
+'uasActorID',
+'uasSaleableID',
+'uasQty',
+'uasVoucherID',
+'uasVoucherItemUUID',
+'uasVoucherItemInfo',
+'uasCouponID',
+'uasDiscountAmount',
+'uasPrefered',
+'uasValidFromDate',
+'uasValidToDate',
+'uasValidFromHour',
+'uasValidToHour',
+'uasDurationMinutes',
+'uasBreakedAt',
+'uasStatus',
+'uasCreatedAt',
+'uasCreatedBy',
+'uasUpdatedAt',
+'uasUpdatedBy',
+'uasRemovedAt',
+'uasRemovedBy',
 */
 trait BaseUserAssetModelTrait
 {
-  public function primaryKeyValue() {
-		return $this->untID;
+  public static $primaryKey = ['uasID'];
+
+	public function primaryKeyValue() {
+		return $this->uasID;
 	}
 
   public static function columnsInfo()
   {
     return [
-      'untID' => [
+      'uasID' => [
         enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
-      'untUUID' => ModelColumnHelper::UUID(),
-			'untName' => [
-        enuColumnInfo::type       => ['string', 'max' => 64],
+      'uasUUID' => ModelColumnHelper::UUID(),
+
+      'uasActorID' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+      'uasSaleableID' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+      'uasQty' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+      'uasVoucherID' => [
+        enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
-			'untI18NData' => [
+      'uasVoucherItemUUID' => [
+        enuColumnInfo::type       => ['string', 'max' => 38],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+      'uasVoucherItemInfo' => [
 				enuColumnInfo::type       => JsonValidator::class,
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
 			],
+      'uasCouponID' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+      'uasDiscountAmount' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+      'uasPrefered' => [
+        enuColumnInfo::type       => 'boolean',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => false,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+      'uasValidFromDate' => [
+        enuColumnInfo::type       => 'safe',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+      'uasValidToDate' => [
+        enuColumnInfo::type       => 'safe',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+      'uasValidFromHour' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+      'uasValidToHour' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+      'uasDurationMinutes' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+      'uasBreakedAt' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+      'uasStatus' => [
+        enuColumnInfo::isStatus   => true,
+        enuColumnInfo::type       => ['string', 'max' => 1],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => enuUserAssetStatus::Pending,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
+      ],
+
+      'uasCreatedAt' => ModelColumnHelper::CreatedAt(),
+      'uasCreatedBy' => ModelColumnHelper::CreatedBy(),
+      'uasUpdatedAt' => ModelColumnHelper::UpdatedAt(),
+      'uasUpdatedBy' => ModelColumnHelper::UpdatedBy(),
+      'uasRemovedAt' => ModelColumnHelper::RemovedAt(),
+      'uasRemovedBy' => ModelColumnHelper::RemovedBy(),
     ];
   }
+
+  public function getCreatedByUser() {
+		$className = get_called_class();
+
+		if (str_contains($className, '\\backend\\'))
+			$className = '\shopack\aaa\backend\models\UserModel';
+		else
+			$className = '\shopack\aaa\frontend\common\models\UserModel';
+
+		return $this->hasOne($className, ['usrID' => 'uasCreatedBy']);
+	}
+
+	public function getUpdatedByUser() {
+		$className = get_called_class();
+
+		if (str_contains($className, '\\backend\\'))
+			$className = '\shopack\aaa\backend\models\UserModel';
+		else
+			$className = '\shopack\aaa\frontend\common\models\UserModel';
+
+		return $this->hasOne($className, ['usrID' => 'uasUpdatedBy']);
+	}
+
+	public function getRemovedByUser() {
+		$className = get_called_class();
+
+		if (str_contains($className, '\\backend\\'))
+			$className = '\shopack\aaa\backend\models\UserModel';
+		else
+			$className = '\shopack\aaa\frontend\common\models\UserModel';
+
+		return $this->hasOne($className, ['usrID' => 'uasRemovedBy']);
+	}
 
 }

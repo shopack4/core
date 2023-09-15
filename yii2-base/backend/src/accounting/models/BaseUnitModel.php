@@ -5,12 +5,12 @@
 
 namespace shopack\base\backend\accounting\models;
 
-use Yii;
-use yii\base\Model;
-use yii\db\Expression;
+// use Yii;
+// use yii\base\Model;
+// use yii\db\Expression;
 
-class BaseUnitModel extends Model
-{
-	// use \shopack\base\common\models\BaseUnitModelTrait;
+// class BaseUnitModel extends Model
+// {
+// 	// use \shopack\base\common\models\BaseUnitModelTrait;
 
-}
+// }

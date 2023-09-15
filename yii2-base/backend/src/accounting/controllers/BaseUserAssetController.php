@@ -14,22 +14,6 @@ use shopack\base\common\helpers\ExceptionHelper;
 use shopack\base\backend\controller\BaseCrudController;
 use shopack\base\backend\helpers\PrivHelper;
 
-class BaseUserAssetController extends BaseCrudController
+abstract class BaseUserAssetController extends BaseCrudController
 {
-	public function behaviors()
-	{
-		$behaviors = parent::behaviors();
-
-		$behaviors[static::BEHAVIOR_AUTHENTICATOR]['except'] = [
-			'index',
-		];
-
-		return $behaviors;
-	}
-
-	public function actionOptions()
-	{
-		return 'options';
-	}
-
 }

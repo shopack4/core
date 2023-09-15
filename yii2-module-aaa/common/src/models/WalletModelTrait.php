@@ -7,6 +7,7 @@ namespace shopack\aaa\common\models;
 
 use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
 use shopack\aaa\common\enums\enuWalletStatus;
 
 /*
@@ -26,6 +27,8 @@ use shopack\aaa\common\enums\enuWalletStatus;
 */
 trait WalletModelTrait
 {
+	public static $primaryKey = ['walID'];
+
 	public function primaryKeyValue() {
 		return $this->walID;
 	}
@@ -39,7 +42,7 @@ trait WalletModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
       'walUUID' => ModelColumnHelper::UUID(),
 			'walOwnerUserID' => [
@@ -48,7 +51,7 @@ trait WalletModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'walName' => [
 				enuColumnInfo::type       => ['string', 'max' => 128],
@@ -56,7 +59,7 @@ trait WalletModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'walIsDefault' => [
 				enuColumnInfo::type       => 'boolean',
@@ -64,7 +67,7 @@ trait WalletModelTrait
 				enuColumnInfo::default    => false,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-				enuColumnInfo::search     => true,
+				enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'walRemainedAmount' => [
 				enuColumnInfo::type       => 'integer',
@@ -72,7 +75,7 @@ trait WalletModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'walStatus' => [
 				enuColumnInfo::isStatus   => true,
@@ -81,7 +84,7 @@ trait WalletModelTrait
 				enuColumnInfo::default    => enuWalletStatus::Active,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 
 			'walCreatedAt' => ModelColumnHelper::CreatedAt(),

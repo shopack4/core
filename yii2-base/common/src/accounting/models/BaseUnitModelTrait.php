@@ -18,7 +18,9 @@ use shopack\base\common\validators\JsonValidator;
 */
 trait BaseUnitModelTrait
 {
-  public function primaryKeyValue() {
+  public static $primaryKey = ['untID'];
+
+	public function primaryKeyValue() {
 		return $this->untID;
 	}
 
@@ -37,16 +39,10 @@ trait BaseUnitModelTrait
         enuColumnInfo::type       => ['string', 'max' => 64],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
+        enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
       ],
-			'untI18NData' => [
-				enuColumnInfo::type       => JsonValidator::class,
-				enuColumnInfo::validator  => null,
-				enuColumnInfo::default    => null,
-				enuColumnInfo::required   => false,
-				enuColumnInfo::selectable => true,
-			],
+			'untI18NData' => ModelColumnHelper::I18NData(['untName']),
     ];
   }
 

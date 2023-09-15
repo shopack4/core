@@ -8,6 +8,7 @@ namespace shopack\aaa\common\models;
 use Yii;
 use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
 use shopack\base\common\validators\GroupRequiredValidator;
 use shopack\aaa\common\enums\enuRole;
@@ -80,7 +81,9 @@ trait UserModelTrait
   public $usrPassword;
   public $hasPassword = false;
 
-  public function primaryKeyValue() {
+  public static $primaryKey = ['usrID'];
+
+	public function primaryKeyValue() {
 		return $this->usrID;
 	}
 
@@ -93,7 +96,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
       ],
       'usrUUID' => ModelColumnHelper::UUID(),
       'usrGender' => [
@@ -109,7 +112,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrFirstName_en' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -117,7 +120,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrLastName' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -125,7 +128,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrLastName_en' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -133,7 +136,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrFatherName' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -141,7 +144,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrFatherName_en' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -149,7 +152,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrEmail' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -157,7 +160,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
 			'usrEmailApprovedAt' => [
         enuColumnInfo::type       => 'safe',
@@ -172,7 +175,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrMobileApprovedAt' => [
         enuColumnInfo::type       => 'safe',
@@ -187,7 +190,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrBirthCertID' => [
         enuColumnInfo::type       => ['string', 'max' => 16],
@@ -195,7 +198,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrRoleID' => [
         enuColumnInfo::type       => 'integer',
@@ -296,7 +299,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrZipCode' => [
         enuColumnInfo::type       => ['string', 'max' => 32],
@@ -304,7 +307,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrPhones' => [
         enuColumnInfo::type       => ['string', 'max' => 1024],
@@ -312,7 +315,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrWorkAddress' => [
         enuColumnInfo::type       => ['string', 'max' => 2048],
@@ -320,7 +323,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrWorkPhones' => [
         enuColumnInfo::type       => ['string', 'max' => 1024],
@@ -328,7 +331,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrWebsite' => [
         enuColumnInfo::type       => ['string', 'max' => 1024],
@@ -336,7 +339,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrImageFileID' => [
         enuColumnInfo::type       => 'safe', //'integer',
@@ -353,7 +356,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
       ],
       'usrFieldOfStudy' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -361,7 +364,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'usrYearOfGraduation' => [
         enuColumnInfo::type       => 'integer',
@@ -369,7 +372,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
       ],
       'usrEducationPlace' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -377,7 +380,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
       ],
       'usrMaritalStatus' => [
         enuColumnInfo::type       => ['string', 'max' => 1],
@@ -385,7 +388,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
       ],
       'usrMilitaryStatus' => [
         enuColumnInfo::type       => ['string', 'max' => 1],
@@ -393,7 +396,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
       ],
 
       'usrStatus' => [
@@ -403,7 +406,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
       ],
 
       'usrCreatedAt' => ModelColumnHelper::CreatedAt(),

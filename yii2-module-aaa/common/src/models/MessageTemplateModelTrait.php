@@ -7,6 +7,7 @@ namespace shopack\aaa\common\models;
 
 use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
 // use shopack\base\common\validators\JsonValidator;
 use shopack\aaa\common\enums\enuMessageTemplateStatus;
 use shopack\aaa\common\enums\enuMessageTemplateMedia;
@@ -32,7 +33,9 @@ use shopack\aaa\common\enums\enuMessageTemplateMedia;
 */
 trait MessageTemplateModelTrait
 {
-  public function primaryKeyValue() {
+  public static $primaryKey = ['mstID'];
+
+	public function primaryKeyValue() {
 		return $this->mstID;
 	}
 
@@ -53,7 +56,7 @@ trait MessageTemplateModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'mstMedia' => [
 				enuColumnInfo::type       => ['string', 'max' => 1],
@@ -61,7 +64,7 @@ trait MessageTemplateModelTrait
         enuColumnInfo::default    => null, //enuMessageTemplateMedia
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'mstLanguage' => [ //fa, fa_IR
 				enuColumnInfo::type       => ['string', 'max' => 5],
@@ -69,7 +72,7 @@ trait MessageTemplateModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'mstTitle' => [
 				enuColumnInfo::type       => ['string', 'max' => 512],
@@ -77,7 +80,7 @@ trait MessageTemplateModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'mstBody' => [
 				enuColumnInfo::type       => 'string', //mediumtext
@@ -106,7 +109,7 @@ trait MessageTemplateModelTrait
         enuColumnInfo::default    => false,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'mstStatus' => [
         enuColumnInfo::isStatus   => true,
@@ -115,7 +118,7 @@ trait MessageTemplateModelTrait
         enuColumnInfo::default    => enuMessageTemplateStatus::Active,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 
       'mstCreatedAt' => ModelColumnHelper::CreatedAt(),

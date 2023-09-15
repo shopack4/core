@@ -97,7 +97,7 @@ class WalletController extends BaseRestController
 	/*
 	public function actionCreate()
 	{
-		PrivHelper::checkPriv('aaa/wallet/crud', '1000');
+		PrivHelper::checkPriv(['aaa/wallet/crud' => '1000']);
 
 		$model = new WalletModel();
 		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)

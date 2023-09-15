@@ -14,7 +14,6 @@ class ApprovalRequestModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\ApprovalRequestModelTrait;
 
 	public static $resourceName = 'aaa/approval-request';
-  public static $primaryKey = ['aprID'];
 
 	public function attributeLabels()
 	{

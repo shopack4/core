@@ -26,78 +26,105 @@ class PrivHelper
 		}
 	}
 
-	static function hasPriv($path, $priv='1')
+	static function hasPriv($privsToCheck)
 	{
-		if (empty($path))
-			throw new ServerErrorHttpException('path is empty');
+		if (empty($privsToCheck))
+			throw new ServerErrorHttpException('privsToCheck is empty');
 
 		if (Yii::$app->user->accessToken == null)
 			return false;
+
+		if (is_string($privsToCheck))
+			$privsToCheck = [$privsToCheck => '1'];
+		// else {
+		// 	$p = $privsToCheck;
+		// 	$privsToCheck = [];
+		// 	foreach ($p as $k => $v) {
+		// 		if (is_numeric($k))
+		// 			$privsToCheck[$v] = '1';
+		// 		else
+		// 			$privsToCheck[$k] = $v;
+		// 	}
+		// }
 
 		$privs = Yii::$app->user->accessToken->claims()->get('privs', []);
 		if (empty($privs))
 			return false;
 
-		$pathParts = explode('/', $path);
-		$pathPartsCount = count($pathParts);
-		$currPartCounter = 0;
+		$fnCheckPriv = function($path, $priv) use($privs) {
+			$pathParts = explode('/', $path);
+			$pathPartsCount = count($pathParts);
+			$currPartCounter = 0;
 
-		$privsForLookup = $privs;
-		foreach ($pathParts as $pathItem) {
-			if (is_array($privsForLookup) == false)
-				throw new ServerErrorHttpException('checking part of priv is not array');
+			$privsForLookup = $privs;
+			foreach ($pathParts as $pathItem) {
+				if (is_array($privsForLookup) == false)
+					throw new ServerErrorHttpException('checking part of priv is not array');
 
-			// just '*':1
-			if (isset($privsForLookup['*']) && $privsForLookup['*'])
-				return true;
+				// just '*':1
+				if (isset($privsForLookup['*']) && $privsForLookup['*'])
+					return true;
 
-			if (empty($privs[$pathItem]))
-				return false;
+				if (empty($privs[$pathItem]))
+					return false;
 
-			$privsForLookup = $privs[$pathItem];
-			++$currPartCounter;
+				$privsForLookup = $privs[$pathItem];
+				++$currPartCounter;
 
-			if ($currPartCounter == $pathPartsCount)
-			{
-				if (is_array($privsForLookup))
-					throw new ServerErrorHttpException('last checking part of priv is not leaf');
+				if ($currPartCounter == $pathPartsCount)
+				{
+					if (is_array($privsForLookup))
+						throw new ServerErrorHttpException('last checking part of priv is not leaf');
 
-				if ($pathItem == 'crud') {
-					if (is_string($privsForLookup) == false)
-						throw new ServerErrorHttpException('defined priv is not string');
+					if ($pathItem == 'crud') {
+						if (is_string($privsForLookup) == false)
+							throw new ServerErrorHttpException('defined priv is not string');
 
-					//all source digits are 0
-					if (intval($privsForLookup) == 0)
-						return 0;
+						//all source digits are 0
+						if (intval($privsForLookup) == 0)
+							return 0;
 
-					if (is_string($priv) == false)
-						throw new ServerErrorHttpException('checking priv is not string');
+						if (is_string($priv) == false)
+							throw new ServerErrorHttpException('checking priv is not string');
 
-					//all target digits are 0
-					if (intval($priv) == 0)
-						throw new ServerErrorHttpException('all digits of priv are zero');
+						//all target digits are 0
+						if (intval($priv) == 0)
+							throw new ServerErrorHttpException('all digits of priv are zero');
 
-					if (strlen($privsForLookup) != strlen($priv))
-						throw new ServerErrorHttpException('length of compare privs are not equal');
+						if (strlen($privsForLookup) != strlen($priv))
+							throw new ServerErrorHttpException('length of compare privs are not equal');
 
-					for ($i=0; $i<strlen($priv); $i++) {
-						if ($priv[$i] == '1' && $privsForLookup[$i] != 1)
-							return false;
+						for ($i=0; $i<strlen($priv); $i++) {
+							if ($priv[$i] == '1' && $privsForLookup[$i] != 1)
+								return false;
+						}
+
+						return true;
 					}
 
-					return true;
+					return $privsForLookup;
 				}
-
-				return $privsForLookup;
 			}
+
+			return false;
+		};
+
+		foreach ($privsToCheck as $path => $priv) {
+			if (is_numeric($path)) {
+				$path = $priv;
+				$priv = '1';
+			}
+
+			if ($fnCheckPriv($path, $priv) == false)
+				return false;
 		}
 
-		return false;
+		return true;
 	}
 
-	static function checkPriv($path, $priv='1')
+	static function checkPriv($privs)
 	{
-		if (static::hasPriv($path, $priv) == false)
+		if (static::hasPriv($privs) == false)
 			throw new ForbiddenHttpException('access denied');
 
 		return true;

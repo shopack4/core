@@ -7,6 +7,7 @@ namespace shopack\aaa\common\models;
 
 use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
 use shopack\aaa\common\enums\enuSessionStatus;
 
 /*
@@ -26,7 +27,9 @@ use shopack\aaa\common\enums\enuSessionStatus;
 */
 trait SessionModelTrait
 {
-  public function primaryKeyValue() {
+  public static $primaryKey = ['ssnID'];
+
+	public function primaryKeyValue() {
 		return $this->ssnID;
 	}
 
@@ -62,7 +65,7 @@ trait SessionModelTrait
         enuColumnInfo::default    => enuSessionStatus::Pending,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
       ],
       'ssnExpireAt' => [
         enuColumnInfo::type       => 'safe',

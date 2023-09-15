@@ -14,7 +14,6 @@ class GeoTownModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\GeoTownModelTrait;
 
 	public static $resourceName = 'aaa/geo-town';
-  public static $primaryKey = ['twnID'];
 
 	public function attributeLabels()
 	{

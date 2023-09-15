@@ -16,7 +16,6 @@ class OnlinePaymentModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\OnlinePaymentModelTrait;
 
 	public static $resourceName = 'aaa/online-payment';
-  public static $primaryKey = ['onpID'];
 
 	public function attributeLabels()
 	{

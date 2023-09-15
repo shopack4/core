@@ -15,7 +15,19 @@ class ModelColumnHelper
 			enuColumnInfo::default    => 'uuid', //filled in applyDefaultValuesFromColumnsInfo
 			enuColumnInfo::required   => false,  //true,
 			enuColumnInfo::selectable => true,
-			enuColumnInfo::search     => 'like',
+			enuColumnInfo::search     => enuColumnSearchType::like,
+		];
+	}
+
+	public static function I18NData(Array $fieldNames)
+	{
+		return [
+			enuColumnInfo::type       => JsonValidator::class,
+			enuColumnInfo::validator  => null,
+			enuColumnInfo::default    => null,
+			enuColumnInfo::required   => false,
+			enuColumnInfo::selectable => true,
+			enuColumnInfo::search     => enuColumnSearchType::like,
 		];
 	}
 

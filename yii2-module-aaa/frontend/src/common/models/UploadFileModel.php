@@ -13,7 +13,6 @@ class UploadFileModel extends RestClientActiveRecord
   use \shopack\aaa\common\models\UploadFileModelTrait;
 
   public static $resourceName = 'aaa/upload-file';
-  public static $primaryKey = ['uflID'];
 
   public function attributeLabels()
 	{

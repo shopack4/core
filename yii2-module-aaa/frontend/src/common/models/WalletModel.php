@@ -15,7 +15,6 @@ class WalletModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\WalletModelTrait;
 
 	public static $resourceName = 'aaa/wallet';
-  public static $primaryKey = ['walID'];
 
 	public function attributeLabels()
 	{

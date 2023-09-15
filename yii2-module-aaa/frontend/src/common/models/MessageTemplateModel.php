@@ -14,7 +14,6 @@ class MessageTemplateModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\MessageTemplateModelTrait;
 
 	public static $resourceName = 'aaa/message-template';
-  public static $primaryKey = ['mstID'];
 
 	public function attributeLabels()
 	{

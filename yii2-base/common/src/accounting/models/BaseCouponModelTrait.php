@@ -10,13 +10,13 @@ use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
 use shopack\base\common\accounting\enums\enuCouponStatus;
+use shopack\base\common\accounting\enums\enuAmountType;
 
 /*
 'cpnID',
 'cpnUUID',
-'cpnName',
-
 'cpnCode',
+'cpnName',
 'cpnPrimaryCount',
 'cpnTotalMaxAmount',
 'cpnPerUserMaxCount',
@@ -29,7 +29,6 @@ use shopack\base\common\accounting\enums\enuCouponStatus;
 'cpnSaleableBasedMultiplier',
 'cpnTotalUsedCount',
 'cpnTotalUsedAmount',
-
 'cpnI18NData',
 'cpnStatus',
 'cpnCreatedAt',
@@ -41,7 +40,9 @@ use shopack\base\common\accounting\enums\enuCouponStatus;
 */
 trait BaseCouponModelTrait
 {
-  public function primaryKeyValue() {
+  public static $primaryKey = ['cpnID'];
+
+	public function primaryKeyValue() {
 		return $this->cpnID;
 	}
 
@@ -56,21 +57,107 @@ trait BaseCouponModelTrait
         enuColumnInfo::selectable => true,
       ],
       'cpnUUID' => ModelColumnHelper::UUID(),
+			'cpnCode' => [
+				enuColumnInfo::type       => ['string', 'max' => 32],
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => null,
+				enuColumnInfo::required   => true,
+				enuColumnInfo::selectable => true,
+				enuColumnInfo::search     => enuColumnSearchType::like,
+			],
 			'cpnName' => [
         enuColumnInfo::type       => ['string', 'max' => 64],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::like,
+      ],
+			'cpnPrimaryCount' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+			'cpnTotalMaxAmount' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+			'cpnPerUserMaxCount' => [
+        enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
-			'cpnI18NData' => [
-				enuColumnInfo::type       => JsonValidator::class,
-				enuColumnInfo::validator  => null,
-				enuColumnInfo::default    => null,
-				enuColumnInfo::required   => false,
-				enuColumnInfo::selectable => true,
-			],
-
+			'cpnPerUserMaxAmount' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+			'cpnValidFrom' => [
+        enuColumnInfo::type       => 'safe',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+			'cpnValidTo' => [
+        enuColumnInfo::type       => 'safe',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+			'cpnAmount' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+			'cpnAmountType' => [
+        enuColumnInfo::type       => ['string', 'max' => 1],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => enuAmountType::Percent,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+			'cpnMaxAmount' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+			'cpnSaleableBasedMultiplier' => [
+        enuColumnInfo::type       => JsonValidator::class,
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+			'cpnTotalUsedCount' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+			'cpnTotalUsedAmount' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+			'cpnI18NData' => ModelColumnHelper::I18NData(['cpnName']),
 			'cpnStatus' => [
 				enuColumnInfo::isStatus   => true,
 				enuColumnInfo::type       => ['string', 'max' => 1],
@@ -78,7 +165,7 @@ trait BaseCouponModelTrait
 				enuColumnInfo::default    => enuCouponStatus::Active,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 
       'cpnCreatedAt' => ModelColumnHelper::CreatedAt(),

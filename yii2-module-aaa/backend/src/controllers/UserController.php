@@ -95,7 +95,7 @@ class UserController extends BaseRestController
 
 	public function actionCreate()
 	{
-		PrivHelper::checkPriv('aaa/user/crud', '1000');
+		PrivHelper::checkPriv(['aaa/user/crud' => '1000']);
 
 		$model = new UserModel();
 		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)

@@ -14,7 +14,6 @@ class GeoStateModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\GeoStateModelTrait;
 
 	public static $resourceName = 'aaa/geo-state';
-  public static $primaryKey = ['sttID'];
 
 	public function attributeLabels()
 	{

@@ -14,7 +14,6 @@ class GatewayModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\GatewayModelTrait;
 
 	public static $resourceName = 'aaa/gateway';
-  public static $primaryKey = ['gtwID'];
 
 	public function attributeLabels()
 	{

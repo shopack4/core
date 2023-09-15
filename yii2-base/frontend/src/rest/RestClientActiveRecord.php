@@ -70,7 +70,7 @@ abstract class RestClientActiveRecord extends BaseActiveRecord
   /**
    * @var string
    */
-  public static $primaryKey;
+  // public static $primaryKey;
 
   /**
    * @inheritdoc

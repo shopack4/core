@@ -16,6 +16,8 @@ trait BasketModelTrait
 	public $Desc;
 	public $Sign;
 
+	public static $primaryKey = null;
+
 	public function primaryKeyValue() {
 		return null;
 	}

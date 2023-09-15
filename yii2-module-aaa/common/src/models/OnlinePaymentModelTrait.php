@@ -7,6 +7,7 @@ namespace shopack\aaa\common\models;
 
 use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
 use shopack\aaa\common\enums\enuOnlinePaymentStatus;
 
@@ -31,6 +32,8 @@ use shopack\aaa\common\enums\enuOnlinePaymentStatus;
 */
 trait OnlinePaymentModelTrait
 {
+	public static $primaryKey = ['onpID'];
+
 	public function primaryKeyValue() {
 		return $this->onpID;
 	}
@@ -44,7 +47,7 @@ trait OnlinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'onpUUID' => ModelColumnHelper::UUID(),
 			'onpGatewayID' => [
@@ -53,7 +56,7 @@ trait OnlinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'onpVoucherID' => [
 				enuColumnInfo::type       => 'integer',
@@ -68,7 +71,7 @@ trait OnlinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 
 			],
 			'onpCallbackUrl' => [
@@ -77,7 +80,7 @@ trait OnlinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        // enuColumnInfo::search     => 'like',
+        // enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'onpWalletID' => [
 				enuColumnInfo::type       => 'integer',
@@ -85,7 +88,7 @@ trait OnlinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-				enuColumnInfo::search     => true,
+				enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'onpTrackNumber' => [
 				enuColumnInfo::type       => ['string', 'max' => 64],
@@ -93,7 +96,7 @@ trait OnlinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'onpRRN' => [
 				enuColumnInfo::type       => ['string', 'max' => 64],
@@ -101,7 +104,7 @@ trait OnlinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'onpResult' => [
 				enuColumnInfo::type       => JsonValidator::class,
@@ -117,7 +120,7 @@ trait OnlinePaymentModelTrait
 				enuColumnInfo::default    => enuOnlinePaymentStatus::New,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 
       'onpCreatedAt' => ModelColumnHelper::CreatedAt(),

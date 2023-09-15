@@ -10,137 +10,68 @@ use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use yii\data\ActiveDataProvider;
 use shopack\base\common\helpers\ExceptionHelper;
-use shopack\base\backend\controller\BaseRestController;
+use shopack\base\backend\controller\BaseCrudController;
 use shopack\base\backend\helpers\PrivHelper;
 use shopack\aaa\backend\models\MessageModel;
 
-class MessageController extends BaseRestController
+class MessageController extends BaseCrudController
 {
 	public function behaviors()
 	{
 		$behaviors = parent::behaviors();
+
+		// $behaviors[static::BEHAVIOR_AUTHENTICATOR]['except'] = [
+		// 	'index',
+		// 	'view',
+		// ];
+
 		return $behaviors;
 	}
 
-	protected function findModel($id)
+	public $modelClass = \shopack\aaa\backend\models\MessageModel::class;
+
+	public function permissions()
 	{
-		if (($model = MessageModel::findOne($id)) !== null)
-			return $model;
-
-		throw new NotFoundHttpException('The requested item not exist.');
-	}
-
-	public function actionIndex()
-	{
-		$filter = $this->checkPrivAndGetFilter('aaa/message/crud', '0100', 'msgUsrID');
-
-		$searchModel = new MessageModel;
-		$query = $searchModel::find()
-			->select(MessageModel::selectableColumns())
-			->joinWith('user')
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->asArray()
-		;
-
-		$searchModel->fillQueryFromRequest($query);
-
-		if (empty($filter) == false)
-			$query->andWhere($filter);
-
-		return $this->queryAllToResponse($query);
-	}
-
-	public function actionView($id)
-	{
-		PrivHelper::checkPriv('aaa/message/crud', '0100');
-
-		$model = MessageModel::find()
-			->select(MessageModel::selectableColumns())
-			->joinWith('user')
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->where(['msgID' => $id])
-			->asArray()
-			->one()
-		;
-
-		return $this->modelToResponse($model);
-	}
-
-	public function actionCreate()
-	{
-		PrivHelper::checkPriv('aaa/message/crud', '1000');
-
-		$model = new MessageModel();
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		try {
-			if ($model->save() == false)
-				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-		} catch(\Exception $exp) {
-			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
-			throw new UnprocessableEntityHttpException($msg);
-		}
+		$checkOwner = function($model) : bool {
+			return (($model != null) && ($model['msgUsrID'] == Yii::$app->user->id));
+		};
 
 		return [
-			// 'result' => [
-				// 'message' => 'created',
-				'msgID' => $model->msgID,
-				// 'msgStatus' => $model->msgStatus,
-				'msgCreatedAt' => $model->msgCreatedAt,
-				'msgCreatedBy' => $model->msgCreatedBy,
-			// ],
+			'index'  => [
+										'aaa/message/crud' => '0100',
+										'filter' => function($query) {
+											if (Yii::$app->user->isGuest)
+												throw new \yii\web\ForbiddenHttpException("not allowed for guest");
+											$query->andWhere(['msgUsrID' => Yii::$app->user->id]);
+										},
+									],
+			'view'   => ['aaa/message/crud' => '0100', 'checker' => $checkOwner],
+			'create' => ['aaa/message/crud' => '1000'],
+			'update' => ['aaa/message/crud' => '0010', 'checker' => $checkOwner],
+			'delete' => ['aaa/message/crud' => '0001', 'checker' => $checkOwner],
 		];
 	}
 
-	public function actionUpdate($id)
+	public function queryAugmentaters()
 	{
-		PrivHelper::checkPriv('aaa/message/crud', '0010');
-
-		$model = $this->findModel($id);
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		if ($model->save() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
 		return [
-			// 'result' => [
-				// 'message' => 'updated',
-				'msgID' => $model->msgID,
-				// 'msgStatus' => $model->msgStatus,
-				'msgUpdatedAt' => $model->msgUpdatedAt,
-				'msgUpdatedBy' => $model->msgUpdatedBy,
-			// ],
+			'index' => function($query) {
+				$query
+					->joinWith('user')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+			'view' => function($query) {
+				$query
+					->joinWith('user')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
 		];
-	}
-
-	public function actionDelete($id)
-	{
-		PrivHelper::checkPriv('aaa/message/crud', '0001');
-
-		$model = $this->findModel($id);
-		if ($model->delete() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
-		return [
-			// 'result' => [
-				// 'message' => 'deleted',
-				'msgID' => $model->msgID,
-				// 'msgStatus' => $model->msgStatus,
-				'msgRemovedAt' => $model->msgRemovedAt,
-				'msgRemovedBy' => $model->msgRemovedBy,
-			// ],
-		];
-	}
-
-	public function actionOptions()
-	{
-		return 'options';
 	}
 
 }

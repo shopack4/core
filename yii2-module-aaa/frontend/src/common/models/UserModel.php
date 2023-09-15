@@ -16,7 +16,6 @@ class UserModel extends RestClientActiveRecord
   use \shopack\aaa\common\models\UserModelTrait;
 
   public static $resourceName = 'aaa/user';
-  public static $primaryKey = ['usrID'];
 
   // public $usrID;
   public $username;

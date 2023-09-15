@@ -18,7 +18,7 @@ use shopack\base\backend\models\BasketModel;
 use shopack\base\common\enums\enuModelScenario;
 
 //basket = Voucher[Type=Basket & Status=New]
-class BaseAccountingController extends BaseRestController
+abstract class BaseAccountingController extends BaseRestController
 {
 	public function behaviors()
 	{
@@ -41,7 +41,7 @@ class BaseAccountingController extends BaseRestController
 	 */
 	public function actionAddToBasket()
 	{
-		// PrivHelper::checkPriv('aaa/basket/crud', '1000');
+		// PrivHelper::checkPriv(['aaa/basket/crud' => '1000']);
 
 		$model = new BasketModel();
 		$model->scenario = enuModelScenario::CREATE;

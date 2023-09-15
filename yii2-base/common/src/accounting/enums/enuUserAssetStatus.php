@@ -7,10 +7,11 @@ namespace shopack\base\common\accounting\enums;
 
 use shopack\base\common\base\BaseEnum;
 
-abstract class enuCouponStatus extends BaseEnum
+abstract class enuUserAssetStatus extends BaseEnum
 {
   const Active 		= 'A';
-  const Inactive 	= 'D';
+  const Pending 	= 'P';
+  const Blocked 	= 'B';
   const Removed 	= 'R';
 
 	public static $messageCategory = 'aaa';
@@ -18,12 +19,14 @@ abstract class enuCouponStatus extends BaseEnum
 	public static $list = [
 		[
 			self::Active		=> 'Active',
-			self::Inactive	=> 'Inactive',
+			self::Pending		=> 'Pending',
+			self::Blocked		=> 'Blocked',
 			self::Removed 	=> 'Removed',
 		],
 		'form' => [
 			self::Active,
-			self::Inactive,
+			self::Pending,
+			self::Blocked,
 		],
 	];
 

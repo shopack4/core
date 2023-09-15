@@ -14,7 +14,6 @@ class VoucherModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\VoucherModelTrait;
 
 	public static $resourceName = 'aaa/voucher';
-  public static $primaryKey = ['vchID'];
 
 	public function attributeLabels()
 	{

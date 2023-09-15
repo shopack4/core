@@ -14,7 +14,6 @@ class RoleModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\RoleModelTrait;
 
 	public static $resourceName = 'aaa/role';
-  public static $primaryKey = ['rolID'];
 
 	public function attributeLabels()
 	{

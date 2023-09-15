@@ -14,7 +14,6 @@ class GeoCityOrVillageModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\GeoCityOrVillageModelTrait;
 
 	public static $resourceName = 'aaa/geo-city-or-village';
-  public static $primaryKey = ['ctvID'];
 
 	public function attributeLabels()
 	{

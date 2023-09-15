@@ -17,7 +17,6 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 	// use \shopack\aaa\common\models\BasketModelTrait;
 
 	// public static $resourceName = 'aaa/basket';
-  // public static $primaryKey = ['vchID'];
 
 	public $voucher;
 	public $totalPrices = 0;

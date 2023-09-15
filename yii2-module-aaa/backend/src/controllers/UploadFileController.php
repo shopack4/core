@@ -54,7 +54,7 @@ class UploadFileController extends BaseRestController
 
 	public function actionView($id)
 	{
-		PrivHelper::checkPriv('aaa/upload-file/crud', '0100');
+		PrivHelper::checkPriv(['aaa/upload-file/crud' => '0100']);
 
 		$model = UploadFileModel::find()
 			// ->select(UploadFileModel::selectableColumns())
@@ -72,7 +72,7 @@ class UploadFileController extends BaseRestController
 
 	public function actionCreate()
 	{
-		PrivHelper::checkPriv('aaa/upload-file/crud', '1000');
+		PrivHelper::checkPriv(['aaa/upload-file/crud' => '1000']);
 
 		$model = new UploadFileModel();
 		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
@@ -99,7 +99,7 @@ class UploadFileController extends BaseRestController
 
 	public function actionUpdate($id)
 	{
-		PrivHelper::checkPriv('aaa/upload-file/crud', '0010');
+		PrivHelper::checkPriv(['aaa/upload-file/crud' => '0010']);
 
 		$model = $this->findModel($id);
 		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
@@ -121,7 +121,7 @@ class UploadFileController extends BaseRestController
 
 	public function actionDelete($id)
 	{
-		PrivHelper::checkPriv('aaa/upload-file/crud', '0001');
+		PrivHelper::checkPriv(['aaa/upload-file/crud' => '0001']);
 
 		$model = $this->findModel($id);
 		if ($model->delete() == false)

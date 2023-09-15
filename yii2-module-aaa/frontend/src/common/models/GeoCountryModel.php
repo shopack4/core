@@ -14,7 +14,6 @@ class GeoCountryModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\GeoCountryModelTrait;
 
 	public static $resourceName = 'aaa/geo-country';
-  public static $primaryKey = ['cntrID'];
 
 	public function attributeLabels()
 	{

@@ -7,6 +7,7 @@ namespace shopack\aaa\common\models;
 
 use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
 use shopack\aaa\common\enums\enuGatewayStatus;
 
@@ -29,6 +30,8 @@ use shopack\aaa\common\enums\enuGatewayStatus;
 */
 trait GatewayModelTrait
 {
+	public static $primaryKey = ['gtwID'];
+
 	public function primaryKeyValue() {
 		return $this->gtwID;
 	}
@@ -42,7 +45,7 @@ trait GatewayModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'gtwUUID' => ModelColumnHelper::UUID(),
 			'gtwName' => [
@@ -51,7 +54,7 @@ trait GatewayModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'gtwPluginType' => [
 				enuColumnInfo::type       => ['string', 'max' => 48],
@@ -59,7 +62,7 @@ trait GatewayModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'gtwPluginName' => [
 				enuColumnInfo::type       => ['string', 'max' => 48],
@@ -67,7 +70,7 @@ trait GatewayModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'gtwPluginParameters' => [
 				enuColumnInfo::type       => JsonValidator::class,
@@ -100,7 +103,7 @@ trait GatewayModelTrait
 				enuColumnInfo::default    => enuGatewayStatus::Active,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 
       'gtwCreatedAt' => ModelColumnHelper::CreatedAt(),

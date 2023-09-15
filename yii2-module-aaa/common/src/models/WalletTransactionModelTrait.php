@@ -7,6 +7,7 @@ namespace shopack\aaa\common\models;
 
 use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
 use shopack\aaa\common\enums\enuWalletTransactionStatus;
 
 /*
@@ -27,8 +28,10 @@ use shopack\aaa\common\enums\enuWalletTransactionStatus;
 */
 trait WalletTransactionModelTrait
 {
+	public static $primaryKey = ['wtrID'];
+
 	public function primaryKeyValue() {
-		return $this->walID;
+		return $this->wtrID;
 	}
 
 	public static function columnsInfo()
@@ -40,7 +43,7 @@ trait WalletTransactionModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
       'wtrUUID' => ModelColumnHelper::UUID(),
 			'wtrWalletID' => [
@@ -49,7 +52,7 @@ trait WalletTransactionModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'wtrVoucherID' => [
 				enuColumnInfo::type       => 'integer',
@@ -57,7 +60,7 @@ trait WalletTransactionModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'wtrOnlinePaymentID' => [
 				enuColumnInfo::type       => 'integer',
@@ -65,7 +68,7 @@ trait WalletTransactionModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-				enuColumnInfo::search     => true,
+				enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'wtrOfflinePaymentID' => [
 				enuColumnInfo::type       => 'integer',
@@ -73,7 +76,7 @@ trait WalletTransactionModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-				enuColumnInfo::search     => true,
+				enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'wtrAmount' => [
 				enuColumnInfo::type       => 'integer',
@@ -81,7 +84,7 @@ trait WalletTransactionModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'wtrStatus' => [
 				enuColumnInfo::isStatus   => true,
@@ -90,7 +93,7 @@ trait WalletTransactionModelTrait
 				enuColumnInfo::default    => enuWalletTransactionStatus::New,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 
       'wtrCreatedAt' => ModelColumnHelper::CreatedAt(),
