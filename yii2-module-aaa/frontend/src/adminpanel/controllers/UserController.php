@@ -7,8 +7,8 @@ namespace shopack\aaa\frontend\adminpanel\controllers;
 
 use Yii;
 use yii\web\BadRequestHttpException;
-use shopack\base\frontend\helpers\Html;
-use shopack\base\frontend\rest\RestClientDataProvider;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\rest\RestClientDataProvider;
 use shopack\aaa\frontend\common\auth\BaseCrudController;
 use shopack\aaa\frontend\common\models\UserModel;
 use shopack\aaa\frontend\common\models\UserSearchModel;

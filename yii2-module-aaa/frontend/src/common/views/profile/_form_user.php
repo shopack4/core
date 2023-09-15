@@ -5,12 +5,12 @@
 
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\ArrayHelper;
-use shopack\base\frontend\helpers\Html;
-use shopack\base\frontend\widgets\ActiveForm;
-use shopack\base\frontend\widgets\FormBuilder;
-use shopack\base\frontend\widgets\Select2;
-use shopack\base\frontend\widgets\DepDrop;
-use shopack\base\frontend\widgets\datetime\DatePicker;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\ActiveForm;
+use shopack\base\frontend\common\widgets\FormBuilder;
+use shopack\base\frontend\common\widgets\Select2;
+use shopack\base\frontend\common\widgets\DepDrop;
+use shopack\base\frontend\common\widgets\datetime\DatePicker;
 use shopack\aaa\common\enums\enuGender;
 use shopack\aaa\frontend\common\models\GeoCountryModel;
 use shopack\aaa\common\enums\enuUserEducationLevel;

@@ -10,7 +10,7 @@ use yii\base\InvalidConfigException;
 use yii\web\NotFoundHttpException;
 use yii\web\BadRequestHttpException;
 use shopack\base\common\helpers\Url;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\helpers\Html;
 
 abstract class BaseCrudController extends BaseController
 {

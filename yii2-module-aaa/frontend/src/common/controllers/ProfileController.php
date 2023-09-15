@@ -11,7 +11,7 @@ use yii\web\BadRequestHttpException;
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\helpers\GeneralHelper;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\auth\BaseController;
 use shopack\aaa\frontend\common\models\UserModel;
 use shopack\aaa\frontend\common\models\ImageChangeForm;

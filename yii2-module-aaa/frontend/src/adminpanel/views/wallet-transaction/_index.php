@@ -6,8 +6,8 @@
 /** @var yii\web\View $this */
 
 use shopack\base\common\helpers\StringHelper;
-use shopack\base\frontend\helpers\Html;
-use shopack\base\frontend\widgets\grid\GridView;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
 use shopack\aaa\common\enums\enuWalletTransactionStatus;
 use shopack\aaa\common\enums\enuVoucherType;
 ?>
@@ -69,7 +69,7 @@ use shopack\aaa\common\enums\enuVoucherType;
       'wtrOnlinePaymentID',
       'wtrOfflinePaymentID',
       // [
-      //   'class' => \shopack\base\frontend\widgets\grid\EnumDataColumn::class,
+      //   'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
       //   'enumClass' => enuWalletTransactionStatus::class,
       //   'attribute' => 'wtrStatus',
       // ],
@@ -81,7 +81,7 @@ use shopack\aaa\common\enums\enuVoucherType;
         ],
       ],
       [
-        'class' => \shopack\base\frontend\widgets\ActionColumn::class,
+        'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
         'header' => Yii::t('app', 'Actions'),
         'template' => false,
       ],

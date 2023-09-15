@@ -24,10 +24,8 @@ class AccountingModule
 		$parentID = $this->module->id;
 		$thisID = $parentID . '/' . $this->id;
 
-		$this->controllerNamespace = str_replace('\controllers', '\accounting\controllers', $this->module->controllerNamespace);
-
 		if ($app instanceof \yii\web\Application) {
-			// $this->controllerNamespace = 'iranhmusic\shopack\mha\backend\accounting\controllers';
+			$this->controllerNamespace = str_replace('\controllers', '\accounting\controllers', $this->module->controllerNamespace);
 
 			$rules = [];
 
@@ -80,7 +78,7 @@ class AccountingModule
 			$app->urlManager->addRules($rules, false);
 
 		} else if ($app instanceof \yii\console\Application) {
-			// $this->controllerNamespace = 'iranhmusic\shopack\mha\backend\accounting\commands';
+			$this->controllerNamespace = str_replace('\commands', '\accounting\commands', $this->module->controllerNamespace);
 		}
 	}
 

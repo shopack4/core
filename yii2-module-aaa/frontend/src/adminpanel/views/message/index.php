@@ -6,8 +6,8 @@
 /** @var yii\web\View $this */
 
 use shopack\base\common\helpers\Json;
-use shopack\base\frontend\widgets\grid\GridView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
 use shopack\aaa\common\enums\enuMessageStatus;
 use shopack\aaa\frontend\common\models\MessageModel;
@@ -91,12 +91,12 @@ $this->params['breadcrumbs'][] = $this->title;
             'format' => 'jalaliWithTime',
           ],
           [
-            'class' => \shopack\base\frontend\widgets\grid\EnumDataColumn::class,
+            'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
             'enumClass' => enuMessageStatus::class,
             'attribute' => 'msgStatus',
           ],
           // [
-          //   'class' => \shopack\base\frontend\widgets\ActionColumn::class,
+          //   'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
           //   'header' => MessageModel::canCreate() ? Html::createButton() : Yii::t('app', 'Actions'),
           //   'template' => '', //'{update} {delete}{undelete}',
           //   'visibleButtons' => [

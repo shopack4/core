@@ -5,12 +5,12 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\widgets\PopoverX;
+use shopack\base\frontend\common\widgets\PopoverX;
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\helpers\ArrayHelper;
-use shopack\base\frontend\widgets\DetailView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\DetailView;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\models\GeoCountryModel;
 
 $this->title = Yii::t('aaa', 'Country') . ': ' . $model->cntrID . ' - ' . $model->cntrName;

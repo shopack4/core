@@ -7,9 +7,9 @@
 
 use yii\data\ArrayDataProvider;
 use shopack\base\common\helpers\StringHelper;
-use shopack\base\frontend\helpers\Html;
-use shopack\base\frontend\widgets\grid\GridView;
-use shopack\base\frontend\widgets\DetailView;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
+use shopack\base\frontend\common\widgets\DetailView;
 use shopack\aaa\common\enums\enuGatewayStatus;
 use shopack\aaa\frontend\common\enums\enuCheckoutStep;
 use shopack\aaa\frontend\common\models\GatewayModel;
@@ -109,7 +109,7 @@ JS;
                   },
                 ],
                 [
-                  'class' => \shopack\base\frontend\widgets\ActionColumn::class,
+                  'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
                   'template' => '{delete}',
                   'buttons' => [
                     'delete' => function ($url, $model, $key) {

@@ -6,7 +6,7 @@
 namespace shopack\aaa\frontend\adminpanel\controllers;
 
 use Yii;
-use shopack\base\frontend\rest\RestClientDataProvider;
+use shopack\base\frontend\common\rest\RestClientDataProvider;
 use shopack\aaa\frontend\common\auth\BaseController;
 use shopack\aaa\frontend\common\models\ApprovalRequestModel;
 use shopack\aaa\frontend\common\models\ApprovalRequestSearchModel;

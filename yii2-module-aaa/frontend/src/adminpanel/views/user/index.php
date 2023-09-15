@@ -5,8 +5,8 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\widgets\grid\GridView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
 use shopack\aaa\common\enums\enuUserStatus;
 use shopack\aaa\frontend\common\models\UserModel;
@@ -110,12 +110,12 @@ $this->params['breadcrumbs'][] = $this->title;
             },
           ],
           [
-            'class' => \shopack\base\frontend\widgets\grid\EnumDataColumn::class,
+            'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
             'enumClass' => enuUserStatus::class,
             'attribute' => 'usrStatus',
           ],
           [
-            'class' => \shopack\base\frontend\widgets\ActionColumn::class,
+            'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
             'header' => UserModel::canCreate() ? Html::createButton(null, null, [
               'data-popup-size' => 'lg',
             ]) : Yii::t('app', 'Actions'),

@@ -8,7 +8,7 @@ namespace shopack\aaa\frontend\common\models;
 // use Yii;
 use yii\base\Model;
 use yii\web\ServerErrorHttpException;
-use shopack\base\frontend\rest\RestClientDataProvider;
+use shopack\base\frontend\common\rest\RestClientDataProvider;
 // use shopack\base\helpers\Html;
 // use shopack\base\helpers\ArrayHelper;
 use shopack\aaa\frontend\common\models\UserModel;

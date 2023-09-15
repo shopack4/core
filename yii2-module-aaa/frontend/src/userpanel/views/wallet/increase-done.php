@@ -6,7 +6,7 @@
 /** @var yii\web\View $this */
 
 use shopack\aaa\common\enums\enuOnlinePaymentStatus;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
 use shopack\aaa\frontend\common\models\WalletModel;
 

@@ -6,8 +6,8 @@
 /** @var yii\web\View $this */
 
 // use NumberFormatter;
-use shopack\base\frontend\widgets\ActiveForm;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\ActiveForm;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\models\WalletModel;
 use shopack\aaa\frontend\common\models\OnlinePaymentModel;
 use shopack\aaa\frontend\userpanel\models\BasketCheckoutForm;

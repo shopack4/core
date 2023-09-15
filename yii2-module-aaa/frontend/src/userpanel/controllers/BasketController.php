@@ -10,7 +10,7 @@ use yii\web\NotFoundHttpException;
 use yii\web\BadRequestHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\Url;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\auth\BaseController;
 use shopack\aaa\frontend\common\models\VoucherModel;
 use shopack\aaa\common\enums\enuVoucherType;

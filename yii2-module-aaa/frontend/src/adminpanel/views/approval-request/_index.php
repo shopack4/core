@@ -5,8 +5,8 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\widgets\grid\GridView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
 use shopack\aaa\frontend\common\models\ApprovalRequestModel;
 use shopack\aaa\common\enums\enuApprovalRequestStatus;
@@ -40,7 +40,7 @@ use shopack\aaa\common\enums\enuApprovalRequestStatus;
       'aprSentAt:jalaliWithTime',
       'aprApplyAt:jalaliWithTime',
       [
-        'class' => \shopack\base\frontend\widgets\grid\EnumDataColumn::class,
+        'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
         'enumClass' => enuApprovalRequestStatus::class,
         'attribute' => 'aprStatus',
       ],

@@ -5,8 +5,8 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\widgets\grid\GridView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
 use shopack\aaa\common\enums\enuUploadFileStatus;
 use shopack\aaa\frontend\common\models\UploadFileModel;
@@ -60,12 +60,12 @@ use shopack\aaa\frontend\common\models\UploadFileModel;
 
   $columns = array_merge($columns, [
     [
-      'class' => \shopack\base\frontend\widgets\grid\EnumDataColumn::class,
+      'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
       'enumClass' => enuUploadFileStatus::class,
       'attribute' => 'uflStatus',
     ],
     /*[
-      'class' => \shopack\base\frontend\widgets\ActionColumn::class,
+      'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
       'header' => UploadFileModel::canCreate() ? Html::createButton(null, [
         'create',
         'uflOwnerUserID' => $uflOwnerUserID ?? $_GET['uflOwnerUserID'] ?? null,

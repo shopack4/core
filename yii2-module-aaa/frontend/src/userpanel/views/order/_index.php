@@ -6,8 +6,8 @@
 /** @var yii\web\View $this */
 
 use shopack\base\common\helpers\StringHelper;
-use shopack\base\frontend\helpers\Html;
-use shopack\base\frontend\widgets\grid\GridView;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\frontend\common\models\VoucherModel;
 ?>
@@ -90,7 +90,7 @@ use shopack\aaa\frontend\common\models\VoucherModel;
         ],
       ],
       [
-        'class' => \shopack\base\frontend\widgets\grid\LookupDataColumn::class,
+        'class' => \shopack\base\frontend\common\widgets\grid\LookupDataColumn::class,
         'lookupData' => enuVoucherStatus::getForBasketList(),
         'attribute' => 'vchStatus',
       ],
@@ -109,7 +109,7 @@ use shopack\aaa\frontend\common\models\VoucherModel;
         ],
       ],
       [
-        'class' => \shopack\base\frontend\widgets\ActionColumn::class,
+        'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
         'header' => Yii::t('app', 'Actions'),
         'template' => false,
       ],

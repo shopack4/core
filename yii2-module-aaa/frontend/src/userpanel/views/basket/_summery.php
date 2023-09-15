@@ -5,8 +5,8 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\widgets\DetailView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\DetailView;
+use shopack\base\frontend\common\helpers\Html;
 ?>
 
 <?php

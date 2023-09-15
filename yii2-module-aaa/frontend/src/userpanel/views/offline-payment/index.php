@@ -5,7 +5,7 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 
 $this->title = Yii::t('aaa', 'Offline Payments');

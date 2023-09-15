@@ -5,8 +5,8 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\widgets\grid\GridView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\frontend\common\models\VoucherModel;
@@ -46,7 +46,7 @@ $this->params['breadcrumbs'][] = $this->title;
           ],
           'vchAmount',
           [
-            'class' => \shopack\base\frontend\widgets\ActionColumn::class,
+            'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
             'header' => VoucherModel::canCreate() ? Html::createButton() : Yii::t('app', 'Actions'),
             'template' => '{update} {delete}{undelete}',
             'visibleButtons' => [

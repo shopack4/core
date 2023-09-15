@@ -9,7 +9,7 @@ use NumberFormatter;
 use Yii;
 use yii\helpers\Html;
 // use yii\base\InvalidParamException;
-// use shopack\base\frontend\helpers\Html;
+// use shopack\base\frontend\common\helpers\Html;
 // use shopack\base\helpers\Geometry;
 // use shopack\base\helpers\ArrayHelper;
 // use shopack\filemanager\helpers\FileManager;

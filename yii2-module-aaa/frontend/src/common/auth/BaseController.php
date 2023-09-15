@@ -9,7 +9,7 @@ use Yii;
 use yii\filters\VerbFilter;
 use shopack\aaa\frontend\common\auth\JwtHttpCookieAuth;
 
-class BaseController extends \shopack\base\frontend\classes\BaseController
+class BaseController extends \shopack\base\frontend\common\classes\BaseController
 {
 	const BEHAVIOR_AUTHENTICATOR = 'authenticator';
 	const BEHAVIOR_VERBS = 'verbs';

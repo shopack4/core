@@ -6,10 +6,10 @@
 /** @var yii\web\View $this */
 
 use shopack\base\common\helpers\Json;
-use shopack\base\frontend\widgets\PopoverX;
-use shopack\base\frontend\widgets\DetailView;
-use shopack\base\frontend\helpers\Html;
-use shopack\base\frontend\widgets\tabs\Tabs;
+use shopack\base\frontend\common\widgets\PopoverX;
+use shopack\base\frontend\common\widgets\DetailView;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\tabs\Tabs;
 use shopack\aaa\frontend\common\models\UserModel;
 use shopack\aaa\common\enums\enuUserStatus;
 use shopack\aaa\common\enums\enuGender;

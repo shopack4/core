@@ -5,6 +5,10 @@
 
 namespace shopack\base\common\rest;
 
+use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
+use shopack\base\common\validators\JsonValidator;
+
 class ModelColumnHelper
 {
 	public static function UUID()

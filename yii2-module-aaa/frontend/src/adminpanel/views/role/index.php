@@ -5,8 +5,8 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\widgets\grid\GridView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
 // use shopack\aaa\common\enums\enuRoleStatus;
 use shopack\aaa\frontend\common\models\RoleModel;
@@ -46,12 +46,12 @@ $this->params['breadcrumbs'][] = $this->title;
             },
           ],
           // [
-          //   'class' => \shopack\base\frontend\widgets\grid\EnumDataColumn::class,
+          //   'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
           //   'enumClass' => enuRoleStatus::class,
           //   'attribute' => 'rolStatus',
           // ],
           [
-            'class' => \shopack\base\frontend\widgets\ActionColumn::class,
+            'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
             'header' => RoleModel::canCreate() ? Html::createButton() : Yii::t('app', 'Actions'),
             'template' => '{update} {delete}{undelete}',
             'visibleButtons' => [

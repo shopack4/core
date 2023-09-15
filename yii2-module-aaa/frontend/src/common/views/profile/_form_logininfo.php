@@ -4,9 +4,9 @@
  */
 
 use borales\extensions\phoneInput\PhoneInput;
-use shopack\base\frontend\helpers\Html;
-use shopack\base\frontend\widgets\ActiveForm;
-use shopack\base\frontend\widgets\FormBuilder;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\ActiveForm;
+use shopack\base\frontend\common\widgets\FormBuilder;
 use shopack\aaa\common\enums\enuGender;
 ?>
 

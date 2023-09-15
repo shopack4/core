@@ -5,8 +5,8 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\widgets\grid\GridView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
 use shopack\aaa\common\enums\enuMessageTemplateStatus;
 use shopack\aaa\common\enums\enuMessageTemplateMedia;
@@ -55,7 +55,7 @@ $this->params['breadcrumbs'][] = $this->title;
           'mstID',
           'mstKey',
           [
-            'class' => \shopack\base\frontend\widgets\grid\EnumDataColumn::class,
+            'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
             'enumClass' => enuMessageTemplateMedia::class,
             'attribute' => 'mstMedia',
           ],
@@ -65,12 +65,12 @@ $this->params['breadcrumbs'][] = $this->title;
           // 'mstParamsSuffix',
           'mstIsSystem:boolean',
           [
-            'class' => \shopack\base\frontend\widgets\grid\EnumDataColumn::class,
+            'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
             'enumClass' => enuMessageTemplateStatus::class,
             'attribute' => 'mstStatus',
           ],
           [
-            'class' => \shopack\base\frontend\widgets\ActionColumn::class,
+            'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
             'header' => MessageTemplateModel::canCreate() ? Html::createButton() : Yii::t('app', 'Actions'),
             'template' => '{update} {delete}{undelete}',
             'visibleButtons' => [
