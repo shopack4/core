@@ -20,8 +20,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="gateway-view w-100">
-  <div class='card border-default'>
-		<div class='card-header bg-default'>
+  <div class='card'>
+		<div class='card-header'>
 			<div class="float-end">
 				<?= GatewayModel::canCreate() ? Html::createButton() : '' ?>
         <?= $model->canUpdate()   ? Html::updateButton(null,   ['id' => $model->gtwID]) : '' ?>

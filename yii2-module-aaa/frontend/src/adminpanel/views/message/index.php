@@ -18,8 +18,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="message-index w-100">
-  <div class='card border-default'>
-		<div class='card-header bg-default'>
+  <div class='card'>
+		<div class='card-header'>
 			<div class="float-end">
         <?php /* MessageModel::canCreate() ? Html::createButton() : '' */ ?>
 			</div>

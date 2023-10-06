@@ -384,7 +384,7 @@ return [
 	'Mobile was Unapprove.' => 'عدم تایید موبایل انجام شد.',
 	'This mobile confirm token is not empty.' => 'کد تایید مویابل خالی نیست.',
 	'Mobile confirm token generated successfully.' => 'کد تایید موبایل ایجاد شد.',
-	'Code' => 'کد',
+	'Code' => 'شناسه',
 	'Report' => 'گزارش',
 	'Reports' => 'گزارش‌ها',
 	'Search {item}' => 'جستجوی {item}',

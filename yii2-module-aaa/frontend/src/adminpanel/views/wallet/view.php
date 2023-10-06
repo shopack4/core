@@ -19,8 +19,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="wallet-view w-100">
-  <div class='card border-default'>
-		<div class='card-header bg-default'>
+  <div class='card'>
+		<div class='card-header'>
 			<div class="float-end">
 				<?= Html::a(Yii::t('aaa', 'Increase Balance'), [
           '/aaa/wallet/increase',

@@ -27,8 +27,8 @@ $this->params['breadcrumbs'][] = $this->title;
 			<?php $tabs->beginTabPage(Yii::t('aaa', 'My Details'), 'details'); ?>
 				<div class='row'>
 					<div class='col-sm-9'>
-						<div class='card border-default'>
-							<div class='card-header bg-default'>
+						<div class='card'>
+							<div class='card-header'>
 								<div class="float-end">
 									<?= $model->canUpdate() ? Html::updateButton(null, ['update-user'], [
 										'data' => [
@@ -142,7 +142,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 					<div class='col-sm-3'>
 						<div class='card border-default mb-3'>
-							<div class='card-header bg-default'>
+							<div class='card-header'>
 								<div class="float-end">
 								</div>
 								<div class='card-title'><?= Yii::t('aaa', 'Account') ?></div>
@@ -153,8 +153,8 @@ $this->params['breadcrumbs'][] = $this->title;
 							</div>
 						</div>
 
-						<div class='card border-default'>
-							<div class='card-header bg-default'>
+						<div class='card'>
+							<div class='card-header'>
 								<div class="float-end">
 									<?= Html::updateButton(Yii::t('aaa', 'Update Image'), ['update-image'], [
 										// 'modal' => false,

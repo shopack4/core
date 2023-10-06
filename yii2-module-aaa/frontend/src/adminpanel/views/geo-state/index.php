@@ -17,8 +17,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="geo-state-index w-100">
-  <div class='card border-default'>
-		<div class='card-header bg-default'>
+  <div class='card'>
+		<div class='card-header'>
 			<div class="float-end">
         <?= GeoStateModel::canCreate() ? Html::createButton(null, [
           'sttCountryID' => $sttCountryID ?? $_GET['sttCountryID'] ?? null

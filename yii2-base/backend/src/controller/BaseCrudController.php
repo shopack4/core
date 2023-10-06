@@ -133,6 +133,7 @@ abstract class BaseCrudController extends BaseRestController
 	{
 		$modelClass = $this->modelClass;
 		$model = new $modelClass();
+
 		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
 			throw new NotFoundHttpException("parameters not provided");
 
@@ -141,13 +142,14 @@ abstract class BaseCrudController extends BaseRestController
 		try {
 			if ($model->save() == false)
 				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
+
 		} catch(\Exception $exp) {
 			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
 			throw new UnprocessableEntityHttpException($msg);
 		}
 
 		return [
-			'pkid' => $model->primaryKeyValue(),
+			implode(',', (Array)($modelClass::primaryKey())) => $model->primaryKeyValue(),
 			// // 'result' => [
 			// 	// 'message' => 'created',
 			// 	'docID' => $model->docID,

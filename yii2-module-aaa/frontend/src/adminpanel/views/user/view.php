@@ -24,8 +24,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="user-view w-100">
-  <div class='card border-default'>
-		<div class='card-header bg-default'>
+  <div class='card'>
+		<div class='card-header'>
 			<div class="float-end">
         <?= UserModel::canCreate() ? Html::createButton(null, null, [
           'data' => [
@@ -223,8 +223,8 @@ $this->params['breadcrumbs'][] = $this->title;
                 </div>
               </div>
 
-              <div class='card border-default'>
-                <div class='card-header bg-default'>
+              <div class='card'>
+                <div class='card-header'>
                   <div class="float-end">
                   </div>
                   <div class='card-title'><?= Yii::t('aaa', 'Image') ?></div>

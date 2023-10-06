@@ -17,8 +17,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="geo-city-or-village-index w-100">
-  <div class='card border-default'>
-		<div class='card-header bg-default'>
+  <div class='card'>
+		<div class='card-header'>
 			<div class="float-end">
         <?= GeoCityOrVillageModel::canCreate() ? Html::createButton(null, [
           'ctvStateID' => $ctvStateID ?? $_GET['ctvStateID'] ?? null

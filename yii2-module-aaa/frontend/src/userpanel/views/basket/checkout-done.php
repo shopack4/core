@@ -14,7 +14,7 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="checkout-done w-100">
-  <div class='card border-default'>
+  <div class='card'>
     <div class='card-body'>
       <p class='text-center'>
 				<?php
