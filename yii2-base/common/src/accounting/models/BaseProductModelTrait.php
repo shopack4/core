@@ -60,7 +60,7 @@ trait BaseProductModelTrait
       ],
       'prdUUID' => ModelColumnHelper::UUID(),
       'prdCode' => [
-        enuColumnInfo::type       => ['string', 'max' => 32],
+        enuColumnInfo::type       => ['string', 'max' => 38], //same as uuid length
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,

@@ -67,10 +67,10 @@ trait BaseSaleableModelTrait
         enuColumnInfo::search     => enuColumnSearchType::exact,
       ],
       'slbCode' => [
-        enuColumnInfo::type       => ['string', 'max' => 32],
+        enuColumnInfo::type       => ['string', 'max' => 38], //same as uuid length
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => true,
+        enuColumnInfo::required   => false, //true,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
       ],
@@ -86,7 +86,7 @@ trait BaseSaleableModelTrait
         enuColumnInfo::type       => ['string', 'max' => 128],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => true,
+        enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
       ],

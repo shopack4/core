@@ -208,6 +208,11 @@ return [
 	// 'Create Voucher' => 'ایجاد کیف پول',
 	// 'Update Voucher' => 'ویرایش کیف پول',
 
+	'Units' => 'واحدهای شمارش',
+	'Unit' => 'واحد شمارش',
+	'Unit Info' => 'مشخصات واحد شمارش',
+	'Create Unit' => 'ایجاد واحد شمارش',
+	'Update Unit' => 'ویرایش واحد شمارش',
 
 
 
@@ -506,6 +511,7 @@ return [
 	'Shopping card is empty' => 'سبد خرید خالی است',
 	'Payment Method' => 'روش پرداخت',
 
+	'Price' => 'قیمت',
 	'Unit Price' => 'قیمت واحد',
 	'Total Price' => 'قیمت کل',
 	'Saleable' => 'طرح فروش',
