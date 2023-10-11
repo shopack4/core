@@ -13,6 +13,7 @@ use shopack\aaa\frontend\common\controllers\ProfileController;
 // use shopack\aaa\frontend\common\controllers\WalletController;
 // use shopack\aaa\frontend\common\controllers\FinController;
 // use shopack\aaa\frontend\common\controllers\OrderController;
+use shopack\aaa\frontend\userpanel\accounting\controllers\AccountingController;
 
 class Module
 	extends \shopack\base\common\base\BaseModule
@@ -38,6 +39,7 @@ class Module
 			// $this->controllerMap['wallet'] = WalletController::class;
 			// $this->controllerMap['fin'] = FinController::class;
 			// $this->controllerMap['order'] = OrderController::class;
+			$this->controllerMap['accounting'] = AccountingController::class;
 
 			$rules = [
 				[

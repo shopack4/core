@@ -10,6 +10,7 @@ use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
 use shopack\base\common\accounting\enums\enuProductStatus;
+use shopack\base\common\accounting\enums\enuProductType;
 
 /*
 'prdID',
@@ -17,6 +18,7 @@ use shopack\base\common\accounting\enums\enuProductStatus;
 'prdCode',
 'prdName',
 'prdDesc',
+'prdType',
 'prdValidFromDate',
 'prdValidToDate',
 'prdValidFromHour',
@@ -83,12 +85,20 @@ trait BaseProductModelTrait
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
       ],
+			'prdType' => [
+        enuColumnInfo::type       => ['string', 'max' => 1],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => enuProductType::Physical,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
       'prdValidFromDate' => [
         enuColumnInfo::type       => 'safe',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => true,
       ],
       'prdValidToDate' => [
         enuColumnInfo::type       => 'safe',
@@ -96,6 +106,7 @@ trait BaseProductModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => true,
       ],
       'prdValidFromHour' => [
         enuColumnInfo::type       => 'integer',
@@ -103,6 +114,7 @@ trait BaseProductModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => true,
       ],
       'prdValidToHour' => [
         enuColumnInfo::type       => 'integer',
@@ -110,6 +122,7 @@ trait BaseProductModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => true,
       ],
       'prdDurationMinutes' => [
         enuColumnInfo::type       => 'integer',
@@ -117,6 +130,7 @@ trait BaseProductModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => true,
       ],
       'prdStartAtFirstUse' => [
         enuColumnInfo::type       => 'boolean',

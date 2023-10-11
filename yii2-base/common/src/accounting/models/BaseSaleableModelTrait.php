@@ -96,6 +96,7 @@ trait BaseSaleableModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => true,
       ],
       'slbAvailableToDate' => [
         enuColumnInfo::type       => 'safe',
@@ -103,6 +104,7 @@ trait BaseSaleableModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => true,
       ],
       'slbPrivs' => [
         enuColumnInfo::type       => JsonValidator::class,
@@ -117,6 +119,7 @@ trait BaseSaleableModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => true,
       ],
       'slbAdditives' => [
         enuColumnInfo::type       => JsonValidator::class,
