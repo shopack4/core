@@ -38,6 +38,17 @@ use shopack\base\frontend\common\helpers\Html;
     ],
   ];
 
+  if ($model->physicalCount > 0) {
+    $attributes = array_merge($attributes, [
+      [
+        'attribute' => 'deliveryAmount',
+        'label' => 'هزینه ارسال',
+        'format' => 'toman',
+        'value' => $model['deliveryAmount'],
+      ],
+    ]);
+  }
+
   if ($model->paid > 0) {
     $attributes = array_merge($attributes, [
       // [

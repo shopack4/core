@@ -96,6 +96,10 @@ JS;
                   },
                 ],
                 [
+                  'attribute' => 'unit',
+                  'label' => 'واحد',
+                ],
+                [
                   'attribute' => 'unitprice',
                   'label' => 'مبلغ واحد',
                   'format' => 'toman',
@@ -139,15 +143,15 @@ JS;
           <p></p>
           <div>
             <?php
-              if ($model->total == 0) {
+              // if ($model->total == 0) {
                 echo Html::a('ثبت سفارش', ['checkout'], [
                   'class' => ['btn', 'btn-sm', 'btn-success', 'd-block'],
                 ]);
-              } else {
-                echo Html::a('بررسی و پرداخت', ['checkout'], [
-                  'class' => ['btn', 'btn-sm', 'btn-primary', 'd-block'],
-                ]);
-              }
+              // } else {
+              //   echo Html::a('بررسی و پرداخت', ['checkout'], [
+              //     'class' => ['btn', 'btn-sm', 'btn-primary', 'd-block'],
+              //   ]);
+              // }
             ?>
           </div>
         </div>

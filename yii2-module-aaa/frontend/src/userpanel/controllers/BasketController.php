@@ -19,6 +19,7 @@ use shopack\aaa\frontend\common\enums\enuCheckoutStep;
 use shopack\aaa\frontend\userpanel\models\BasketCheckoutForm;
 use shopack\aaa\frontend\userpanel\models\BasketItemForm;
 use shopack\aaa\frontend\common\models\OnlinePaymentModel;
+use shopack\base\common\accounting\enums\enuProductType;
 
 class BasketController extends BaseController
 {
@@ -35,22 +36,22 @@ class BasketController extends BaseController
   //   $this->setViewPath($viewPath);
   // }
 
-	public function getCurrentBasket()
-	{
-    $voucherModel = VoucherModel::find()
-      ->andWhere(['vchOwnerUserID' => Yii::$app->user->id])
-      ->andWhere(['vchType' => enuVoucherType::Basket])
-      ->andWhere(['vchStatus' => enuVoucherStatus::New])
-      ->andWhere(['vchRemovedAt' => 0])
-      ->all();
+	// public function getCurrentBasket()
+	// {
+  //   $voucherModel = VoucherModel::find()
+  //     ->andWhere(['vchOwnerUserID' => Yii::$app->user->id])
+  //     ->andWhere(['vchType' => enuVoucherType::Basket])
+  //     ->andWhere(['vchStatus' => enuVoucherStatus::New])
+  //     ->andWhere(['vchRemovedAt' => 0])
+  //     ->all();
 
-		return $voucherModel[0] ?? null;
-	}
+	// 	return $voucherModel[0] ?? null;
+	// }
 
   public function actionIndex()
 	{
 		$model = new BasketCheckoutForm;
-		$model->setVoucher($this->getCurrentBasket());
+		// $model->setVoucher($this->getCurrentBasket());
 
 		if (empty($model->voucher) || empty($model->voucher->vchItems)) {
 			return $this->render('empty', [
@@ -88,7 +89,7 @@ class BasketController extends BaseController
 	public function actionCheckout()
 	{
 		$model = new BasketCheckoutForm;
-		$model->setVoucher($this->getCurrentBasket());
+		// $model->setVoucher($this->getCurrentBasket());
 
 		if (empty($model->voucher) || empty($model->voucher->vchItems)) {
 			return $this->render('empty', [
@@ -117,13 +118,7 @@ class BasketController extends BaseController
 		//non-free basket
 		$formPosted = $model->load(Yii::$app->request->post());
 
-		if (empty($model->currentStep)) {
-			return $this->render('payment', [
-				'model' => $model,
-			]);
-		}
-
-		if ($model->currentStep == BasketCheckoutForm::STEP_PAYMENT) {
+		if ($model->currentStep == BasketCheckoutForm::STEP_FIN) {
 			try {
 				$result = $model->checkout();
 
@@ -138,11 +133,11 @@ class BasketController extends BaseController
 			} catch (\Throwable $th) {
 				$model->addError(null, $th->getMessage());
 			}
-
-			return $this->render('payment', [
-				'model' => $model,
-			]);
 		}
+
+		return $this->render('checkout', [
+			'model' => $model,
+		]);
 
 		//if ($model->currentStep == BasketCheckoutForm::) {}
 

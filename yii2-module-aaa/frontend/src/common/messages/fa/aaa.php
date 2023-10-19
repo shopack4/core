@@ -507,7 +507,7 @@ return [
 	'Baskets' => 'سبدهای خرید',
 	'Basket' => 'سبد خرید',
 	'Shopping Card' => 'سبد خرید',
-	'Shopping Card - Payment Method' => 'سبد خرید - روش پرداخت',
+	'Shopping Card - Checkout' => 'سبد خرید - ثبت سفارش',
 	'Shopping card is empty' => 'سبد خرید خالی است',
 	'Payment Method' => 'روش پرداخت',
 

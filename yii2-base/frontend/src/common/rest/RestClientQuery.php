@@ -282,6 +282,12 @@ class RestClientQuery
    */
   public function all($db = null)
   {
+    $modelClass = $this->modelClass;
+    $resourceParams = $modelClass::getResourceParams();
+    if (empty($resourceParams) == false) {
+      $this->andWhere($resourceParams);
+    }
+
     $this->fillWhereByRelation();
 
     $response = $this->_request('get', $this->_getUrl('collection'), [
@@ -301,23 +307,30 @@ class RestClientQuery
    */
   public function count($q = '*', $db = null)
   {
-    $this->fillWhereByRelation();
+    $query = clone $this;
 
-    if ($this->_pagination)
-      return isset($this->_pagination['totalCount']) ? (int) $this->_pagination['totalCount'] : 0;
+    $modelClass = $this->modelClass;
+    $resourceParams = $modelClass::getResourceParams();
+    if (empty($resourceParams) == false) {
+      $query->andWhere($resourceParams);
+    }
 
-    if ($this->_subQuery)
+    $query->fillWhereByRelation();
+
+    if ($query->_pagination)
+      return isset($query->_pagination['totalCount']) ? (int) $query->_pagination['totalCount'] : 0;
+
+    if ($query->_subQuery)
       return 0;
 
     // try to get count by HEAD request
-    $response = $this->_request('head', $this->_getUrl('collection'), [
-      'query' => $this->_buildQueryParams(),
+    $response = $query->_request('head', $query->_getUrl('collection'), [
+      'query' => $query->_buildQueryParams(),
     ]);
-    $count = $response->getHeaderLine($this->responseHeaders['totalCount']);
+    $count = $response->getHeaderLine($query->responseHeaders['totalCount']);
 
     // REST server not allow HEAD query and X-Total header is empty
-    if ($count === '' && $this->_paginationEnvelope) {
-      $query = clone $this;
+    if ($count === '' && $query->_paginationEnvelope) {
       $query->_setSubQueryFlag()->offset(0)->limit(1)->all();
       return $query->count();
     }
@@ -331,6 +344,12 @@ class RestClientQuery
    */
   public function one($id = null)
   {
+    $modelClass = $this->modelClass;
+    $resourceParams = $modelClass::getResourceParams();
+    if (empty($resourceParams) == false) {
+      $this->andWhere($resourceParams);
+    }
+
     $this->fillWhereByRelation();
 
     if (empty($id))

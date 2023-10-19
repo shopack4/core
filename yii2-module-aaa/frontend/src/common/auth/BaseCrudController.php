@@ -66,7 +66,8 @@ abstract class BaseCrudController extends BaseController
 			'searchModel' => $searchModel,
 			'dataProvider' => $dataProvider,
 		];
-    if (isset($params))
+
+    if (empty($params) == false)
       $viewParams = array_merge($viewParams, $params);
 
 		if (Yii::$app->request->isAjax)

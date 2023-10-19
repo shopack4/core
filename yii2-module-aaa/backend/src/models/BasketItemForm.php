@@ -13,6 +13,7 @@ use yii\db\Expression;
 use yii\web\NotFoundHttpException;
 use Ramsey\Uuid\Uuid;
 use shopack\base\common\helpers\Json;
+use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\validators\GroupRequiredValidator;
 use shopack\base\backend\helpers\AuthHelper;
 use shopack\aaa\common\enums\enuUserStatus;
@@ -37,18 +38,8 @@ class BasketItemForm extends Model
 
 		$data = Json::decode($data);
 
-		$userid    = $data['userid'];
-		$service   = $data['service'];
-		$slbkey    = $data['slbkey'];
-		$slbid     = $data['slbid'];
-		$desc      = $data['desc'];
-		$qty       = $data['qty'];
-		$maxqty    = $data['maxqty'] ?? null;
-		$unitprice = $data['unitprice'];
-    //additives
-    //discount
-    //tax
-    //totalprice
+		$userid = $data['userid'];
+    $items  = $data['items'];
 
     //voucher
     $voucherModel = BasketForm::getCurrentBasket($userid);
@@ -60,35 +51,50 @@ class BasketItemForm extends Model
       $voucherModel->vchAmount      = 0;
     }
 
-    $voucherModel->vchAmount += ($unitprice * $qty);
-
     $vchItems = $voucherModel->vchItems ?? [];
 
-    //check current items
-    if (empty($maxqty) == false) {
-      $curqty = 0;
-      foreach ($vchItems as $vchItem) {
-        if ($vchItem['service'] == $service
-          && $vchItem['slbkey'] == $slbkey
-          && $vchItem['slbid'] == $slbid
-        ) {
-          $curqty += $vchItem['qty'];
+    foreach ($items as $itemToAdd) {
+      $service   = $itemToAdd['service'];
+      // $slbkey    = $itemToAdd['slbkey'];
+      $slbid     = $itemToAdd['slbid'];
+      $desc      = $itemToAdd['desc'];
+      $qty       = $itemToAdd['qty'];
+      $maxqty    = $itemToAdd['maxqty'] ?? null;
+      $unitprice = $itemToAdd['unitprice'];
+      //additives
+      //discount
+      //tax
+      //totalprice
 
-          if ($curqty >= $maxqty)
-            throw new UnprocessableEntityHttpException('Max qty of this item exists in basket');
+      $voucherModel->vchAmount += ($unitprice * $qty);
+
+      //check current items
+      if (empty($maxqty) == false) {
+        $curqty = 0;
+        foreach ($vchItems as $vchItem) {
+          if ($vchItem['service'] == $service
+            // && $vchItem['slbkey'] == $slbkey
+            && $vchItem['slbid'] == $slbid
+          ) {
+            $curqty += $vchItem['qty'];
+
+            if ($curqty >= $maxqty)
+              throw new UnprocessableEntityHttpException('Max qty of this item exists in basket');
+          }
         }
       }
+
+      $vchItems[] = array_merge($itemToAdd, [
+        'key'       => Uuid::uuid4()->toString(),
+        // 'service'   => $service,
+        // 'slbkey'    => $slbkey,
+        // 'slbid'     => $slbid,
+        // 'desc'      => $desc,
+        // 'qty'       => $qty,
+        // 'unitprice' => $unitprice,
+      ]);
     }
 
-    $vchItems[] = array_merge($data, [
-      'key'       => Uuid::uuid4()->toString(),
-      // 'service'   => $service,
-      // 'slbkey'    => $slbkey,
-      // 'slbid'     => $slbid,
-      // 'desc'      => $desc,
-      // 'qty'       => $qty,
-      // 'unitprice' => $unitprice,
-    ]);
     $voucherModel->vchItems = $vchItems;
 
     return $voucherModel->save();

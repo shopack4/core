@@ -31,6 +31,8 @@ abstract class Model extends \yii\base\Model implements ModelInterface
    */
   public static $resourceName;
 
+  public static $resourceParams;
+
   /**
    * REST response data envelope, i.e. 'data'
    *
@@ -130,6 +132,10 @@ abstract class Model extends \yii\base\Model implements ModelInterface
   public static function getResourceName()
   {
     return static::$resourceName;
+  }
+  public static function getResourceParams()
+  {
+    return static::$resourceParams;
   }
 
   /**

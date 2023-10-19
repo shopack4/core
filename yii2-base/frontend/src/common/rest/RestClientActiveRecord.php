@@ -30,6 +30,8 @@ abstract class RestClientActiveRecord extends BaseActiveRecord
    */
   public static $resourceName;
 
+  public static $resourceParams;
+
   /**
    * REST response data envelope, i.e. 'data'
    *
@@ -88,6 +90,10 @@ abstract class RestClientActiveRecord extends BaseActiveRecord
   public static function getResourceName()
   {
     return static::$resourceName;
+  }
+  public static function getResourceParams()
+  {
+    return static::$resourceParams;
   }
 
   public static function staticInit()
