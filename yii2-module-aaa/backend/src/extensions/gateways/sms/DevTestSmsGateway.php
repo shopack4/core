@@ -23,7 +23,9 @@ class DevTestSmsGateway
 	public function send(
 		$message,
 		$to,
-		$from = null //null => use default in gtwPluginParameters
+		$from = null, //null => use default in gtwPluginParameters
+		$templateName = null,
+		$templateParams = null
 	) : SmsSendResult {
 		return new SmsSendResult(true, null, Uuid::uuid4()->toString());
 

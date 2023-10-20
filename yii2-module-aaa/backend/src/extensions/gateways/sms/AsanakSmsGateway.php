@@ -78,7 +78,9 @@ class AsanakSmsGateway
 	public function send(
 		$message,
 		$to,
-		$from = null //null => use default in gtwPluginParameters
+		$from = null, //null => use default in gtwPluginParameters
+		$templateName = null,
+		$templateParams = null
 	) : SmsSendResult {
 		if ($from == null)
 			$from = $this->extensionModel->gtwPluginParameters[self::PARAM_LINENUMBER] ?? null;

@@ -6,7 +6,7 @@
 namespace shopack\aaa\frontend\common\models;
 
 use Yii;
-use shopack\base\frontend\rest\RestClientActiveRecord;
+use shopack\base\frontend\common\rest\RestClientActiveRecord;
 use shopack\aaa\common\enums\enuGatewayStatus;
 
 class GatewayModel extends RestClientActiveRecord
@@ -14,14 +14,13 @@ class GatewayModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\GatewayModelTrait;
 
 	public static $resourceName = 'aaa/gateway';
-  public static $primaryKey = ['gtwID'];
 
 	public function attributeLabels()
 	{
 		return [
 			'gtwID'               => Yii::t('app', 'ID'),
 			'gtwName'             => Yii::t('app', 'Name'),
-			'gtwUUID'              => Yii::t('app', 'Key'),
+			'gtwUUID'             => Yii::t('app', 'Key'),
 			'gtwPluginType'       => Yii::t('aaa', 'Plugin Type'),
 			'gtwPluginName'       => Yii::t('aaa', 'Plugin'),
 			'gtwPluginParameters' => Yii::t('aaa', 'Plugin Parameters'),
