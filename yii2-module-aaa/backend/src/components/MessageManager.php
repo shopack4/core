@@ -55,9 +55,9 @@ class MessageManager extends Component
 	 * status = true
 	 * 		result =
 	 */
-	public function sendSms($message, $to, $from = null) : SmsSendResult
+	public function sendSms($message, $to, $from = null, $templateName = null, $templateParams = null) : SmsSendResult
 	{
-    $result = $this->defaultSmsGateway->gatewayClass->send($message, $to, $from);
+    $result = $this->defaultSmsGateway->gatewayClass->send($message, $to, $from, $templateName, $templateParams);
 
     try {
       //update gateway usage
@@ -242,7 +242,7 @@ SQL;
             if (empty($messageID))
               $this->log("  Send Email to " . $messageModel->msgTarget . ": ");
 
-            $refID = $this->SendEmailForItem($messageModel, $title, $body);
+            $refID = $this->sendEmailForItem($messageModel, $title, $body);
 
             if (empty($messageID))
               $this->log("    OK. ref: " . $refID);
@@ -275,7 +275,13 @@ SQL;
             if (empty($messageID))
               $this->log("  Send Sms to " . $messageModel->msgTarget . ": ");
 
-            $refID = $this->SendSmsForItem($messageModel, $title, $body);
+            $refID = $this->sendSmsForItem(
+              $messageModel,
+              $title,
+              $body,
+              $messageModel->msgTypeKey,
+              $messageModel->msgInfo
+            );
 
             if (empty($messageID))
               $this->log("    OK. ref: " . $refID);
@@ -346,7 +352,7 @@ SQL;
   /**
    * return: refID : string
    */
-  private function SendEmailForItem($messageModel, $title, $body) {
+  private function sendEmailForItem($messageModel, $title, $body) {
     if (empty(Yii::$app->params['senderEmail']))
       throw new \Exception("error in send email: senderEmail not set in config file");
 
@@ -372,13 +378,18 @@ SQL;
   /**
    * return: refID : string
    */
-  private function SendSmsForItem($messageModel, $title, $body) {
+  private function sendSmsForItem(
+    $messageModel, $title, $body, $templateName = null, $templateParams = null
+  ) {
     // $msg_mstCode = $row['msg_mstCode'];
     // $mstLanguage = $row["mstLanguage"];
 
     $result = $this->sendSms(
       $body,
-      $messageModel->msgTarget
+      $messageModel->msgTarget,
+      null,
+      $templateName,
+      $templateParams
     );
 
     if ($result->status)

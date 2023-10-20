@@ -64,7 +64,9 @@ class ModirPayamakSmsGateway
 	public function send(
 		$message,
 		$to,
-		$from = null //null => use default in gtwPluginParameters
+		$from = null, //null => use default in gtwPluginParameters
+		$templateName = null,
+		$templateParams = null
 	) : SmsSendResult {
 
 		$this->prepareMessageForSend($message);
