@@ -116,6 +116,7 @@ class VoucherModel extends AAAActiveRecord
 			[],
 			[
 				'vchid' => $this->vchID,
+				'userid' => $this->vchOwnerUserID,
 				'data' => $data,
 			]
 		);
