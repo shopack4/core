@@ -40,7 +40,7 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class='col-8'>
 					<?php
 						foreach ($model->steps as $step) {
-							echo Yii::$app->controller->renderPartial('_' . $step, [
+							echo Yii::$app->controller->renderPartial('_' . $step . '_' . ($step == $model->currentStep ? 'edit' : 'view'), [
 								'form' => $form,
 								'model' => $model,
 								'editmode' => ($step == $model->currentStep),

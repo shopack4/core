@@ -14,6 +14,8 @@ use shopack\aaa\frontend\common\models\VoucherModel;
 use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\base\common\accounting\enums\enuProductType;
+use shopack\aaa\frontend\common\models\DeliveryMethodModel;
+use shopack\aaa\frontend\common\models\WalletModel;
 
 class BasketCheckoutForm extends Model //RestClientActiveRecord
 {
@@ -34,14 +36,14 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 	public $vchtotal = 0;
 
 	public $physicalCount = 0;
-	public $deliveryType;
+	public $deliveryMethod = null;
 	public $deliveryAmount = 0;
 
 	public $paid = 0;
 	public $total = 0;
 
 	public $currentStep;
-	public $walletID;
+	public $walletID = null;
 	public $gatewayType;
 
 	public $steps;
@@ -54,7 +56,7 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 		return [
 			[[
 				'currentStep',
-				'deliveryType',
+				'deliveryMethod',
 				'walletID',
 				'gatewayType',
 			], 'string'],
@@ -63,7 +65,7 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 				'currentStep',
 			], 'required'],
 
-			['deliveryType',
+			['deliveryMethod',
 				'required',
 				'when' => function ($model) {
 					return ($model->currentStep == self::STEP_DELIVERY);
@@ -146,13 +148,61 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 			$this->currentStep = $this->steps[0];
 	}
 
-	public function checkout()
+	public function deliveryMethodModel()
 	{
-		// list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/checkout',
-		list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/accounting/finalize-basket',
+		if ($this->deliveryMethod == null)
+			return null;
+
+		return DeliveryMethodModel::find()->andWhere(['dlvID' => $this->deliveryMethod])->one();
+	}
+
+	public function walletModel()
+	{
+		if ($this->walletID == null)
+			return null;
+
+		return WalletModel::find()->andWhere(['walID' => $this->walletID])->one();
+	}
+
+	public function load($data, $formName = null)
+	{
+		$ret = parent::load($data, $formName);
+
+		$deliveryMethodModel = $this->deliveryMethodModel();
+
+		if ($deliveryMethodModel == null) {
+			$this->deliveryAmount = 0;
+		} else {
+			$this->deliveryAmount = $deliveryMethodModel->dlvAmount;
+		}
+
+		$this->total += $this->deliveryAmount;
+
+		return $ret;
+	}
+
+	public function saveStep()
+	{
+		switch ($this->currentStep) {
+			case self::STEP_DELIVERY:
+				return true;
+
+			case self::STEP_PAYMENT:
+				return true;
+
+			case self::STEP_FIN:
+				return $this->checkout();
+		}
+	}
+
+	private function checkout()
+	{
+		// list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/accounting/finalize-basket',
+		list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/checkout',
 			HttpHelper::METHOD_POST,
 			[],
 			[
+				'deliveryMethod' => $this->deliveryMethod,
 				'walletID' => $this->walletID,
 				'gatewayType' => $this->gatewayType,
 				'callbackUrl' => Url::to(['basket/checkout-done'], true),

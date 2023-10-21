@@ -13,8 +13,8 @@ use shopack\aaa\frontend\common\models\OnlinePaymentModel;
 use shopack\aaa\frontend\userpanel\models\BasketCheckoutForm;
 ?>
 
-<div class='card'>
-  <div class='card-header'>
+<div class='card border-success'>
+  <div class='card-header bg-success text-white'>
     <div class="float-end"></div>
     <div class='card-title'><?= Yii::t('aaa', 'Payment Method') ?></div>
     <div class="clearfix"></div>
@@ -195,6 +195,14 @@ JS;
         // echo Html::activeRadioList($model, 'gatewayType', $gatewayTypes);
       ?>
     </div>
-
   </div>
+
+  <div class='card-footer justify-content-end'>
+    <?php
+      echo Html::submitButton('بعدی', [
+        'class' => ['btn', 'btn-sm', 'btn-success'],
+      ]);
+    ?>
+  </div>
+
 </div>

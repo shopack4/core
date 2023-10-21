@@ -184,6 +184,12 @@ class Module
 				[
 					'class' => \yii\rest\UrlRule::class,
 					// 'prefix' => 'v1',
+					'controller' => [$this->id . '/delivery-method'],
+					'pluralize' => false,
+				],
+				[
+					'class' => \yii\rest\UrlRule::class,
+					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/voucher'],
 					'pluralize' => false,
 				],

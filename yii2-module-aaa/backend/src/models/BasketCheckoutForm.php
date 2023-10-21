@@ -15,9 +15,11 @@ use yii\web\UnprocessableEntityHttpException;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuWalletStatus;
 use shopack\aaa\backend\models\WalletTransactionModel;
+use shopack\aaa\backend\models\DeliveryMethodModel;
 
 class BasketCheckoutForm extends Model
 {
+	public $deliveryMethod;
 	public $walletID;
 	public $gatewayType;
   public $callbackUrl;
@@ -26,6 +28,7 @@ class BasketCheckoutForm extends Model
 	{
 		return [
 			[[
+				'deliveryMethod',
 				'walletID',
 				'gatewayType',
         'callbackUrl',
@@ -62,6 +65,15 @@ class BasketCheckoutForm extends Model
 		//--
     if ($this->validate() == false)
       throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
+
+		if (empty($this->deliveryMethod) == false) {
+			$deliveryMethodModel = DeliveryMethodModel::find()->andWhere([
+				'dlvID' => $this->deliveryMethod,
+			])->one();
+
+			if ($deliveryMethodModel->dlvAmount > 0)
+				$voucherModel->vchAmount += $deliveryMethodModel->dlvAmount;
+		}
 
 		$remainedAmount = $voucherModel->vchAmount - $voucherModel->vchTotalPaid;
 
@@ -161,6 +173,15 @@ SQL;
 			if ($remainedAmount == 0) {
 				//------------------------
 				$voucherModel->vchStatus = enuVoucherStatus::Settled;
+
+				if (isset($deliveryMethodModel)) {
+					$voucherModel->vchDeliveryMethodID = $deliveryMethodModel->dlvID;
+					if ($deliveryMethodModel->dlvAmount > 0) {
+						$voucherModel->vchAmount = $voucherModel->vchAmount + $deliveryMethodModel->dlvAmount;
+						$voucherModel->vchDeliveryAmount = $deliveryMethodModel->dlvAmount;
+					}
+				}
+
 				$voucherModel->save();
 
 				//commit

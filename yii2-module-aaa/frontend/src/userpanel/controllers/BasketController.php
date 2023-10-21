@@ -117,13 +117,16 @@ class BasketController extends BaseController
 
 		//non-free basket
 		$formPosted = $model->load(Yii::$app->request->post());
+		$done = false;
+		if ($formPosted)
+			$done = $model->saveStep();
 
 		if ($model->currentStep == BasketCheckoutForm::STEP_FIN) {
 			try {
-				$result = $model->checkout();
+				// $result = $model->checkout();
 
-				if (isset($result['paymentUrl']))
-					return $this->redirect($result['paymentUrl']);
+				if (isset($done['paymentUrl']))
+					return $this->redirect($done['paymentUrl']);
 
 				return $this->redirect(Url::to([
 					'checkout-done',
@@ -133,6 +136,16 @@ class BasketController extends BaseController
 			} catch (\Throwable $th) {
 				$model->addError(null, $th->getMessage());
 			}
+		} else if ($done) {
+			$stepIndex = 0;
+			foreach ($model->steps as $k => $s) {
+				if ($s == $model->currentStep) {
+					$stepIndex = $k;
+					break;
+				}
+			}
+			++$stepIndex;
+			$model->currentStep = $model->steps[$stepIndex];
 		}
 
 		return $this->render('checkout', [

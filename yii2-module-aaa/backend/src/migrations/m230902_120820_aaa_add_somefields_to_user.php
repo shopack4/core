@@ -7,9 +7,9 @@ use shopack\base\common\db\Migration;
 
 class m230902_120820_aaa_add_somefields_to_user extends Migration
 {
-    public function safeUp()
-    {
-        $this->execute(<<<SQLSTR
+  public function safeUp()
+  {
+    $this->execute(<<<SQLSTR
 ALTER TABLE `tbl_AAA_User`
 	ADD COLUMN `usrEducationLevel` CHAR(1) NULL DEFAULT NULL COMMENT 'A:AAA' AFTER `usrImageFileID`,
 	ADD COLUMN `usrFieldOfStudy` VARCHAR(128) NULL DEFAULT NULL AFTER `usrEducationLevel`,
@@ -18,10 +18,10 @@ ALTER TABLE `tbl_AAA_User`
 	ADD COLUMN `usrMaritalStatus` CHAR(1) NULL DEFAULT NULL COMMENT 'A:AAA' AFTER `usrEducationPlace`,
 	ADD COLUMN `usrMilitaryStatus` CHAR(1) NULL DEFAULT NULL COMMENT 'A:AAA' AFTER `usrMaritalStatus`;
 SQLSTR
-        );
+    );
 
-        $this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_User;");
-        $this->execute(<<<SQLSTR
+    $this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_User;");
+    $this->execute(<<<SQLSTR
 CREATE TRIGGER trg_updatelog_tbl_AAA_User AFTER UPDATE ON tbl_AAA_User FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -79,14 +79,14 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_User AFTER UPDATE ON tbl_AAA_User FOR EACH 
   END IF;
 END
 SQLSTR
-        );
+    );
 
-    }
+  }
 
-    public function safeDown()
-    {
-        echo "m230902_120820_aaa_add_somefields_to_user cannot be reverted.\n";
-        return false;
-    }
+  public function safeDown()
+  {
+    echo "m230902_120820_aaa_add_somefields_to_user cannot be reverted.\n";
+    return false;
+  }
 
 }
