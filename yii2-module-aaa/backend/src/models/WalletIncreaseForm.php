@@ -54,7 +54,8 @@ class WalletIncreaseForm extends Model
       $voucherModel = new VoucherModel;
       $voucherModel->vchOwnerUserID = Yii::$app->user->id;
       $voucherModel->vchType        = enuVoucherType::Credit;
-      $voucherModel->vchAmount      = $this->amount;
+      $voucherModel->vchAmount      =
+        $voucherModel->vchTotalAmount = $this->amount;
       $voucherModel->vchItems       = [
         'inc-wallet-id' => $this->walletID,
       ];

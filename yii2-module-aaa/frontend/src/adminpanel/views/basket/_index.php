@@ -103,6 +103,20 @@ use shopack\base\frontend\common\widgets\grid\GridView;
       ],
     ],
     [
+      'attribute' => 'vchDeliveryAmount',
+      'format' => 'toman',
+      'contentOptions' => [
+        'class' => ['text-nowrap', 'tabular-nums'],
+      ],
+    ],
+    [
+      'attribute' => 'vchTotalAmount',
+      'format' => 'toman',
+      'contentOptions' => [
+        'class' => ['text-nowrap', 'tabular-nums'],
+      ],
+    ],
+    [
       'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
       'header' => Yii::t('app', 'Actions'),
       'template' => false,

@@ -84,8 +84,10 @@ class BasketItemForm extends Model
         }
       }
 
+      if (empty($itemToAdd['key']))
+        $itemToAdd['key'] = Uuid::uuid4()->toString();
+
       $vchItems[] = array_merge($itemToAdd, [
-        'key'       => Uuid::uuid4()->toString(),
         // 'service'   => $service,
         // 'slbkey'    => $slbkey,
         // 'slbid'     => $slbid,
@@ -96,6 +98,12 @@ class BasketItemForm extends Model
     }
 
     $voucherModel->vchItems = $vchItems;
+
+    //clear basket delivery settings
+    $voucherModel->vchDeliveryMethodID = null;
+    $voucherModel->vchDeliveryAmount = null;
+
+    $voucherModel->vchTotalAmount = $voucherModel->vchAmount;
 
     return $voucherModel->save();
   }
@@ -150,6 +158,12 @@ SQL;
 
           if ($voucherModel->vchStatus == enuVoucherStatus::Settled)
             $voucherModel->vchStatus == enuVoucherStatus::New;
+
+          //clear basket delivery settings
+          $voucherModel->vchDeliveryMethodID = null;
+          $voucherModel->vchDeliveryAmount = null;
+
+          $voucherModel->vchTotalAmount = $voucherModel->vchAmount;
 
           if ($voucherModel->save() !== true)
             throw new UnprocessableEntityHttpException('Error in updating voucher');

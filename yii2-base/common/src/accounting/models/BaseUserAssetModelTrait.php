@@ -18,7 +18,6 @@ use shopack\base\common\accounting\enums\enuUserAssetStatus;
 'uasSaleableID',
 'uasQty',
 'uasVoucherID',
-'uasVoucherItemUUID',
 'uasVoucherItemInfo',
 'uasCouponID',
 'uasDiscountAmount',
@@ -83,13 +82,6 @@ trait BaseUserAssetModelTrait
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-      ],
-      'uasVoucherItemUUID' => [
-        enuColumnInfo::type       => ['string', 'max' => 38],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
       ],
       'uasVoucherItemInfo' => [

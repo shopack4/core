@@ -90,6 +90,20 @@ use shopack\aaa\frontend\common\models\VoucherModel;
         ],
       ],
       [
+        'attribute' => 'vchDeliveryAmount',
+        'format' => 'toman',
+        'contentOptions' => [
+          'class' => ['text-nowrap', 'tabular-nums'],
+        ],
+      ],
+      [
+        'attribute' => 'vchTotalAmount',
+        'format' => 'toman',
+        'contentOptions' => [
+          'class' => ['text-nowrap', 'tabular-nums'],
+        ],
+      ],
+      [
         'class' => \shopack\base\frontend\common\widgets\grid\LookupDataColumn::class,
         'lookupData' => enuVoucherStatus::getForBasketList(),
         'attribute' => 'vchStatus',

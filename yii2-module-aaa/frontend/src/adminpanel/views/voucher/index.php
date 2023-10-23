@@ -45,6 +45,8 @@ $this->params['breadcrumbs'][] = $this->title;
             },
           ],
           'vchAmount',
+          'vchDeliveryAmount',
+          'vchTotalAmount',
           [
             'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
             'header' => VoucherModel::canCreate() ? Html::createButton() : Yii::t('app', 'Actions'),

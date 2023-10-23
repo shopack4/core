@@ -71,11 +71,20 @@ class BasketCheckoutForm extends Model
 				'dlvID' => $this->deliveryMethod,
 			])->one();
 
-			if ($deliveryMethodModel->dlvAmount > 0)
-				$voucherModel->vchAmount += $deliveryMethodModel->dlvAmount;
+			$voucherModel->vchDeliveryMethodID = $deliveryMethodModel->dlvID;
+
+			if ($deliveryMethodModel->dlvAmount > 0) {
+				$voucherModel->vchDeliveryAmount = $deliveryMethodModel->dlvAmount;
+
+				$voucherModel->vchTotalAmount =
+						$voucherModel->vchAmount
+					+ $deliveryMethodModel->dlvAmount;
+			}
+
+			$voucherModel->save();
 		}
 
-		$remainedAmount = $voucherModel->vchAmount - $voucherModel->vchTotalPaid;
+		$remainedAmount = $voucherModel->vchTotalAmount - $voucherModel->vchTotalPaid;
 
 		if (empty($this->walletID) && empty($this->gatewayType) && ($remainedAmount > 0))
 			throw new UnprocessableEntityHttpException('One of the wallet or payment type must be selected');
@@ -174,13 +183,13 @@ SQL;
 				//------------------------
 				$voucherModel->vchStatus = enuVoucherStatus::Settled;
 
-				if (isset($deliveryMethodModel)) {
-					$voucherModel->vchDeliveryMethodID = $deliveryMethodModel->dlvID;
-					if ($deliveryMethodModel->dlvAmount > 0) {
-						$voucherModel->vchAmount = $voucherModel->vchAmount + $deliveryMethodModel->dlvAmount;
-						$voucherModel->vchDeliveryAmount = $deliveryMethodModel->dlvAmount;
-					}
-				}
+				// if (isset($deliveryMethodModel)) {
+				// 	$voucherModel->vchDeliveryMethodID = $deliveryMethodModel->dlvID;
+				// 	if ($deliveryMethodModel->dlvAmount > 0) {
+				// 		$voucherModel->vchAmount = $voucherModel->vchAmount + $deliveryMethodModel->dlvAmount;
+				// 		$voucherModel->vchDeliveryAmount = $deliveryMethodModel->dlvAmount;
+				// 	}
+				// }
 
 				$voucherModel->save();
 

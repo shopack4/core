@@ -43,6 +43,8 @@ class VoucherSearchModel extends VoucherModel
 					'vchID',
 					'vchOwnerUserID',
 					'vchAmount',
+					'vchDeliveryAmount',
+					'vchTotalAmount',
 					'vchStatus',
 					'vchCreatedAt' => [
 						'asc'		=> ['vchCreatedAt' => SORT_ASC,		'vchID' => SORT_ASC],
