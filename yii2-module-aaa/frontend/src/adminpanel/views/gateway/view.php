@@ -96,10 +96,11 @@ $this->params['breadcrumbs'][] = $this->title;
             $result = HttpHelper::callApi("aaa/gateway/plugin-{$kind}-schema", HttpHelper::METHOD_GET, [
               'key' => $model->gtwPluginName,
             ]);
+
             if ($result && $result[0] == 200) {
               $list = $result[1];
 
-              if (isset($list)) {
+              if (empty($list) == false) {
                 $tableRows = [];
 
                 $tableRows[] = Html::tag('tr',
@@ -108,9 +109,40 @@ $this->params['breadcrumbs'][] = $this->title;
                 );
 
                 foreach ($list as $item) {
-                  $paramValue = ($item['type'] == 'password'
-                    ? '********'
-                    : ($model->$prop[$item['id']] ?? ''));
+                  if (isset($model->$prop[$item['id']])) {
+                    if ($item['type'] == 'password')
+                      $paramValue = '********';
+                    else if ($item['type'] == 'kvp-multi') {
+                      if (empty($model->$prop[$item['id']]))
+                        $paramValue = '';
+                      else {
+                        $kvprows = [];
+                        $cols = [];
+                        foreach ($item['typedef']['value'] as $col) {
+                          $cols[] = Html::tag('th', Yii::t('app', $col['label']));
+                        }
+                        $kvprows[] = Html::tag('tr',
+                            Html::tag('th', Yii::t('app', $item['typedef']['key']['label']))
+                          . implode('', $cols)
+                        );
+                        foreach ($model->$prop[$item['id']] as $vp) {
+                          $cols = [];
+                          foreach ($vp['value'] as $col) {
+                            $cols[] = Html::tag('td', Yii::t('app', $col));
+                          }
+                            $kvprows[] = Html::tag('tr',
+                                Html::tag('td', $vp['key'])
+                              . implode('', $cols)
+                          );
+                        }
+                        $paramValue = Html::tag('table', implode('', $kvprows), [
+                          'class' => ['table', 'table-bordered', 'table-striped'],
+                        ]);
+                      }
+                    } else
+                      $paramValue = $model->$prop[$item['id']];
+                  } else
+                    $paramValue = '';
 
                   $paramValueIsEmptyOrZero = (empty($paramValue) || ($paramValue == 0) || ($paramValue == '0'));
 

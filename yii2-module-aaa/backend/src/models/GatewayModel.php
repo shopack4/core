@@ -9,6 +9,7 @@ use Yii;
 use Ramsey\Uuid\Uuid;
 use shopack\aaa\backend\classes\AAAActiveRecord;
 use shopack\aaa\common\enums\enuGatewayStatus;
+use shopack\base\common\helpers\ArrayHelper;
 
 class GatewayModel extends AAAActiveRecord
 {
@@ -40,6 +41,43 @@ class GatewayModel extends AAAActiveRecord
 			],
 		];
 	}
+
+	public function save($runValidation = true, $attributeNames = null)
+  {
+		if (empty($this->gtwPluginParameters) == false) {
+			$paramsSchema = yii::$app->controller->module->GatewayPluginParamsSchema($this->gtwPluginName);
+
+			if (empty($paramsSchema) == false) {
+				$gtwPluginParameters = $this->gtwPluginParameters;
+
+				$gtwPluginParameters = ArrayHelper::filterNullOrEmpty($gtwPluginParameters);
+
+				// foreach ($paramsSchema as $v) {
+				// 	if (empty($gtwPluginParameters[$v['id']]) == false) {
+				// 		if ($v['type'] == 'kvp-multi') {
+				// 			$paramValue = $gtwPluginParameters[$v['id']];
+
+				// 			foreach ($paramValue as $kp => $vp) {
+				// 				if (empty($vp['value'])) {
+				// 					unset($paramValue[$kp]);
+				// 				}
+				// 			}
+
+				// 			if (empty($paramValue))
+				// 				unset($gtwPluginParameters[$v['id']]);
+				// 			else
+				// 				//array_values used for reindexing keys from zero
+				// 				$gtwPluginParameters[$v['id']] = array_values($paramValue);
+				// 		}
+				// 	}
+				// }
+
+				$this->gtwPluginParameters = $gtwPluginParameters;
+			}
+		}
+
+    return parent::save($runValidation, $attributeNames);
+  }
 
 	public function insert($runValidation = true, $attributes = null)
 	{

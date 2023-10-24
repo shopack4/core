@@ -334,6 +334,53 @@ function createDynamicParamsFormField(
 					div += "</div>";
 				}
 			}
+		} else if (val['type'] == 'kvp-multi') { //key-value-pair
+			div += "<table class='table table-bordered table-striped'>";
+			kvptypedef = val['typedef'];
+
+			div += "<tr>";
+			div += "<th>" + kvptypedef['key']['label'] + "</th>";
+			kvptypedef['value'].forEach(element => {
+				div += "<th>" + element['label'] + "</th>";
+			});
+			div += "</tr>";
+
+			dataindex = 0;
+
+			if (init_val != null)
+				dataindex = init_val.length;
+
+			for (i=0; i<dataindex+3; i++) {
+				div += "<tr>";
+
+				div += "<td>";
+				div += "<input type='text' class='form-control'"
+					+ " id='" + _id + "-" + i + "-key" + "'"
+					+ " name='" + _name + "[" + i + "][key]" + "'";
+				if (i < dataindex) {
+					if (init_val != null)
+						div += " value='" + init_val[i].key + "'";
+				}
+				div += ">";
+				div += "</td>";
+
+				kvptypedef['value'].forEach(element => {
+					div += "<td>";
+					div += "<input type='text' class='form-control'"
+						+ " id='" + _id + "-" + i + "-value-" + element['id'] + "'"
+						+ " name='" + _name + "[" + i + "][value][" + element['id'] + "]'";
+					if (i < dataindex) {
+						if (init_val != null)
+							div += " value='" + init_val[i].value[element['id']] + "'";
+					}
+					div += ">";
+					div += "</td>";
+				});
+
+				div += "</tr>";
+			}
+
+			div += "</table>";
 		}
 	}
 

@@ -20,7 +20,7 @@ class GatewayModel extends RestClientActiveRecord
 		return [
 			'gtwID'               => Yii::t('app', 'ID'),
 			'gtwName'             => Yii::t('app', 'Name'),
-			'gtwUUID'              => Yii::t('app', 'Key'),
+			'gtwUUID'             => Yii::t('app', 'Key'),
 			'gtwPluginType'       => Yii::t('aaa', 'Plugin Type'),
 			'gtwPluginName'       => Yii::t('aaa', 'Plugin'),
 			'gtwPluginParameters' => Yii::t('aaa', 'Plugin Parameters'),
