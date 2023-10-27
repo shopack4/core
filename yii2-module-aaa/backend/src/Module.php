@@ -64,6 +64,7 @@ class Module
 						'POST mobile-change' => 'mobile-change',
 						'POST update-image' => 'update-image',
 						'POST password-reset' => 'password-reset',
+						'POST send-message' => 'send-message',
 					],
 				],
 				// [
