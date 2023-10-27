@@ -3,7 +3,7 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\helpers\Html;
 
 $this->title = Yii::t('aaa', 'Update Voucher');
 $this->params['breadcrumbs'][] = Yii::t('aaa', 'System');

@@ -6,7 +6,7 @@
 namespace shopack\aaa\frontend\common\models;
 
 use Yii;
-use shopack\base\frontend\rest\RestClientActiveRecord;
+use shopack\base\frontend\common\rest\RestClientActiveRecord;
 // use shopack\aaa\common\enums\enuGeoStateStatus;
 
 class GeoStateModel extends RestClientActiveRecord
@@ -14,7 +14,6 @@ class GeoStateModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\GeoStateModelTrait;
 
 	public static $resourceName = 'aaa/geo-state';
-  public static $primaryKey = ['sttID'];
 
 	public function attributeLabels()
 	{

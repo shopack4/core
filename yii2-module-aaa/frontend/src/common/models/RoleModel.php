@@ -6,7 +6,7 @@
 namespace shopack\aaa\frontend\common\models;
 
 use Yii;
-use shopack\base\frontend\rest\RestClientActiveRecord;
+use shopack\base\frontend\common\rest\RestClientActiveRecord;
 // use shopack\aaa\common\enums\enuRoleStatus;
 
 class RoleModel extends RestClientActiveRecord
@@ -14,7 +14,6 @@ class RoleModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\RoleModelTrait;
 
 	public static $resourceName = 'aaa/role';
-  public static $primaryKey = ['rolID'];
 
 	public function attributeLabels()
 	{

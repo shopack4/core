@@ -10,7 +10,7 @@ use yii\web\NotFoundHttpException;
 use yii\web\BadRequestHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\Url;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\auth\BaseController;
 use shopack\aaa\frontend\common\models\VoucherModel;
 use shopack\aaa\common\enums\enuVoucherType;
@@ -19,6 +19,7 @@ use shopack\aaa\frontend\common\enums\enuCheckoutStep;
 use shopack\aaa\frontend\userpanel\models\BasketCheckoutForm;
 use shopack\aaa\frontend\userpanel\models\BasketItemForm;
 use shopack\aaa\frontend\common\models\OnlinePaymentModel;
+use shopack\base\common\accounting\enums\enuProductType;
 
 class BasketController extends BaseController
 {
@@ -35,22 +36,22 @@ class BasketController extends BaseController
   //   $this->setViewPath($viewPath);
   // }
 
-	public function getCurrentBasket()
-	{
-    $voucherModel = VoucherModel::find()
-      ->andWhere(['vchOwnerUserID' => Yii::$app->user->id])
-      ->andWhere(['vchType' => enuVoucherType::Basket])
-      ->andWhere(['vchStatus' => enuVoucherStatus::New])
-      ->andWhere(['vchRemovedAt' => 0])
-      ->all();
+	// public function getCurrentBasket()
+	// {
+  //   $voucherModel = VoucherModel::find()
+  //     ->andWhere(['vchOwnerUserID' => Yii::$app->user->id])
+  //     ->andWhere(['vchType' => enuVoucherType::Basket])
+  //     ->andWhere(['vchStatus' => enuVoucherStatus::New])
+  //     ->andWhere(['vchRemovedAt' => 0])
+  //     ->all();
 
-		return $voucherModel[0] ?? null;
-	}
+	// 	return $voucherModel[0] ?? null;
+	// }
 
   public function actionIndex()
 	{
 		$model = new BasketCheckoutForm;
-		$model->setVoucher($this->getCurrentBasket());
+		// $model->setVoucher($this->getCurrentBasket());
 
 		if (empty($model->voucher) || empty($model->voucher->vchItems)) {
 			return $this->render('empty', [
@@ -88,7 +89,7 @@ class BasketController extends BaseController
 	public function actionCheckout()
 	{
 		$model = new BasketCheckoutForm;
-		$model->setVoucher($this->getCurrentBasket());
+		// $model->setVoucher($this->getCurrentBasket());
 
 		if (empty($model->voucher) || empty($model->voucher->vchItems)) {
 			return $this->render('empty', [
@@ -116,19 +117,16 @@ class BasketController extends BaseController
 
 		//non-free basket
 		$formPosted = $model->load(Yii::$app->request->post());
+		$done = false;
+		if ($formPosted)
+			$done = $model->saveStep();
 
-		if (empty($model->currentStep)) {
-			return $this->render('payment', [
-				'model' => $model,
-			]);
-		}
-
-		if ($model->currentStep == BasketCheckoutForm::STEP_PAYMENT) {
+		if ($model->currentStep == BasketCheckoutForm::STEP_FIN) {
 			try {
-				$result = $model->checkout();
+				// $result = $model->checkout();
 
-				if (isset($result['paymentUrl']))
-					return $this->redirect($result['paymentUrl']);
+				if (isset($done['paymentUrl']))
+					return $this->redirect($done['paymentUrl']);
 
 				return $this->redirect(Url::to([
 					'checkout-done',
@@ -138,11 +136,21 @@ class BasketController extends BaseController
 			} catch (\Throwable $th) {
 				$model->addError(null, $th->getMessage());
 			}
-
-			return $this->render('payment', [
-				'model' => $model,
-			]);
+		} else if ($done) {
+			$stepIndex = 0;
+			foreach ($model->steps as $k => $s) {
+				if ($s == $model->currentStep) {
+					$stepIndex = $k;
+					break;
+				}
+			}
+			++$stepIndex;
+			$model->currentStep = $model->steps[$stepIndex];
 		}
+
+		return $this->render('checkout', [
+			'model' => $model,
+		]);
 
 		//if ($model->currentStep == BasketCheckoutForm::) {}
 

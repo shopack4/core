@@ -6,8 +6,8 @@
 /** @var yii\web\View $this */
 
 use shopack\base\common\helpers\HttpHelper;
-use shopack\base\frontend\widgets\grid\GridView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
 use shopack\aaa\common\enums\enuGatewayStatus;
 use shopack\aaa\frontend\common\models\GatewayModel;
@@ -18,8 +18,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="gateway-index w-100">
-  <div class='card border-default'>
-		<div class='card-header bg-default'>
+  <div class='card'>
+		<div class='card-header'>
 			<div class="float-end">
         <?= GatewayModel::canCreate() ? Html::createButton() : '' ?>
 			</div>
@@ -65,7 +65,7 @@ $this->params['breadcrumbs'][] = $this->title;
             //   },
             // ],
             [
-              'class' => \shopack\base\frontend\widgets\grid\LookupDataColumn::class,
+              'class' => \shopack\base\frontend\common\widgets\grid\LookupDataColumn::class,
               'lookupData' => $pluginCategories,
               'attribute' => 'gtwPluginType',
             ],
@@ -74,12 +74,12 @@ $this->params['breadcrumbs'][] = $this->title;
             // 'gtwPluginParameters',
 
             [
-              'class' => \shopack\base\frontend\widgets\grid\EnumDataColumn::class,
+              'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
               'enumClass' => enuGatewayStatus::class,
               'attribute' => 'gtwStatus',
             ],
             [
-              'class' => \shopack\base\frontend\widgets\ActionColumn::class,
+              'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
               'header' => GatewayModel::canCreate() ? Html::createButton() : Yii::t('app', 'Actions'),
               'template' => '{update} {delete}{undelete}',
               'visibleButtons' => [

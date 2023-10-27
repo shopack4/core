@@ -7,9 +7,9 @@
 
 use yii\data\ArrayDataProvider;
 use shopack\base\common\helpers\StringHelper;
-use shopack\base\frontend\helpers\Html;
-use shopack\base\frontend\widgets\grid\GridView;
-use shopack\base\frontend\widgets\DetailView;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
+use shopack\base\frontend\common\widgets\DetailView;
 use shopack\aaa\common\enums\enuGatewayStatus;
 use shopack\aaa\frontend\common\enums\enuCheckoutStep;
 use shopack\aaa\frontend\common\models\GatewayModel;
@@ -19,8 +19,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="shopping-card-view w-100">
-  <div class='card border-default'>
-		<div class='card-header bg-default'>
+  <div class='card'>
+		<div class='card-header'>
 			<div class="float-end">
       </div>
       <div class='card-title'><?= Html::encode($this->title) ?></div>
@@ -96,6 +96,10 @@ JS;
                   },
                 ],
                 [
+                  'attribute' => 'unit',
+                  'label' => 'واحد',
+                ],
+                [
                   'attribute' => 'unitprice',
                   'label' => 'مبلغ واحد',
                   'format' => 'toman',
@@ -109,7 +113,7 @@ JS;
                   },
                 ],
                 [
-                  'class' => \shopack\base\frontend\widgets\ActionColumn::class,
+                  'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
                   'template' => '{delete}',
                   'buttons' => [
                     'delete' => function ($url, $model, $key) {
@@ -139,15 +143,15 @@ JS;
           <p></p>
           <div>
             <?php
-              if ($model->total == 0) {
+              // if ($model->total == 0) {
                 echo Html::a('ثبت سفارش', ['checkout'], [
                   'class' => ['btn', 'btn-sm', 'btn-success', 'd-block'],
                 ]);
-              } else {
-                echo Html::a('بررسی و پرداخت', ['checkout'], [
-                  'class' => ['btn', 'btn-sm', 'btn-primary', 'd-block'],
-                ]);
-              }
+              // } else {
+              //   echo Html::a('بررسی و پرداخت', ['checkout'], [
+              //     'class' => ['btn', 'btn-sm', 'btn-primary', 'd-block'],
+              //   ]);
+              // }
             ?>
           </div>
         </div>

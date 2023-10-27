@@ -7,6 +7,7 @@ namespace shopack\aaa\common\models;
 
 use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
 use shopack\aaa\common\enums\enuForgotPasswordRequestStatus;
 
 /*
@@ -29,7 +30,9 @@ use shopack\aaa\common\enums\enuForgotPasswordRequestStatus;
 */
 trait ForgotPasswordRequestModelTrait
 {
-  public function primaryKeyValue() {
+  public static $primaryKey = ['fprID'];
+
+	public function primaryKeyValue() {
 		return $this->fprID;
 	}
 
@@ -100,7 +103,7 @@ trait ForgotPasswordRequestModelTrait
         enuColumnInfo::default    => enuForgotPasswordRequestStatus::New,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
       ],
 
       'fprCreatedAt' => ModelColumnHelper::CreatedAt(),

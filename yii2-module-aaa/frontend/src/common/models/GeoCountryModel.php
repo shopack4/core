@@ -6,7 +6,7 @@
 namespace shopack\aaa\frontend\common\models;
 
 use Yii;
-use shopack\base\frontend\rest\RestClientActiveRecord;
+use shopack\base\frontend\common\rest\RestClientActiveRecord;
 // use shopack\aaa\common\enums\enuGeoCountryStatus;
 
 class GeoCountryModel extends RestClientActiveRecord
@@ -14,7 +14,6 @@ class GeoCountryModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\GeoCountryModelTrait;
 
 	public static $resourceName = 'aaa/geo-country';
-  public static $primaryKey = ['cntrID'];
 
 	public function attributeLabels()
 	{

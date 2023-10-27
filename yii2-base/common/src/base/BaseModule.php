@@ -205,28 +205,33 @@ class BaseModule extends \yii\base\Module
 		return $this->_extensionList[$category][$type] ?? [];
 	}
 
-	public function addDefaultRules($app)
+	public function addDefaultRules($app, $parentID = null)
 	{
+		if (empty($parentID))
+			$thisID = $this->id;
+		else
+			$thisID = $parentID . '/' . $this->id;
+
 		$rules = [
 			[
 				'class' => 'yii\web\UrlRule',
-				'pattern' => $this->id . '/<controller:[\w-]+>/<id:\d+>',
-				'route' => $this->id . '/<controller>/view',
+				'pattern' => $thisID . '/<controller:[\w-]+>/<id:\d+>',
+				'route' => $thisID . '/<controller>/view',
 			],
 			[
 				'class' => 'yii\web\UrlRule',
-				'pattern' => $this->id . '/<controller:[\w-]+>/<action:[\w-]+>/<id:\d+>',
-				'route' => $this->id . '/<controller>/<action>',
+				'pattern' => $thisID . '/<controller:[\w-]+>/<action:[\w-]+>/<id:\d+>',
+				'route' => $thisID . '/<controller>/<action>',
 			],
 			[
 				'class' => 'yii\web\UrlRule',
-				'pattern' => $this->id . '/<controller:[\w-]+>/<action:[\w-]+>',
-				'route' => $this->id . '/<controller>/<action>',
+				'pattern' => $thisID . '/<controller:[\w-]+>/<action:[\w-]+>',
+				'route' => $thisID . '/<controller>/<action>',
 			],
 			[
 				'class' => 'yii\web\UrlRule',
-				'pattern' => $this->id . '/<controller:[\w-]+>',
-				'route' => $this->id . '/<controller>/index',
+				'pattern' => $thisID . '/<controller:[\w-]+>',
+				'route' => $thisID . '/<controller>/index',
 			],
 		];
 

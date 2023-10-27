@@ -9,7 +9,7 @@ use Yii;
 use yii\web\JsExpression;
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\ArrayHelper;
-use shopack\base\frontend\widgets\Select2;
+use shopack\base\frontend\common\widgets\Select2;
 use shopack\aaa\frontend\common\models\UserModel;
 
 class UserDataColumn extends \kartik\grid\DataColumn

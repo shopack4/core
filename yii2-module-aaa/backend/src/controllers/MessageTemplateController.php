@@ -10,136 +10,55 @@ use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use yii\data\ActiveDataProvider;
 use shopack\base\common\helpers\ExceptionHelper;
-use shopack\base\backend\controller\BaseRestController;
+use shopack\base\backend\controller\BaseCrudController;
 use shopack\base\backend\helpers\PrivHelper;
 use shopack\aaa\backend\models\MessageTemplateModel;
 
-class MessageTemplateController extends BaseRestController
+class MessageTemplateController extends BaseCrudController
 {
 	public function behaviors()
 	{
 		$behaviors = parent::behaviors();
+
+		$behaviors[static::BEHAVIOR_AUTHENTICATOR]['except'] = [
+			'index',
+			'view',
+		];
+
 		return $behaviors;
 	}
 
-	protected function findModel($id)
+	public $modelClass = \shopack\aaa\backend\models\MessageTemplateModel::class;
+
+	public function permissions()
 	{
-		if (($model = MessageTemplateModel::findOne($id)) !== null)
-			return $model;
-
-		throw new NotFoundHttpException('The requested item not exist.');
-	}
-
-	public function actionIndex()
-	{
-		$filter = [];
-		PrivHelper::checkPriv('aaa/message-template/crud', '0100');
-
-		$searchModel = new MessageTemplateModel;
-		$query = $searchModel::find()
-			->select(MessageTemplateModel::selectableColumns())
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->asArray()
-		;
-
-		$searchModel->fillQueryFromRequest($query);
-
-		if (empty($filter) == false)
-			$query->andWhere($filter);
-
-		return $this->queryAllToResponse($query);
-	}
-
-	public function actionView($id)
-	{
-		PrivHelper::checkPriv('aaa/message-template/crud', '0100');
-
-		$model = MessageTemplateModel::find()
-			->select(MessageTemplateModel::selectableColumns())
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->where(['mstID' => $id])
-			->asArray()
-			->one()
-		;
-
-		return $this->modelToResponse($model);
-	}
-
-	public function actionCreate()
-	{
-		PrivHelper::checkPriv('aaa/message-template/crud', '1000');
-
-		$model = new MessageTemplateModel();
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		try {
-			if ($model->save() == false)
-				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-		} catch(\Exception $exp) {
-			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
-			throw new UnprocessableEntityHttpException($msg);
-		}
-
 		return [
-			// 'result' => [
-				// 'message' => 'created',
-				'mstID' => $model->mstID,
-				// 'mstStatus' => $model->mstStatus,
-				'mstCreatedAt' => $model->mstCreatedAt,
-				'mstCreatedBy' => $model->mstCreatedBy,
-			// ],
+			// 'index'  => ['aaa/message-template/crud' => '0100'],
+			// 'view'   => ['aaa/message-template/crud' => '0100'],
+			'create' => ['aaa/message-template/crud' => '1000'],
+			'update' => ['aaa/message-template/crud' => '0010'],
+			'delete' => ['aaa/message-template/crud' => '0001'],
 		];
 	}
 
-	public function actionUpdate($id)
+	public function queryAugmentaters()
 	{
-		PrivHelper::checkPriv('aaa/message-template/crud', '0010');
-
-		$model = $this->findModel($id);
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		if ($model->save() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
 		return [
-			// 'result' => [
-				// 'message' => 'updated',
-				'mstID' => $model->mstID,
-				// 'mstStatus' => $model->mstStatus,
-				'mstUpdatedAt' => $model->mstUpdatedAt,
-				'mstUpdatedBy' => $model->mstUpdatedBy,
-			// ],
+			'index' => function($query) {
+				$query
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+			'view' => function($query) {
+				$query
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
 		];
-	}
-
-	public function actionDelete($id)
-	{
-		PrivHelper::checkPriv('aaa/message-template/crud', '0001');
-
-		$model = $this->findModel($id);
-		if ($model->delete() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
-		return [
-			// 'result' => [
-				// 'message' => 'deleted',
-				'mstID' => $model->mstID,
-				// 'mstStatus' => $model->mstStatus,
-				'mstRemovedAt' => $model->mstRemovedAt,
-				'mstRemovedBy' => $model->mstRemovedBy,
-			// ],
-		];
-	}
-
-	public function actionOptions()
-	{
-		return 'options';
 	}
 
 }

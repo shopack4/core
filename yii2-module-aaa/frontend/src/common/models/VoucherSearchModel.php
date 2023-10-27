@@ -7,7 +7,7 @@ namespace shopack\aaa\frontend\common\models;
 
 use yii\base\Model;
 use yii\web\ServerErrorHttpException;
-use shopack\base\frontend\rest\RestClientDataProvider;
+use shopack\base\frontend\common\rest\RestClientDataProvider;
 use shopack\aaa\frontend\common\models\VoucherModel;
 
 class VoucherSearchModel extends VoucherModel
@@ -43,6 +43,8 @@ class VoucherSearchModel extends VoucherModel
 					'vchID',
 					'vchOwnerUserID',
 					'vchAmount',
+					'vchDeliveryAmount',
+					'vchTotalAmount',
 					'vchStatus',
 					'vchCreatedAt' => [
 						'asc'		=> ['vchCreatedAt' => SORT_ASC,		'vchID' => SORT_ASC],

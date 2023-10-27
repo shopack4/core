@@ -6,8 +6,8 @@
 /** @var yii\web\View $this */
 
 use shopack\base\common\helpers\StringHelper;
-use shopack\base\frontend\helpers\Html;
-use shopack\base\frontend\widgets\grid\GridView;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
 ?>
 
 <?php
@@ -103,7 +103,21 @@ use shopack\base\frontend\widgets\grid\GridView;
       ],
     ],
     [
-      'class' => \shopack\base\frontend\widgets\ActionColumn::class,
+      'attribute' => 'vchDeliveryAmount',
+      'format' => 'toman',
+      'contentOptions' => [
+        'class' => ['text-nowrap', 'tabular-nums'],
+      ],
+    ],
+    [
+      'attribute' => 'vchTotalAmount',
+      'format' => 'toman',
+      'contentOptions' => [
+        'class' => ['text-nowrap', 'tabular-nums'],
+      ],
+    ],
+    [
+      'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
       'header' => Yii::t('app', 'Actions'),
       'template' => false,
     ],

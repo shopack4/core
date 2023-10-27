@@ -6,7 +6,7 @@
 namespace shopack\aaa\frontend\common\models;
 
 use Yii;
-use shopack\base\frontend\rest\RestClientActiveRecord;
+use shopack\base\frontend\common\rest\RestClientActiveRecord;
 // use shopack\aaa\common\enums\enuApprovalRequestStatus;
 
 class ApprovalRequestModel extends RestClientActiveRecord
@@ -14,7 +14,6 @@ class ApprovalRequestModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\ApprovalRequestModelTrait;
 
 	public static $resourceName = 'aaa/approval-request';
-  public static $primaryKey = ['aprID'];
 
 	public function attributeLabels()
 	{

@@ -5,8 +5,8 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\widgets\DetailView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\DetailView;
+use shopack\base\frontend\common\helpers\Html;
 ?>
 
 <?php
@@ -37,6 +37,17 @@ use shopack\base\frontend\helpers\Html;
       'value' => $model['totalTaxes'],
     ],
   ];
+
+  if ($model->physicalCount > 0) {
+    $attributes = array_merge($attributes, [
+      [
+        'attribute' => 'deliveryAmount',
+        'label' => 'هزینه ارسال',
+        'format' => 'toman',
+        'value' => $model['deliveryAmount'],
+      ],
+    ]);
+  }
 
   if ($model->paid > 0) {
     $attributes = array_merge($attributes, [

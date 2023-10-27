@@ -17,6 +17,7 @@ use shopack\aaa\backend\models\EmailChangeForm;
 use shopack\aaa\backend\models\MobileChangeForm;
 use shopack\aaa\backend\models\UpdateImageForm;
 use shopack\aaa\backend\models\PasswordResetForm;
+use shopack\aaa\backend\models\UserSendMessageForm;
 
 class UserController extends BaseRestController
 {
@@ -95,7 +96,7 @@ class UserController extends BaseRestController
 
 	public function actionCreate()
 	{
-		PrivHelper::checkPriv('aaa/user/crud', '1000');
+		PrivHelper::checkPriv(['aaa/user/crud' => '1000']);
 
 		$model = new UserModel();
 		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
@@ -268,5 +269,27 @@ class UserController extends BaseRestController
 		];
 	}
 
+	public function actionSendMessage()
+	{
+		PrivHelper::checkPriv(['aaa/user/send-message']);
+
+		$model = new UserSendMessageForm();
+
+		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
+			throw new NotFoundHttpException("parameters not provided");
+
+		try {
+			$result = $model->process();
+
+			if ($result === false)
+				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
+
+			return $result;
+
+		} catch(\Exception $exp) {
+			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
+			throw new UnprocessableEntityHttpException($msg);
+		}
+	}
 
 }

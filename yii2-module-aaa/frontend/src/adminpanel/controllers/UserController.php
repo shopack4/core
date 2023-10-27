@@ -7,12 +7,13 @@ namespace shopack\aaa\frontend\adminpanel\controllers;
 
 use Yii;
 use yii\web\BadRequestHttpException;
-use shopack\base\frontend\helpers\Html;
-use shopack\base\frontend\rest\RestClientDataProvider;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\rest\RestClientDataProvider;
 use shopack\aaa\frontend\common\auth\BaseCrudController;
 use shopack\aaa\frontend\common\models\UserModel;
 use shopack\aaa\frontend\common\models\UserSearchModel;
 use shopack\aaa\frontend\adminpanel\models\PasswordResetForm;
+use shopack\aaa\frontend\adminpanel\models\UserSendMessageForm;
 
 class UserController extends BaseCrudController
 {
@@ -133,6 +134,52 @@ class UserController extends BaseCrudController
 		return $this->renderAjaxModal('_form_password_reset', [
 			'model' => $model,
 		]);
+  }
+
+	public function actionSendMessage($id = null)
+  {
+    $model = new UserSendMessageForm;
+    $model->userID = $id;
+
+		$formPosted = $model->load(Yii::$app->request->post());
+		$done = false;
+		if ($formPosted)
+			$done = $model->process();
+
+    if (Yii::$app->request->isAjax) {
+      if ($done) {
+        return $this->renderJson([
+          'message' => Yii::t('app', 'Success'),
+          // 'id' => $id,
+          // 'redirect' => $this->doneLink ? call_user_func($this->doneLink, $model) : null,
+          // 'modalDoneFragment' => $this->modalDoneFragment,
+        ]);
+      }
+
+      if ($formPosted) {
+        return $this->renderJson([
+          'status' => 'Error',
+          'message' => Yii::t('app', 'Error'),
+          // 'id' => $id,
+          'error' => Html::errorSummary($model),
+        ]);
+      }
+
+      return $this->renderAjaxModal('_form_sendMessage', [
+        'model' => $model,
+      ]);
+    }
+
+    if ($done) {
+      if (empty($id))
+        return $this->redirect(['index']);
+
+      return $this->redirect(['view', 'id' => $id]);
+    }
+
+    return $this->render('sendMessage', [
+      'model' => $model,
+    ]);
   }
 
 }

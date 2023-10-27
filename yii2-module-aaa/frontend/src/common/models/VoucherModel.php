@@ -6,7 +6,7 @@
 namespace shopack\aaa\frontend\common\models;
 
 use Yii;
-use shopack\base\frontend\rest\RestClientActiveRecord;
+use shopack\base\frontend\common\rest\RestClientActiveRecord;
 use shopack\aaa\common\enums\enuVoucherStatus;
 
 class VoucherModel extends RestClientActiveRecord
@@ -14,7 +14,6 @@ class VoucherModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\VoucherModelTrait;
 
 	public static $resourceName = 'aaa/voucher';
-  public static $primaryKey = ['vchID'];
 
 	public function attributeLabels()
 	{
@@ -23,6 +22,8 @@ class VoucherModel extends RestClientActiveRecord
 			'vchOwnerUserID'      => Yii::t('aaa', 'Owner'),
 			'vchType'      				=> Yii::t('aaa', 'Type'),
 			'vchAmount'           => Yii::t('aaa', 'Amount'),
+			'vchDeliveryAmount'   => Yii::t('aaa', 'Delivery Amount'),
+			'vchTotalAmount'      => Yii::t('aaa', 'Total Amount'),
 			'vchPaidByWallet'     => Yii::t('aaa', 'Paid By Wallet'),
 			'vchOnlinePaid'       => Yii::t('aaa', 'Online Paid'),
 			'vchOfflinePaid'      => Yii::t('aaa', 'Offline Paid'),

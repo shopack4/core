@@ -10,17 +10,17 @@ use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use yii\data\ActiveDataProvider;
 use shopack\base\common\helpers\ExceptionHelper;
-use shopack\base\backend\controller\BaseRestController;
+use shopack\base\backend\controller\BaseCrudController;
 use shopack\base\backend\helpers\PrivHelper;
 use shopack\aaa\backend\models\GeoTownModel;
 
-class GeoTownController extends BaseRestController
+class GeoTownController extends BaseCrudController
 {
 	public function behaviors()
 	{
 		$behaviors = parent::behaviors();
 
-		$behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['except'] = [
+		$behaviors[static::BEHAVIOR_AUTHENTICATOR]['except'] = [
 			'index',
 			'view',
 		];
@@ -28,124 +28,37 @@ class GeoTownController extends BaseRestController
 		return $behaviors;
 	}
 
-	protected function findModel($id)
+	public $modelClass = \shopack\aaa\backend\models\GeoTownModel::class;
+
+	public function permissions()
 	{
-		if (($model = GeoTownModel::findOne($id)) !== null)
-			return $model;
-
-		throw new NotFoundHttpException('The requested item not exist.');
-	}
-
-	public function actionIndex()
-	{
-		$filter = [];
-		// PrivHelper::checkPriv('aaa/geo-town/crud', '0100');
-
-		$searchModel = new GeoTownModel;
-		$query = $searchModel::find()
-			->select(GeoTownModel::selectableColumns())
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->asArray()
-		;
-
-		$searchModel->fillQueryFromRequest($query);
-
-		if (empty($filter) == false)
-			$query->andWhere($filter);
-
-		return $this->queryAllToResponse($query);
-	}
-
-	public function actionView($id)
-	{
-		// PrivHelper::checkPriv('aaa/geo-town/crud', '0100');
-
-		$model = GeoTownModel::find()
-			->select(GeoTownModel::selectableColumns())
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->where(['twnID' => $id])
-			->asArray()
-			->one()
-		;
-
-		return $this->modelToResponse($model);
-	}
-
-	public function actionCreate()
-	{
-		PrivHelper::checkPriv('aaa/geo-town/crud', '1000');
-
-		$model = new GeoTownModel();
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		try {
-			if ($model->save() == false)
-				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-		} catch(\Exception $exp) {
-			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
-			throw new UnprocessableEntityHttpException($msg);
-		}
-
 		return [
-			// 'result' => [
-				// 'message' => 'created',
-				'twnID' => $model->twnID,
-				// 'twnStatus' => $model->twnStatus,
-				'twnCreatedAt' => $model->twnCreatedAt,
-				'twnCreatedBy' => $model->twnCreatedBy,
-			// ],
+			// 'index'  => ['aaa/geo-town/crud' => '0100'],
+			// 'view'   => ['aaa/geo-town/crud' => '0100'],
+			'create' => ['aaa/geo-town/crud' => '1000'],
+			'update' => ['aaa/geo-town/crud' => '0010'],
+			'delete' => ['aaa/geo-town/crud' => '0001'],
 		];
 	}
 
-	public function actionUpdate($id)
+	public function queryAugmentaters()
 	{
-		PrivHelper::checkPriv('aaa/geo-town/crud', '0010');
-
-		$model = $this->findModel($id);
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		if ($model->save() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
 		return [
-			// 'result' => [
-				// 'message' => 'updated',
-				'twnID' => $model->twnID,
-				// 'twnStatus' => $model->twnStatus,
-				'twnUpdatedAt' => $model->twnUpdatedAt,
-				'twnUpdatedBy' => $model->twnUpdatedBy,
-			// ],
+			'index' => function($query) {
+				$query
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+			'view' => function($query) {
+				$query
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
 		];
-	}
-
-	public function actionDelete($id)
-	{
-		PrivHelper::checkPriv('aaa/geo-town/crud', '0001');
-
-		$model = $this->findModel($id);
-		if ($model->delete() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
-		return [
-			// 'result' => [
-				// 'message' => 'deleted',
-				'twnID' => $model->twnID,
-				// 'twnStatus' => $model->twnStatus,
-				'twnRemovedAt' => $model->twnRemovedAt,
-				'twnRemovedBy' => $model->twnRemovedBy,
-			// ],
-		];
-	}
-
-	public function actionOptions()
-	{
-		return 'options';
 	}
 
 }

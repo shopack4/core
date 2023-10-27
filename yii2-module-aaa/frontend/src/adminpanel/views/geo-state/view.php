@@ -5,12 +5,12 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\widgets\PopoverX;
+use shopack\base\frontend\common\widgets\PopoverX;
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\helpers\ArrayHelper;
-use shopack\base\frontend\widgets\DetailView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\DetailView;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\models\GeoStateModel;
 
 $this->title = Yii::t('aaa', 'State') . ': ' . $model->sttID . ' - ' . $model->sttName;
@@ -20,8 +20,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="geo-state-view w-100">
-  <div class='card border-default'>
-		<div class='card-header bg-default'>
+  <div class='card'>
+		<div class='card-header'>
 			<div class="float-end">
 				<?= GeoStateModel::canCreate() ? Html::createButton() : '' ?>
         <?= $model->canUpdate()   ? Html::updateButton(null,   ['id' => $model->sttID]) : '' ?>

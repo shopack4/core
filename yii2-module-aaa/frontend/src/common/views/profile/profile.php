@@ -4,9 +4,9 @@
  */
 
 use shopack\base\common\helpers\Json;
-use shopack\base\frontend\helpers\Html;
-use shopack\base\frontend\widgets\DetailView;
-use shopack\base\frontend\widgets\tabs\Tabs;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\DetailView;
+use shopack\base\frontend\common\widgets\tabs\Tabs;
 use shopack\aaa\common\enums\enuGender;
 use shopack\aaa\common\enums\enuUserStatus;
 use shopack\base\common\helpers\GeneralHelper;
@@ -27,8 +27,8 @@ $this->params['breadcrumbs'][] = $this->title;
 			<?php $tabs->beginTabPage(Yii::t('aaa', 'My Details'), 'details'); ?>
 				<div class='row'>
 					<div class='col-sm-9'>
-						<div class='card border-default'>
-							<div class='card-header bg-default'>
+						<div class='card'>
+							<div class='card-header'>
 								<div class="float-end">
 									<?= $model->canUpdate() ? Html::updateButton(null, ['update-user'], [
 										'data' => [
@@ -142,7 +142,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 					<div class='col-sm-3'>
 						<div class='card border-default mb-3'>
-							<div class='card-header bg-default'>
+							<div class='card-header'>
 								<div class="float-end">
 								</div>
 								<div class='card-title'><?= Yii::t('aaa', 'Account') ?></div>
@@ -153,8 +153,8 @@ $this->params['breadcrumbs'][] = $this->title;
 							</div>
 						</div>
 
-						<div class='card border-default'>
-							<div class='card-header bg-default'>
+						<div class='card'>
+							<div class='card-header'>
 								<div class="float-end">
 									<?= Html::updateButton(Yii::t('aaa', 'Update Image'), ['update-image'], [
 										// 'modal' => false,

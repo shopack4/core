@@ -7,6 +7,7 @@ namespace shopack\aaa\common\models;
 
 use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
 use shopack\aaa\common\enums\enuMessageStatus;
 
@@ -35,7 +36,9 @@ use shopack\aaa\common\enums\enuMessageStatus;
 */
 trait MessageModelTrait
 {
-  public function primaryKeyValue() {
+  public static $primaryKey = ['msgID'];
+
+	public function primaryKeyValue() {
 		return $this->msgID;
 	}
 
@@ -77,7 +80,7 @@ trait MessageModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'msgTarget' => [
 				enuColumnInfo::type       => ['string', 'max' => 255],
@@ -85,7 +88,7 @@ trait MessageModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'msgInfo' => [
 				enuColumnInfo::type       => JsonValidator::class,
@@ -100,7 +103,7 @@ trait MessageModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'msgLockedAt' => [
 				enuColumnInfo::type       => 'safe',
@@ -144,7 +147,7 @@ trait MessageModelTrait
         enuColumnInfo::default    => enuMessageStatus::New,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 
       'msgCreatedAt' => ModelColumnHelper::CreatedAt(),

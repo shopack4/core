@@ -7,7 +7,7 @@ namespace shopack\aaa\frontend\common\models;
 
 use Yii;
 use shopack\base\common\helpers\Json;
-use shopack\base\frontend\rest\RestClientActiveRecord;
+use shopack\base\frontend\common\rest\RestClientActiveRecord;
 use shopack\aaa\common\enums\enuUserStatus;
 
 class UserModel extends RestClientActiveRecord
@@ -16,7 +16,6 @@ class UserModel extends RestClientActiveRecord
   use \shopack\aaa\common\models\UserModelTrait;
 
   public static $resourceName = 'aaa/user';
-  public static $primaryKey = ['usrID'];
 
   // public $usrID;
   public $username;

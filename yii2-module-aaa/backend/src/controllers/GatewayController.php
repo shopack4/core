@@ -11,17 +11,17 @@ use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use yii\data\ActiveDataProvider;
 use shopack\base\common\helpers\ExceptionHelper;
-use shopack\base\backend\controller\BaseRestController;
+use shopack\base\backend\controller\BaseCrudController;
 use shopack\base\backend\helpers\PrivHelper;
 use shopack\aaa\backend\models\GatewayModel;
 
-class GatewayController extends BaseRestController
+class GatewayController extends BaseCrudController
 {
 	public function behaviors()
 	{
 		$behaviors = parent::behaviors();
 
-		$behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['except'] = [
+		$behaviors[static::BEHAVIOR_AUTHENTICATOR]['except'] = [
 			'plugin-list',
 			'plugin-params-schema',
 			'plugin-restrictions-schema',
@@ -33,126 +33,37 @@ class GatewayController extends BaseRestController
 		return $behaviors;
 	}
 
-	protected function findModel($id)
+	public $modelClass = \shopack\aaa\backend\models\GatewayModel::class;
+
+	public function permissions()
 	{
-		if (($model = GatewayModel::findOne($id)) !== null)
-			return $model;
-
-		throw new NotFoundHttpException('The requested item not exist.');
-	}
-
-	public function actionIndex()
-	{
-		$filter = [];
-		// PrivHelper::checkPriv('aaa/gateway/crud', '0100');
-
-		$searchModel = new GatewayModel;
-		$query = $searchModel::find()
-			->select(GatewayModel::selectableColumns())
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->asArray()
-		;
-
-		$searchModel->fillQueryFromRequest($query);
-
-		if (empty($filter) == false)
-			$query->andWhere($filter);
-
-		return $this->queryAllToResponse($query);
-	}
-
-	public function actionView($id)
-	{
-		// PrivHelper::checkPriv('aaa/gateway/crud', '0100');
-
-		$model = GatewayModel::find()
-			->select(GatewayModel::selectableColumns())
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->where(['gtwID' => $id])
-			->asArray()
-			->one()
-		;
-
-		return $this->modelToResponse($model);
-	}
-
-	public function actionCreate()
-	{
-		PrivHelper::checkPriv('aaa/gateway/crud', '1000');
-
-		$model = new GatewayModel();
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		try {
-			if ($model->save() == false)
-				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-		} catch(\Exception $exp) {
-			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
-			throw new UnprocessableEntityHttpException($msg);
-		}
-
 		return [
-			// 'result' => [
-				// 'message' => 'created',
-				'gtwID' => $model->gtwID,
-				'gtwStatus' => $model->gtwStatus,
-				'gtwCreatedAt' => $model->gtwCreatedAt,
-				'gtwCreatedBy' => $model->gtwCreatedBy,
-			// ],
+			// 'index'  => ['aaa/gateway/crud' => '0100'],
+			// 'view'   => ['aaa/gateway/crud' => '0100'],
+			'create' => ['aaa/gateway/crud' => '1000'],
+			'update' => ['aaa/gateway/crud' => '0010'],
+			'delete' => ['aaa/gateway/crud' => '0001'],
 		];
 	}
 
-	public function actionUpdate($id)
+	public function queryAugmentaters()
 	{
-		PrivHelper::checkPriv('aaa/gateway/crud', '0010');
-
-		$model = $this->findModel($id);
-
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		if ($model->save() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
 		return [
-			// 'result' => [
-				// 'message' => 'updated',
-				'gtwID' => $model->gtwID,
-				'gtwStatus' => $model->gtwStatus,
-				'gtwUpdatedAt' => $model->gtwUpdatedAt,
-				'gtwUpdatedBy' => $model->gtwUpdatedBy,
-			// ],
+			'index' => function($query) {
+				$query
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+			'view' => function($query) {
+				$query
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
 		];
-	}
-
-	public function actionDelete($id)
-	{
-		PrivHelper::checkPriv('aaa/gateway/crud', '0001');
-
-		$model = $this->findModel($id);
-
-		if ($model->delete() === false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
-		return [
-			// 'result' => [
-				// 'message' => 'deleted',
-				'gtwID' => $model->gtwID,
-				'gtwStatus' => $model->gtwStatus,
-				'gtwRemovedAt' => $model->gtwRemovedAt,
-				'gtwRemovedBy' => $model->gtwRemovedBy,
-			// ],
-		];
-	}
-
-	public function actionOptions()
-	{
-		return 'options';
 	}
 
 	public function actionPluginList($type = null)

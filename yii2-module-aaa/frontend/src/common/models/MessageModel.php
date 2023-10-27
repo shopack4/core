@@ -6,7 +6,7 @@
 namespace shopack\aaa\frontend\common\models;
 
 use Yii;
-use shopack\base\frontend\rest\RestClientActiveRecord;
+use shopack\base\frontend\common\rest\RestClientActiveRecord;
 // use shopack\aaa\common\enums\enuMessageStatus;
 
 class MessageModel extends RestClientActiveRecord
@@ -14,7 +14,6 @@ class MessageModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\MessageModelTrait;
 
 	public static $resourceName = 'aaa/message';
-  public static $primaryKey = ['msgID'];
 
 	public function attributeLabels()
 	{

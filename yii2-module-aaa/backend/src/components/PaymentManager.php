@@ -43,7 +43,7 @@ class PaymentManager extends Component
       $walletID = $walletModel->walID;
     }
 
-    $payAmount = $voucherModel->vchAmount - ($voucherModel->vchTotalPaid ?? 0);
+    $payAmount = $voucherModel->vchTotalAmount - ($voucherModel->vchTotalPaid ?? 0);
 
     //1: find gateway
     $gatewayModel = $this->findBestPaymentGateway($gatewayType, $payAmount);
@@ -306,7 +306,7 @@ SQL;
       $onlinePaymentModel->voucher->refresh();
 
       if ($onlinePaymentModel->voucher->vchType == enuVoucherType::Basket
-        && $onlinePaymentModel->voucher->vchAmount == $onlinePaymentModel->voucher->vchTotalPaid ?? 0
+        && $onlinePaymentModel->voucher->vchTotalAmount == $onlinePaymentModel->voucher->vchTotalPaid ?? 0
       ) {
         $onlinePaymentModel->voucher->vchStatus = enuVoucherStatus::Settled;
         $onlinePaymentModel->voucher->save();
@@ -388,7 +388,8 @@ SQL;
       $voucherModel = new VoucherModel;
       $voucherModel->vchOwnerUserID = $offlinePaymentModel->ofpOwnerUserID;
       $voucherModel->vchType        = enuVoucherType::Credit;
-      $voucherModel->vchAmount      = $offlinePaymentModel->ofpAmount;
+      $voucherModel->vchAmount      =
+        $voucherModel->vchTotalAmount = $offlinePaymentModel->ofpAmount;
       $voucherModel->vchOfflinePaid = $offlinePaymentModel->ofpAmount;
       $voucherModel->vchItems       = [
         'inc-wallet-id' => $offlinePaymentModel->ofpWalletID,

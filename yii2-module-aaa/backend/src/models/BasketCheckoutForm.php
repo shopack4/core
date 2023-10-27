@@ -15,9 +15,11 @@ use yii\web\UnprocessableEntityHttpException;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuWalletStatus;
 use shopack\aaa\backend\models\WalletTransactionModel;
+use shopack\aaa\backend\models\DeliveryMethodModel;
 
 class BasketCheckoutForm extends Model
 {
+	public $deliveryMethod;
 	public $walletID;
 	public $gatewayType;
   public $callbackUrl;
@@ -26,6 +28,7 @@ class BasketCheckoutForm extends Model
 	{
 		return [
 			[[
+				'deliveryMethod',
 				'walletID',
 				'gatewayType',
         'callbackUrl',
@@ -63,7 +66,25 @@ class BasketCheckoutForm extends Model
     if ($this->validate() == false)
       throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
-		$remainedAmount = $voucherModel->vchAmount - $voucherModel->vchTotalPaid;
+		if (empty($this->deliveryMethod) == false) {
+			$deliveryMethodModel = DeliveryMethodModel::find()->andWhere([
+				'dlvID' => $this->deliveryMethod,
+			])->one();
+
+			$voucherModel->vchDeliveryMethodID = $deliveryMethodModel->dlvID;
+
+			if ($deliveryMethodModel->dlvAmount > 0) {
+				$voucherModel->vchDeliveryAmount = $deliveryMethodModel->dlvAmount;
+
+				$voucherModel->vchTotalAmount =
+						$voucherModel->vchAmount
+					+ $deliveryMethodModel->dlvAmount;
+			}
+
+			$voucherModel->save();
+		}
+
+		$remainedAmount = $voucherModel->vchTotalAmount - $voucherModel->vchTotalPaid;
 
 		if (empty($this->walletID) && empty($this->gatewayType) && ($remainedAmount > 0))
 			throw new UnprocessableEntityHttpException('One of the wallet or payment type must be selected');
@@ -161,6 +182,15 @@ SQL;
 			if ($remainedAmount == 0) {
 				//------------------------
 				$voucherModel->vchStatus = enuVoucherStatus::Settled;
+
+				// if (isset($deliveryMethodModel)) {
+				// 	$voucherModel->vchDeliveryMethodID = $deliveryMethodModel->dlvID;
+				// 	if ($deliveryMethodModel->dlvAmount > 0) {
+				// 		$voucherModel->vchAmount = $voucherModel->vchAmount + $deliveryMethodModel->dlvAmount;
+				// 		$voucherModel->vchDeliveryAmount = $deliveryMethodModel->dlvAmount;
+				// 	}
+				// }
+
 				$voucherModel->save();
 
 				//commit

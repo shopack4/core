@@ -7,7 +7,7 @@ namespace shopack\aaa\frontend\common\helpers;
 
 use Yii;
 use shopack\base\common\helpers\Url;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\models\ChallengeForm;
 
 class AuthHelper

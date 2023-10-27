@@ -8,7 +8,7 @@ namespace shopack\aaa\frontend\common\components;
 use Yii;
 use yii\web\User as BaseUser;
 use shopack\base\common\helpers\Json;
-use shopack\base\frontend\helpers\PrivHelper;
+use shopack\base\frontend\common\helpers\PrivHelper;
 
 class User extends BaseUser
 {

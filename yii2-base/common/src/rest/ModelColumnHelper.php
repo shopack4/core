@@ -5,6 +5,10 @@
 
 namespace shopack\base\common\rest;
 
+use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
+use shopack\base\common\validators\JsonValidator;
+
 class ModelColumnHelper
 {
 	public static function UUID()
@@ -15,7 +19,19 @@ class ModelColumnHelper
 			enuColumnInfo::default    => 'uuid', //filled in applyDefaultValuesFromColumnsInfo
 			enuColumnInfo::required   => false,  //true,
 			enuColumnInfo::selectable => true,
-			enuColumnInfo::search     => 'like',
+			enuColumnInfo::search     => enuColumnSearchType::like,
+		];
+	}
+
+	public static function I18NData(Array $fieldNames)
+	{
+		return [
+			enuColumnInfo::type       => JsonValidator::class,
+			enuColumnInfo::validator  => null,
+			enuColumnInfo::default    => null,
+			enuColumnInfo::required   => false,
+			enuColumnInfo::selectable => true,
+			enuColumnInfo::search     => enuColumnSearchType::like,
 		];
 	}
 

@@ -5,8 +5,8 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\widgets\grid\GridView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
 // use shopack\aaa\common\enums\enuGeoTownStatus;
 use shopack\aaa\frontend\common\models\GeoTownModel;
@@ -17,8 +17,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="geo-town-index w-100">
-  <div class='card border-default'>
-		<div class='card-header bg-default'>
+  <div class='card'>
+		<div class='card-header'>
 			<div class="float-end">
         <?= GeoTownModel::canCreate() ? Html::createButton(null, [
           'twnCityID' => $twnCityID ?? $_GET['twnCityID'] ?? null

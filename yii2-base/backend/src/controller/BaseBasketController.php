@@ -41,7 +41,7 @@ class BaseBasketController extends BaseRestController
 	 */
 	public function actionCreate()
 	{
-		// PrivHelper::checkPriv('aaa/basket/crud', '1000');
+		// PrivHelper::checkPriv(['aaa/basket/crud' => '1000']);
 
 		$model = new BasketModel();
 		$model->scenario = enuModelScenario::CREATE;

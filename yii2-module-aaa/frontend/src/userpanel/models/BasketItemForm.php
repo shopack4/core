@@ -9,9 +9,10 @@ use Yii;
 use yii\base\Model;
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\HttpHelper;
-use shopack\base\frontend\rest\RestClientActiveRecord;
+use shopack\base\frontend\common\rest\RestClientActiveRecord;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
 
 class BasketItemForm extends RestClientActiveRecord
 {

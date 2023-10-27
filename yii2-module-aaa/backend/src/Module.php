@@ -64,6 +64,7 @@ class Module
 						'POST mobile-change' => 'mobile-change',
 						'POST update-image' => 'update-image',
 						'POST password-reset' => 'password-reset',
+						'POST send-message' => 'send-message',
 					],
 				],
 				// [
@@ -180,6 +181,12 @@ class Module
 
 						'POST checkout'				=> 'checkout',
 					],
+				],
+				[
+					'class' => \yii\rest\UrlRule::class,
+					// 'prefix' => 'v1',
+					'controller' => [$this->id . '/delivery-method'],
+					'pluralize' => false,
 				],
 				[
 					'class' => \yii\rest\UrlRule::class,

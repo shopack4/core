@@ -6,8 +6,8 @@
 /** @var yii\web\View $this */
 /** @var yii\bootstrap5\ActiveForm $form */
 
-use shopack\base\frontend\widgets\ActiveForm;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\ActiveForm;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\Url;
 
 $this->title = Yii::t('aaa', 'Challenge');

@@ -5,8 +5,8 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\widgets\grid\GridView;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
 use shopack\aaa\frontend\common\models\GeoCityOrVillageModel;
 ?>
@@ -41,12 +41,12 @@ use shopack\aaa\frontend\common\models\GeoCityOrVillageModel;
         },
       ],
       // [
-      //   'class' => \shopack\base\frontend\widgets\grid\EnumDataColumn::class,
+      //   'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
       //   'enumClass' => enuGeoCityOrVillageStatus::class,
       //   'attribute' => 'ctvStatus',
       // ],
       [
-        'class' => \shopack\base\frontend\widgets\ActionColumn::class,
+        'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
         'header' => GeoCityOrVillageModel::canCreate() ? Html::createButton(null, [
           'ctvStateID' => $ctvStateID ?? $_GET['ctvStateID'] ?? null
         ]) : Yii::t('app', 'Actions'),

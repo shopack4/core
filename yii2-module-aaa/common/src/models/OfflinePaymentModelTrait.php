@@ -8,6 +8,7 @@ namespace shopack\aaa\common\models;
 use Yii;
 use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
+use shopack\base\common\rest\enuColumnSearchType;
 use shopack\aaa\common\enums\enuOfflinePaymentStatus;
 use shopack\base\common\validators\GroupRequiredValidator;
 
@@ -36,6 +37,8 @@ use shopack\base\common\validators\GroupRequiredValidator;
 */
 trait OfflinePaymentModelTrait
 {
+	public static $primaryKey = ['ofpID'];
+
 	public function primaryKeyValue() {
 		return $this->ofpID;
 	}
@@ -49,7 +52,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'ofpUUID' => ModelColumnHelper::UUID(),
 			'ofpOwnerUserID' => [
@@ -58,7 +61,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'ofpVoucherID' => [
 				enuColumnInfo::type       => 'integer',
@@ -66,7 +69,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'ofpBankOrCart' => [
 				enuColumnInfo::type       => ['string', 'max' => 64],
@@ -74,7 +77,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'ofpTrackNumber' => [
 				enuColumnInfo::type       => ['string', 'max' => 64],
@@ -82,7 +85,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'ofpReferenceNumber' => [
 				enuColumnInfo::type       => ['string', 'max' => 64],
@@ -90,7 +93,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'ofpAmount' => [
 				enuColumnInfo::type       => 'integer',
@@ -98,7 +101,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-				enuColumnInfo::search     => true,
+				enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'ofpPayDate' => [
 				enuColumnInfo::type       => 'safe',
@@ -106,7 +109,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        // enuColumnInfo::search     => 'like',
+        // enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'ofpPayer' => [
 				enuColumnInfo::type       => ['string', 'max' => 64],
@@ -114,7 +117,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'ofpSourceCartNumber' => [
 				enuColumnInfo::type       => ['string', 'max' => 20],
@@ -122,7 +125,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'ofpImageFileID' => [
 				enuColumnInfo::type       => 'safe', //'integer',
@@ -130,7 +133,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        // enuColumnInfo::search     => 'like',
+        // enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'ofpWalletID' => [
 				enuColumnInfo::type       => 'integer',
@@ -138,7 +141,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false, //true,
 				enuColumnInfo::selectable => true,
-				enuColumnInfo::search     => true,
+				enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'ofpComment' => [
 				enuColumnInfo::type       => ['string', 'max' => 65530],
@@ -146,7 +149,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => 'like',
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'ofpStatus' => [
 				enuColumnInfo::isStatus   => true,
@@ -155,7 +158,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::default    => enuOfflinePaymentStatus::WaitForApprove,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 
       'ofpCreatedAt' => ModelColumnHelper::CreatedAt(),

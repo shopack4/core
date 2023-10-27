@@ -5,9 +5,9 @@
 
 namespace shopack\base\common\rest;
 
-use shopack\base\common\base\BaseEnum;
+// use shopack\base\common\base\BaseEnum;
 
-abstract class enuColumnInfo extends BaseEnum
+class enuColumnInfo //extends BaseEnum
 {
 	const type        = 'type';
 	const validator   = 'validator';
@@ -18,17 +18,17 @@ abstract class enuColumnInfo extends BaseEnum
 	const search      = 'search';
 	const isStatus    = 'isStatus';
 
-	public static $messageCategory = 'aaa';
+	// public static $messageCategory = 'aaa';
 
-	public static $list = [
-		self::type       => 'type',
-		self::validator  => 'validator',
-		self::default    => 'default',
-		self::required   => 'required',
-		self::selectable => 'selectable',
-		self::virtual    => 'virtual',
-		self::search     => 'search',
-		self::isStatus   => 'isStatus',
-	];
+	// public static $list = [
+	// 	self::type       => 'type',
+	// 	self::validator  => 'validator',
+	// 	self::default    => 'default',
+	// 	self::required   => 'required',
+	// 	self::selectable => 'selectable',
+	// 	self::virtual    => 'virtual',
+	// 	self::search     => 'search',
+	// 	self::isStatus   => 'isStatus',
+	// ];
 
 };

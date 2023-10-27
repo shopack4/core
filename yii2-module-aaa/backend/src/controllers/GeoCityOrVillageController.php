@@ -10,17 +10,17 @@ use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use yii\data\ActiveDataProvider;
 use shopack\base\common\helpers\ExceptionHelper;
-use shopack\base\backend\controller\BaseRestController;
+use shopack\base\backend\controller\BaseCrudController;
 use shopack\base\backend\helpers\PrivHelper;
 use shopack\aaa\backend\models\GeoCityOrVillageModel;
 
-class GeoCityOrVillageController extends BaseRestController
+class GeoCityOrVillageController extends BaseCrudController
 {
 	public function behaviors()
 	{
 		$behaviors = parent::behaviors();
 
-		$behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['except'] = [
+		$behaviors[static::BEHAVIOR_AUTHENTICATOR]['except'] = [
 			'index',
 			'view',
 		];
@@ -28,124 +28,37 @@ class GeoCityOrVillageController extends BaseRestController
 		return $behaviors;
 	}
 
-	protected function findModel($id)
+	public $modelClass = \shopack\aaa\backend\models\GeoCityOrVillageModel::class;
+
+	public function permissions()
 	{
-		if (($model = GeoCityOrVillageModel::findOne($id)) !== null)
-			return $model;
-
-		throw new NotFoundHttpException('The requested item not exist.');
-	}
-
-	public function actionIndex()
-	{
-		$filter = [];
-		// PrivHelper::checkPriv('aaa/geo-city-or-village/crud', '0100');
-
-		$searchModel = new GeoCityOrVillageModel;
-		$query = $searchModel::find()
-			->select(GeoCityOrVillageModel::selectableColumns())
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->asArray()
-		;
-
-		$searchModel->fillQueryFromRequest($query);
-
-		if (empty($filter) == false)
-			$query->andWhere($filter);
-
-		return $this->queryAllToResponse($query);
-	}
-
-	public function actionView($id)
-	{
-		// PrivHelper::checkPriv('aaa/geo-city-or-village/crud', '0100');
-
-		$model = GeoCityOrVillageModel::find()
-			->select(GeoCityOrVillageModel::selectableColumns())
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->where(['ctvID' => $id])
-			->asArray()
-			->one()
-		;
-
-		return $this->modelToResponse($model);
-	}
-
-	public function actionCreate()
-	{
-		PrivHelper::checkPriv('aaa/geo-city-or-village/crud', '1000');
-
-		$model = new GeoCityOrVillageModel();
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		try {
-			if ($model->save() == false)
-				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-		} catch(\Exception $exp) {
-			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
-			throw new UnprocessableEntityHttpException($msg);
-		}
-
 		return [
-			// 'result' => [
-				// 'message' => 'created',
-				'ctvID' => $model->ctvID,
-				// 'ctvStatus' => $model->ctvStatus,
-				'ctvCreatedAt' => $model->ctvCreatedAt,
-				'ctvCreatedBy' => $model->ctvCreatedBy,
-			// ],
+			// 'index'  => ['aaa/geo-city-or-village/crud' => '0100'],
+			// 'view'   => ['aaa/geo-city-or-village/crud' => '0100'],
+			'create' => ['aaa/geo-city-or-village/crud' => '1000'],
+			'update' => ['aaa/geo-city-or-village/crud' => '0010'],
+			'delete' => ['aaa/geo-city-or-village/crud' => '0001'],
 		];
 	}
 
-	public function actionUpdate($id)
+	public function queryAugmentaters()
 	{
-		PrivHelper::checkPriv('aaa/geo-city-or-village/crud', '0010');
-
-		$model = $this->findModel($id);
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		if ($model->save() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
 		return [
-			// 'result' => [
-				// 'message' => 'updated',
-				'ctvID' => $model->ctvID,
-				// 'ctvStatus' => $model->ctvStatus,
-				'ctvUpdatedAt' => $model->ctvUpdatedAt,
-				'ctvUpdatedBy' => $model->ctvUpdatedBy,
-			// ],
+			'index' => function($query) {
+				$query
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+			'view' => function($query) {
+				$query
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
 		];
-	}
-
-	public function actionDelete($id)
-	{
-		PrivHelper::checkPriv('aaa/geo-city-or-village/crud', '0001');
-
-		$model = $this->findModel($id);
-		if ($model->delete() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
-		return [
-			// 'result' => [
-				// 'message' => 'deleted',
-				'ctvID' => $model->ctvID,
-				// 'ctvStatus' => $model->ctvStatus,
-				'ctvRemovedAt' => $model->ctvRemovedAt,
-				'ctvRemovedBy' => $model->ctvRemovedBy,
-			// ],
-		];
-	}
-
-	public function actionOptions()
-	{
-		return 'options';
 	}
 
 }

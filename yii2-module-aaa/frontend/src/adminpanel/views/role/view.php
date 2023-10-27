@@ -6,9 +6,9 @@
 /** @var yii\web\View $this */
 
 use shopack\base\common\helpers\Json;
-use shopack\base\frontend\widgets\PopoverX;
-use shopack\base\frontend\helpers\Html;
-use shopack\base\frontend\widgets\DetailView;
+use shopack\base\frontend\common\widgets\PopoverX;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\DetailView;
 use shopack\aaa\frontend\common\models\RoleModel;
 
 $this->title = Yii::t('aaa', 'Role') . ': ' . $model->rolID . ' - ' . $model->rolName;
@@ -18,8 +18,8 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="role-view w-100">
-  <div class='card border-default'>
-		<div class='card-header bg-default'>
+  <div class='card'>
+		<div class='card-header'>
 			<div class="float-end">
 				<?= RoleModel::canCreate() ? Html::createButton() : '' ?>
         <?= $model->canUpdate()   ? Html::updateButton(null,   ['id' => $model->rolID]) : '' ?>

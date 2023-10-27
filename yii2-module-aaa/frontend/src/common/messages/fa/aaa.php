@@ -208,6 +208,11 @@ return [
 	// 'Create Voucher' => 'ایجاد کیف پول',
 	// 'Update Voucher' => 'ویرایش کیف پول',
 
+	'Units' => 'واحدهای شمارش',
+	'Unit' => 'واحد شمارش',
+	'Unit Info' => 'مشخصات واحد شمارش',
+	'Create Unit' => 'ایجاد واحد شمارش',
+	'Update Unit' => 'ویرایش واحد شمارش',
 
 
 
@@ -384,7 +389,7 @@ return [
 	'Mobile was Unapprove.' => 'عدم تایید موبایل انجام شد.',
 	'This mobile confirm token is not empty.' => 'کد تایید مویابل خالی نیست.',
 	'Mobile confirm token generated successfully.' => 'کد تایید موبایل ایجاد شد.',
-	'Code' => 'کد',
+	'Code' => 'شناسه',
 	'Report' => 'گزارش',
 	'Reports' => 'گزارش‌ها',
 	'Search {item}' => 'جستجوی {item}',
@@ -502,10 +507,11 @@ return [
 	'Baskets' => 'سبدهای خرید',
 	'Basket' => 'سبد خرید',
 	'Shopping Card' => 'سبد خرید',
-	'Shopping Card - Payment Method' => 'سبد خرید - روش پرداخت',
+	'Shopping Card - Checkout' => 'سبد خرید - ثبت سفارش',
 	'Shopping card is empty' => 'سبد خرید خالی است',
 	'Payment Method' => 'روش پرداخت',
 
+	'Price' => 'قیمت',
 	'Unit Price' => 'قیمت واحد',
 	'Total Price' => 'قیمت کل',
 	'Saleable' => 'طرح فروش',

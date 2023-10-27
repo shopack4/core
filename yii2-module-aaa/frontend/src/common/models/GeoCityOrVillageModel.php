@@ -6,7 +6,7 @@
 namespace shopack\aaa\frontend\common\models;
 
 use Yii;
-use shopack\base\frontend\rest\RestClientActiveRecord;
+use shopack\base\frontend\common\rest\RestClientActiveRecord;
 // use shopack\aaa\common\enums\enuGeoCityOrVillageStatus;
 
 class GeoCityOrVillageModel extends RestClientActiveRecord
@@ -14,7 +14,6 @@ class GeoCityOrVillageModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\GeoCityOrVillageModelTrait;
 
 	public static $resourceName = 'aaa/geo-city-or-village';
-  public static $primaryKey = ['ctvID'];
 
 	public function attributeLabels()
 	{

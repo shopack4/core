@@ -6,14 +6,13 @@
 namespace shopack\aaa\frontend\common\models;
 
 use Yii;
-use shopack\base\frontend\rest\RestClientActiveRecord;
+use shopack\base\frontend\common\rest\RestClientActiveRecord;
 
 class UploadFileModel extends RestClientActiveRecord
 {
   use \shopack\aaa\common\models\UploadFileModelTrait;
 
   public static $resourceName = 'aaa/upload-file';
-  public static $primaryKey = ['uflID'];
 
   public function attributeLabels()
 	{

@@ -96,7 +96,7 @@ class OnlinePaymentController extends BaseRestController
 	/*
 	public function actionCreate()
 	{
-		PrivHelper::checkPriv('aaa/online-payment/crud', '1000');
+		PrivHelper::checkPriv(['aaa/online-payment/crud' => '1000']);
 
 		$model = new OnlinePaymentModel();
 		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)

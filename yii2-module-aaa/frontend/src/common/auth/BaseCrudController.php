@@ -10,7 +10,7 @@ use yii\base\InvalidConfigException;
 use yii\web\NotFoundHttpException;
 use yii\web\BadRequestHttpException;
 use shopack\base\common\helpers\Url;
-use shopack\base\frontend\helpers\Html;
+use shopack\base\frontend\common\helpers\Html;
 
 abstract class BaseCrudController extends BaseController
 {
@@ -66,7 +66,8 @@ abstract class BaseCrudController extends BaseController
 			'searchModel' => $searchModel,
 			'dataProvider' => $dataProvider,
 		];
-    if (isset($params))
+
+    if (empty($params) == false)
       $viewParams = array_merge($viewParams, $params);
 
 		if (Yii::$app->request->isAjax)

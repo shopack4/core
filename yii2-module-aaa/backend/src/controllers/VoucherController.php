@@ -84,7 +84,7 @@ class VoucherController extends BaseRestController
 	/*
 	public function actionCreate()
 	{
-		PrivHelper::checkPriv('aaa/voucher/crud', '1000');
+		PrivHelper::checkPriv(['aaa/voucher/crud' => '1000']);
 
 		$model = new VoucherModel();
 		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)

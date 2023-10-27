@@ -7,7 +7,7 @@ namespace shopack\aaa\frontend\common\models;
 
 use Yii;
 use shopack\base\common\helpers\HttpHelper;
-use shopack\base\frontend\rest\RestClientActiveRecord;
+use shopack\base\frontend\common\rest\RestClientActiveRecord;
 use shopack\aaa\common\enums\enuOnlinePaymentStatus;
 use shopack\aaa\common\enums\enuPaymentGatewayType;
 
@@ -16,7 +16,6 @@ class OnlinePaymentModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\OnlinePaymentModelTrait;
 
 	public static $resourceName = 'aaa/online-payment';
-  public static $primaryKey = ['onpID'];
 
 	public function attributeLabels()
 	{

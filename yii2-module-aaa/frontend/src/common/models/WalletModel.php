@@ -7,7 +7,7 @@ namespace shopack\aaa\frontend\common\models;
 
 use Yii;
 use shopack\base\common\helpers\HttpHelper;
-use shopack\base\frontend\rest\RestClientActiveRecord;
+use shopack\base\frontend\common\rest\RestClientActiveRecord;
 use shopack\aaa\common\enums\enuWalletStatus;
 
 class WalletModel extends RestClientActiveRecord
@@ -15,7 +15,6 @@ class WalletModel extends RestClientActiveRecord
 	use \shopack\aaa\common\models\WalletModelTrait;
 
 	public static $resourceName = 'aaa/wallet';
-  public static $primaryKey = ['walID'];
 
 	public function attributeLabels()
 	{

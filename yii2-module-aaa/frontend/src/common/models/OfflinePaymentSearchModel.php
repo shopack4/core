@@ -8,7 +8,7 @@ namespace shopack\aaa\frontend\common\models;
 use yii\base\Model;
 use yii\web\ServerErrorHttpException;
 use shopack\base\common\helpers\ArrayHelper;
-use shopack\base\frontend\rest\RestClientDataProvider;
+use shopack\base\frontend\common\rest\RestClientDataProvider;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 
 class OfflinePaymentSearchModel extends OfflinePaymentModel
