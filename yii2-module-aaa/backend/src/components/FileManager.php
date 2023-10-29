@@ -20,6 +20,17 @@ class FileManager extends Component
 {
 	public $tempPath = '@app/tmp/upload';
 
+  public function log($message, $type='info')
+  {
+		if (Yii::$app->isConsole == false)
+			return;
+
+		if (empty($tpe))
+    	echo "[" . date('Y/m/d H:i:s') . "] {$message}\n";
+		else
+    	echo "[" . date('Y/m/d H:i:s') . "][{$type}] {$message}\n";
+  }
+
 	/**
 	 * return $fileID
 	 */
@@ -31,7 +42,8 @@ class FileManager extends Component
 		$usrID,
 		$targetPath,
 		$overwrite = true,
-		$doStore = true
+		$doStore = true,
+		$deleteLocalFileAfterUpload = false
 	) {
 		$usrUUIDAsPath = [];
 		if (strlen($usrUUID) >= 2) $usrUUIDAsPath[] = substr($usrUUID, 0, 2);
@@ -98,21 +110,23 @@ class FileManager extends Component
 			:iOwnerUserID,
 			:iCreatorUserID,
 			:iLockedBy,
+			:iDeleteLocalFileAfterUpload,
 			@oStoredFileName,
 			@oTempFileName,
 			@oUploadedFileID,
 			@oQueueRowsCount
 		)")
-			->bindParam(':iPath',                 $iPath)
-			->bindParam(':iOriginalFileName',     $iOriginalFileName)
-			->bindParam(':iFullTempPath',         $iFullTempPath)
-			->bindParam(':iSetTempFileNameToMD5', $iSetTempFileNameToMD5)
-			->bindParam(':iFileSize',             $iFileSize)
-			->bindParam(':iFileType',             $iFileType)
-			->bindParam(':iMimeType',             $iMimeType)
-			->bindParam(':iOwnerUserID',          $iOwnerUserID)
-			->bindParam(':iCreatorUserID',        $iCreatorUserID)
-			->bindParam(':iLockedBy',             $iLockedBy)
+			->bindParam(':iPath',                       $iPath)
+			->bindParam(':iOriginalFileName',           $iOriginalFileName)
+			->bindParam(':iFullTempPath',               $iFullTempPath)
+			->bindParam(':iSetTempFileNameToMD5',       $iSetTempFileNameToMD5)
+			->bindParam(':iFileSize',                   $iFileSize)
+			->bindParam(':iFileType',                   $iFileType)
+			->bindParam(':iMimeType',                   $iMimeType)
+			->bindParam(':iOwnerUserID',                $iOwnerUserID)
+			->bindParam(':iCreatorUserID',              $iCreatorUserID)
+			->bindParam(':iLockedBy',                   $iLockedBy)
+			->bindParam(':iDeleteLocalFileAfterUpload', $deleteLocalFileAfterUpload)
 			// ->bindParam('@oStoredFileName',       $oStoredFileName, \PDO::PARAM_STR | \PDO::PARAM_INPUT_OUTPUT) //, 256)
 			// ->bindParam('@oTempFileName',         $oTempFileName,   \PDO::PARAM_STR | \PDO::PARAM_INPUT_OUTPUT) //, 256)
 			// ->bindParam('@oUploadedFileID',       $oUploadedFileID, \PDO::PARAM_INT | \PDO::PARAM_INPUT_OUTPUT) //, 20)
@@ -203,14 +217,15 @@ class FileManager extends Component
 
 		foreach ($files as $imageSetKey => $uploadedFile) {
 			$res = $this->saveAndUploadFileForUser(
-				/* sourceFileName     */ $uploadedFile['tempFileName'],
-				/* sourceIsFromUpload */ true,
-				/* originalFileName   */ $uploadedFile['fileName'],
-				/* usrUUID            */ $user->usrUUID,
-				/* usrID              */ $userID,
-				/* subdir             */ 'user',
-				/* overwrite          */ false,
-				/* doStore            */ true
+				/* sourceFileName        */ $uploadedFile['tempFileName'],
+				/* sourceIsFromUpload    */ true,
+				/* originalFileName      */ $uploadedFile['fileName'],
+				/* usrUUID               */ $user->usrUUID,
+				/* usrID                 */ $userID,
+				/* subdir                */ 'user',
+				/* overwrite             */ false,
+				/* doStore               */ true,
+				/* deleteLocalFileAfterUpload */ false
 			);
 
 			if (is_numeric($res) && ($res > 0)) {
@@ -384,6 +399,15 @@ class FileManager extends Component
 
 	public function processQueue($maxItemCount = 100, $uploadedFileID = 0)
   {
+		$this->internalProcessQueue($maxItemCount, $uploadedFileID, false);
+		$this->internalProcessQueue($maxItemCount, $uploadedFileID, true);
+	}
+
+	private function internalProcessQueue(
+		$maxItemCount = 100,
+		$uploadedFileID = 0,
+		$processErrors = false
+	) {
     $fnGetValue = function($value, $qouted = false) {
 			return ($qouted ? "'" : "") . "{$value}" . ($qouted ? "'" : "");
 		};
@@ -396,16 +420,23 @@ class FileManager extends Component
 
       $lastTryInterval = (YII_ENV_DEV ? 1 : 10);
 
+			$this->log("processQueue (max:{$maxItemCount}) (ufl:{$uploadedFileID}) (type:" . ($processErrors ? "errors intrvl:{$lastTryInterval} min" : "normal") . ")");
+
 			$query = UploadQueueModel::find()
 				->joinWith('uploadFile')
 				->joinWith('gateway')
-				->andWhere(['OR',
-					['uquStatus' => enuUploadQueueStatus::New],
-					['AND',
-						['uquStatus' => enuUploadQueueStatus::Error],
-						['<', 'uquLastTryAt', new Expression("DATE_SUB(NOW(), INTERVAL {$lastTryInterval} MINUTE)")],
-					],
-				])
+			;
+
+			if ($processErrors) {
+				$query->andWhere(['AND',
+					['uquStatus' => enuUploadQueueStatus::Error],
+					['<', 'uquLastTryAt', new Expression("DATE_SUB(NOW(), INTERVAL {$lastTryInterval} MINUTE)")],
+				]);
+			} else {
+				$query->andWhere(['uquStatus' => enuUploadQueueStatus::New]);
+			}
+
+			$query
 				->orderBy('uquCreatedAt')
 				->limit($maxItemCount)
 			;
@@ -443,7 +474,7 @@ SQL;
 				$lockedRowsCount = Yii::$app->db->createCommand($qry)->execute();
 
 				if (Yii::$app->isConsole)
-					echo "locked rows count: {$lockedRowsCount}\n";
+					$this->log("locked rows count: {$lockedRowsCount}");
 			}
 
 			//process
@@ -477,14 +508,32 @@ SQL;
 						Yii::$app->db->createCommand($qry)->execute();
 
 						if (Yii::$app->isConsole)
-							echo "stored queue " . $queueModel->uquID . "\n";
-					}
+						$this->log("stored queue " . $queueModel->uquID);
+						}
 				} catch (\Exception $exp) {
 					if (Yii::$app->isConsole)
-						echo "error in storing item: " . $exp->getMessage() . "\n";
+						$this->log("error in storing item (uquID:{$queueModel->uquID}): " . $exp->getMessage());
 				}
 
 				if ($stored) {
+					try {
+						if ($queueModel->uploadFile->uflDeleteLocalFileAfterUpload) {
+							unlink($queueModel->uploadFile->uflLocalFullFileName);
+							if (Yii::$app->isConsole)
+								$this->log("file removed: ("
+									. $queueModel->uploadFile->uflLocalFullFileName
+									. ")"
+								);
+						}
+					} catch (\Throwable $th) {
+						if (Yii::$app->isConsole)
+							$this->log("error in deleting local file ("
+								. $queueModel->uploadFile->uflLocalFullFileName
+								. "): "
+								. $exp->getMessage()
+							);
+					}
+
 					$successQueueIDs[] = $queueModel->uquID;
 
 					if (isset($successSizesPerGateway[$queueModel->uquGatewayID])) {
@@ -543,7 +592,7 @@ SQL;
 
 		} catch(\Exception $exp) {
 			if (Yii::$app->isConsole)
-      	echo $exp->getMessage() . "\n";
+				$this->log($exp->getMessage());
 
 			Yii::error($exp, __METHOD__);
 		}

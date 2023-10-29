@@ -131,7 +131,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::type       => 'safe', //'integer',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
-				enuColumnInfo::required   => true,
+				enuColumnInfo::required   => false, //true,
 				enuColumnInfo::selectable => true,
         // enuColumnInfo::search     => enuColumnSearchType::like,
 			],

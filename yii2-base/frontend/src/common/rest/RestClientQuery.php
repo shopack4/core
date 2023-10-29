@@ -400,11 +400,13 @@ class RestClientQuery
 
     foreach ($attributes as $k => $v) {
       if ($v instanceof FileData) {
-        $multipartAttributes[] = [
-          'name' => $k,
-          'contents' => fopen($v->tmp_name, 'r'),
-          'filename' => $v->name,
-        ];
+        if (empty($v->tmp_name) == false) {
+          $multipartAttributes[] = [
+            'name' => $k,
+            'contents' => fopen($v->tmp_name, 'r'),
+            'filename' => $v->name,
+          ];
+        }
       } else {
         $multipartAttributes[] = [
           'name' => $k,

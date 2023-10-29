@@ -19,7 +19,7 @@ class VoucherModel extends RestClientActiveRecord
 	{
 		return [
 			'vchID'               => Yii::t('app', 'ID'),
-			'vchOwnerUserID'      => Yii::t('aaa', 'Owner'),
+			'vchOwnerUserID'      => Yii::$app->getModule('aaa')->getGlobalOwnerUserLabel(),
 			'vchType'      				=> Yii::t('aaa', 'Type'),
 			'vchAmount'           => Yii::t('aaa', 'Amount'),
 			'vchDeliveryAmount'   => Yii::t('aaa', 'Delivery Amount'),

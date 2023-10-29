@@ -15,4 +15,9 @@ class OfflinePaymentController extends BaseCrudController
   public $modelClass = OfflinePaymentModel::class;
 	public $searchModelClass = OfflinePaymentSearchModel::class;
 
+	public function actionCreate_afterCreateModel(&$model)
+  {
+		$model->ofpOwnerUserID = Yii::$app->user->identity->usrID;
+  }
+
 }

@@ -19,7 +19,7 @@ use shopack\aaa\common\enums\enuDeliveryMethodType;
 <div class='card border-success'>
   <div class='card-header bg-success text-white'>
     <div class="float-end"></div>
-    <div class='card-title'><?= Yii::t('aaa', 'Delivery Type') ?></div>
+    <div class='card-title'><?= Yii::t('aaa', 'Delivery Method') ?></div>
     <div class="clearfix"></div>
   </div>
 

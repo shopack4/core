@@ -23,6 +23,7 @@ use shopack\aaa\common\enums\enuUploadFileStatus;
 'uflFileType',
 'uflMimeType',
 'uflLocalFullFileName',
+'uflDeleteLocalFileAfterUpload',
 'uflStatus',
 'uflCreatedAt',
 'uflCreatedBy',
@@ -113,6 +114,13 @@ trait UploadFileModelTrait
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+      'uflDeleteLocalFileAfterUpload' => [
+        enuColumnInfo::type       => 'boolean',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
       'uflStatus' => [

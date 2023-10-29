@@ -511,6 +511,15 @@ return [
 	'Shopping card is empty' => 'سبد خرید خالی است',
 	'Payment Method' => 'روش پرداخت',
 
+	'Delivery Methods' => 'روش‌های ارسال',
+	'Delivery Method' => 'روش ارسال',
+	'Delivery Method Info' => 'مشخصات روش ارسال',
+	'Create Delivery Method' => 'ایجاد روش ارسال',
+	'Update Delivery Method' => 'ویرایش روش ارسال',
+
+	'Receive by customer' => 'دریافت توسط مشتری',
+	'Send to customer' => 'ارسال به مشتری',
+
 	'Price' => 'قیمت',
 	'Unit Price' => 'قیمت واحد',
 	'Total Price' => 'قیمت کل',

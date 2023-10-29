@@ -78,10 +78,10 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 			['gatewayType',
 				'required',
 				'when' => function ($model) {
-					return ($model->currentStep == self::STEP_PAYMENT);
+					return ((empty($this->walletID)) && ($model->currentStep == self::STEP_PAYMENT));
 				},
 				'whenClient' => "function (attribute, value) {
-					return ($('#{$fnGetFieldId('currentStep')}').val() == '{$fnGetConst(self::STEP_PAYMENT)}');
+					return (($('#{$fnGetFieldId('walletID')}').val() == '') && ($('#{$fnGetFieldId('currentStep')}').val() == '{$fnGetConst(self::STEP_PAYMENT)}'));
 				}"
 			],
 		];
