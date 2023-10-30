@@ -52,25 +52,25 @@ class GatewayModel extends AAAActiveRecord
 
 				$gtwPluginParameters = ArrayHelper::filterNullOrEmpty($gtwPluginParameters);
 
-				// foreach ($paramsSchema as $v) {
-				// 	if (empty($gtwPluginParameters[$v['id']]) == false) {
-				// 		if ($v['type'] == 'kvp-multi') {
-				// 			$paramValue = $gtwPluginParameters[$v['id']];
+				foreach ($paramsSchema as $v) {
+					if (empty($gtwPluginParameters[$v['id']]) == false) {
+						if ($v['type'] == 'kvp-multi') {
+							$paramValue = $gtwPluginParameters[$v['id']];
 
-				// 			foreach ($paramValue as $kp => $vp) {
-				// 				if (empty($vp['value'])) {
-				// 					unset($paramValue[$kp]);
-				// 				}
-				// 			}
+							foreach ($paramValue as $kp => $vp) {
+								if (empty($vp['key']) || empty($vp['value'])) {
+									unset($paramValue[$kp]);
+								}
+							}
 
-				// 			if (empty($paramValue))
-				// 				unset($gtwPluginParameters[$v['id']]);
-				// 			else
-				// 				//array_values used for reindexing keys from zero
-				// 				$gtwPluginParameters[$v['id']] = array_values($paramValue);
-				// 		}
-				// 	}
-				// }
+							if (empty($paramValue))
+								unset($gtwPluginParameters[$v['id']]);
+							else
+								//array_values used for reindexing keys from zero
+								$gtwPluginParameters[$v['id']] = array_values($paramValue);
+						}
+					}
+				}
 
 				$this->gtwPluginParameters = $gtwPluginParameters;
 			}

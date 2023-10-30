@@ -58,7 +58,7 @@ class GeoTownSearchModel extends GeoTownModel
 			return $dataProvider;
 		}
 
-		$this->applySearchValuesInQuery($query);
+		$this->applySearchValuesInQuery($query, $params);
 
 		return $dataProvider;
 	}

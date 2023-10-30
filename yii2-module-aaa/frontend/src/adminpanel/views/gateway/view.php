@@ -118,22 +118,40 @@ $this->params['breadcrumbs'][] = $this->title;
                       else {
                         $kvprows = [];
                         $cols = [];
+
+                        $enableFieldID = null;
+                        if (empty($item['typedef']['enableField']) == false) {
+                          $enableFieldID = $item['typedef']['enableField']['id'] ?? 'enable';
+                        }
+
+                        //-- header
+                        if (empty($item['typedef']['enableField']) == false) {
+                          $cols[] = Html::tag('th', Yii::t('app', $item['typedef']['enableField']['label'] ?? 'Enable'));
+                        }
+
+                        $cols[] = Html::tag('th', Yii::t('app', $item['typedef']['key']['label']));
+
                         foreach ($item['typedef']['value'] as $col) {
                           $cols[] = Html::tag('th', Yii::t('app', $col['label']));
                         }
-                        $kvprows[] = Html::tag('tr',
-                            Html::tag('th', Yii::t('app', $item['typedef']['key']['label']))
-                          . implode('', $cols)
-                        );
+                        $kvprows[] = Html::tag('tr', implode('', $cols));
+
+                        //-- values
                         foreach ($model->$prop[$item['id']] as $vp) {
                           $cols = [];
+
+                          if ($enableFieldID) {
+                            $cols[] = Html::tag('td',
+                              Yii::$app->formatter->asBoolean(($vp[$enableFieldID] ?? false)));
+                          }
+
+                          $cols[] = Html::tag('td', $vp['key']);
+
                           foreach ($vp['value'] as $col) {
                             $cols[] = Html::tag('td', Yii::t('app', $col));
                           }
-                            $kvprows[] = Html::tag('tr',
-                                Html::tag('td', $vp['key'])
-                              . implode('', $cols)
-                          );
+
+                          $kvprows[] = Html::tag('tr', implode('', $cols));
                         }
                         $paramValue = Html::tag('table', implode('', $kvprows), [
                           'class' => ['table', 'table-bordered', 'table-striped'],

@@ -91,7 +91,7 @@ class OfflinePaymentSearchModel extends OfflinePaymentModel
 		else if (empty($params['ofpOwnerUserID']) == false)
 			$query->andWhere(['ofpOwnerUserID' => $params['ofpOwnerUserID']]);
 
-		$this->applySearchValuesInQuery($query);
+		$this->applySearchValuesInQuery($query, $params);
 
 		return $dataProvider;
 	}

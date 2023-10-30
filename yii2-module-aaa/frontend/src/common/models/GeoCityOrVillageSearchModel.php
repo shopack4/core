@@ -58,7 +58,7 @@ class GeoCityOrVillageSearchModel extends GeoCityOrVillageModel
 			return $dataProvider;
 		}
 
-		$this->applySearchValuesInQuery($query);
+		$this->applySearchValuesInQuery($query, $params);
 
 		return $dataProvider;
 	}

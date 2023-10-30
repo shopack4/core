@@ -74,7 +74,7 @@ class WalletTransactionSearchModel extends WalletTransactionModel
 		if (empty($params['walOwnerUserID']) == false)
 			$query->andWhere(['walOwnerUserID' => $params['walOwnerUserID']]);
 
-		$this->applySearchValuesInQuery($query);
+		$this->applySearchValuesInQuery($query, $params);
 
 		return $dataProvider;
 	}

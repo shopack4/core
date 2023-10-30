@@ -339,6 +339,9 @@ function createDynamicParamsFormField(
 			kvptypedef = val['typedef'];
 
 			div += "<tr>";
+			if (kvptypedef['enableField']) {
+				div += "<th>" + kvptypedef['enableField']['label'] + "</th>";
+			}
 			div += "<th>" + kvptypedef['key']['label'] + "</th>";
 			kvptypedef['value'].forEach(element => {
 				div += "<th>" + element['label'] + "</th>";
@@ -352,6 +355,26 @@ function createDynamicParamsFormField(
 
 			for (i=0; i<dataindex+3; i++) {
 				div += "<tr>";
+
+				if (kvptypedef['enableField']) {
+					if (kvptypedef['id'])
+						enableFieldId = kvptypedef['id'];
+					else
+						enableFieldId = 'enable';
+
+					div += "<td>";
+					div += "<input type='checkbox' value='1'"
+						+ " id='" + _id + "-" + i + "-" + enableFieldId + "'"
+						+ " name='" + _name + "[" + i + "][" + enableFieldId + "]" + "'";
+					if (i < dataindex) {
+						if ((init_val != null) && (init_val[i][enableFieldId] !== undefined)
+								&& init_val[i][enableFieldId])
+							div += " checked";
+					} else
+						div += " checked";
+					div += ">";
+					div += "</td>";
+				}
 
 				div += "<td>";
 				div += "<input type='text' class='form-control'"

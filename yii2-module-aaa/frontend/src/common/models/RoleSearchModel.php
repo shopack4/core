@@ -56,7 +56,7 @@ class RoleSearchModel extends RoleModel
 			return $dataProvider;
 		}
 
-		$this->applySearchValuesInQuery($query);
+		$this->applySearchValuesInQuery($query, $params);
 
 		return $dataProvider;
 	}

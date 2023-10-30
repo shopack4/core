@@ -62,7 +62,7 @@ class MessageSearchModel extends MessageModel
 			return $dataProvider;
 		}
 
-		$this->applySearchValuesInQuery($query);
+		$this->applySearchValuesInQuery($query, $params);
 
 		return $dataProvider;
 	}

@@ -68,7 +68,7 @@ class UploadFileSearchModel extends UploadFileModel
 		else if (empty($params['uflOwnerUserID']) == false)
 			$query->andWhere(['uflOwnerUserID' => $params['uflOwnerUserID']]);
 
-		$this->applySearchValuesInQuery($query);
+		$this->applySearchValuesInQuery($query, $params);
 
 		return $dataProvider;
 	}

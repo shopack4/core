@@ -66,7 +66,7 @@ class WalletSearchModel extends WalletModel
 		if (empty($params['walOwnerUserID']) == false)
 			$query->andWhere(['walOwnerUserID' => $params['walOwnerUserID']]);
 
-		$this->applySearchValuesInQuery($query);
+		$this->applySearchValuesInQuery($query, $params);
 
 		return $dataProvider;
 	}

@@ -70,7 +70,7 @@ class GatewaySearchModel extends GatewayModel
 			return $dataProvider;
 		}
 
-		$this->applySearchValuesInQuery($query);
+		$this->applySearchValuesInQuery($query, $params);
 
 		return $dataProvider;
 	}

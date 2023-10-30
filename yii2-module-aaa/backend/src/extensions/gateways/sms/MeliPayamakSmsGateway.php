@@ -62,6 +62,10 @@ class MeliPayamakSmsGateway
 				'style' => 'direction:ltr',
 				'type' => 'kvp-multi',
 				'typedef' => [
+					'enableField' => [
+						'id' => 'enable',
+						'label' => 'Enable',
+					],
 					'key' => [
 						'label' => 'Body Id',
 					],
@@ -87,6 +91,38 @@ class MeliPayamakSmsGateway
 		], parent::getParametersSchema());
 	}
 
+	public static function sendByPattern($params, $to, $bodyid)
+	{
+		$url = 'https://console.melipayamak.com/api/send/shared/70824b80a9d244de92d3689923565fd8';
+		$data = [
+			'bodyId' => (int)$bodyid,
+			'to' => $to,
+			'args' => $params,
+		];
+		$data_string = json_encode($data);
+		$ch = curl_init($url);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data_string);
+
+		// Next line makes the request absolute insecure
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		// Use it when you have trouble installing local issuer certificate
+		// See https://stackoverflow.com/a/31830614/1743997
+
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER,
+			array('Content-Type: application/json',
+						'Content-Length: ' . strlen($data_string))
+			);
+		$result = curl_exec($ch);
+		curl_close($ch);
+		// to debug
+		// if(curl_errno($ch)){
+		//     echo 'Curl error: ' . curl_error($ch);
+		// }
+		return $result;
+	}
+
 	public function send(
 		$message,
 		$to,
@@ -105,13 +141,24 @@ class MeliPayamakSmsGateway
 			$bodyids = $this->extensionModel->gtwPluginParameters[self::PARAM_BODY_IDS] ?? null;
 
 		try {
-			$api = new MelipayamakApi($username, $password);
-			$sms = $api->sms();
-
 			//1: try send by body id
 			if (empty($bodyids) == false) {
+				$enableFieldID = null;
+				$paramsSchema = $this->getParametersSchema();
+				foreach ($paramsSchema as $paramSchema) {
+					if ($paramSchema['id'] == self::PARAM_BODY_IDS) {
+						if (empty($paramSchema['typedef']['enableField']) == false) {
+							$enableFieldID = $paramSchema['typedef']['enableField']['id'] ?? 'enable';
+							break;
+						}
+					}
+				}
+
 				$found = false;
 				foreach ($bodyids as $item) {
+					if ($enableFieldID && (($item[$enableFieldID] ?? false) == false))
+						continue;
+
 					if (empty($templateName)) {
 						if ($item['value']['templates'] == '*') {
 							$found = $item;
@@ -127,16 +174,37 @@ class MeliPayamakSmsGateway
 				if (($found === false) || empty($found['value']['params'])) {
 					$bodyids = null;
 				} else {
-					$paramsSchema = $found['value']['params'];
-					if (is_array($paramsSchema) == false)
-						$paramsSchema = explode(',', $paramsSchema);
-
 					$params = [];
-					foreach ($paramsSchema as $ps) {
-						$params[] = $templateParams[$ps];
+					$paramsSchema = $found['value']['params'];
+
+					//no params for raw patterns (without header and footer)
+					if (empty($paramsSchema)) {
+						$params[] = $message;
+					} else {
+						if (is_array($paramsSchema) == false)
+							$paramsSchema = explode(',', $paramsSchema);
+
+						foreach ($paramsSchema as $ps) {
+							$params[] = $templateParams[$ps];
+						}
 					}
 
-					$response = $sms->sendByBaseNumber($params, $to, $found['key']);
+					$bid = $found['key'];
+					Yii::debug('befor sending sms with sendByBaseNumber: ('
+						. print_r([
+								'params' => $params,
+								'to' => $to,
+								'bodyid' => $bid,
+							], true)
+						. ')');
+					// $response = $sms->sendByBaseNumber($params, $to, $bid);
+					$response = self::sendByPattern($params, $to, $bid);
+					Yii::debug('after sending sms with sendByBaseNumber: response('
+						. implode('\n', (array)($response ?? []))
+						. ')'
+					);
+
+					//{"recId":4707203589561557161,"status":"ارسال موفق بود"}
 
 					//"{"Message":"An unexpected error occured"}"
 				}
@@ -148,7 +216,11 @@ class MeliPayamakSmsGateway
 					$from = $lineNumber;
 				}
 
+				//append header and footer
 				$this->prepareMessageForSend($message);
+
+				$api = new MelipayamakApi($username, $password);
+				$sms = $api->sms();
 				$response = $sms->send($to, $from, $message);
 
 				//"{"Value":"0","RetStatus":35,"StrRetStatus":"InvalidData"}"
@@ -157,11 +229,11 @@ class MeliPayamakSmsGateway
 			$response = Json::decode($response);
 			// echo $response->Value; //RecId or Error Number
 
+			$RetValue		= $response["recId"] ?? $response["Value"] ?? null;
 			$RetStatus	= $response["RetStatus"] ?? 0;
 			$RetMessage	= $response["StrRetStatus"] ?? $response["Message"] ?? '';
-			$RetValue		= $response["Value"] ?? null;
 
-			if ($RetStatus != 1)
+			if (($RetValue == null) && ($RetStatus != 1))
 				return new SmsSendResult(false, $RetMessage, $RetStatus);
 
 			return new SmsSendResult(true, null, $RetValue);

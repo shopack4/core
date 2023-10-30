@@ -57,7 +57,7 @@ class DeliveryMethodSearchModel extends DeliveryMethodModel
 			return $dataProvider;
 		}
 
-		$this->applySearchValuesInQuery($query);
+		$this->applySearchValuesInQuery($query, $params);
 
 		return $dataProvider;
 	}

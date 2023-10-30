@@ -57,7 +57,7 @@ class GeoCountrySearchModel extends GeoCountryModel
 			return $dataProvider;
 		}
 
-		$this->applySearchValuesInQuery($query);
+		$this->applySearchValuesInQuery($query, $params);
 
 		return $dataProvider;
 	}

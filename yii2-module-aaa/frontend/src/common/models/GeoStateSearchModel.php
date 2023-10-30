@@ -58,7 +58,7 @@ class GeoStateSearchModel extends GeoStateModel
 			return $dataProvider;
 		}
 
-		$this->applySearchValuesInQuery($query);
+		$this->applySearchValuesInQuery($query, $params);
 
 		return $dataProvider;
 	}

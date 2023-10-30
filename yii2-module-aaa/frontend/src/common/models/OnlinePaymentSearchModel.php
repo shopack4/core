@@ -93,7 +93,7 @@ class OnlinePaymentSearchModel extends OnlinePaymentModel
 		else if (empty($params['vchOwnerUserID']) == false)
 			$query->andWhere(['vchOwnerUserID' => $params['vchOwnerUserID']]);
 
-		$this->applySearchValuesInQuery($query);
+		$this->applySearchValuesInQuery($query, $params);
 
 		return $dataProvider;
 	}
