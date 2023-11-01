@@ -347,6 +347,7 @@ return [
 	'Father Name' => 'نام پدر',
 	'Father Name (en)' => 'نام پدر لاتین',
 	'Birth Location' => 'محل تولد',
+	'Birth Cert ID' => 'شماره شناسنامه',
 
 	'Not Set' => 'نامشخص',
 	'None' => 'هیچکدام',

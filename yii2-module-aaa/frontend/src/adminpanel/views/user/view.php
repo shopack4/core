@@ -99,8 +99,10 @@ $this->params['breadcrumbs'][] = $this->title;
                       'value' => enuGender::getLabel($model->usrGender),
                     ],
                     [
-                      'group' => 'true',
+                      'group' => true,
                     ],
+                    'usrSSID',
+                    'usrBirthCertID',
                     'usrFirstName',
                     'usrFirstName_en',
                     'usrLastName',
@@ -112,7 +114,6 @@ $this->params['breadcrumbs'][] = $this->title;
                       'value' => $model->birthCityOrVillage->ctvName ?? null,
                     ],
                     'usrBirthDate:jalali',
-                    'usrSSID',
 
                     [
                       'attribute' => 'usrEducationLevel',
@@ -163,9 +164,9 @@ $this->params['breadcrumbs'][] = $this->title;
                     ],
 
                     [
-                      'group' => 'true',
-                      'label' => 'محل سکونت',
-                      'isVertical' => true,
+                      'group' => true,
+                      'cols' => 1,
+                      'label' => 'اطلاعات آدرس',
                       'groupOptions' => ['class' => 'info-row'],
                     ],
                     [
@@ -184,12 +185,30 @@ $this->params['breadcrumbs'][] = $this->title;
                       'attribute' => 'usrTownID',
                       'value' => $model->town->twnName ?? null,
                     ],
-                    'usrZipCode',
                     [
-                      'group' => 'true',
-                      // 'label' => 'محل سکونت',
+                      'attribute' => 'usrHomeAddress',
+                      'value' => $model->usrHomeAddress,
                     ],
-                    'usrHomeAddress',
+                    [
+                      'attribute' => 'usrZipCode',
+                      'value' => $model->usrZipCode,
+                    ],
+                    [
+                      'attribute' => 'usrPhones',
+                      'value' => $model->usrPhones,
+                    ],
+                    [
+                      'attribute' => 'usrWorkAddress',
+                      'value' => $model->usrWorkAddress,
+                    ],
+                    [
+                      'attribute' => 'usrWorkPhones',
+                      'value' => $model->usrWorkPhones,
+                    ],
+                    [
+                      'attribute' => 'usrWebsite',
+                      'value' => $model->usrWebsite,
+                    ],
                   ],
                 ]);
               ?>
