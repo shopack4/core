@@ -106,6 +106,18 @@ class Module
 				[
 					'class' => \yii\rest\UrlRule::class,
 					// 'prefix' => 'v1',
+					'controller' => [$this->id . '/access-group'],
+					'pluralize' => false,
+				],
+				[
+					'class' => \yii\rest\UrlRule::class,
+					// 'prefix' => 'v1',
+					'controller' => [$this->id . '/user-access-group'],
+					'pluralize' => false,
+				],
+				[
+					'class' => \yii\rest\UrlRule::class,
+					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/gateway'],
 					'pluralize' => false,
 					'extraPatterns' => [

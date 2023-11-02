@@ -25,6 +25,7 @@ class MeliPayamakSmsGateway
 	const PARAM_LINENUMBER	= 'number';
 	// const PARAM_BODY_ID			= 'bodyid';
 	const PARAM_BODY_IDS		= 'bodyids';
+	const PARAM_CONSOLE_KEY	= 'consolekey';
 
 	public function getTitle()
 	{
@@ -46,6 +47,13 @@ class MeliPayamakSmsGateway
 				'type' => 'password',
 				'mandatory' => 1,
 				'label' => 'Password',
+				'style' => 'direction:ltr',
+			],
+			[
+				'id' => self::PARAM_CONSOLE_KEY,
+				'type' => 'string',
+				'mandatory' => 1,
+				'label' => 'Console API Key',
 				'style' => 'direction:ltr',
 			],
 			// [
@@ -91,9 +99,9 @@ class MeliPayamakSmsGateway
 		], parent::getParametersSchema());
 	}
 
-	public static function sendByPattern($params, $to, $bodyid)
+	public static function sendByPattern($consoleKey, $params, $to, $bodyid)
 	{
-		$url = 'https://console.melipayamak.com/api/send/shared/70824b80a9d244de92d3689923565fd8';
+		$url = 'https://console.melipayamak.com/api/send/shared/' . $consoleKey;
 		$data = [
 			'bodyId' => (int)$bodyid,
 			'to' => $to,
@@ -134,8 +142,9 @@ class MeliPayamakSmsGateway
 		$password		= $this->extensionModel->gtwPluginParameters[self::PARAM_PASSWORD];
 		$lineNumber	= $this->extensionModel->gtwPluginParameters[self::PARAM_LINENUMBER] ?? null;
 		// $bodyid			= $this->extensionModel->gtwPluginParameters[self::PARAM_BODY_ID] ?? null;
+		$consoleKey = $this->extensionModel->gtwPluginParameters[self::PARAM_CONSOLE_KEY] ?? null;
 
-		if (empty($templateParams))
+		if (empty($templateParams) || empty($consoleKey))
 			$bodyids = null;
 		else
 			$bodyids = $this->extensionModel->gtwPluginParameters[self::PARAM_BODY_IDS] ?? null;
@@ -198,7 +207,7 @@ class MeliPayamakSmsGateway
 							], true)
 						. ')');
 					// $response = $sms->sendByBaseNumber($params, $to, $bid);
-					$response = self::sendByPattern($params, $to, $bid);
+					$response = self::sendByPattern($consoleKey, $params, $to, $bid);
 					Yii::debug('after sending sms with sendByBaseNumber: response('
 						. implode('\n', (array)($response ?? []))
 						. ')'

@@ -415,11 +415,23 @@ return [
 	'Value (Percent)' => 'مقدار (درصد)',
 	'Review' => 'بازنگری',
 
-	'User Permission' => 'دسترسی کاربر',
 	'User Permissions' => 'دسترسی‌های کاربر',
+	'User Permission' => 'دسترسی کاربر',
 	'Create User Permission' => 'ایجاد دسترسی کاربر',
 	'Update User Permission' => 'ویرایش دسترسی کاربر',
 	'Access Item' => 'مجوز',
+
+	'Access Groups' => 'گروه‌های دسترسی',
+	'Access Group' => 'گروه دسترسی',
+	'Access Group Info' => 'مشخصات گروه دسترسی',
+	'Create Access Group' => 'ایجاد گروه دسترسی',
+	'Update Access Group' => 'ویرایش گروه دسترسی',
+
+	'User Access Groups' => 'گروه‌های دسترسی کاربر',
+	'User Access Group' => 'گروه دسترسی کاربر',
+	'User Access Group Info' => 'مشخصات گروه دسترسی کاربر',
+	'Create User Access Group' => 'ایجاد گروه دسترسی کاربر',
+	'Update User Access Group' => 'ویرایش گروه دسترسی کاربر',
 
 	'Run' => 'اجرا',
 	// 'Message Center' => 'مرکز پیام',
