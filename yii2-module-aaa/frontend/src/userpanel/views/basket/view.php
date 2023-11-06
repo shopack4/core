@@ -114,7 +114,7 @@ JS;
                   'label' => 'مبلغ کل',
                   'format' => 'toman',
                   'value' => function ($model, $key, $index, $widget) {
-                    return $model['unitprice'] * $model['qty'] - $model['discount'];
+                    return $model['unitprice'] * $model['qty'] - ($model['discount'] ?? 0);
                   },
                 ],
                 [
