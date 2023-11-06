@@ -134,7 +134,7 @@ trait UserAccessGroupModelTrait
 		else
 			$className = '\shopack\aaa\frontend\common\models\AccessGroupModel';
 
-		return $this->hasOne($className, ['ugpID' => 'usragpAccessGroupID']);
+		return $this->hasOne($className, ['agpID' => 'usragpAccessGroupID']);
 	}
 
 }

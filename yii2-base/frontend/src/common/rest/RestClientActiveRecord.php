@@ -144,6 +144,9 @@ abstract class RestClientActiveRecord extends BaseActiveRecord
             && $columnsInfo[$column][enuColumnInfo::type] === $JsonValidator_class
             && empty($this->$column) == false
         ) {
+          if (is_string($this->$column))
+            $this->$column = Json::decode($this->$column, true);
+
           $this->$column = array_filter($this->$column);
         }
       }

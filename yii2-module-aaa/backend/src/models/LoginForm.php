@@ -117,7 +117,7 @@ class LoginForm extends Model
       $this->_inputName = 'ssid';
       $this->ssid = $normalizedInput;
     } else
-        throw new UnprocessableEntityHttpException('Invalid input');
+      throw new UnprocessableEntityHttpException('Invalid input');
 
     if ($this->validate()) {
       $user = $this->getUser();

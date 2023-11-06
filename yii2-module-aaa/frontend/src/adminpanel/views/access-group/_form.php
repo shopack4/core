@@ -3,6 +3,7 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
+use shopack\base\common\helpers\Json;
 use shopack\base\common\helpers\Url;
 use shopack\base\frontend\common\widgets\Select2;
 use shopack\base\frontend\common\widgets\DepDrop;
@@ -24,6 +25,9 @@ use yii\web\JsExpression;
 
 		$builder = $form->getBuilder();
 
+		if ((empty($model->agpPrivs) == false) && is_array($model->agpPrivs))
+			$model->agpPrivs = Json::encode($model->agpPrivs);
+
 		$builder->fields([
 			// [
 			// 	'agpStatus',
@@ -34,6 +38,13 @@ use yii\web\JsExpression;
 			// 	],
 			// ],
 			['agpName'],
+			['agpPrivs',
+				'type' => FormBuilder::FIELD_TEXTAREA,
+				'widgetOptions' => [
+					'rows' => 4,
+					'style' => 'direction:ltr',
+				],
+			],
 		]);
 	?>
 

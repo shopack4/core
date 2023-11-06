@@ -22,7 +22,7 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 	if (isset($statusReport))
 		echo $statusReport;
 
-    // (is_array($statusReport) ? Html::icon($statusReport[0], ['plugin' => 'glyph']) . ' ' . $statusReport[1] : $statusReport);
+  // (is_array($statusReport) ? Html::icon($statusReport[0], ['plugin' => 'glyph']) . ' ' . $statusReport[1] : $statusReport);
 
   $columns = [
     [

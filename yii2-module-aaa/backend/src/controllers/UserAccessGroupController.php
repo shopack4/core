@@ -47,7 +47,7 @@ class UserAccessGroupController extends BaseCrudController
 			'index' => function($query) {
 				$query
 					->joinWith('user')
-					->joinWith('user.accessGroup')
+					->joinWith('accessGroup')
 					->with('createdByUser')
 					->with('updatedByUser')
 					->with('removedByUser')
@@ -56,7 +56,7 @@ class UserAccessGroupController extends BaseCrudController
 			'view' => function($query) {
 				$query
 					->joinWith('user')
-					->joinWith('user.accessGroup')
+					->joinWith('accessGroup')
 					->with('createdByUser')
 					->with('updatedByUser')
 					->with('removedByUser')

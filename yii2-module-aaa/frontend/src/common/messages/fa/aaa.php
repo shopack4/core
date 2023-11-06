@@ -533,7 +533,9 @@ return [
 	'Receive by customer' => 'دریافت توسط مشتری',
 	'Send to customer' => 'ارسال به مشتری',
 
+	'Percent' => 'درصد',
 	'Price' => 'قیمت',
+	'Toman' => 'تومان',
 	'Unit Price' => 'قیمت واحد',
 	'Total Price' => 'قیمت کل',
 	'Saleable' => 'طرح فروش',

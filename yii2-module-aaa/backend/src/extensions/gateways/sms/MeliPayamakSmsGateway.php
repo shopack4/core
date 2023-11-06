@@ -6,6 +6,7 @@
 namespace shopack\aaa\backend\extensions\gateways\sms;
 
 use Yii;
+use yii\web\UnprocessableEntityHttpException;
 use Melipayamak\MelipayamakApi;
 use shopack\base\common\helpers\Json;
 use shopack\aaa\backend\classes\BaseSmsGateway;
@@ -101,6 +102,9 @@ class MeliPayamakSmsGateway
 
 	public static function sendByPattern($consoleKey, $params, $to, $bodyid)
 	{
+		if (empty($consoleKey))
+			throw new UnprocessableEntityHttpException('Console key not provided');
+
 		$url = 'https://console.melipayamak.com/api/send/shared/' . $consoleKey;
 		$data = [
 			'bodyId' => (int)$bodyid,

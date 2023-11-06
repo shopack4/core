@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -10,7 +9,6 @@ class m231101_074125_aaa_create_useraccessgroup extends Migration
 {
   public function safeUp()
   {
-
 		throw new \Exception("not finished yet");
 
 

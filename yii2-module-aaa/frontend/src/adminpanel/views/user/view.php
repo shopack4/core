@@ -269,6 +269,15 @@ $this->params['breadcrumbs'][] = $this->title;
       <?php $tabs->endTabPage(); ?>
 
       <?php
+        $tabs->newAjaxTabPage(Yii::t('aaa', 'Access Groups'), [
+            '/aaa/user-access-group/index',
+            'usragpUserID' => $model->usrID,
+          ],
+          'user-access-groups'
+        );
+      ?>
+
+      <?php
         $tabs->beginTabPage(Yii::t('aaa', 'Financial'), [
           'wallets',
           'wallet-transactions',
