@@ -105,11 +105,16 @@ JS;
                   'format' => 'toman',
                 ],
                 [
+                  'attribute' => 'discount',
+                  'label' => 'تخفیف',
+                  'format' => 'toman',
+                ],
+                [
                   'attribute' => 'totalprice',
                   'label' => 'مبلغ کل',
                   'format' => 'toman',
                   'value' => function ($model, $key, $index, $widget) {
-                    return $model['unitprice'] * $model['qty'];
+                    return $model['unitprice'] * $model['qty'] - $model['discount'];
                   },
                 ],
                 [

@@ -43,6 +43,7 @@ class VoucherSearchModel extends VoucherModel
 					'vchID',
 					'vchOwnerUserID',
 					'vchAmount',
+					'vchDiscountAmount',
 					'vchDeliveryAmount',
 					'vchTotalAmount',
 					'vchStatus',

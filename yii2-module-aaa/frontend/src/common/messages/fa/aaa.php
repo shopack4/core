@@ -193,6 +193,9 @@ return [
 	'Wallet Transaction Info' => 'مشخصات تراکنش کیف پول',
 
 	'Amount' => 'مبلغ',
+	'Discount Amount' => 'تخفیف',
+	'Delivery Amount' => 'هزینه ارسال',
+	'Total Amount' => 'مبلغ کل',
 	'Remained Amount' => 'موجودی',
 
 	'Increase Balance' => 'افزایش موجودی',

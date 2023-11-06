@@ -124,15 +124,20 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 			$this->totalPrices += $item['unitprice'] * $item['qty'];
 			// $this->total += $this->totalPrices;
 
+			$this->totalDiscounts += ($item['discount'] ?? 0);
+
 			if (isset($item['prdtype']) && ($item['prdtype'] == enuProductType::Physical)) {
 				++$this->physicalCount;
 			}
 		}
 
 		//-------------------------
-		$this->vchtotal	= $voucherModel->vchAmount;
+		$this->vchtotal	= $voucherModel->vchAmount; // - ($voucherModel->vchDiscountAmount ?? 0);
 		$this->paid			= $voucherModel->vchTotalPaid;
-		$this->total		= $voucherModel->vchAmount - ($voucherModel->vchTotalPaid ?? 0);
+		$this->total		=
+				$voucherModel->vchAmount
+			- $this->totalDiscounts
+			- ($voucherModel->vchTotalPaid ?? 0);
 
 		//-------------------------
 		$this->steps = [];
@@ -195,7 +200,7 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 		}
 	}
 
-	private function checkout()
+	public function checkout()
 	{
 		// list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/accounting/finalize-basket',
 		list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/checkout',

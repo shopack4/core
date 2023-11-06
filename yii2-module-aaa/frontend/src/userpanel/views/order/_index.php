@@ -65,6 +65,7 @@ use shopack\aaa\frontend\common\models\VoucherModel;
             'شرح',
             'تعداد',
             'مبلغ واحد',
+            'تخفیف',
             'مبلغ کل',
           ]) . '</td></tr>';
           $vchItems = $model->vchItems;
@@ -75,7 +76,8 @@ use shopack\aaa\frontend\common\models\VoucherModel;
               $vchItem['desc'],
               Yii::$app->formatter->asDecimal($vchItem['qty']),
               Yii::$app->formatter->asToman($vchItem['unitprice']),
-              Yii::$app->formatter->asToman($vchItem['qty'] * $vchItem['unitprice']),
+              Yii::$app->formatter->asToman($vchItem['discount'] ?? 0),
+              Yii::$app->formatter->asToman(($vchItem['qty'] * $vchItem['unitprice']) - ($vchItem['discount'] ?? 0)),
             ]) . '</td></tr>';
           }
           return '<table class="table table-bordered table-striped">' . implode('', $result) . '</table>';
@@ -84,6 +86,13 @@ use shopack\aaa\frontend\common\models\VoucherModel;
       'vchID',
       [
         'attribute' => 'vchAmount',
+        'format' => 'toman',
+        'contentOptions' => [
+          'class' => ['text-nowrap', 'tabular-nums'],
+        ],
+      ],
+      [
+        'attribute' => 'vchDiscountAmount',
         'format' => 'toman',
         'contentOptions' => [
           'class' => ['text-nowrap', 'tabular-nums'],

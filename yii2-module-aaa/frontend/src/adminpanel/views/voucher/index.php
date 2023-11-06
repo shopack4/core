@@ -45,6 +45,7 @@ $this->params['breadcrumbs'][] = $this->title;
             },
           ],
           'vchAmount',
+          'vchDiscountAmount',
           'vchDeliveryAmount',
           'vchTotalAmount',
           [

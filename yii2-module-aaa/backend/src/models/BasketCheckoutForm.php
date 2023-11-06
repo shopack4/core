@@ -78,6 +78,7 @@ class BasketCheckoutForm extends Model
 
 				$voucherModel->vchTotalAmount =
 						$voucherModel->vchAmount
+					- ($voucherModel->vchDiscountAmount ?? 0)
 					+ $deliveryMethodModel->dlvAmount;
 			}
 

@@ -21,6 +21,18 @@ class Module
 {
 	public $allowSignup = true;
 
+	public $globalOwnerUserLabel = null;
+	public function getGlobalOwnerUserLabel()
+	{
+		if (empty($this->globalOwnerUserLabel))
+			return Yii::t('aaa', 'Owner');
+
+		if (is_array($this->globalOwnerUserLabel))
+			return Yii::t($this->globalOwnerUserLabel[0], $this->globalOwnerUserLabel[1]);
+
+		return $this->globalOwnerUserLabel;
+	}
+
 	public function init()
 	{
 		if (empty($this->id))

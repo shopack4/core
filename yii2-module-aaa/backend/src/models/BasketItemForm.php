@@ -62,11 +62,13 @@ class BasketItemForm extends Model
       $maxqty    = $itemToAdd['maxqty'] ?? null;
       $unitprice = $itemToAdd['unitprice'];
       //additives
-      //discount
+      $discount  = $itemToAdd['discount'] ?? 0;
       //tax
       //totalprice
 
       $voucherModel->vchAmount += ($unitprice * $qty);
+      if ($discount > 0)
+        $voucherModel->vchDiscountAmount = ($voucherModel->vchDiscountAmount ?? 0) + $discount;
 
       //check current items
       if (empty($maxqty) == false) {
@@ -103,7 +105,9 @@ class BasketItemForm extends Model
     $voucherModel->vchDeliveryMethodID = null;
     $voucherModel->vchDeliveryAmount = null;
 
-    $voucherModel->vchTotalAmount = $voucherModel->vchAmount;
+    $voucherModel->vchTotalAmount =
+        $voucherModel->vchAmount
+      - ($voucherModel->vchDiscountAmount ?? 0);
 
     return $voucherModel->save();
   }

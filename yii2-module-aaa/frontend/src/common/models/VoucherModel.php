@@ -22,6 +22,7 @@ class VoucherModel extends RestClientActiveRecord
 			'vchOwnerUserID'      => Yii::$app->getModule('aaa')->getGlobalOwnerUserLabel(),
 			'vchType'      				=> Yii::t('aaa', 'Type'),
 			'vchAmount'           => Yii::t('aaa', 'Amount'),
+			'vchDiscountAmount'   => Yii::t('aaa', 'Discount Amount'),
 			'vchDeliveryAmount'   => Yii::t('aaa', 'Delivery Amount'),
 			'vchTotalAmount'      => Yii::t('aaa', 'Total Amount'),
 			'vchPaidByWallet'     => Yii::t('aaa', 'Paid By Wallet'),
