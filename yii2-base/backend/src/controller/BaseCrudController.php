@@ -86,7 +86,11 @@ abstract class BaseCrudController extends BaseRestController
 		}
 	}
 
-	public function actionIndex()
+	public function fillGlobalSearchFromRequest(\yii\db\ActiveQuery $query, $q)
+	{
+	}
+
+	public function actionIndex($q = null)
 	{
 		$modelClass = $this->modelClass;
 		$model = new $modelClass;
@@ -98,6 +102,8 @@ abstract class BaseCrudController extends BaseRestController
 		$this->checkPermission($model, $query);
 
 		$this->augmentQuery($query);
+
+		$this->fillGlobalSearchFromRequest($query, $q);
 
 		$model->fillQueryFromRequest($query);
 

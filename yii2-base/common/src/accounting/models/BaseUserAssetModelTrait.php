@@ -19,7 +19,7 @@ use shopack\base\common\accounting\enums\enuUserAssetStatus;
 'uasQty',
 'uasVoucherID',
 'uasVoucherItemInfo',
-'uasCouponID',
+'uasDiscountID',
 'uasDiscountAmount',
 'uasPrefered',
 'uasValidFromDate',
@@ -91,7 +91,7 @@ trait BaseUserAssetModelTrait
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
 			],
-      'uasCouponID' => [
+      'uasDiscountID' => [
         enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
@@ -217,9 +217,9 @@ trait BaseUserAssetModelTrait
 		return $this->hasOne($this->getSaleableModelClass(), ['slbID' => 'uasSaleableID']);
 	}
 
-  abstract public static function getCouponModelClass();
-	public function getCoupon() {
-		return $this->hasOne($this->getCouponModelClass(), ['cpnID' => 'uasCouponID']);
+  abstract public static function getDiscountModelClass();
+	public function getDiscount() {
+		return $this->hasOne($this->getDiscountModelClass(), ['dscID' => 'uasDiscountID']);
 	}
 
 }

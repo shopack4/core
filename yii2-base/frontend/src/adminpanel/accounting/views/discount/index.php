@@ -11,12 +11,12 @@ use shopack\base\frontend\common\widgets\grid\GridView;
 
 $modelClass = Yii::$app->controller->modelClass;
 
-$this->title = Yii::t('aaa', 'Coupons');
+$this->title = Yii::t('aaa', 'Discounts');
 $this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="coupon-index w-100">
+<div class="discount-index w-100">
   <div class='card'>
 		<div class='card-header'>
 			<div class="float-end">
@@ -37,18 +37,18 @@ $this->params['breadcrumbs'][] = $this->title;
           [
             'class' => 'kartik\grid\SerialColumn',
           ],
-          'cpnID',
+          'dscID',
           [
-            'attribute' => 'cpnName',
+            'attribute' => 'dscName',
             'format' => 'raw',
             'value' => function ($model, $key, $index, $widget) {
-              return Html::a($model->cpnName, ['view', 'id' => $model->cpnID]);
+              return Html::a($model->dscName, ['view', 'id' => $model->dscID]);
             },
           ],
           // [
           //   'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
           //   'enumClass' => enuGeoCountryStatus::class,
-          //   'attribute' => 'cpnStatus',
+          //   'attribute' => 'dscStatus',
           // ],
           [
             'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
@@ -73,11 +73,11 @@ $this->params['breadcrumbs'][] = $this->title;
             'label' => 'ایجاد / ویرایش',
             'value' => function($model) {
               return Html::formatRowDates(
-                $model->cpnCreatedAt,
+                $model->dscCreatedAt,
                 $model->createdByUser,
-                $model->cpnUpdatedAt,
+                $model->dscUpdatedAt,
                 $model->updatedByUser,
-                $model->cpnRemovedAt,
+                $model->dscRemovedAt,
                 $model->removedByUser,
               );
             },

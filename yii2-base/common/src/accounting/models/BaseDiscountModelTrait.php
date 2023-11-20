@@ -9,63 +9,58 @@ use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
-use shopack\base\common\accounting\enums\enuCouponStatus;
+use shopack\base\common\accounting\enums\enuDiscountStatus;
 use shopack\base\common\accounting\enums\enuAmountType;
 
 /*
-'cpnID',
-'cpnUUID',
-'cpnCode',
-'cpnName',
-'cpnPrimaryCount',
-'cpnTotalMaxAmount',
-'cpnPerUserMaxCount',
-'cpnPerUserMaxAmount',
-'cpnValidFrom',
-'cpnValidTo',
-'cpnAmount',
-'cpnAmountType',
-'cpnMaxAmount',
-'cpnSaleableBasedMultiplier',
-'cpnTotalUsedCount',
-'cpnTotalUsedAmount',
-'cpnI18NData',
-'cpnStatus',
-'cpnCreatedAt',
-'cpnCreatedBy',
-'cpnUpdatedAt',
-'cpnUpdatedBy',
-'cpnRemovedAt',
-'cpnRemovedBy',
+'dscID',
+'dscUUID',
+'dscName',
+'dscCode',
+'dscValidFrom',
+'dscValidTo',
+'dscTotalMaxCount',
+'dscTotalMaxPrice',
+'dscPerUserMaxCount',
+'dscPerUserMaxPrice',
+'dscTargetUserIDs',
+'dscTargetProductIDs',
+'dscTargetSaleableIDs',
+'dscSaleableBasedMultiplier',
+'dscAmount',
+'dscAmountType',
+'dscMaxAmount',
+'dscTotalUsedCount',
+'dscTotalUsedPrice',
+'dscI18NData',
+'dscStatus',
+'dscCreatedAt',
+'dscCreatedBy',
+'dscUpdatedAt',
+'dscUpdatedBy',
+'dscRemovedAt',
+'dscRemovedBy',
 */
-trait BaseCouponModelTrait
+trait BaseDiscountModelTrait
 {
-  public static $primaryKey = ['cpnID'];
+  public static $primaryKey = ['dscID'];
 
 	public function primaryKeyValue() {
-		return $this->cpnID;
+		return $this->dscID;
 	}
 
   public static function columnsInfo()
   {
     return [
-      'cpnID' => [
+      'dscID' => [
         enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
-      'cpnUUID' => ModelColumnHelper::UUID(),
-			'cpnCode' => [
-				enuColumnInfo::type       => ['string', 'max' => 32],
-				enuColumnInfo::validator  => null,
-				enuColumnInfo::default    => null,
-				enuColumnInfo::required   => true,
-				enuColumnInfo::selectable => true,
-				enuColumnInfo::search     => enuColumnSearchType::like,
-			],
-			'cpnName' => [
+      'dscUUID' => ModelColumnHelper::UUID(),
+			'dscName' => [
         enuColumnInfo::type       => ['string', 'max' => 64],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
@@ -73,108 +68,137 @@ trait BaseCouponModelTrait
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
       ],
-			'cpnPrimaryCount' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => true,
-        enuColumnInfo::selectable => true,
-      ],
-			'cpnTotalMaxAmount' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => true,
-        enuColumnInfo::selectable => true,
-      ],
-			'cpnPerUserMaxCount' => [
-        enuColumnInfo::type       => 'integer',
+      'dscCode' => [
+        enuColumnInfo::type       => ['string', 'max' => 32],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::like,
       ],
-			'cpnPerUserMaxAmount' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-      ],
-			'cpnValidFrom' => [
+			'dscValidFrom' => [
         enuColumnInfo::type       => 'safe',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
       ],
-			'cpnValidTo' => [
+			'dscValidTo' => [
         enuColumnInfo::type       => 'safe',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
-			'cpnAmount' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => true,
-        enuColumnInfo::selectable => true,
-      ],
-			'cpnAmountType' => [
-        enuColumnInfo::type       => ['string', 'max' => 1],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => enuAmountType::Percent,
-        enuColumnInfo::required   => true,
-        enuColumnInfo::selectable => true,
-      ],
-			'cpnMaxAmount' => [
+			'dscTotalMaxCount' => [
         enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
-			'cpnSaleableBasedMultiplier' => [
+			'dscTotalMaxPrice' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+			'dscPerUserMaxCount' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+			'dscPerUserMaxPrice' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+      'dscTargetUserIDs' => [
         enuColumnInfo::type       => JsonValidator::class,
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
-			'cpnTotalUsedCount' => [
+      'dscTargetProductIDs' => [
+        enuColumnInfo::type       => JsonValidator::class,
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+      'dscTargetSaleableIDs' => [
+        enuColumnInfo::type       => JsonValidator::class,
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+			'dscSaleableBasedMultiplier' => [
+        enuColumnInfo::type       => JsonValidator::class,
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+			'dscAmount' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+			'dscAmountType' => [
+        enuColumnInfo::type       => ['string', 'max' => 1],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => enuAmountType::Percent,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+			'dscMaxAmount' => [
         enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
-			'cpnTotalUsedAmount' => [
+			'dscTotalUsedCount' => [
         enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
-			'cpnI18NData' => ModelColumnHelper::I18NData(['cpnName']),
-			'cpnStatus' => [
+			'dscTotalUsedPrice' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+
+      'dscI18NData' => ModelColumnHelper::I18NData(['dscName']),
+			'dscStatus' => [
 				enuColumnInfo::isStatus   => true,
 				enuColumnInfo::type       => ['string', 'max' => 1],
 				enuColumnInfo::validator  => null,
-				enuColumnInfo::default    => enuCouponStatus::Active,
+				enuColumnInfo::default    => enuDiscountStatus::Active,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 
-      'cpnCreatedAt' => ModelColumnHelper::CreatedAt(),
-      'cpnCreatedBy' => ModelColumnHelper::CreatedBy(),
-      'cpnUpdatedAt' => ModelColumnHelper::UpdatedAt(),
-      'cpnUpdatedBy' => ModelColumnHelper::UpdatedBy(),
-			'cpnRemovedAt' => ModelColumnHelper::RemovedAt(),
-			'cpnRemovedBy' => ModelColumnHelper::RemovedBy(),
-
+      'dscCreatedAt' => ModelColumnHelper::CreatedAt(),
+      'dscCreatedBy' => ModelColumnHelper::CreatedBy(),
+      'dscUpdatedAt' => ModelColumnHelper::UpdatedAt(),
+      'dscUpdatedBy' => ModelColumnHelper::UpdatedBy(),
+			'dscRemovedAt' => ModelColumnHelper::RemovedAt(),
+			'dscRemovedBy' => ModelColumnHelper::RemovedBy(),
     ];
   }
 
@@ -186,7 +210,7 @@ trait BaseCouponModelTrait
 		else
 			$className = '\shopack\aaa\frontend\common\models\UserModel';
 
-		return $this->hasOne($className, ['usrID' => 'cpnCreatedBy']);
+		return $this->hasOne($className, ['usrID' => 'dscCreatedBy']);
 	}
 
 	public function getUpdatedByUser() {
@@ -197,7 +221,7 @@ trait BaseCouponModelTrait
 		else
 			$className = '\shopack\aaa\frontend\common\models\UserModel';
 
-		return $this->hasOne($className, ['usrID' => 'cpnUpdatedBy']);
+		return $this->hasOne($className, ['usrID' => 'dscUpdatedBy']);
 	}
 
 	public function getRemovedByUser() {
@@ -208,7 +232,7 @@ trait BaseCouponModelTrait
 		else
 			$className = '\shopack\aaa\frontend\common\models\UserModel';
 
-		return $this->hasOne($className, ['usrID' => 'cpnRemovedBy']);
+		return $this->hasOne($className, ['usrID' => 'dscRemovedBy']);
 	}
 
 }

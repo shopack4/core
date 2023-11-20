@@ -12,20 +12,20 @@ use shopack\base\frontend\common\widgets\DetailView;
 
 $modelClass = Yii::$app->controller->modelClass;
 
-$this->title = Yii::t('aaa', 'Coupon') . ': ' . $model->cpnID . ' - ' . $model->cpnName;
+$this->title = Yii::t('aaa', 'Discount') . ': ' . $model->dscID . ' - ' . $model->dscName;
 $this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
-$this->params['breadcrumbs'][] = ['label' => Yii::t('aaa', 'Coupons'), 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => Yii::t('aaa', 'Discounts'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="coupon-view w-100">
+<div class="discount-view w-100">
   <div class='card'>
 		<div class='card-header'>
 			<div class="float-end">
 				<?= $modelClass::canCreate() ? Html::createButton() : '' ?>
-        <?= $model->canUpdate()   ? Html::updateButton(null,   ['id' => $model->cpnID]) : '' ?>
-        <?= $model->canDelete()   ? Html::deleteButton(null,   ['id' => $model->cpnID]) : '' ?>
-        <?= $model->canUndelete() ? Html::undeleteButton(null, ['id' => $model->cpnID]) : '' ?>
+        <?= $model->canUpdate()   ? Html::updateButton(null,   ['id' => $model->dscID]) : '' ?>
+        <?= $model->canDelete()   ? Html::deleteButton(null,   ['id' => $model->dscID]) : '' ?>
+        <?= $model->canUndelete() ? Html::undeleteButton(null, ['id' => $model->dscID]) : '' ?>
         <?php
           PopoverX::begin([
             // 'header' => 'Hello world',
@@ -42,21 +42,21 @@ $this->params['breadcrumbs'][] = $this->title;
             'enableEditMode' => false,
             // 'isVertical' => false,
             'attributes' => [
-              'cpnCreatedAt:jalaliWithTime',
+              'dscCreatedAt:jalaliWithTime',
               [
-                'attribute' => 'cpnCreatedBy_User',
+                'attribute' => 'dscCreatedBy_User',
                 'format' => 'raw',
                 'value' => $model->createdByUser->actorName ?? '-',
               ],
-              'cpnUpdatedAt:jalaliWithTime',
+              'dscUpdatedAt:jalaliWithTime',
               [
-                'attribute' => 'cpnUpdatedBy_User',
+                'attribute' => 'dscUpdatedBy_User',
                 'format' => 'raw',
                 'value' => $model->updatedByUser->actorName ?? '-',
               ],
-              'cpnRemovedAt:jalaliWithTime',
+              'dscRemovedAt:jalaliWithTime',
               [
-                'attribute' => 'cpnRemovedBy_User',
+                'attribute' => 'dscRemovedBy_User',
                 'format' => 'raw',
                 'value' => $model->removedByUser->actorName ?? '-',
               ],
@@ -77,12 +77,12 @@ $this->params['breadcrumbs'][] = $this->title;
           // 'cols' => 2,
           // 'isVertical' => false,
           'attributes' => [
-            'cpnID',
+            'dscID',
             // [
-            //   'attribute' => 'cpnStatus',
-            //   'value' => enuGeoCountryStatus::getLabel($model->cpnStatus),
+            //   'attribute' => 'dscStatus',
+            //   'value' => enuGeoCountryStatus::getLabel($model->dscStatus),
             // ],
-            'cpnName',
+            'dscName',
           ],
         ]);
       ?>
@@ -95,7 +95,7 @@ $this->params['breadcrumbs'][] = $this->title;
         echo Yii::$app->runAction('/aaa/geo-state/index', ArrayHelper::merge($_GET, [
           'isPartial' => true,
           'params' => [
-            'sttCountryID' => $model->cpnID,
+            'sttCountryID' => $model->dscID,
           ],
         ]));
       ?>

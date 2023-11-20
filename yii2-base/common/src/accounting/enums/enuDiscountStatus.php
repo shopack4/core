@@ -7,7 +7,7 @@ namespace shopack\base\common\accounting\enums;
 
 use shopack\base\common\base\BaseEnum;
 
-abstract class enuCouponStatus extends BaseEnum
+abstract class enuDiscountStatus extends BaseEnum
 {
   const Active 		= 'A';
   const Inactive 	= 'D';

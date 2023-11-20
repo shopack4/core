@@ -16,4 +16,16 @@ use shopack\base\backend\helpers\PrivHelper;
 
 abstract class BaseProductController extends BaseCrudController
 {
+	public function fillGlobalSearchFromRequest(\yii\db\ActiveQuery $query, $q)
+	{
+		if (empty($q))
+			return;
+
+		$query->andWhere([
+			'OR',
+			['LIKE', 'prdCode', $q],
+			['LIKE', 'prdName', $q],
+		]);
+	}
+
 }

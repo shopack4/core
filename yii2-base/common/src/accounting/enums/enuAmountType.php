@@ -11,14 +11,14 @@ abstract class enuAmountType extends BaseEnum
 {
   const Percent	= '%';
   const Price 	= '$';
-  const Free 		= 'Z';
+  // const Free 		= 'Z';
 
 	public static $messageCategory = 'aaa';
 
 	public static $list = [
 		self::Percent	=> 'Percent',
 		self::Price		=> 'Price',
-		self::Free		=> 'Free',
+		// self::Free		=> 'Free',
 	];
 
 };

@@ -7,7 +7,7 @@ namespace shopack\base\frontend\adminpanel\accounting\controllers;
 
 use shopack\aaa\frontend\common\auth\BaseCrudController;
 
-class BaseCouponController extends BaseCrudController
+class BaseDiscountController extends BaseCrudController
 {
 	public function init()
   {

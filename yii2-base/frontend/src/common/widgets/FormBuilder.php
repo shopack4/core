@@ -496,7 +496,7 @@ class FormBuilder extends \yii\base\Component
 
 							case '@section':
 								$label = ArrayHelper::getValue($params, 'label', '');
-								$content = Html::tag('h4', $label, ['class' => 'form-section']);
+								$content = Html::tag('h5', $label, ['class' => 'form-section']);
 								$visibleConditions = ArrayHelper::getValue($params, 'visibleConditions', []);
 								if (!empty($visibleConditions)) {
 									$fieldID = uniqid('fb'); //\yii\base\Widget::getId();
@@ -507,7 +507,7 @@ class FormBuilder extends \yii\base\Component
 										'visibleConditions' => $visibleConditions,
 									];
 									$visFormFields[] = $fieldID;
-									$content = Html::tag('h4', $label, [
+									$content = Html::tag('h5', $label, [
 										'class' => 'form-section',
 										'id' => 'panel_' . $fieldID,
 										'style' => 'display:none',
@@ -519,7 +519,11 @@ class FormBuilder extends \yii\base\Component
 									--$beginColCount;
 								}
 								echo Html::endTag('div'); //row
+
+								echo Html::beginTag('div', ['class' => 'row']);
 								echo $content;
+								echo Html::endTag('div'); //row
+
 								echo Html::beginTag('div', ['class' => 'row']);
 								if ($vertical) {
 									echo Html::beginTag('div', ['class' => $colWidth]);

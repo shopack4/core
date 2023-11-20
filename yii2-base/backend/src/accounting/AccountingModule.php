@@ -40,7 +40,7 @@ class AccountingModule
 				[
 					'class' => \yii\rest\UrlRule::class,
 					// 'prefix' => 'v1',
-					'controller' => [$thisID . '/coupon'],
+					'controller' => [$thisID . '/discount'],
 					'pluralize' => false,
 				],
 				[

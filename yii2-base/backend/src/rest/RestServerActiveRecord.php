@@ -26,6 +26,27 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
     return $query;
 	}
 
+	// public function fillGlobalSearchFromRequest(\yii\db\ActiveQuery $query, $q)
+	// {
+	// 	if (empty($q))
+	// 		return;
+
+	// 	$globalSearchableColumns = $this->globalSearchableColumns();
+
+	// 	if (empty($globalSearchableColumns)) {
+	// 		//warning
+	// 		return;
+	// 	}
+
+	// 	$likes = ['OR'];
+	// 	foreach ($globalSearchableColumns as $column => $info) {
+	// 		// if ($column[enuColumnInfo::search] == )
+	// 		$likes[] = ['like', $column, $q];
+	// 	}
+
+	// 	$query->andWhere($likes);
+	// }
+
 	public function fillQueryFromRequest(\yii\db\ActiveQuery $query)
 	{
 		$queryParams = Yii::$app->request->getQueryParams();

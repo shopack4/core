@@ -533,6 +533,14 @@ return [
 	'Create Delivery Method' => 'ایجاد روش ارسال',
 	'Update Delivery Method' => 'ویرایش روش ارسال',
 
+	'Saleable' => 'طرح فروش',
+
+	'Discounts' => 'تخفیف‌ها',
+	'Discount' => 'تخفیف',
+	'Discount Info' => 'مشخصات تخفیف',
+	'Create Discount' => 'ایجاد تخفیف',
+	'Update Discount' => 'ویرایش تخفیف',
+
 	'Receive by customer' => 'دریافت توسط مشتری',
 	'Send to customer' => 'ارسال به مشتری',
 
@@ -541,8 +549,6 @@ return [
 	'Toman' => 'تومان',
 	'Unit Price' => 'قیمت واحد',
 	'Total Price' => 'قیمت کل',
-	'Saleable' => 'طرح فروش',
-
 	'Checkout' => 'ثبت سفارش',
 	'Basket checked out' => 'سبد خرید شما تسویه و ثبت شد',
 	'Error in checkout' => 'خطا در ثبت سفارش',
@@ -595,5 +601,15 @@ return [
 
 	'Do you want the mobile verification code to be sent to {mobile}?' => 'آیا می‌خواهید کد تایید موبایل دوباره به شماره {mobile} ارسال شود؟',
 	'Do you want the email verification code to be sent to {email}?' => 'آیا می‌خواهید کد تایید ایمیل دوباره به {email} ارسال شود؟',
+
+	'Total Max Count' => 'حداکثر تعداد استفاده در کل',
+	'Total Max Amount' => 'حداکثر مبلغ استفاده در کل',
+	'Per User Max Count' => 'حداکثر تعداد برای هر کاربر',
+	'Per User Max Amount' => 'حداکثر مبلغ برای هر کاربر',
+	'Amount Type' => 'نوع مقدار',
+	'Max Amount' => 'حداکثر مقدار',
+	'Saleable Based Multiplier' => '',
+	'Total Used Count' => 'تعداد استفاده شده',
+	'Total Used Amount' => 'مقدار استفاده شده',
 
 ];

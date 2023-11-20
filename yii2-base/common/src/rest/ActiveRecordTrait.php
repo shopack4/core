@@ -78,6 +78,26 @@ trait ActiveRecordTrait
 		return $columns;
   }
 
+	// protected static $_globalSearchableColumns = null;
+	// public static function globalSearchableColumns()
+  // {
+	// 	$_class = get_called_class();
+
+	// 	if (empty(self::$_globalSearchableColumns[$_class])) {
+	// 		$columns = [];
+
+	// 		$columnsInfo = static::columnsInfo();
+	// 		foreach ($columnsInfo as $column => $info) {
+	// 			if (isset($info[enuColumnInfo::globalSearch])) {
+	// 				$columns[$column] = $info;
+	// 			}
+	// 		}
+	// 		self::$_globalSearchableColumns[$_class] = $columns;
+	// 	}
+
+	// 	return self::$_globalSearchableColumns[$_class];
+  // }
+
 	protected static $_rules = null;
   public function rules()
   {

@@ -9,14 +9,14 @@ namespace shopack\base\common\rest;
 
 class enuColumnInfo //extends BaseEnum
 {
-	const type        = 'type';
-	const validator   = 'validator';
-	const default     = 'default';
-	const required    = 'required';
-	const selectable  = 'selectable';
-	const virtual     = 'virtual';
-	const search      = 'search';
-	const isStatus    = 'isStatus';
+	const type         = 'type';
+	const validator    = 'validator';
+	const default      = 'default';
+	const required     = 'required';
+	const selectable   = 'selectable';
+	const virtual      = 'virtual';
+	const search       = 'search';
+	const isStatus     = 'isStatus';
 
 	// public static $messageCategory = 'aaa';
 

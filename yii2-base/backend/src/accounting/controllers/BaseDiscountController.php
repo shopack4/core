@@ -14,6 +14,6 @@ use shopack\base\common\helpers\ExceptionHelper;
 use shopack\base\backend\controller\BaseCrudController;
 use shopack\base\backend\helpers\PrivHelper;
 
-abstract class BaseCouponController extends BaseCrudController
+abstract class BaseDiscountController extends BaseCrudController
 {
 }
