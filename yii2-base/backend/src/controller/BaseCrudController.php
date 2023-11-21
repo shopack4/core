@@ -88,6 +88,9 @@ abstract class BaseCrudController extends BaseRestController
 
 	public function fillGlobalSearchFromRequest(\yii\db\ActiveQuery $query, $q)
 	{
+		if (empty($q) || ($q == '***'))
+			return;
+
 	}
 
 	public function actionIndex($q = null)

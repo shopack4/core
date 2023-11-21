@@ -9,14 +9,16 @@ use shopack\base\common\base\BaseEnum;
 
 abstract class enuDiscountType extends BaseEnum
 {
-  const Percent	= '%';
-  const Price 	= '$';
+	const System = 'S';
+	const Coupon = 'C';
+	// const AsPromotion = 3;
 
 	public static $messageCategory = 'aaa';
 
 	public static $list = [
-		self::Percent	=> 'Percent',
-		self::Price		=> 'Price',
+		self::System => 'System Discount',
+		self::Coupon => 'As Coupon',
+		// self::AsPromotion => 'As Promotion',
 	];
 
 };

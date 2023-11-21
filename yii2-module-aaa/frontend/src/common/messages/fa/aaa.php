@@ -193,7 +193,7 @@ return [
 	'Wallet Transaction Info' => 'مشخصات تراکنش کیف پول',
 
 	'Amount' => 'مبلغ',
-	'Discount Amount' => 'تخفیف',
+	'Discount Amount' => 'مقدار تخفیف',
 	'Delivery Amount' => 'هزینه ارسال',
 	'Total Amount' => 'مبلغ کل',
 	'Remained Amount' => 'موجودی',
@@ -533,7 +533,11 @@ return [
 	'Create Delivery Method' => 'ایجاد روش ارسال',
 	'Update Delivery Method' => 'ویرایش روش ارسال',
 
+	'Product' => 'کالا',
+	'Products' => 'کالاها',
+
 	'Saleable' => 'طرح فروش',
+	'Saleables' => 'طرح‌های فروش',
 
 	'Discounts' => 'تخفیف‌ها',
 	'Discount' => 'تخفیف',
@@ -611,5 +615,7 @@ return [
 	'Saleable Based Multiplier' => '',
 	'Total Used Count' => 'تعداد استفاده شده',
 	'Total Used Amount' => 'مقدار استفاده شده',
+
+	'Conditions' => 'شرایط',
 
 ];

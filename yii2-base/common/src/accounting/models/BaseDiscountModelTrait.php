@@ -11,12 +11,19 @@ use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
 use shopack\base\common\accounting\enums\enuDiscountStatus;
 use shopack\base\common\accounting\enums\enuAmountType;
+use shopack\base\common\accounting\enums\enuDiscountType;
 
 /*
 'dscID',
 'dscUUID',
 'dscName',
-'dscCode',
+'dscType',
+
+'dscCodeString',
+'dscCodeHasSerial',
+'dscCodeSerialCount',
+'dscCodeSerialLength',
+
 'dscValidFrom',
 'dscValidTo',
 'dscTotalMaxCount',
@@ -68,7 +75,14 @@ trait BaseDiscountModelTrait
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
       ],
-      'dscCode' => [
+      'dscType' => [
+        enuColumnInfo::type       => ['string', 'max' => 1],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => enuDiscountType::Coupon,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+      'dscCodeString' => [
         enuColumnInfo::type       => ['string', 'max' => 32],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
@@ -76,11 +90,32 @@ trait BaseDiscountModelTrait
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
       ],
+			'dscCodeHasSerial' => [
+        enuColumnInfo::type       => 'boolean',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+			'dscCodeSerialCount' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+			'dscCodeSerialLength' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
 			'dscValidFrom' => [
         enuColumnInfo::type       => 'safe',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => true,
+        enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
 			'dscValidTo' => [

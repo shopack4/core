@@ -28,7 +28,7 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 
 	// public function fillGlobalSearchFromRequest(\yii\db\ActiveQuery $query, $q)
 	// {
-	// 	if (empty($q))
+	// 	if (empty($q) || ($q == '***'))
 	// 		return;
 
 	// 	$globalSearchableColumns = $this->globalSearchableColumns();

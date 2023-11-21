@@ -108,7 +108,7 @@ JS;
 							'templateSelection' => new JsExpression('formatUserSelection'),
 						],
 						'options' => [
-							'placeholder' => '-- جستجو کنید --',
+							'placeholder' => Yii::t('app', '-- Search (*** for all) --'),
 							'dir' => 'rtl',
 							// 'multiple' => true,
 						],
