@@ -545,6 +545,14 @@ return [
 	'Create Discount' => 'ایجاد تخفیف',
 	'Update Discount' => 'ویرایش تخفیف',
 
+	'Discount Type' => 'نوع تخفیف',
+	'System Discount' => 'تخفیف سیستمی',
+	'As Coupon' => 'تخفیف کوپنی',
+	'Discount Code' => 'کد تخفیف',
+	'Code Has Serial' => 'دارای سریال',
+	'Code Serial Count' => 'تعداد',
+	'Code SerialL ength' => 'طول سریال',
+
 	'Receive by customer' => 'دریافت توسط مشتری',
 	'Send to customer' => 'ارسال به مشتری',
 
@@ -614,6 +622,7 @@ return [
 	'Max Amount' => 'حداکثر مقدار',
 	'Saleable Based Multiplier' => '',
 	'Total Used Count' => 'تعداد استفاده شده',
+	'Total Used Price' => 'مبلغ استفاده شده',
 	'Total Used Amount' => 'مقدار استفاده شده',
 
 	'Conditions' => 'شرایط',

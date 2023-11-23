@@ -36,7 +36,7 @@ trait UploadQueueModelTrait
 		return $this->uquID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'uquID' => [

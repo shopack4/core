@@ -42,7 +42,7 @@ trait UploadFileModelTrait
 		return $this->uflID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'uflID' => [

@@ -30,7 +30,7 @@ trait GeoStateModelTrait
 		return $this->sttID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'sttID' => [

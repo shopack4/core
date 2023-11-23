@@ -18,12 +18,10 @@ use shopack\base\common\accounting\enums\enuDiscountType;
 'dscUUID',
 'dscName',
 'dscType',
-
 'dscCodeString',
 'dscCodeHasSerial',
 'dscCodeSerialCount',
 'dscCodeSerialLength',
-
 'dscValidFrom',
 'dscValidTo',
 'dscTotalMaxCount',
@@ -56,7 +54,7 @@ trait BaseDiscountModelTrait
 		return $this->dscID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'dscID' => [
@@ -86,7 +84,11 @@ trait BaseDiscountModelTrait
         enuColumnInfo::type       => ['string', 'max' => 32],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
+        enuColumnInfo::required   => [
+          'when' => function ($model) {
+            return ($model->dscType == enuDiscountType::Coupon);
+          },
+        ],
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
       ],
@@ -98,17 +100,25 @@ trait BaseDiscountModelTrait
         enuColumnInfo::selectable => true,
       ],
 			'dscCodeSerialCount' => [
-        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::type       => ['number', 'min' => 100, 'max' => 10000],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
+        enuColumnInfo::required   => [
+          'when' => function ($model) {
+            return (($model->dscType == enuDiscountType::Coupon) && $model->dscCodeHasSerial);
+          },
+        ],
         enuColumnInfo::selectable => true,
       ],
 			'dscCodeSerialLength' => [
-        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::type       => ['number', 'min' => 6, 'max' => 20],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
+        enuColumnInfo::required   => [
+          'when' => function ($model) {
+            return (($model->dscType == enuDiscountType::Coupon) && $model->dscCodeHasSerial);
+          },
+        ],
         enuColumnInfo::selectable => true,
       ],
 			'dscValidFrom' => [
@@ -182,7 +192,14 @@ trait BaseDiscountModelTrait
         enuColumnInfo::selectable => true,
       ],
 			'dscAmount' => [
-        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::type       => [
+          'number',
+          'min' => 0,
+          'max' => 100,
+          'when' => function ($model) {
+            return ($model->dscAmountType == enuAmountType::Percent);
+          },
+        ],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,

@@ -24,7 +24,7 @@ trait BaseUnitModelTrait
 		return $this->untID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'untID' => [

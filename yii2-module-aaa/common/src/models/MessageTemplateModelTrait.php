@@ -39,7 +39,7 @@ trait MessageTemplateModelTrait
 		return $this->mstID;
 	}
 
-	public static function columnsInfo()
+	public function columnsInfo()
   {
     return [
 			'mstID' => [

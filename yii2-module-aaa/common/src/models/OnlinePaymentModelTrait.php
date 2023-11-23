@@ -38,7 +38,7 @@ trait OnlinePaymentModelTrait
 		return $this->onpID;
 	}
 
-	public static function columnsInfo()
+	public function columnsInfo()
 	{
 		return [
 			'onpID' => [

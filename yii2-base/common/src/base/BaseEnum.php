@@ -181,10 +181,18 @@ abstract class BaseEnum extends BaseObject
 		if ($value === null)
 			return null;
 
-
 		$list = static::listData($set);
 
-		return $list[$value] ?? null;
+		if (is_array($value) == false)
+			$value = (array)$value;
+
+		$result = [];
+		foreach ($value as $v) {
+			if (isset($list[$v]))
+				$result[] = $list[$v];
+		}
+
+		return implode('|', $result);
 
 
 

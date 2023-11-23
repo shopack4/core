@@ -33,7 +33,7 @@ trait SessionModelTrait
 		return $this->ssnID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'ssnID' => [

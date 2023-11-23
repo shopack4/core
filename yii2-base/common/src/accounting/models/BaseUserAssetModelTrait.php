@@ -44,7 +44,7 @@ trait BaseUserAssetModelTrait
 		return $this->uasID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'uasID' => [

@@ -37,7 +37,7 @@ trait DeliveryMethodModelTrait
 		return $this->dlvID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'dlvID' => [

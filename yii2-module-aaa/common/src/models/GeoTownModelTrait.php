@@ -30,7 +30,7 @@ trait GeoTownModelTrait
 		return $this->twnID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'twnID' => [

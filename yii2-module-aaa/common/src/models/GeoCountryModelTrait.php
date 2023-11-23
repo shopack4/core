@@ -29,7 +29,7 @@ trait GeoCountryModelTrait
 		return $this->cntrID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'cntrID' => [

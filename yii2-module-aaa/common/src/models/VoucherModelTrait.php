@@ -43,7 +43,7 @@ trait VoucherModelTrait
 		return $this->vchID;
 	}
 
-	public static function columnsInfo()
+	public function columnsInfo()
 	{
 		return [
 			'vchID' => [

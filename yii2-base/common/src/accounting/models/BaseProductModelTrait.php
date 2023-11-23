@@ -49,7 +49,7 @@ trait BaseProductModelTrait
 		return $this->prdID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'prdID' => [

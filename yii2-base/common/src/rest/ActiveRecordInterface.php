@@ -6,6 +6,6 @@
 namespace shopack\base\common\rest;
 
 interface ActiveRecordInterface {
-	public static function columnsInfo();
+	public function columnsInfo();
 	public function primaryKeyValue();
 }

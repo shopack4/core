@@ -36,7 +36,7 @@ trait GatewayModelTrait
 		return $this->gtwID;
 	}
 
-	public static function columnsInfo()
+	public function columnsInfo()
 	{
 		return [
 			'gtwID' => [

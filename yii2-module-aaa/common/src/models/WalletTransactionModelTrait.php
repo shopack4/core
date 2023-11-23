@@ -34,7 +34,7 @@ trait WalletTransactionModelTrait
 		return $this->wtrID;
 	}
 
-	public static function columnsInfo()
+	public function columnsInfo()
 	{
 		return [
 			'wtrID' => [

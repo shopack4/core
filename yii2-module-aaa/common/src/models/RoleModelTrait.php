@@ -31,7 +31,7 @@ trait RoleModelTrait
 		return $this->rolID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'rolID' => [

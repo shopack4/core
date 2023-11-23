@@ -21,7 +21,7 @@ class BasketItemForm extends RestClientActiveRecord
 	public static $resourceName = 'aaa/basket/item';
   public static $primaryKey = ['itemkey'];
 
-	public static function columnsInfo()
+	public function columnsInfo()
 	{
 		return [
 			'itemkey' => [

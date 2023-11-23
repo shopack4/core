@@ -233,4 +233,18 @@ class UserModel extends RestClientActiveRecord
 		return ($this->usrStatus == enuUserStatus::Removed);
 	}
 
+  public static function toString($ids)
+	{
+		if (empty($ids))
+			return null;
+
+		$models = self::findAll($ids);
+		$desc = [];
+		foreach ($models as $item) {
+			$desc[] = $item->displayName();
+		}
+
+		return implode('|', $desc);
+	}
+
 }

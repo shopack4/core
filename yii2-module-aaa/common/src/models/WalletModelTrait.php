@@ -33,7 +33,7 @@ trait WalletModelTrait
 		return $this->walID;
 	}
 
-	public static function columnsInfo()
+	public function columnsInfo()
 	{
 		return [
 			'walID' => [

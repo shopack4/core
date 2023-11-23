@@ -30,7 +30,7 @@ trait GeoCityOrVillageModelTrait
 		return $this->ctvID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'ctvID' => [

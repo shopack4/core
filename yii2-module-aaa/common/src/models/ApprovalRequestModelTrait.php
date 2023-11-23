@@ -37,7 +37,7 @@ trait ApprovalRequestModelTrait
 		return $this->aprID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'aprID' => [

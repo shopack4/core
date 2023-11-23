@@ -14,7 +14,7 @@ trait ActiveRecordTrait
 {
   public function getStatusColumnName()
   {
-    $columnsInfo = static::columnsInfo();
+    $columnsInfo = $this->columnsInfo();
     foreach ($columnsInfo as $column => $info) {
       if ($info[enuColumnInfo::isStatus] ?? false)
         return $column;
@@ -23,16 +23,16 @@ trait ActiveRecordTrait
 		return null;
   }
 
-	public static function canViewColumn($column)
+	public function canViewColumn($column)
 	{
-		$columnsInfo = static::columnsInfo();
+		$columnsInfo = $this->columnsInfo();
 		if (empty($columnsInfo[$column]))
 			return false;
 
-		return self::_canViewColumn($column, $columnsInfo[$column]);
+		return $this->_canViewColumn($column, $columnsInfo[$column]);
 	}
 
-	private static function _canViewColumn($column, $columnInfo)
+	private function _canViewColumn($column, $columnInfo)
 	{
 		if (isset($columnInfo[enuColumnInfo::selectable])) {
 			if (is_array($columnInfo[enuColumnInfo::selectable])) {
@@ -58,9 +58,11 @@ trait ActiveRecordTrait
 		if (empty(self::$_selectableColumns[$_class])) {
 			$columns = [];
 
-			$columnsInfo = static::columnsInfo();
+			$model = new $_class;
+
+			$columnsInfo = $model->columnsInfo();
 			foreach ($columnsInfo as $column => $info) {
-				if (self::_canViewColumn($column, $info)) {
+				if ($model->_canViewColumn($column, $info)) {
 					$columns[] = $column;
 				}
 			}
@@ -86,7 +88,7 @@ trait ActiveRecordTrait
 	// 	if (empty(self::$_globalSearchableColumns[$_class])) {
 	// 		$columns = [];
 
-	// 		$columnsInfo = static::columnsInfo();
+	// 		$columnsInfo = $this->columnsInfo();
 	// 		foreach ($columnsInfo as $column => $info) {
 	// 			if (isset($info[enuColumnInfo::globalSearch])) {
 	// 				$columns[$column] = $info;
@@ -105,9 +107,9 @@ trait ActiveRecordTrait
 		$isSearchModel = str_ends_with($_class, 'SearchModel');
 
 		if (empty(self::$_rules[$_class])) {
-			$rules = [];
+			$baseRules = [];
 
-			$columnsInfo = static::columnsInfo();
+			$columnsInfo = $this->columnsInfo();
 			foreach ($columnsInfo as $column => $info) {
 				// if (isset($info[enuColumnInfo::virtual]) && $info[enuColumnInfo::virtual])
 				// 	continue;
@@ -123,18 +125,18 @@ trait ActiveRecordTrait
 							// } else {
 							// 	$rule = array_merge([$column], (array)$info[enuColumnInfo::search]);
 							// }
-							$rules[] = $rule;
+							$baseRules[] = $rule;
 						}
 					}
 				} else {
 					if (isset($info[enuColumnInfo::type])) {
 						$rule = array_merge([$column], (array)$info[enuColumnInfo::type]);
-						$rules[] = $rule;
+						$baseRules[] = $rule;
 					}
 
 					if (isset($info[enuColumnInfo::validator])) {
 						$rule = array_merge([$column], (array)$info[enuColumnInfo::validator]);
-						$rules[] = $rule;
+						$baseRules[] = $rule;
 					}
 
 					if (isset($info[enuColumnInfo::default])) {
@@ -143,33 +145,63 @@ trait ActiveRecordTrait
 							'default',
 							'value' => $info[enuColumnInfo::default]
 						];
-						$rules[] = $rule;
+						$baseRules[] = $rule;
 					}
 
-					if (isset($info[enuColumnInfo::required]) && $info[enuColumnInfo::required]) {
+					if (isset($info[enuColumnInfo::required])
+							&& ($info[enuColumnInfo::required] !== false)
+					) {
 						$rule = [
 							$column,
 							'required'
 						];
-						$rules[] = $rule;
+
+						if (is_array($info[enuColumnInfo::required])) {
+							$rule = array_merge($rule, $info[enuColumnInfo::required]);
+						}
+
+						$baseRules[] = $rule;
 					}
 				}
 			}
 
-			$fnAddRules = function($newRules) use (&$rules, $isSearchModel) {
-				foreach ($newRules as $k => $newRule) {
-					if ($isSearchModel && ($newRule[1] == 'required')) {
-						unset($newRules[$k]);
+			//-------------
+			$rules = [];
+
+			$fnAddRule = function($newRule) use (&$rules, $isSearchModel) {
+				if ($isSearchModel && ($newRule[1] == 'required')) {
+					return;
+				}
+
+				//merge same attr and same validator
+				foreach ($rules as $rk => $rv) {
+					if (is_array($rv) && ($rv[0] == $newRule[0]) && ($rv[1] == $newRule[1])) {
+						$rules[$rk] = array_replace_recursive($rules[$rk], $newRule);
+						$newRule = null;
+						break;
 					}
 				}
 
-				if (empty($newRules) == false)
-					$rules = array_merge_recursive($rules, $newRules);
+				if ($newRule !== null) {
+					$rules[] = $newRule;
+				}
 			};
+
+			$fnAddRules = function($newRules) use (&$rules, $isSearchModel, $fnAddRule) {
+				if (empty($newRules))
+					return;
+
+				foreach ($newRules as $k => $newRule) {
+					$fnAddRule($newRule);
+				}
+			};
+
+			$fnAddRules($baseRules);
 
 			if ($isSearchModel == false) {
 				if (method_exists($this, 'traitExtraRules'))
-					$rules = array_merge_recursive($rules, $this->traitExtraRules());
+					// $rules = array_merge_recursive($rules, $this->traitExtraRules());
+					$fnAddRules($this->traitExtraRules());
 			}
 
 			if (method_exists($this, 'extraRules')) {
@@ -184,7 +216,7 @@ trait ActiveRecordTrait
 
 	protected function checkColumnsBeforeSave($insert)
 	{
-		$columnsInfo = static::columnsInfo();
+		$columnsInfo = $this->columnsInfo();
 		foreach ($columnsInfo as $column => $info) {
 
 			//uuid
@@ -208,7 +240,7 @@ trait ActiveRecordTrait
 				$this->$column = trim($this->$column);
 
 			if (($this->$column === '') &&
-					(empty($info[enuColumnInfo::required]) || !$info[enuColumnInfo::required])
+					(empty($info[enuColumnInfo::required]) || ($info[enuColumnInfo::required] === false))
 			) {
 				$this->$column = null;
 			}
@@ -235,7 +267,7 @@ trait ActiveRecordTrait
 
 	public function applyDefaultValuesFromColumnsInfo()
 	{
-		$columnsInfo = static::columnsInfo();
+		$columnsInfo = $this->columnsInfo();
 		foreach ($columnsInfo as $column => $info) {
 			if (empty($this->$column) && isset($info[enuColumnInfo::default])) {
 

@@ -43,7 +43,7 @@ trait OfflinePaymentModelTrait
 		return $this->ofpID;
 	}
 
-	public static function columnsInfo()
+	public function columnsInfo()
 	{
 		return [
 			'ofpID' => [

@@ -87,7 +87,7 @@ trait UserModelTrait
 		return $this->usrID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'usrID' => [

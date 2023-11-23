@@ -32,7 +32,7 @@ trait UserAccessGroupModelTrait
 		return $this->usragpID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'usragpID' => [

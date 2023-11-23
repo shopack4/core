@@ -11,7 +11,7 @@ trait SearchModelTrait
 {
   public function applySearchValuesInQuery($query, $params = null)
   {
-    $columnsInfo = static::columnsInfo();
+    $columnsInfo = $this->columnsInfo();
     foreach ($columnsInfo as $column => $info) {
       // if (empty($info[enuColumnInfo::search]))
       //   continue;

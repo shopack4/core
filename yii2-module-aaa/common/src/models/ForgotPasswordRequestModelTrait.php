@@ -36,7 +36,7 @@ trait ForgotPasswordRequestModelTrait
 		return $this->fprID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'fprID' => [

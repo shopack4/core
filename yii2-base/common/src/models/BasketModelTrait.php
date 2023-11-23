@@ -22,7 +22,7 @@ trait BasketModelTrait
 		return null;
 	}
 
-	public static function columnsInfo() {
+	public function columnsInfo() {
 		return [];
 	}
 

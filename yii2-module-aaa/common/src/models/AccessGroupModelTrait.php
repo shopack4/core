@@ -33,7 +33,7 @@ trait AccessGroupModelTrait
 		return $this->agpID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'agpID' => [

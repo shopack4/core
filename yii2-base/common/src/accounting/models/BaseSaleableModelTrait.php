@@ -46,7 +46,7 @@ trait BaseSaleableModelTrait
 		return $this->slbID;
 	}
 
-  public static function columnsInfo()
+  public function columnsInfo()
   {
     return [
       'slbID' => [

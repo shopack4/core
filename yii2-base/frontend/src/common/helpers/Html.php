@@ -240,4 +240,12 @@ class Html extends \yii\bootstrap5\Html
 		return Html::tag('small', implode("<br>", $ret));
 	}
 
+	public static function splitAsList($value, $delimiter = '|', $ulOptions = null)
+	{
+		if (empty($value))
+			return null;
+
+		return self::ul(explode($delimiter, $value), $ulOptions);
+	}
+
 }
