@@ -50,6 +50,7 @@ class GeoStateController extends BaseCrudController
 
 		//count
 		$query = GeoStateModel::find()
+			->noLimit()
 			->andWhere(['sttCountryID' => $parentID]);
 
 		$out['total_count'] = $count = $query->count();
