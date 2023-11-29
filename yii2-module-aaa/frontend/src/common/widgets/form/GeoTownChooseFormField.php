@@ -5,6 +5,7 @@
 
 namespace shopack\aaa\frontend\common\widgets\form;
 
+use shopack\base\common\helpers\ArrayHelper;
 use Yii;
 use shopack\base\common\helpers\Url;
 use shopack\base\frontend\common\helpers\Html;
@@ -19,7 +20,8 @@ class GeoTownChooseFormField
 		$attribute,
 		$allowClear = true,
 		$multiSelect = false,
-		$dependes = null
+		$dependes = null,
+		$options = null
 	) {
 // 		$formatJs =<<<JS
 // var formatGeoState = function(item)
@@ -77,10 +79,21 @@ class GeoTownChooseFormField
 		// 	$memberDesc = null;
 		// }
 
+		if (strpos($attribute, '[') !== false) {
+			$parts = explode('[', $attribute, 2);
+
+			$attr = $parts[0];
+			$key = str_replace("]", "", str_replace("[", "", str_replace("][", ".", $parts[1])));
+
+			$attrValue = ArrayHelper::getValue($model->$attr, $key);
+		} else {
+			$attrValue = $model->$attribute ?? null;
+		}
+
 		$pluginOptions = [
 			'initialize' => true,
 			// 'initDepends' => ["{$formName}-usrcountryid"],
-			'url' => Url::to(['/aaa/geo-town/depdrop-list', 'sel' => $model->$attribute]),
+			'url' => Url::to(['/aaa/geo-town/depdrop-list', 'sel' => $attrValue]),
 			'loadingText' => Yii::t('app', 'Loading...'),
 		];
 
@@ -93,7 +106,7 @@ class GeoTownChooseFormField
 			$pluginOptions['depends'] = $deps;
 		}
 
-		return [
+		$field = [
 			$attribute,
 			'type' => FormBuilder::FIELD_WIDGET,
 			'widget' => DepDrop::class,
@@ -114,6 +127,8 @@ class GeoTownChooseFormField
 				],
 			],
 		];
+
+		return array_replace_recursive($field, $options ?? []);
 	}
 
 }

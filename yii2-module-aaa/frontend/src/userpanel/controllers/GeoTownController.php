@@ -24,6 +24,7 @@ class GeoTownController extends BaseController
 
 		//count
 		$query = GeoTownModel::find()
+			->noLimit()
 			->andWhere(['twnCityID' => $parentID]);
 
 		$out['total_count'] = $count = $query->count();

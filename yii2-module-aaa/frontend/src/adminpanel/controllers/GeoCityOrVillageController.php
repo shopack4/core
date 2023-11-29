@@ -50,6 +50,7 @@ class GeoCityOrVillageController extends BaseCrudController
 
 		//count
 		$query = GeoCityOrVillageModel::find()
+			->noLimit()
 			->andWhere(['ctvStateID' => $parentID]);
 
 		$out['total_count'] = $count = $query->count();

@@ -28,7 +28,8 @@ class Html extends \yii\bootstrap5\Html
 	 	], $options));
 	}
 
-	public static function updateButton($text = null, $url = null, $options = []) {
+	public static function updateButton($text = null, $url = null, $options = [])
+	{
 		if ($text == null)
 			$text = Yii::t('app', 'Update');
 

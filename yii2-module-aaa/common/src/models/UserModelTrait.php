@@ -185,7 +185,7 @@ trait UserModelTrait
         enuColumnInfo::selectable => true,
       ],
       'usrSSID' => [
-        enuColumnInfo::type       => ['string', 'max' => 16],
+        enuColumnInfo::type       => ['string', 'min' => 10, 'max' => 10],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,

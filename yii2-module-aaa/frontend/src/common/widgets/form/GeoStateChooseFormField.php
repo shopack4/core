@@ -7,9 +7,12 @@ namespace shopack\aaa\frontend\common\widgets\form;
 
 use Yii;
 use shopack\base\common\helpers\Url;
+use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\Select2;
 use shopack\base\frontend\common\widgets\DepDrop;
 use shopack\base\frontend\common\widgets\FormBuilder;
+use shopack\aaa\frontend\common\models\GeoStateModel;
 
 class GeoStateChooseFormField
 {
@@ -19,7 +22,8 @@ class GeoStateChooseFormField
 		$attribute,
 		$allowClear = true,
 		$multiSelect = false,
-		$dependes = null
+		$dependes = null,
+		$options = null
 	) {
 // 		$formatJs =<<<JS
 // var formatGeoState = function(item)
@@ -77,43 +81,65 @@ class GeoStateChooseFormField
 		// 	$memberDesc = null;
 		// }
 
-		$pluginOptions = [
-			'initialize' => true,
-			// 'initDepends' => ["{$formName}-usrcountryid"],
-			'url' => Url::to(['/aaa/geo-state/depdrop-list', 'sel' => $model->$attribute]),
-			'loadingText' => Yii::t('app', 'Loading...'),
-		];
-
-		if (empty($dependes) == false) {
-			$deps = [];
-			foreach ((array)$dependes as $d) {
-				$deps[] = Html::getInputId($model, $d);
-			}
-
-			$pluginOptions['depends'] = $deps;
-		}
-
-		return [
+		$field = [
 			$attribute,
 			'type' => FormBuilder::FIELD_WIDGET,
-			'widget' => DepDrop::class,
-			'widgetOptions' => [
-				'type' => DepDrop::TYPE_SELECT2,
-				// 'value' => $vals,
-				// 'initValueText' => $memberDesc,
-				'select2Options' => [
+		];
+
+		if (empty($dependes)) {
+			$field = array_merge_recursive($field, [
+				'widget' => Select2::class,
+				'widgetOptions' => [
+					'data' => ArrayHelper::map(GeoStateModel::find()->asArray()->noLimit()->all(), 'sttID', 'sttName'),
+					'options' => [
+						'placeholder' => Yii::t('app', '-- Choose --'),
+						'dir' => 'rtl',
+						'multiple' => $multiSelect,
+					],
 					'pluginOptions' => [
 						'allowClear' => $allowClear,
 					],
 				],
-				'pluginOptions' => $pluginOptions,
-				'options' => [
-					'placeholder' => Yii::t('app', '-- Choose --'),
-					'dir' => 'rtl',
-					'multiple' => $multiSelect,
+			]);
+		} else {
+			$pluginOptions = [
+				'initialize' => true,
+				// 'initDepends' => ["{$formName}-usrcountryid"],
+				'url' => Url::to(['/aaa/geo-state/depdrop-list', 'sel' => $model->$attribute]),
+				'loadingText' => Yii::t('app', 'Loading...'),
+			];
+
+			// if (empty($dependes) == false) {
+				$deps = [];
+				foreach ((array)$dependes as $d) {
+					$deps[] = Html::getInputId($model, $d);
+				}
+
+				$pluginOptions['depends'] = $deps;
+			// }
+
+			$field = array_merge_recursive($field, [
+				'widget' => DepDrop::class,
+				'widgetOptions' => [
+					'type' => DepDrop::TYPE_SELECT2,
+					// 'value' => $vals,
+					// 'initValueText' => $memberDesc,
+					'select2Options' => [
+						'pluginOptions' => [
+							'allowClear' => $allowClear,
+						],
+					],
+					'pluginOptions' => $pluginOptions,
+					'options' => [
+						'placeholder' => Yii::t('app', '-- Choose --'),
+						'dir' => 'rtl',
+						'multiple' => $multiSelect,
+					],
 				],
-			],
-		];
+			]);
+		}
+
+		return array_replace_recursive($field, $options ?? []);
 	}
 
 }

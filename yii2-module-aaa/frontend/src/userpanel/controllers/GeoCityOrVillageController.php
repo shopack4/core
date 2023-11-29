@@ -24,6 +24,7 @@ class GeoCityOrVillageController extends BaseController
 
 		//count
 		$query = GeoCityOrVillageModel::find()
+			->noLimit()
 			->andWhere(['ctvStateID' => $parentID]);
 
 		$out['total_count'] = $count = $query->count();
