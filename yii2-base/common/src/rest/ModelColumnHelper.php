@@ -82,7 +82,7 @@ class ModelColumnHelper
 	public static function RemovedAt()
 	{
 		return [
-			enuColumnInfo::type       => 'integer',
+			enuColumnInfo::type       => 'safe', //int, now() 'integer',
 			enuColumnInfo::validator  => null,
 			enuColumnInfo::default    => null,
 			enuColumnInfo::required   => false,
