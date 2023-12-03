@@ -21,6 +21,7 @@ use shopack\aaa\frontend\common\widgets\form\GeoCityOrVillageChooseFormField;
 use shopack\aaa\frontend\common\widgets\form\GeoCountryChooseFormField;
 use shopack\aaa\frontend\common\widgets\form\GeoStateChooseFormField;
 use shopack\aaa\frontend\common\widgets\form\GeoTownChooseFormField;
+use shopack\base\frontend\common\widgets\datetime\DatePicker;
 
 ?>
 
@@ -87,6 +88,12 @@ use shopack\aaa\frontend\common\widgets\form\GeoTownChooseFormField;
 			['usrLastName_en'],
 			['usrFatherName'],
 			['usrFatherName_en'],
+
+			GeoCityOrVillageChooseFormField::field($this, $model, 'usrBirthCityID'),
+			['usrBirthDate',
+				'type' => FormBuilder::FIELD_WIDGET,
+				'widget' => DatePicker::class,
+			],
 		]);
 
 		if ($model->isNewRecord) {

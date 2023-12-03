@@ -61,4 +61,15 @@ class GeoCityOrVillageController extends BaseCrudController
 		];
 	}
 
+	public function fillGlobalSearchFromRequest(\yii\db\ActiveQuery $query, $q)
+	{
+		if (empty($q) || ($q == '***'))
+			return;
+
+		$query->andWhere([
+			'OR',
+			['LIKE', 'ctvName', $q],
+		]);
+	}
+
 }
