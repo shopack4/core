@@ -28,7 +28,6 @@ class BasketItemForm extends Model
   public static function addItem()
   {
 		$service = $_POST['service'];
-
 		$data = $_POST['data'];
 
 		if (empty(Yii::$app->controller->module->servicesPublicKeys[$service]))

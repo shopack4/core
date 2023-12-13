@@ -16,10 +16,21 @@ use shopack\base\backend\helpers\PrivHelper;
 use shopack\base\backend\models\BasketModel;
 // use shopack\aaa\common\enums\enuVoucherType;
 use shopack\base\common\enums\enuModelScenario;
+use yii\base\InvalidConfigException;
 
 //basket = Voucher[Type=Basket & Status=New]
 abstract class BaseAccountingController extends BaseRestController
 {
+	public $basketModelClass;
+
+	public function init()
+	{
+		parent::init();
+
+		if ($this->basketModelClass === null)
+			throw new InvalidConfigException('The "basketModelClass" property must be set.');
+	}
+
 	public function behaviors()
 	{
 		$behaviors = parent::behaviors();
@@ -41,16 +52,16 @@ abstract class BaseAccountingController extends BaseRestController
 	 */
 	public function actionAddToBasket()
 	{
-		// PrivHelper::checkPriv(['aaa/basket/crud' => '1000']);
-
-		$model = new BasketModel();
-		$model->scenario = enuModelScenario::CREATE;
+		$modelClass = $this->basketModelClass;
+		$model = new $modelClass;
+		// $model = new BasketModel();
+		// $model->scenario = enuModelScenario::CREATE;
 
 		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
 			throw new NotFoundHttpException("parameters not provided");
 
 		try {
-			if ($model->save() == false)
+			if ($model->addToBasket() == false)
 				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
 		} catch(\Exception $exp) {
 			$msg = ExceptionHelper::CheckDuplicate($exp, $model);

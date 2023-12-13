@@ -87,13 +87,13 @@ class Formatter extends \yii\i18n\Formatter
 		return $_out;
 	}
 
-	public function asText($value, $nullValue = null)
+	/*public function asText($value, $nullValue = null)
 	{
 		if ($value === null)
 			return ($nullValue ? $nullValue : parent::asText($value));
 // if (is_array($value)) die(Html::dump($value));
 		return parent::asText($this->asPersian($value, $nullValue));
-	}
+	}*/
 	public function asPureText($value, $nullValue = null)
 	{
 		if ($value === null)
