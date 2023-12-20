@@ -61,7 +61,7 @@ TAPI_DEFINE_STRUCT(stuVoucherItemPrivate,
 
 class stuBasketItem
 {
-	public $saleableInfo; //saleable model with relations (unit, product)
+	public $saleable; //saleable model with relations (unit, product)
 	public $prdQtyInHand; //real
 	public $slbQtyInHand; //real
 
@@ -94,26 +94,86 @@ class stuBasketItem
 	public $private; //SF_Struct, stuVoucherItemPrivate
 }
 
-//Caution: Do not rename fields. Field names are used in vchDesc (as json)
+/*
+MIGRATE:
+
+-- CURRENT FIELDS:    vchItems    | uasVoucherItemInfo
+-------------------  -------------|----------------------
+   service         => //          | //
+   key             => //          | -> uasUUID
+   slbid           => slbID       | -> uasSaleableID
+   desc            => //          | //
+1) qty             => //          | //
+   unit            => //          | //
+   prdtype         => prdType     | X
+2) unitprice       => unitPrice   | unitPrice
+   slbinfo         => params      | params
+   maxqty          => maxQty      | X
+   qtystep         => qtyStep     | X
+3) discount        => //          | //
+
+-- NEW FIELDS:        vchItems    | uasVoucherItemInfo
+-------------------  -------------|----------------------
+   orderID         =>             |
+4) subTotal        => 1*2         | 1*2
+   systemDiscounts => //          | //
+   couponDiscount  => //          | //
+5) afterDiscount   => 4-3         | 4-3
+6) totalPrice      => 5           | 5
+
+UPDATE tbl_MHA_Accounting_UserAsset
+SET uasVoucherItemInfo = JSON_INSERT(
+		JSON_REMOVE(
+		JSON_REMOVE(
+		JSON_REMOVE(
+		JSON_REMOVE(
+		JSON_REMOVE(
+		JSON_REMOVE(OLD_uasVoucherItemInfo,
+			'$.slbid'),
+			'$.prdtype'),
+			'$.unitprice'),
+			'$.slbinfo'),
+			'$.maxqty'),
+			'$.qtystep')
+
+		, '$.slbID',     JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.slbid')
+		, '$.unitPrice', JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.unitprice')
+		, '$.params',    JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.slbinfo')
+
+		, '$.subTotal',      JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.qty')
+                       * JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.unitprice')
+		, '$.afterDiscount', JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.qty')
+                       * JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.unitprice')
+		, '$.totalPrice',    JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.qty')
+                       * JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.unitprice')
+	)
+	WHERE JSON_LENGTH(IFNULL(OLD_uasVoucherItemInfo, '[]')) > 0
+;
+
+*/
+
+//Caution: Do not rename fields. Field names are used in vchItems (as json)
 class stuVoucherItem
 {
 	public $service; // SF_QString
+	public $key; // SF_MD5_t
 	public $orderID; // SF_quint64                //AssetID per Service
-	public $uuid; // SF_MD5_t
 	public $desc; // SF_QString
+	public $prdType; //P:Physical, D:Digital
 	public $qty; // SF_qreal
 	public $unit; // SF_QString
 	public $unitPrice; // SF_qreal
 	public $subTotal; // SF_qreal
 	public $systemDiscounts; // SF_QMapOfVarStruct       stuSystemDiscount, SystemDiscounts_t),
 	public $couponDiscount; // SF_Struct                stuCouponDiscount, v.ID),
-	public $disAmount; // SF_qreal
+	public $discount; // SF_qreal
 	public $afterDiscount; // SF_qreal
 	public $vatPercent; // SF_quint8
-	public $vatAmount; // SF_qreal
+	public $vat; // SF_qreal
 	public $totalPrice; // SF_qreal
 
 //    SF_QListOfVarStruct (Referrers, stuVoucherItemReferrer),
+	public $params;
 	public $additives; // SF_QMapOfQString
 	public $referrer; // SF_QString
 	public $referrerParams; // SF_JSON_t
@@ -244,8 +304,6 @@ class BaseBasketModel extends Model
 
 	}
 
-
-
 	public function addToBasket()
 	{
 		$this->scenario = enuModelScenario::CREATE;
@@ -355,8 +413,8 @@ class BaseBasketModel extends Model
 			->select($saleableModelClass::selectableColumns())
 			->addSelect($productModelClass::selectableColumns())
 			->addSelect($unitModelClass::selectableColumns())
-			->addSelect(new \yii\db\Expression("IFNULL(prdInStockQty,0) - IFNULL(prdOrderedQty,0) + IFNULL(prdReturnedQty,0) AS prdQtyInHand"))
-			->addSelect(new \yii\db\Expression("IFNULL(slbInStockQty,0) - IFNULL(slbOrderedQty,0) + IFNULL(slbReturnedQty,0) AS slbQtyInHand"))
+			->addSelect(new \yii\db\Expression("IF(prdInStockQty IS NULL, NULL, prdInStockQty - IFNULL(prdOrderedQty,0) + IFNULL(prdReturnedQty,0)) AS ProductQtyInHand"))
+			->addSelect(new \yii\db\Expression("IF(slbInStockQty IS NULL, NULL, slbInStockQty - IFNULL(slbOrderedQty,0) + IFNULL(slbReturnedQty,0)) AS SaleableQtyInHand"))
 			->innerJoinWith('product')
 			->innerJoinWith('product.unit')
 			->andWhere(['slbCode' => $this->saleableCode])
@@ -371,11 +429,11 @@ class BaseBasketModel extends Model
 			->asArray()
 			->one();
 
-		$this->basketItem->saleableInfo = new $saleableModelClass;
-		$this->basketItem->saleableInfo->load($saleableInfo, '');
+		$this->basketItem->saleable = new $saleableModelClass;
+		$this->basketItem->saleable->load($saleableInfo, '');
 
-		$this->basketItem->prdQtyInHand = $saleableInfo['prdQtyInHand'];
-		$this->basketItem->slbQtyInHand = $saleableInfo['slbQtyInHand'];
+		$this->basketItem->prdQtyInHand = $saleableInfo['ProductQtyInHand'];
+		$this->basketItem->slbQtyInHand = $saleableInfo['SaleableQtyInHand'];
 
 		//-- --------------------------------
 		$this->basketItem->discountCode      = $this->discountCode;
@@ -408,34 +466,34 @@ class BaseBasketModel extends Model
 		//-- --------------------------------
 		$preVoucherItem = new stuVoucherItem;
 
-		QJsonDocument JSDPendingVouchers = QJsonDocument();
-		JSDPendingVouchers.setObject($this->basketItem->Private.toJson());
-		$preVoucherItem->Private = simpleCryptInstance()->encryptToString(JSDPendingVouchers.toJson(QJsonDocument::Compact));
+		// QJsonDocument JSDPendingVouchers = QJsonDocument();
+		// JSDPendingVouchers.setObject($this->basketItem->Private.toJson());
+		// $preVoucherItem->private = simpleCryptInstance()->encryptToString(JSDPendingVouchers.toJson(QJsonDocument::Compact));
 
-		$preVoucherItem->Service          = $serviceName;
-		$preVoucherItem->UUID             = SecurityHelper::UUIDtoMD5();
-		$preVoucherItem->Desc             = $this->basketItem->saleable.slbName;
-		$preVoucherItem->Qty              = $this->basketItem->qty; //$this->qty;
-		$preVoucherItem->Unit             = $this->basketItem->unit.untName;
-		$preVoucherItem->UnitPrice        = $this->basketItem->unitPrice;
-		$preVoucherItem->SubTotal         = $this->basketItem->subTotal;
+		$preVoucherItem->service          = $serviceName;
+		$preVoucherItem->uuid             = SecurityHelper::UUIDtoMD5();
+		$preVoucherItem->desc             = $this->basketItem->saleable->slbName;
+		$preVoucherItem->qty              = $this->basketItem->qty; //$this->qty;
+		$preVoucherItem->unit             = $this->basketItem->saleable->unit->untName;
+		$preVoucherItem->unitPrice        = $this->basketItem->unitPrice;
+		$preVoucherItem->subTotal         = $this->basketItem->subTotal;
 
 		//store multiple discounts (system (multi) + coupon (one))
-		$preVoucherItem->SystemDiscounts  = $this->basketItem->systemDiscounts;
-		$preVoucherItem->CouponDiscount   = $this->basketItem->couponDiscount;
+		$preVoucherItem->systemDiscounts  = $this->basketItem->systemDiscounts;
+		$preVoucherItem->couponDiscount   = $this->basketItem->couponDiscount;
 
-		$preVoucherItem->DisAmount        = $this->basketItem->discount;
-		$preVoucherItem->AfterDiscount    = $this->basketItem->AfterDiscount;
+		$preVoucherItem->discount        = $this->basketItem->discount;
+		$preVoucherItem->afterDiscount    = $this->basketItem->AfterDiscount;
 
 		$preVoucherItem->vatPercent       = $this->basketItem->vatPercent;
-		$preVoucherItem->vatAmount        = $this->basketItem->vat;
+		$preVoucherItem->vat        = $this->basketItem->vat;
 
-		$preVoucherItem->TotalPrice       = $this->basketItem->totalPrice;
+		$preVoucherItem->totalPrice       = $this->basketItem->totalPrice;
 
-		$preVoucherItem->Additives        = $this->basketItem->orderAdditives;
-		$preVoucherItem->Referrer         = $this->basketItem->referrer;
-		$preVoucherItem->ReferrerParams   = $this->basketItem->referrerParams;
-		$preVoucherItem->APITokenID       = _apiTokenID;
+		$preVoucherItem->additives        = $this->basketItem->orderAdditives;
+		$preVoucherItem->referrer         = $this->basketItem->referrer;
+		$preVoucherItem->referrerParams   = $this->basketItem->referrerParams;
+		$preVoucherItem->apiTokenID       = _apiTokenID;
 
 		ORMCreateQuery qry = this->AccountUserAssets->makeCreateQuery(_apiCallContext)
 			.addCols({
@@ -460,7 +518,7 @@ class BaseBasketModel extends Model
 			{ tblAccountUserAssetsBase::Fields::uas_slbID, $this->basketItem->saleable.slbID },
 			{ tblAccountUserAssetsBase::Fields::uasQty, $this->qty },
 	//        { tblAccountUserAssetsBase::Fields::uas_vchID, ??? },
-			{ tblAccountUserAssetsBase::Fields::uasVoucherItemUUID, $preVoucherItem->UUID },
+			{ tblAccountUserAssetsBase::Fields::uasVoucherItemUUID, $preVoucherItem->uuid },
 			{ tblAccountUserAssetsBase::Fields::uasVoucherItemInfo, $preVoucherItem->toJson().toVariantMap() },
 	//            { tblAccountUserAssetsBase::Fields::uasPrefered, ??? },
 	//        { tblAccountUserAssetsBase::Fields::uasDurationMinutes, ??? },
@@ -532,13 +590,13 @@ class BaseBasketModel extends Model
 		qry.values(values);
 
 		//-- --------------------------------
-		$preVoucherItem->OrderID = qry.execute($currentUserID);
+		$preVoucherItem->orderID = qry.execute($currentUserID);
 
 		//-- --------------------------------
-		$preVoucherItem->Sign = QString(sign(PreVoucherItem));
+		$preVoucherItem->sign = QString(sign(PreVoucherItem));
 
 		//-- --------------------------------
-		///@TODO: $preVoucherItem->DMInfo : json {"type":"adver", "additives":[{"color":"red"}, {"size":"m"}, ...]}
+		///@TODO: $preVoucherItem->dmInfo : json {"type":"adver", "additives":[{"color":"red"}, {"size":"m"}, ...]}
 		/// used for DMLogic::applyCoupon -> match item.DMInfo by coupon rules
 		/// return: amount of using coupon
 
@@ -546,19 +604,19 @@ class BaseBasketModel extends Model
 		$lastPreVoucher['items'].append(PreVoucherItem);
 		$lastPreVoucher.Summary = $lastPreVoucher['items'].size() > 1 ?
 										QString("%1 items").arg($lastPreVoucher['items'].size()) :
-										QString("%1 of %2").arg($preVoucherItem->Qty).arg($preVoucherItem->Desc);
+										QString("%1 of %2").arg($preVoucherItem->qty).arg($preVoucherItem->desc);
 
 		qint64 FinalPrice = $lastPreVoucher.Round
 							+ $lastPreVoucher.ToPay
-							+ $preVoucherItem->TotalPrice;
+							+ $preVoucherItem->totalPrice;
 
 		if (FinalPrice < 0) {
 			this->AccountUserAssets->DeleteByPks(
 				_apiCallContext,
-				/*PK*/ QString::number($preVoucherItem->OrderID),
+				/*PK*/ QString::number($preVoucherItem->orderID),
 				{
 					//this is just for make condition safe and strong:
-					{ tblAccountUserAssetsBase::Fields::uasVoucherItemUUID, $preVoucherItem->UUID },
+					{ tblAccountUserAssetsBase::Fields::uasVoucherItemUUID, $preVoucherItem->uuid },
 				},
 				false
 			);
@@ -567,7 +625,7 @@ class BaseBasketModel extends Model
 											"spSaleable_unReserve", {
 												{ "iSaleableID", $this->basketItem->saleable.slbID },
 												{ "iUserID", $currentUserID },
-												{ "iQty", $preVoucherItem->Qty },
+												{ "iQty", $preVoucherItem->qty },
 											});
 
 			throw exHTTPInternalServerError("Final amount computed negative!");
@@ -579,9 +637,18 @@ class BaseBasketModel extends Model
 		$lastPreVoucher.Sign.clear();
 		$lastPreVoucher.Sign = QString(sign($lastPreVoucher));
 
-		return stuBasketActionResult(
+
+
+
+		self::updateCurrentBasket($lastPreVoucher);
+
+
+
+
+		return [
+			$preVoucherItem->uuid,
 			$lastPreVoucher,
-			$preVoucherItem->UUID);
+		];
 
 
 
