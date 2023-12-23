@@ -33,14 +33,15 @@ TAPI_DEFINE_STRUCT(stuPendingSystemDiscount,
     SF_Enum             (AmountType, enuDiscountType, enuDiscountType::Percent),
     SF_qreal            (Max) //MaxType is opposite of AmountType
 );
+*/
 
-TAPI_DEFINE_STRUCT(stuSystemDiscount,
-//    SF_QString          (Key),
-    SF_qreal            (Amount),
-    SF_QJsonObject      (Info)
-);
-typedef QMap<QString, stuSystemDiscount> SystemDiscounts_t;
+class stuSystemDiscount
+{
+	public float $amount;
+	public array $info;
+}
 
+/*
 TAPI_DEFINE_STRUCT(stuCouponDiscount,
     SF_quint64          (ID),
     SF_QString          (Code),
@@ -99,18 +100,18 @@ MIGRATE:
 
 -- CURRENT FIELDS:    vchItems    | uasVoucherItemInfo
 -------------------  -------------|----------------------
-   service         => //          | //
+   service         => //          | x
    key             => //          | -> uasUUID
    slbid           => slbID       | -> uasSaleableID
    desc            => //          | //
-1) qty             => //          | //
-   unit            => //          | //
-   prdtype         => prdType     | X
+1) qty             => //          | -> uasQty
+   unit            => //          | x
+   prdtype         => prdType     | x
 2) unitprice       => unitPrice   | unitPrice
    slbinfo         => params      | params
-   maxqty          => maxQty      | X
-   qtystep         => qtyStep     | X
-3) discount        => //          | //
+   maxqty          => maxQty      | x
+   qtystep         => qtyStep     | x
+3) discount        => //          | -> uasDiscountAmount
 
 -- NEW FIELDS:        vchItems    | uasVoucherItemInfo
 -------------------  -------------|----------------------
@@ -121,68 +122,38 @@ MIGRATE:
 5) afterDiscount   => 4-3         | 4-3
 6) totalPrice      => 5           | 5
 
-UPDATE tbl_MHA_Accounting_UserAsset
-SET uasVoucherItemInfo = JSON_INSERT(
-		JSON_REMOVE(
-		JSON_REMOVE(
-		JSON_REMOVE(
-		JSON_REMOVE(
-		JSON_REMOVE(
-		JSON_REMOVE(OLD_uasVoucherItemInfo,
-			'$.slbid'),
-			'$.prdtype'),
-			'$.unitprice'),
-			'$.slbinfo'),
-			'$.maxqty'),
-			'$.qtystep')
-
-		, '$.slbID',     JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.slbid')
-		, '$.unitPrice', JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.unitprice')
-		, '$.params',    JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.slbinfo')
-
-		, '$.subTotal',      JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.qty')
-                       * JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.unitprice')
-		, '$.afterDiscount', JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.qty')
-                       * JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.unitprice')
-		, '$.totalPrice',    JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.qty')
-                       * JSON_EXTRACT(OLD_uasVoucherItemInfo, '$.unitprice')
-	)
-	WHERE JSON_LENGTH(IFNULL(OLD_uasVoucherItemInfo, '[]')) > 0
-;
-
 */
 
 //Caution: Do not rename fields. Field names are used in vchItems (as json)
 class stuVoucherItem
 {
-	public $service; // SF_QString
-	public $key; // SF_MD5_t
-	public $orderID; // SF_quint64                //AssetID per Service
-	public $desc; // SF_QString
-	public $prdType; //P:Physical, D:Digital
-	public $qty; // SF_qreal
-	public $unit; // SF_QString
-	public $unitPrice; // SF_qreal
-	public $subTotal; // SF_qreal
-	public $systemDiscounts; // SF_QMapOfVarStruct       stuSystemDiscount, SystemDiscounts_t),
-	public $couponDiscount; // SF_Struct                stuCouponDiscount, v.ID),
-	public $discount; // SF_qreal
-	public $afterDiscount; // SF_qreal
-	public $vatPercent; // SF_quint8
-	public $vat; // SF_qreal
-	public $totalPrice; // SF_qreal
+	public string  $service;
+	public string  $key;
+	public ?int    $orderID;
+	public ?string $desc;
+	public string  $prdType;
+	public float   $qty;
+	public ?string $unit;
+	public float   $unitPrice;
+	public float   $subTotal;
+	public ?array  $systemDiscounts; //stuSystemDiscount, SystemDiscounts_t),
+	public ?array  $couponDiscount;  //stuCouponDiscount, v.ID),
+	public ?float  $discount;
+	public float   $afterDiscount;
+	public ?float  $vatPercent;
+	public ?float  $vat;
+	public float   $totalPrice;
 
-//    SF_QListOfVarStruct (Referrers, stuVoucherItemReferrer),
-	public $params;
-	public $additives; // SF_QMapOfQString
-	public $referrer; // SF_QString
-	public $referrerParams; // SF_JSON_t
-	public $apiTokenID; // SF_NULLABLE_quint64
+	public ?array  $params;
+	public ?array  $additives;
+	public ?string $referrer;
+	public ?array  $referrerParams;
+	// public ?string $apiTokenID;
 
-	public $private; // SF_QString                //encrypted + base64
-	public $subItems; // SF_QListOfVarStruct      stuVoucherItem),
+	// public $private; // SF_QString                //encrypted + base64
+	// public $subItems; // SF_QListOfVarStruct      stuVoucherItem),
 
-	public $sign; // SF_QString
+	// public $sign; // SF_QString
 }
 
 class BaseBasketModel extends Model
@@ -216,7 +187,7 @@ class BaseBasketModel extends Model
 	public $referrer;
 	public $referrerParams;
 	public $itemUUID;
-	public $lastPreVouche;
+	public $lastPreVoucher;
 
 	public stuBasketItem $basketItem;
 
@@ -230,7 +201,7 @@ class BaseBasketModel extends Model
 			['referrer',       'safe'],
 			['referrerParams', 'safe'],
 			['itemUUID',       'safe'],
-			// ['lastPreVouche',  'safe'],
+			// ['lastPreVoucher',  'safe'],
 
 			['saleableCode',   'required', 'on' => [ enuModelScenario::CREATE ]],
 			// ['orderAdditives', 'required', 'on' => [ enuModelScenario::CREATE ]],
@@ -239,7 +210,7 @@ class BaseBasketModel extends Model
 			// ['referrer',       'required', 'on' => [ enuModelScenario::CREATE ]],
 			// ['referrerParams', 'required', 'on' => [ enuModelScenario::CREATE ]],
 			['itemUUID',       'required', 'on' => enuModelScenario::UPDATE],
-			// ['lastPreVouche',  'required', 'on' => [ enuModelScenario::CREATE ]],
+			// ['lastPreVoucher',  'required', 'on' => [ enuModelScenario::CREATE ]],
 		];
 	}
 
@@ -353,6 +324,10 @@ class BaseBasketModel extends Model
 		//-- find duplicates --------------------------------
 		if (empty($lastPreVoucher['items']) == false) {
 			foreach ($lastPreVoucher['items'] as $kItem => $vItem) {
+
+				// $voucherItem = Yii::createObject(stuVoucherItem::class, $vItem);
+				// $voucherItem->service
+
 				if (($vItem['service'] ?? null) != $serviceName)
 					continue;
 
