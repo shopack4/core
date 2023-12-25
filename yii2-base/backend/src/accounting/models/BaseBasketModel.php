@@ -164,6 +164,7 @@ class BaseBasketModel extends Model
 	public $unitModelClass;
 	public $productModelClass;
 	public $saleableModelClass;
+	public $discountModelClass;
 	public $userAssetModelClass;
 
 	public function init()
@@ -178,6 +179,9 @@ class BaseBasketModel extends Model
 
 		if ($this->saleableModelClass === null)
 			throw new InvalidConfigException('The "saleableModelClass" property must be set.');
+
+		if ($this->discountModelClass === null)
+			throw new InvalidConfigException('The "discountModelClass" property must be set.');
 
 		if ($this->userAssetModelClass === null)
 			throw new InvalidConfigException('The "userAssetModelClass" property must be set.');
@@ -492,7 +496,7 @@ class BaseBasketModel extends Model
 						tblAccountUserAssetsBase::Fields::uasActorID,
 						tblAccountUserAssetsBase::Fields::uas_slbID,
 						tblAccountUserAssetsBase::Fields::uasQty,
-	//                     tblAccountUserAssetsBase::Fields::uas_vchID,
+	//                     tblAccountUserAssetsBase::Fields::uasVoucherID,
 						tblAccountUserAssetsBase::Fields::uasVoucherItemUUID,
 						tblAccountUserAssetsBase::Fields::uasVoucherItemInfo,
 	//                     tblAccountUserAssetsBase::Fields::uasPrefered,
@@ -509,7 +513,7 @@ class BaseBasketModel extends Model
 			{ tblAccountUserAssetsBase::Fields::uasActorID, $basketItem->assetActorID },
 			{ tblAccountUserAssetsBase::Fields::uas_slbID, $basketItem->saleable.slbID },
 			{ tblAccountUserAssetsBase::Fields::uasQty, $this->qty },
-	//        { tblAccountUserAssetsBase::Fields::uas_vchID, ??? },
+	//        { tblAccountUserAssetsBase::Fields::uasVoucherID, ??? },
 			{ tblAccountUserAssetsBase::Fields::uasVoucherItemUUID, $preVoucherItem->uuid },
 			{ tblAccountUserAssetsBase::Fields::uasVoucherItemInfo, $preVoucherItem->toJson().toVariantMap() },
 	//            { tblAccountUserAssetsBase::Fields::uasPrefered, ??? },
@@ -529,12 +533,12 @@ class BaseBasketModel extends Model
 		//-- discount
 		if ($basketItem->couponDiscount.ID > 0) {
 			qry.addCols({
-							tblAccountUserAssetsBase::Fields::uas_cpnID,
+							tblAccountUserAssetsBase::Fields::uasDiscountID,
 							tblAccountUserAssetsBase::Fields::uasDiscountAmount,
 						})
 			;
 
-			values.insert(tblAccountUserAssetsBase::Fields::uas_cpnID, $basketItem->couponDiscount.ID);
+			values.insert(tblAccountUserAssetsBase::Fields::uasDiscountID, $basketItem->couponDiscount.ID);
 			values.insert(tblAccountUserAssetsBase::Fields::uasDiscountAmount, $basketItem->discount); //CouponDiscount.Amount);
 		}
 
@@ -918,59 +922,54 @@ class BaseBasketModel extends Model
 		if ($_basketItem->qty == 0)
 			return;
 
-		clsCondition OmmitOldCondition;
+		$discountModelClass = $this->discountModelClass;
+		$userAssetModelClass = $this->userAssetModelClass;
 
+		$ommitOldCondition = null;
 		if (($_oldVoucherItem != null)
-				&& ($_oldVoucherItem->couponDiscount['code'].isEmpty() == false)
+			&& (empty($_oldVoucherItem->couponDiscount['code']) == false)
 		) {
-			OmmitOldCondition.setCond({ tblAccountUserAssetsBase::Fields::uasID,
-										enuConditionOperator::NotEqual,
-										$_oldVoucherItem->orderID });
+			$ommitOldCondition = ['!=', 'uasID', $_oldVoucherItem->orderID];
 		}
 
-		QVariantMap DiscountInfo = this->AccountCoupons->makeSelectQuery(_apiCallContext)
-			.addCols(this->AccountCoupons->selectableColumnNames())
+		$discountInfo = $discountModelClass::find()
+			->select($discountModelClass::selectableColumns())
 
-			.nestedLeftJoin(this->AccountUserAssets->makeSelectQuery(_apiCallContext, "", true, false)
-						.addCols({
-									 tblAccountUserAssetsBase::Fields::uas_cpnID,
-									 tblAccountUserAssetsBase::Fields::uas_vchID,
-								 })
-						.addCol(enuAggregation::COUNT, tblAccountUserAssetsBase::Fields::uasID, "_discountUsedCount")
-						.where({ tblAccountUserAssetsBase::Fields::uas_actorID, enuConditionOperator::Equal, $_basketItem->assetActorID}) //CurrentUserID })
-						.andWhere({ tblAccountUserAssetsBase::Fields::uasStatus, enuConditionOperator::In, QString("'%1','%2'")
-									.arg(QChar(enuAuditableStatus::Active)).arg(QChar(enuAuditableStatus::Banned)) })
-						.andWhere(OmmitOldCondition)
-						.groupBy(tblAccountUserAssetsBase::Fields::uas_cpnID)
-						.groupBy(tblAccountUserAssetsBase::Fields::uas_vchID)
-				, "tmp_cpn_count"
-				, { "tmp_cpn_count", tblAccountUserAssetsBase::Fields::uas_cpnID,
-					enuConditionOperator::Equal,
-					tblAccountCouponsBase::Name, tblAccountCouponsBase::Fields::cpnID }
-			)
-			.addCol("tmp_cpn_count._discountUsedCount")
+			->leftJoin(['tmp_cpn_count' => $userAssetModelClass::find()
+				->select([
+					'uasDiscountID',
+					'uasVoucherID',
+					new \yii\db\Expression("COUNT(uasID) AS _discountUsedCount")
+				])
+				->where(['uasActorID' => $_basketItem->assetActorID]) //CurrentUserID })
+				->andWhere(['IN', 'uasStatus', [enuAuditableStatus::Active, enuAuditableStatus::Banned]])
+				->andWhere($ommitOldCondition)
+				->groupBy(['uasDiscountID', 'uasVoucherID'])
+			], "tmp_cpn_count.uasDiscountID = {$discountModelClass::tableName()}.dscID")
+			->addSelect('tmp_cpn_count._discountUsedCount')
 
-			.nestedLeftJoin(this->AccountUserAssets->makeSelectQuery(_apiCallContext, "", true, false)
-						.addCol(tblAccountUserAssetsBase::Fields::uas_cpnID)
-						.addCol(enuAggregation::SUM, tblAccountUserAssetsBase::Fields::uasDiscountAmount, "_discountUsedAmount")
-						.where({ tblAccountUserAssetsBase::Fields::uas_actorID, enuConditionOperator::Equal, $_basketItem->assetActorID}) //CurrentUserID })
-						.andWhere({ tblAccountUserAssetsBase::Fields::uasStatus, enuConditionOperator::In, QString("'%1','%2'")
-									.arg(QChar(enuAuditableStatus::Active)).arg(QChar(enuAuditableStatus::Banned)) })
-						.andWhere(OmmitOldCondition)
-						.groupBy(tblAccountUserAssetsBase::Fields::uas_cpnID)
-				, "tmp_cpn_amount"
-				, { "tmp_cpn_amount", tblAccountUserAssetsBase::Fields::uas_cpnID,
-					enuConditionOperator::Equal,
-					tblAccountCouponsBase::Name, tblAccountCouponsBase::Fields::cpnID }
-			)
-			.addCol("tmp_cpn_amount._discountUsedAmount")
+			->leftJoin(['tmp_cpn_amount' => $userAssetModelClass::find()
+				->select([
+					'uasDiscountID',
+					new \yii\db\Expression("SUM(uasDiscountAmount) AS _discountUsedAmount")
+				])
+				->where(['uasActorID' => $_basketItem->assetActorID]) //CurrentUserID })
+				->andWhere(['IN', 'uasStatus', [enuAuditableStatus::Active, enuAuditableStatus::Banned]])
+				->andWhere($ommitOldCondition)
+				->groupBy('uasDiscountID')
+			], "tmp_cpn_amount.uasDiscountID = {$discountModelClass::tableName()}.dscID")
+			->addSelect('tmp_cpn_amount._discountUsedAmount')
 
-			.where({ tblAccountCouponsBase::Fields::cpnCode, enuConditionOperator::Equal, $_basketItem->discountCode })
-			.andWhere({ tblAccountCouponsBase::Fields::cpnValidFrom, enuConditionOperator::LessEqual, DBExpression::NOW() })
-			.andWhere(clsCondition({ tblAccountCouponsBase::Fields::cpnExpiryTime, enuConditionOperator::Null })
-				.orCond({ tblAccountCouponsBase::Fields::cpnExpiryTime, enuConditionOperator::GreaterEqual,
-					DBExpression::DATE_ADD(DBExpression::NOW(), 15, enuDBExpressionIntervalUnit::MINUTE) })
-			)
+			->where(['dscCode' => $_basketItem->discountCode])
+			->andWhere(['OR',
+				'dscValidFrom IS NULL',
+				['<=', 'dscValidFrom', new \yii\db\Expression('NOW()')],
+			])
+			->andWhere(['OR',
+				'dscValidTo IS NULL',
+				['>=', 'dscValidTo', new \yii\db\Expression('DATE_ADD(NOW(), 15 MINUTE)')],
+			])
+
 			.one();
 
 		if (DiscountInfo.size() == 0)
