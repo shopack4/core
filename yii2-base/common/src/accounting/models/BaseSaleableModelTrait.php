@@ -94,7 +94,7 @@ trait BaseSaleableModelTrait
         enuColumnInfo::type       => 'safe',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
+        enuColumnInfo::required   => false, //true:CURRENT_TIMESTAMP
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => true,
       ],

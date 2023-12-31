@@ -79,6 +79,7 @@ class stuBasketItem
 	public $saleableQtyInHand; //real
 
 	//-- input
+	public $orderParams; //SF_QMapOfQString
 	public $orderAdditives; //SF_QMapOfQString
 	public $discountCode; //SF_QString
 	public $referrer; //SF_QString
@@ -92,8 +93,8 @@ class stuBasketItem
 	public $unitPrice; //SF_qreal
 	public $subTotal; //SF_qreal
 
-	public ?array $systemDiscounts; //stuSystemDiscount
-	public ?stuCouponDiscount $couponDiscount;
+	public ?array $systemDiscounts = null; //stuSystemDiscount
+	public ?stuCouponDiscount $couponDiscount = null;
 	public $discount; //SF_qreal
 	public $afterDiscount; //SF_qreal
 	public $vatPercent; //SF_quint8
@@ -197,6 +198,7 @@ class BaseBasketModel extends Model
 	}
 
 	public $saleableCode;
+	public $orderParams;
 	public $orderAdditives;
 	public $qty;
 	public $discountCode;
@@ -210,6 +212,7 @@ class BaseBasketModel extends Model
 	{
 		return [
 			['saleableCode',			'safe'],
+			['orderParams',				'safe'],
 			['orderAdditives',		'safe'],
 			['qty',								'integer', 'min' => 0], // >0 for CREATE, >=0 for UPDATE
 			['discountCode',			'safe'],
@@ -220,6 +223,7 @@ class BaseBasketModel extends Model
 			// ['lastPreVoucher',		'safe'],
 
 			['saleableCode',   'required', 'on' => [ enuModelScenario::CREATE ]],
+			// ['orderParams', 'required', 'on' => [ enuModelScenario::CREATE ]],
 			// ['orderAdditives', 'required', 'on' => [ enuModelScenario::CREATE ]],
 			['qty',            'required', 'on' => [ enuModelScenario::CREATE, enuModelScenario::UPDATE ]],
 			// ['discountCode',   'required', 'on' => [ enuModelScenario::CREATE ]],
@@ -265,8 +269,9 @@ class BaseBasketModel extends Model
 			]);
 			$data = RsaPrivate::model($parentModule->servicePrivateKey)->encrypt($data);
 
-			list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/current',
-				HttpHelper::METHOD_GET,
+			list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/get-current',
+				HttpHelper::METHOD_POST,
+				[],
 				[
 					'service' => $serviceName,
 					'data' => $data,
@@ -299,6 +304,20 @@ class BaseBasketModel extends Model
 
 
 	}
+
+	//[$infoAsArray, $model]
+	public static function loadModelFromQuery($query)
+	{
+		$infoAsArray = $query->asArray()->one();
+		if (empty($infoAsArray))
+			return [null, null];
+
+		$models = $query->asArray(false)->populate([$infoAsArray]);
+		$model = reset($models) ?? null;
+
+		return [$infoAsArray, $model];
+	}
+
 
 	public function addToBasket()
 	{
@@ -339,7 +358,7 @@ class BaseBasketModel extends Model
 		// 							: $currentUserID;
 
 		//-- --------------------------------
-		if (empty($lastPreVoucher['items']))
+		if (empty($lastPreVoucher['vchItems']))
 			$lastPreVoucher['vchOwnerUserID'] = $currentUserID;
 		else if ($lastPreVoucher['vchOwnerUserID'] != $currentUserID)
 			throw new ForbiddenHttpException("invalid pre-Voucher owner");
@@ -350,14 +369,19 @@ class BaseBasketModel extends Model
 		$userAssetModelClass = $this->userAssetModelClass;
 
 		//-- find duplicates --------------------------------
-		if (empty($lastPreVoucher['items']) == false) {
-			foreach ($lastPreVoucher['items'] as $voucherItemIndex => $vItem) {
+		if (empty($lastPreVoucher['vchItems']) == false) {
+			foreach ($lastPreVoucher['vchItems'] as $voucherItemIndex => $vItem) {
 
 				$voucherItem = Yii::createObject(stuVoucherItem::class, $vItem);
 
 				if (($voucherItem->service ?? null) != $serviceName)
 					continue;
 
+				//todo: compare json arrays
+				if (($voucherItem->params ?? null) != $this->orderParams)
+					continue;
+
+				//todo: compare json arrays
 				if (($voucherItem->additives ?? null) != $this->orderAdditives)
 					continue;
 
@@ -414,7 +438,7 @@ class BaseBasketModel extends Model
 		}
 
 		//-- fetch SLB & PRD --------------------------------
-		$saleableInfo = $saleableModelClass::find()
+		$query = $saleableModelClass::find()
 			->select($saleableModelClass::selectableColumns())
 			->addSelect(new \yii\db\Expression("IF(slbInStockQty IS NULL, NULL, slbInStockQty - IFNULL(slbOrderedQty,0) + IFNULL(slbReturnedQty,0)) AS _saleableQtyInHand"))
 
@@ -426,28 +450,23 @@ class BaseBasketModel extends Model
 			->addSelect($unitModelClass::selectableColumns())
 
 			->andWhere(['slbCode' => $this->saleableCode])
-			->andWhere(['OR',
-				'slbAvailableFromDate IS NULL',
-				['<=', 'slbAvailableFromDate', new Expression('NOW()')],
-			])
+			->andWhere(['<=', 'slbAvailableFromDate', new Expression('NOW()')])
 			->andWhere(['OR',
 				'slbAvailableToDate IS NULL',
-				['>=', 'slbAvailableToDate', new Expression('DATE_ADD(NOW(), 15 MINUTE)')],
+				['>=', 'slbAvailableToDate', new Expression('DATE_ADD(NOW(), INTERVAL 15 MINUTE)')],
 			])
-			->asArray()
-			->one();
+		;
 
-		if ($saleableInfo == null)
+		[$saleableInfo, $basketItem->saleable] = self::loadModelFromQuery($query);
+		if ($basketItem->saleable == null)
 			throw new NotFoundHttpException('NOT.FOUND.SALEABLE');
 
-		$basketItem->saleable = new $saleableModelClass;
-		$basketItem->saleable->load($saleableInfo, '');
-
-		$basketItem->saleable->productQtyInHand = $saleableInfo['_productQtyInHand'];
+		$basketItem->productQtyInHand = $saleableInfo['_productQtyInHand'];
 		$basketItem->saleableQtyInHand = $saleableInfo['_saleableQtyInHand'];
 
 		//-- --------------------------------
 		$basketItem->discountCode      = $this->discountCode;
+		$basketItem->orderParams       = $this->orderParams;
 		$basketItem->orderAdditives    = $this->orderAdditives;
 		$basketItem->referrer          = $this->referrer;
 		$basketItem->referrerParams    = $this->referrerParams;
@@ -483,9 +502,9 @@ class BaseBasketModel extends Model
 
 		$preVoucherItem->service          = $serviceName;
 		$preVoucherItem->key              = Uuid::uuid4()->toString();
-		$preVoucherItem->desc             = $basketItem->saleable->slbName;
+		$preVoucherItem->desc             = $this->makeDesc($basketItem);
 		$preVoucherItem->qty              = $basketItem->qty; //$this->qty;
-		$preVoucherItem->unit             = $basketItem->saleable->unit->untName;
+		$preVoucherItem->unit             = $basketItem->saleable->product->unit->untName;
 		$preVoucherItem->unitPrice        = $basketItem->unitPrice;
 		$preVoucherItem->subTotal         = $basketItem->subTotal;
 
@@ -501,6 +520,7 @@ class BaseBasketModel extends Model
 
 		$preVoucherItem->totalPrice       = $basketItem->totalPrice;
 
+		$preVoucherItem->params           = $basketItem->orderParams;
 		$preVoucherItem->additives        = $basketItem->orderAdditives;
 		$preVoucherItem->referrer         = $basketItem->referrer;
 		$preVoucherItem->referrerParams   = $basketItem->referrerParams;
@@ -511,9 +531,9 @@ class BaseBasketModel extends Model
 		$userAssetModel->uasActorID         = $basketItem->assetActorID;
 		$userAssetModel->uasSaleableID      = $basketItem->saleable->slbID;
 		$userAssetModel->uasQty             = $this->qty;
-    $userAssetModel->uasVoucherID       = $lastPreVoucher->vchID;
+    $userAssetModel->uasVoucherID       = $lastPreVoucher['vchID'];
 		$userAssetModel->uasUUID            = $preVoucherItem->key;
-		$userAssetModel->uasVoucherItemInfo = json_encode($preVoucherItem);
+		$userAssetModel->uasVoucherItemInfo = array_filter(json_decode(json_encode($preVoucherItem), true));
 
 		//-- discount
 		if (empty($basketItem->couponDiscount->id) == false) {
@@ -527,7 +547,7 @@ class BaseBasketModel extends Model
 
 			if ($basketItem->saleable->product->prdStartAtFirstUse == false) {
 				$userAssetModel->uasValidFromDate = new \yii\db\Expression('NOW()');
-				$userAssetModel->uasValidToDate   = new \yii\db\Expression("DATE_ADD(NOW(), {$basketItem->saleable->product->prdDurationMinutes} MINUTE");
+				$userAssetModel->uasValidToDate   = new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$basketItem->saleable->product->prdDurationMinutes} MINUTE");
 			}
 		}
 
@@ -557,15 +577,15 @@ class BaseBasketModel extends Model
 		// $preVoucherItem->sign = sign(PreVoucherItem);
 
 		//-- add to the last pre voucher --------------------------------
-		if (empty($lastPreVoucher['items']))
-			$lastPreVoucher['items'] = [];
+		if (empty($lastPreVoucher['vchItems']))
+			$lastPreVoucher['vchItems'] = [];
 
-		$lastPreVoucher['items'][] = json_encode($preVoucherItem);
-		$lastPreVoucher->summary = count($lastPreVoucher['items']) > 1
-			? count($lastPreVoucher['items']) . ' items'
-			: $preVoucherItem->qty . ' of ' . $preVoucherItem->desc;
+		$lastPreVoucher['vchItems'][] = array_filter(json_decode(json_encode($preVoucherItem), true));
+		// $lastPreVoucher['vchSummary'] = count($lastPreVoucher['vchItems']) > 1
+			// ? count($lastPreVoucher['vchItems']) . ' items'
+			// : $preVoucherItem->qty . ' of ' . $preVoucherItem->desc;
 
-		$finalPrice = $lastPreVoucher->round + $lastPreVoucher->toPay + $preVoucherItem->totalPrice;
+		$finalPrice = /*$lastPreVoucher['vchRound'] + */$lastPreVoucher['vchTotalAmount'] + $preVoucherItem->totalPrice;
 
 		if ($finalPrice < 0) {
 			$userAssetTableName = $userAssetModelClass::tableName();
@@ -578,21 +598,18 @@ class BaseBasketModel extends Model
 SQL;
 			Yii::$app->db->createCommand($qry)->execute();
 
-			Yii::$app->db->createCommand("CALL spSaleable_unReserve(
-				:iSaleableID,
-				:iUserID,
-				:iQty
-			)")
-			->bindParam("iSaleableID", $basketItem->saleable->slbID)
-			->bindParam("iUserID", $currentUserID)
-			->bindParam("iQty", $preVoucherItem->qty)
-			->execute();
+			$saleableModelClass::unreserve(
+				$currentUserID,
+				$basketItem->saleable->slbID,
+				$preVoucherItem->qty,
+				$productModelClass
+			);
 
 			throw new ServerErrorHttpException("Final amount computed negative!");
 		}
 
-		$lastPreVoucher->round = 0; //$finalPrice % 1000;
-		$lastPreVoucher->toPay = $finalPrice - $lastPreVoucher->round;
+		// $lastPreVoucher['vchRound'] = 0; //$finalPrice % 1000;
+		$lastPreVoucher['vchTotalAmount'] = $finalPrice /*- $lastPreVoucher['vchRound']*/;
 		// $lastPreVoucher->sign.clear();
 		// $lastPreVoucher->sign = sign($lastPreVoucher);
 
@@ -680,14 +697,21 @@ SQL;
 
 		//-- check available count --------------------------------
 		if ($deltaQty > 0) {
-			if (($_basketItem->saleableQtyInHand < 0) || ($_basketItem->saleable->productQtyInHand < 0))
-				throw new UnprocessableEntityHttpException("Available Saleable Qty({$_basketItem->saleableQtyInHand}) or Available Product Qty({$_basketItem->saleable->productQtyInHand}) < 0");
+			if (($_basketItem->productQtyInHand !== null)
+				&& ($_basketItem->saleableQtyInHand !== null)
+			) {
+				if (($_basketItem->saleableQtyInHand < 0) || ($_basketItem->productQtyInHand < 0))
+					throw new UnprocessableEntityHttpException("Available Saleable Qty({$_basketItem->saleableQtyInHand}) or Available Product Qty({$_basketItem->productQtyInHand}) < 0");
 
-			if ($_basketItem->saleableQtyInHand > $_basketItem->saleable->productQtyInHand)
-				throw new UnprocessableEntityHttpException("Available Saleable Qty({$_basketItem->saleableQtyInHand}) > Available Product Qty({$_basketItem->saleable->productQtyInHand})");
+				if ($_basketItem->saleableQtyInHand > $_basketItem->productQtyInHand)
+					throw new UnprocessableEntityHttpException("Available Saleable Qty({$_basketItem->saleableQtyInHand}) > Available Product Qty({$_basketItem->productQtyInHand})");
+			}
 
-			if ($_basketItem->saleableQtyInHand < $deltaQty)
+			if (($_basketItem->saleableQtyInHand !== null)
+				&& ($_basketItem->saleableQtyInHand < $deltaQty)
+			) {
 				throw new UnprocessableEntityHttpException("Not enough {$_basketItem->saleable->slbCode} available in store. Available Qty({$_basketItem->saleableQtyInHand}) Requested Qty({$deltaQty})");
+			}
 		}
 
 		//-- --------------------------------
@@ -750,26 +774,23 @@ SQL;
 		//-- reserve and un-reserve saleable and product ------------------------------------
 		///@TODO: call spSaleable_unReserve by cron
 
+		$productModelClass = $this->productModelClass;
+		$saleableModelClass = $this->saleableModelClass;
+
 		if ($deltaQty > 0) {
-			Yii::$app->db->createCommand("CALL spSaleable_Reserve(
-					:iSaleableID,
-					:iUserID,
-					:iQty
-				)")
-				->bindParam("iSaleableID", $_basketItem->saleable->slbID)
-				->bindParam("iUserID", $currentUserID)
-				->bindParam("iQty", $deltaQty)
-				->execute();
+			$saleableModelClass::reserve(
+				$currentUserID,
+				$_basketItem->saleable->slbID,
+				$deltaQty,
+				$productModelClass
+			);
 		} else if ($deltaQty < 0) {
-			Yii::$app->db->createCommand("CALL spSaleable_unReserve(
-					:iSaleableID,
-					:iUserID,
-					:iQty
-				)")
-				->bindParam("iSaleableID", $_basketItem->saleable->slbID)
-				->bindParam("iUserID", $currentUserID)
-				->bindParam("iQty", abs($deltaQty))
-				->execute();
+			$saleableModelClass::unreserve(
+				$currentUserID,
+				$_basketItem->saleable->slbID,
+				abs($deltaQty),
+				$productModelClass
+			);
 		}
 
 		//-- new pre voucher item --------------------------------
@@ -867,7 +888,8 @@ SQL;
 		  *  5   |  x  |  y  |     | remove (x) + compute (y)
 			*/
 
-		$_basketItem->discountCode = trim($_basketItem->discountCode);
+		if ($_basketItem->discountCode !== null)
+			$_basketItem->discountCode = trim($_basketItem->discountCode);
 
 		//C1:
 		if ((($_oldVoucherItem == null) || empty($_oldVoucherItem->couponDiscount['code']))
@@ -912,7 +934,7 @@ SQL;
 			$ommitOldCondition = ['!=', 'uasID', $_oldVoucherItem->orderID];
 		}
 
-		$discountInfo = $discountModelClass::find()
+		$query = $discountModelClass::find()
 			->select($discountModelClass::selectableColumns())
 
 			->leftJoin(['tmp_cpn_count' => $userAssetModelClass::find()
@@ -947,16 +969,13 @@ SQL;
 			])
 			->andWhere(['OR',
 				'dscValidTo IS NULL',
-				['>=', 'dscValidTo', new \yii\db\Expression('DATE_ADD(NOW(), 15 MINUTE)')],
+				['>=', 'dscValidTo', new \yii\db\Expression('DATE_ADD(NOW(), INTERVAL 15 MINUTE)')],
 			])
-			->asArray()
-			->one();
+		;
 
-		if ($discountInfo == null)
+		[$discountInfo, $discountModel] = self::loadModelFromQuery($query);
+		if ($discountModel == null)
 			throw new UnprocessableEntityHttpException("Discount code not found.");
-
-		$discountModel = new $discountModelClass;
-		$discountModel->load($discountInfo, '');
 
 		// QDateTime Now = DiscountInfo.value(Targoman::API::CURRENT_TIMESTAMP).toDateTime();
 
@@ -1110,6 +1129,11 @@ SQL;
 			//@kambizzandi: Increase coupon statistics were moved to finalizeBasket,
 			// because the customer may be angry about not being able to use the coupon again in same voucher
 		}
+	}
+
+	protected function makeDesc($basketItem)
+	{
+		return $basketItem->saleable->slbName;
 	}
 
 }

@@ -16,10 +16,18 @@ class DefaultController extends Controller
 {
 	public function actionNewKeys()
 	{
-		$res = openssl_pkey_new();
+		$config = [
+			"digest_alg" => "sha256",
+			"default_md" => "sha256",
+			"private_key_bits" => 2048,
+			"private_key_type" => OPENSSL_KEYTYPE_RSA,
+		];
+
+		$res = openssl_pkey_new($config);
 
 		// Get private key
-		openssl_pkey_export($res, $privkey);
+		$privkey = '';
+		openssl_pkey_export($res, $privkey, null, $config);
 
 		// Get public key
 		$pubkey = openssl_pkey_get_details($res);

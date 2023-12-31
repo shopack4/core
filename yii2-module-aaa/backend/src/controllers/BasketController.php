@@ -26,16 +26,22 @@ class BasketController extends BaseRestController
 {
 	public function getSecureData()
 	{
-		$service = $_POST['service'];
+		// $allData = array_merge($_GET, $_POST);
+		$allData = $_POST;
+
+		$service = $allData['service'];
 		if (empty($service))
 			throw new UnprocessableEntityHttpException('NOT_PROVIDED:Service');
 
-		$data = $_POST['data'];
+		$data = $allData['data'];
 		if (empty($data))
 			throw new UnprocessableEntityHttpException('NOT_PROVIDED:Data');
 
 		$module = Yii::$app->controller->module;
-		$data = RsaPublic::model($module->servicesPublicKeys[$service])->decrypt($data);
+
+		$key = $module->servicesPublicKeys[$service];
+		$rsaModel = RsaPublic::model($key);
+		$data = $rsaModel->decrypt($data);
 
 		$data = Json::decode($data);
 
@@ -62,11 +68,18 @@ class BasketController extends BaseRestController
 			->asArray()
 			->one();
 
-		if ($model !== null)
-			return $model;
+		if ($model == null) {
+			$model = new VoucherModel();
+			$model->vchOwnerUserID = Yii::$app->user->id;
+			$model->vchType        = enuVoucherType::Basket;
+			$model->vchAmount      = 0;
+			$model->vchTotalAmount = 0;
+			if ($model->save() == false) {
+				throw new UnprocessableEntityHttpException('could not create new basket');
+			}
+		}
 
-		return []; //return empty basket instead of raising exception
-		// throw new NotFoundHttpException('The requested item not exist.');
+		return $model;
 	}
 
 	public function actionSetCurrent()

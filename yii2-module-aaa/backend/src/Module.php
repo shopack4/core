@@ -188,8 +188,8 @@ class Module
 					],
 
 					'extraPatterns' => [
-						'GET current'					=> 'get-current',
-						'PUT current'					=> 'set-current',
+						'POST get-current'		=> 'get-current',
+						'POST set-current'		=> 'set-current',
 						'POST item'						=> 'add-item',
 						'DELETE item/{key}'		=> 'remove-item',
 						'POST checkout'				=> 'checkout',
