@@ -100,7 +100,7 @@ JS;
                   'label' => 'واحد',
                 ],
                 [
-                  'attribute' => 'unitprice',
+                  'attribute' => 'unitPrice',
                   'label' => 'مبلغ واحد',
                   'format' => 'toman',
                 ],
@@ -110,12 +110,14 @@ JS;
                   'format' => 'toman',
                 ],
                 [
-                  'attribute' => 'totalprice',
+                  'attribute' => 'vat',
+                  'label' => 'مالیات',
+                  'format' => 'toman',
+                ],
+                [
+                  'attribute' => 'totalPrice',
                   'label' => 'مبلغ کل',
                   'format' => 'toman',
-                  'value' => function ($model, $key, $index, $widget) {
-                    return $model['unitprice'] * $model['qty'] - ($model['discount'] ?? 0);
-                  },
                 ],
                 [
                   'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,

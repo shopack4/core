@@ -84,16 +84,48 @@ class BasketController extends BaseRestController
 
 	public function actionSetCurrent()
 	{
+		$data = $this->getSecureData();
 
+		$voucher = $data['voucher'];
 
+		$userid = $voucher['vchOwnerUserID'];
+		if ($userid != Yii::$app->user->id)
+			throw new ForbiddenHttpException('Access denied');
 
+		if (empty($voucher['vchID']))
+			throw new UnprocessableEntityHttpException('Invalid voucher id');
 
+		$model = VoucherModel::findOne(['vchID' => $voucher['vchID']]);
 
+		if ($model == null)
+			throw new NotFoundHttpException('Voucher not found');
 
+		if ($model->vchType != enuVoucherType::Basket)
+			throw new UnprocessableEntityHttpException('Voucher is not basket type');
 
+		if ($model->vchStatus != enuVoucherStatus::New)
+			throw new UnprocessableEntityHttpException('Voucher is not new');
 
+		$model->vchAmount           = $voucher['vchAmount'];
+		$model->vchDiscountAmount   = $voucher['vchDiscountAmount'] ?? null;
+		$model->vchDeliveryMethodID = $voucher['vchDeliveryMethodID'] ?? null;
+		$model->vchDeliveryAmount   = $voucher['vchDeliveryAmount'] ?? null;
+		$model->vchTotalAmount      = $voucher['vchTotalAmount'] ?? null;
+		$model->vchItems            = $voucher['vchItems'] ?? null;
 
+		if ($model->save() == false)
+			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
 
+		return [
+			'ok'
+			// // 'result' => [
+			// 	// 'message' => 'updated',
+			// 	'docID' => $model->docID,
+			// 	'docStatus' => $model->docStatus,
+			// 	'docUpdatedAt' => $model->docUpdatedAt,
+			// 	'docUpdatedBy' => $model->docUpdatedBy,
+			// // ],
+		];
 	}
 
 	//just called from other services with encryption

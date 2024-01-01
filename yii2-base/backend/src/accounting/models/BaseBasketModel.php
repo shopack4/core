@@ -85,6 +85,7 @@ class stuBasketItem
 	public $referrer; //SF_QString
 	public $referrerParams; //SF_JSON_t
 	public $qty; //SF_qreal
+	public $dependencies;
 
 	public $apiTokenPayload; //SF_QJsonObject
 	public $assetActorID; //SF_quint64 //CurrentUserID or APIToken.Payload[uid]
@@ -163,6 +164,8 @@ class stuVoucherItem
 	public ?array  $referrerParams;
 	public ?string $apiTokenID;
 
+	public ?array  $dependencies;
+
 	// public $private; // SF_QString                //encrypted + base64
 	// public $subItems; // SF_QListOfVarStruct      stuVoucherItem),
 
@@ -205,6 +208,7 @@ class BaseBasketModel extends Model
 	public $referrer;
 	public $referrerParams;
 	public $apiTokenID;
+	public $dependencies;
 	public $itemUUID;
 	// public $lastPreVoucher;
 
@@ -219,6 +223,7 @@ class BaseBasketModel extends Model
 			['referrer',					'safe'],
 			['referrerParams',		'safe'],
 			['apiTokenID',				'safe'],
+			['dependencies',			'safe'],
 			['itemUUID',					'safe'],
 			// ['lastPreVoucher',		'safe'],
 
@@ -253,7 +258,7 @@ class BaseBasketModel extends Model
 		return self::$_parentModule;
 	}
 
-	private static $_lastPreVoucher = null;
+	private static ?array $_lastPreVoucher = null;
 	public static function getCurrentBasket() //$userid = null)
 	{
 		if (self::$_lastPreVoucher == null) {
@@ -281,6 +286,10 @@ class BaseBasketModel extends Model
 			if ($resultStatus < 200 || $resultStatus >= 300)
 				throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
 
+			if (empty($resultData['vchItems']) == false) {
+				$resultData['vchItems'] = json_decode($resultData['vchItems'], true);
+			}
+
 			self::$_lastPreVoucher = $resultData;
 		}
 
@@ -294,15 +303,35 @@ class BaseBasketModel extends Model
 	//   ->one();
 	}
 
-	public static function updateCurrentBasket($basketModel)
+	public static function updateCurrentBasket(array $basketModel)
 	{
+		self::$_lastPreVoucher = $basketModel;
 
+		$parentModule = self::getParentModule();
+		$serviceName = $parentModule->id;
 
+		if (empty($parentModule->servicePrivateKey))
+			throw new ServerErrorHttpException('INVALID.SERVICE.PRIVATE.KEY');
 
+		$data = Json::encode([
+			'service' => $serviceName,
+			'voucher' => $basketModel,
+		]);
+		$data = RsaPrivate::model($parentModule->servicePrivateKey)->encrypt($data);
 
+		list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/set-current',
+			HttpHelper::METHOD_POST,
+			[],
+			[
+				'service' => $serviceName,
+				'data' => $data,
+			]
+		);
 
+		if ($resultStatus < 200 || $resultStatus >= 300)
+			throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
 
-
+		return $resultData;
 	}
 
 	//[$infoAsArray, $model]
@@ -372,7 +401,10 @@ class BaseBasketModel extends Model
 		if (empty($lastPreVoucher['vchItems']) == false) {
 			foreach ($lastPreVoucher['vchItems'] as $voucherItemIndex => $vItem) {
 
-				$voucherItem = Yii::createObject(stuVoucherItem::class, $vItem);
+				$voucherItem = new stuVoucherItem;
+				foreach ($vItem as $kk => $vv) {
+					$voucherItem->$kk = $vv;
+				}
 
 				if (($voucherItem->service ?? null) != $serviceName)
 					continue;
@@ -414,7 +446,6 @@ class BaseBasketModel extends Model
 						continue;
 				}
 
-				/*
 				$userAssetInfo = $userAssetModelClass::find()
 					->innerJoinWith('saleable')
 					->andWhere(['uasID' => $voucherItem->orderID])
@@ -425,7 +456,6 @@ class BaseBasketModel extends Model
 					|| ($userAssetInfo->uasVoucherItemInfo['key'] != $voucherItem->key)
 				)
 					continue;
-				*/
 
 				return $this->internalUpdateBasketItem(
 					$lastPreVoucher,
@@ -470,6 +500,7 @@ class BaseBasketModel extends Model
 		$basketItem->orderAdditives    = $this->orderAdditives;
 		$basketItem->referrer          = $this->referrer;
 		$basketItem->referrerParams    = $this->referrerParams;
+		$basketItem->dependencies      = $this->dependencies;
 
 		$basketItem->qty               = $this->qty;
 		$basketItem->unitPrice         = $basketItem->saleable->slbBasePrice;
@@ -524,6 +555,8 @@ class BaseBasketModel extends Model
 		$preVoucherItem->additives        = $basketItem->orderAdditives;
 		$preVoucherItem->referrer         = $basketItem->referrer;
 		$preVoucherItem->referrerParams   = $basketItem->referrerParams;
+		$preVoucherItem->dependencies     = $basketItem->dependencies;
+
 		$preVoucherItem->apiTokenID       = $this->apiTokenID;
 
 		$userAssetModel = new $userAssetModelClass;
@@ -655,8 +688,10 @@ SQL;
 
 
 
-
-
+		return [
+			$_voucherItem->key,
+			$_lastPreVoucher,
+		];
 	}
 
 	/**

@@ -74,9 +74,9 @@ use shopack\aaa\frontend\common\models\VoucherModel;
             $k + 1,
             $vchItem['desc'],
             Yii::$app->formatter->asDecimal($vchItem['qty']),
-            Yii::$app->formatter->asToman($vchItem['unitprice']),
+            Yii::$app->formatter->asToman($vchItem['unitPrice']),
             Yii::$app->formatter->asToman($vchItem['discount'] ?? 0),
-            Yii::$app->formatter->asToman(($vchItem['qty'] * $vchItem['unitprice']) - ($vchItem['discount'] ?? 0)),
+            Yii::$app->formatter->asToman(($vchItem['qty'] * $vchItem['unitPrice']) - ($vchItem['discount'] ?? 0)),
           ]) . '</td></tr>';
         }
         return '<table class="table table-bordered table-striped">' . implode('', $result) . '</table>';

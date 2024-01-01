@@ -130,7 +130,7 @@ class BasketItemForm extends Model
         try {
           unset($vchItems[$k]);
 
-          $voucherModel->vchAmount -= ($vchItem['unitprice'] * $vchItem['qty']);
+          $voucherModel->vchAmount -= ($vchItem['unitPrice'] * $vchItem['qty']);
           $voucherModel->vchItems = $vchItems;
 
           if (($voucherModel->vchPaidByWallet ?? 0) > $voucherModel->vchAmount) {

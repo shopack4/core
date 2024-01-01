@@ -66,6 +66,7 @@ use shopack\aaa\frontend\common\models\VoucherModel;
             'تعداد',
             'مبلغ واحد',
             'تخفیف',
+            'مالیات',
             'مبلغ کل',
           ]) . '</td></tr>';
           $vchItems = $model->vchItems;
@@ -75,9 +76,10 @@ use shopack\aaa\frontend\common\models\VoucherModel;
               $k + 1,
               $vchItem['desc'],
               Yii::$app->formatter->asDecimal($vchItem['qty']),
-              Yii::$app->formatter->asToman($vchItem['unitprice']),
+              Yii::$app->formatter->asToman($vchItem['unitPrice']),
               Yii::$app->formatter->asToman($vchItem['discount'] ?? 0),
-              Yii::$app->formatter->asToman(($vchItem['qty'] * $vchItem['unitprice']) - ($vchItem['discount'] ?? 0)),
+              Yii::$app->formatter->asToman($vchItem['vat'] ?? 0),
+              Yii::$app->formatter->asToman($vchItem['totalPrice']),
             ]) . '</td></tr>';
           }
           return '<table class="table table-bordered table-striped">' . implode('', $result) . '</table>';
@@ -98,6 +100,13 @@ use shopack\aaa\frontend\common\models\VoucherModel;
           'class' => ['text-nowrap', 'tabular-nums'],
         ],
       ],
+      // [
+      //   'attribute' => 'vchVatAmount',
+      //   'format' => 'toman',
+      //   'contentOptions' => [
+      //     'class' => ['text-nowrap', 'tabular-nums'],
+      //   ],
+      // ],
       [
         'attribute' => 'vchDeliveryAmount',
         'format' => 'toman',

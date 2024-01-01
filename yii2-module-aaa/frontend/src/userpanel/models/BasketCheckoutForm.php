@@ -109,9 +109,8 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
       ->andWhere(['vchStatus' => enuVoucherStatus::New])
       ->andWhere(['vchRemovedAt' => 0])
       ->all();
-		$voucherModel = ($voucherModel[0] ?? null);
 
-		$this->voucher = $voucherModel;
+		$this->voucher = $voucherModel = ($voucherModel[0] ?? null);
 
 		if ($voucherModel == null)
 			return;
@@ -121,7 +120,7 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 		$vchItems = $voucherModel->vchItems;
 
 		foreach ($vchItems as $item) {
-			$this->totalPrices += $item['unitprice'] * $item['qty'];
+			$this->totalPrices += $item['unitPrice'] * $item['qty'];
 			// $this->total += $this->totalPrices;
 
 			$this->totalDiscounts += ($item['discount'] ?? 0);
