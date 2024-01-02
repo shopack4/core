@@ -641,6 +641,14 @@ SQL;
 			throw new ServerErrorHttpException("Final amount computed negative!");
 		}
 
+		$lastPreVoucher['vchAmount'] = $lastPreVoucher['vchAmount'] + $preVoucherItem->subTotal;
+
+		if (empty($preVoucherItem->discount) == false)
+			$lastPreVoucher['vchDiscountAmount'] = ($lastPreVoucher['vchDiscountAmount'] ?? 0) + $preVoucherItem->discount;
+
+		$lastPreVoucher['vchDeliveryMethodID'] = null;
+		$lastPreVoucher['vchDeliveryAmount'] = null;
+
 		// $lastPreVoucher['vchRound'] = 0; //$finalPrice % 1000;
 		$lastPreVoucher['vchTotalAmount'] = $finalPrice /*- $lastPreVoucher['vchRound']*/;
 		// $lastPreVoucher->sign.clear();
@@ -849,60 +857,66 @@ SQL;
 		?stuVoucherItem					$_oldVoucherItem = null
 	) { }
 
-	protected function computeSystemDiscount(
+	protected function computeSystemDiscounts(
 		/*INOUT*/ stuBasketItem   &$_basketItem,
-		?stuPendingSystemDiscount $_pendingSystemDiscount = null,
 		?stuVoucherItem           $_oldVoucherItem = null
 	) {
-		if ($_pendingSystemDiscount && ($_pendingSystemDiscount->amount > 0)) {
-			if (empty($_pendingSystemDiscount->key))
-				throw new UnprocessableEntityHttpException("Pending System Discount Key is empty.");
+		//1: fetch effective system discounts
 
-			//revert same key system discount
-			if (isset($_oldVoucherItem->systemDiscounts[$_pendingSystemDiscount->key])) {
-				$oldSystemDiscount = $_oldVoucherItem->systemDiscounts[$_pendingSystemDiscount->key];
-				$_basketItem->discount -= $oldSystemDiscount->Amount;
+		//2: call applySystemDiscount on each system discount
+	}
 
-				if ($_basketItem->qty == 0)
-					return;
-			}
-
-			$systemDiscount = new stuSystemDiscount;
-
-			$systemDiscount->info["desc"] = $_pendingSystemDiscount->desc;
-
-			if ($_pendingSystemDiscount->amountType == enuAmountType::Percent) {
-				$systemDiscount->info["amount"] = "{$_pendingSystemDiscount->amount}%";
-
-				$systemDiscount->amount = $_basketItem->subTotal * $_pendingSystemDiscount->amount / 100.0;
-
-				//Amount is %, Max is $
-				if ($_pendingSystemDiscount->max > 0)
-					$systemDiscount->amount = min($systemDiscount->amount, $_pendingSystemDiscount->max);
-
-			} else {
-				$systemDiscount->info["amount"] = $_pendingSystemDiscount->amount;
-
-				$systemDiscount->amount = $_pendingSystemDiscount->amount;
-
-				//Amount is $, Max is %
-				if ($_pendingSystemDiscount->max > 0) {
-					$max = $_basketItem->subTotal * $_pendingSystemDiscount->max / 100.0;
-					$systemDiscount->amount = min($systemDiscount->amount, $max);
-				}
-			}
-
-			if ($systemDiscount->amount != $_pendingSystemDiscount->amount)
-				$systemDiscount->info["applied-amount"] = $systemDiscount->amount;
-
-			$_basketItem->systemDiscounts[$_pendingSystemDiscount->key] = json_decode(json_encode($systemDiscount), true);
-
-			$_basketItem->discount += $systemDiscount->amount;
-
+	protected function applySystemDiscount(
+		/*INOUT*/ stuBasketItem   &$_basketItem,
+		?stuPendingSystemDiscount $_pendingSystemDiscount,
+		?stuVoucherItem           $_oldVoucherItem = null
+	) {
+		if (empty($_pendingSystemDiscount->amount))
 			return;
+
+		if (empty($_pendingSystemDiscount->key))
+			throw new UnprocessableEntityHttpException('Pending System Discount Key is empty.');
+
+		//revert same key system discount
+		if (isset($_oldVoucherItem->systemDiscounts[$_pendingSystemDiscount->key])) {
+			$oldSystemDiscount = $_oldVoucherItem->systemDiscounts[$_pendingSystemDiscount->key];
+			$_basketItem->discount -= $oldSystemDiscount->Amount;
+
+			if ($_basketItem->qty == 0)
+				return;
 		}
 
-		///@TODO: tblAccountSystemDiscounts and all its behaviors must be implemented
+		$systemDiscount = new stuSystemDiscount;
+
+		$systemDiscount->info['desc'] = $_pendingSystemDiscount->desc;
+
+		if ($_pendingSystemDiscount->amountType == enuAmountType::Percent) {
+			$systemDiscount->info['amount'] = "{$_pendingSystemDiscount->amount}%";
+
+			$systemDiscount->amount = $_basketItem->subTotal * $_pendingSystemDiscount->amount / 100.0;
+
+			//Amount is %, Max is $
+			if ($_pendingSystemDiscount->max > 0)
+				$systemDiscount->amount = min($systemDiscount->amount, $_pendingSystemDiscount->max);
+
+		} else {
+			$systemDiscount->info['amount'] = $_pendingSystemDiscount->amount;
+
+			$systemDiscount->amount = $_pendingSystemDiscount->amount;
+
+			//Amount is $, Max is %
+			if ($_pendingSystemDiscount->max > 0) {
+				$max = $_basketItem->subTotal * $_pendingSystemDiscount->max / 100.0;
+				$systemDiscount->amount = min($systemDiscount->amount, $max);
+			}
+		}
+
+		if ($systemDiscount->amount != $_pendingSystemDiscount->amount)
+			$systemDiscount->info['applied-amount'] = $systemDiscount->amount;
+
+		$_basketItem->systemDiscounts[$_pendingSystemDiscount->key] = json_decode(json_encode($systemDiscount), true);
+
+		$_basketItem->discount += $systemDiscount->amount;
 	}
 
 	protected function computeCouponDiscount(
