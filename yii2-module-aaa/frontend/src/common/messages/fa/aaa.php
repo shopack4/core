@@ -539,6 +539,12 @@ return [
 	'Saleable' => 'طرح فروش',
 	'Saleables' => 'طرح‌های فروش',
 
+	'Discount Groups' => 'گروه‌های تخفیف',
+	'Discount Group' => 'گروه‌ تخفیف',
+	'Discount Group Info' => 'مشخصات گروه‌ تخفیف',
+	'Create Discount Group' => 'ایجاد گروه‌ تخفیف',
+	'Update Discount Group' => 'ویرایش گروه‌ تخفیف',
+
 	'Discounts' => 'تخفیف‌ها',
 	'Discount' => 'تخفیف',
 	'Discount Info' => 'مشخصات تخفیف',

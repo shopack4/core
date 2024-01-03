@@ -18,6 +18,7 @@ use shopack\base\common\accounting\enums\enuDiscountType;
 'dscUUID',
 'dscName',
 'dscType',
+'dscDiscountGroupID',
 'dscCodeString',
 'dscCodeHasSerial',
 'dscCodeSerialCount',
@@ -79,6 +80,13 @@ trait BaseDiscountModelTrait
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => enuDiscountType::Coupon,
         enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
+      'dscDiscountGroupID' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
       'dscCodeString' => [
@@ -293,6 +301,11 @@ trait BaseDiscountModelTrait
 			$className = '\shopack\aaa\frontend\common\models\UserModel';
 
 		return $this->hasOne($className, ['usrID' => 'dscRemovedBy']);
+	}
+
+  abstract public static function getDiscountGroupModelClass();
+	public function getDiscountGroup() {
+		return $this->hasOne($this->getDiscountGroupModelClass(), ['dscgrpID' => 'dscDiscountGroupID']);
 	}
 
 }

@@ -40,6 +40,12 @@ class AccountingModule
 				[
 					'class' => \yii\rest\UrlRule::class,
 					// 'prefix' => 'v1',
+					'controller' => [$thisID . '/discount-group'],
+					'pluralize' => false,
+				],
+				[
+					'class' => \yii\rest\UrlRule::class,
+					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/discount'],
 					'pluralize' => false,
 				],
