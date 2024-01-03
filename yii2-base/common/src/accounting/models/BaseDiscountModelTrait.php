@@ -31,6 +31,7 @@ use shopack\base\common\accounting\enums\enuDiscountType;
 'dscTargetUserIDs',
 'dscTargetProductIDs',
 'dscTargetSaleableIDs',
+'dscReferrers',
 'dscSaleableBasedMultiplier',
 'dscAmount',
 'dscAmountType',
@@ -178,6 +179,13 @@ trait BaseDiscountModelTrait
         enuColumnInfo::selectable => true,
       ],
       'dscTargetSaleableIDs' => [
+        enuColumnInfo::type       => JsonValidator::class,
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+      'dscReferrers' => [
         enuColumnInfo::type       => JsonValidator::class,
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,

@@ -35,7 +35,6 @@ TAPI_DEFINE_STRUCT(stuDiscountSaleableBasedMultiplier,
     SF_qreal            (Multiplier),
     SF_NULLABLE_qreal   (MinQty)
 );
-*/
 
 class stuPendingSystemDiscount
 {
@@ -45,6 +44,7 @@ class stuPendingSystemDiscount
 	public enuAmountType $amountType = enuAmountType::Percent;
 	public float         $max; //MaxType is opposite of AmountType
 }
+*/
 
 class stuSystemDiscount
 {
@@ -848,26 +848,26 @@ SQL;
 	}
 
 	protected function computeAdditives(
-		/*INOUT*/ stuBasketItem	&$_basketItem,
+		/*IO*/ stuBasketItem	&$_basketItem,
 		?stuVoucherItem					$_oldVoucherItem = null
 	) { }
 
 	protected function computeReferrer(
-		/*INOUT*/ stuBasketItem	&$_basketItem,
+		/*IO*/ stuBasketItem	&$_basketItem,
 		?stuVoucherItem					$_oldVoucherItem = null
 	) { }
 
 	protected function computeSystemDiscounts(
-		/*INOUT*/ stuBasketItem   &$_basketItem,
+		/*IO*/ stuBasketItem   &$_basketItem,
 		?stuVoucherItem           $_oldVoucherItem = null
 	) {
 		//1: fetch effective system discounts
 
-		//2: call applySystemDiscount on each system discount
+		//2: call applySystemDiscount on max effective amount system discount (one)
 	}
 
 	protected function applySystemDiscount(
-		/*INOUT*/ stuBasketItem   &$_basketItem,
+		/*IO*/ stuBasketItem   &$_basketItem,
 		?stuPendingSystemDiscount $_pendingSystemDiscount,
 		?stuVoucherItem           $_oldVoucherItem = null
 	) {
@@ -920,7 +920,7 @@ SQL;
 	}
 
 	protected function computeCouponDiscount(
-		/*INOUT*/ stuBasketItem	&$_basketItem,
+		/*IO*/ stuBasketItem	&$_basketItem,
 		?stuVoucherItem					$_oldVoucherItem = null
 	) {
 		//    quint64 CurrentUserID = _apiCallContext.getActorID();

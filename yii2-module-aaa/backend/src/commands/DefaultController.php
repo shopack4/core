@@ -5,11 +5,16 @@
 
 namespace shopack\aaa\backend\commands;
 
+use Yii;
 use yii\console\ExitCode;
 use yii\console\Controller;
 
 /*
+
 cd /home2/iranhmus/domains/api.iranhmusic.ir/public_html; /usr/local/php-8.1/bin/php yii aaa/default/new-keys 2>&1 >>logs/new-keys.log
+
+cd /home2/iranhmus/domains/api.iranhmusic.ir/public_html; /usr/local/php-8.1/bin/php yii aaa/default/heartbeat 2>&1 >>logs/heartbeat.log
+
 */
 
 class DefaultController extends Controller
@@ -40,6 +45,36 @@ class DefaultController extends Controller
 		echo $pubkey . "\n\n";
 
     return ExitCode::OK;
+	}
+
+	public function actionHeartbeat()
+	{
+		try {
+			$this->removeOldActionLogs();
+		} catch (\Throwable $e) {
+      echo $e->getMessage();
+      Yii::error($e, __METHOD__);
+		}
+
+		// try {
+		// 	$this->removeExpiredBasketItems();
+		// } catch (\Throwable $e) {
+    //   echo $e->getMessage();
+    //   Yii::error($e, __METHOD__);
+		// }
+
+		return ExitCode::OK;
+	}
+
+	protected function removeOldActionLogs()
+	{
+		$qry =<<<SQLSTR
+DELETE FROM tbl_SYS_ActionLogs
+	WHERE atlAt <= DATE_SUB(NOW(), INTERVAL 3 MONTH)
+;
+SQLSTR;
+
+		Yii::$app->db->createCommand($qry)->execute();
 	}
 
 }
