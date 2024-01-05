@@ -7,6 +7,6 @@ namespace shopack\base\backend\accounting\controllers;
 
 use shopack\base\backend\controller\BaseCrudController;
 
-abstract class BaseDiscountController extends BaseCrudController
+abstract class BaseDiscountSerialController extends BaseCrudController
 {
 }

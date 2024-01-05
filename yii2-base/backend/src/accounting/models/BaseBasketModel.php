@@ -805,8 +805,8 @@ SQL;
 		//-- discount --------------------------------
 		///@TODO: what if some one uses discount code and at the same time will pay by prize credit
 
-		$this->computeSystemDiscount($_basketItem, null, $_oldVoucherItem);
-		$fnComputeTotalPrice("after computeSystemDiscount");
+		$this->computeSystemDiscounts($_basketItem, null, $_oldVoucherItem);
+		$fnComputeTotalPrice("after computeSystemDiscounts");
 
 		$this->computeCouponDiscount($_basketItem, $_oldVoucherItem);
 		$fnComputeTotalPrice("after applyCouponBasedDiscount");
@@ -862,6 +862,38 @@ SQL;
 		?stuVoucherItem           $_oldVoucherItem = null
 	) {
 		//1: fetch effective system discounts
+		$qry =<<<SQLTEXT
+			select *
+			from tbl_MHA_Accounting_Discount
+			where dscStatus != 'R'
+			and dscType = 'S'
+			and (dscValidFrom is null
+			or dscValidFrom <= NOW())
+			and (dscValidTo is null
+			or dscValidTo >= DATE_ADD(NOW(), INTERVAL 15 MINUTE))
+
+
+
+
+
+
+
+			dscTotalMaxCount
+			dscTotalMaxPrice
+			dscPerUserMaxCount
+			dscPerUserMaxPrice
+
+			dscTargetUserIDs
+			dscTargetProductIDs
+			dscTargetSaleableIDs
+			dscReferrers
+			dscSaleableBasedMultiplier
+			dscAmount
+			dscAmountType
+			dscMaxAmount
+			dscTotalUsedCount
+			dscTotalUsedPrice
+SQLTEXT;
 
 		//2: call applySystemDiscount on max effective amount system discount (one)
 	}

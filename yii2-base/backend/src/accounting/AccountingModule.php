@@ -52,6 +52,18 @@ class AccountingModule
 				[
 					'class' => \yii\rest\UrlRule::class,
 					// 'prefix' => 'v1',
+					'controller' => [$thisID . '/discount-serial'],
+					'pluralize' => false,
+				],
+				[
+					'class' => \yii\rest\UrlRule::class,
+					// 'prefix' => 'v1',
+					'controller' => [$thisID . '/discount-usage'],
+					'pluralize' => false,
+				],
+				[
+					'class' => \yii\rest\UrlRule::class,
+					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/product'],
 					'pluralize' => false,
 				],
