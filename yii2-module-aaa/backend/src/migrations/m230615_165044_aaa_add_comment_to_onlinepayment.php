@@ -9,15 +9,15 @@ class m230615_165044_aaa_add_comment_to_onlinepayment extends Migration
 {
 	public function safeUp()
 	{
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_OnlinePayment`
 	ADD COLUMN `onpComment` TEXT NULL AFTER `onpResult`;
-SQLSTR
+SQL
     );
 
 		$this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_OnlinePayment;");
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_OnlinePayment AFTER UPDATE ON tbl_AAA_OnlinePayment FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -46,7 +46,7 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_OnlinePayment AFTER UPDATE ON tbl_AAA_Onlin
           , atlInfo   = JSON_OBJECT("onpID", OLD.onpID, "old", Changes);
   END IF;
 END
-SQLSTR
+SQL
     );
 
 	}

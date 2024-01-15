@@ -559,6 +559,18 @@ return [
 	'Code Serial Count' => 'تعداد',
 	'Code SerialL ength' => 'طول سریال',
 
+	'Discount Serials' => 'سریال‌ها',
+	'Discount Serial' => 'سریال',
+	'Discount Serial Info' => 'مشخصات سریال',
+	// 'Create Discount Serial' => 'ایجاد سریال',
+	// 'Update Discount Serial' => 'ویرایش سریال',
+
+	'Discount Usages' => 'مصرف‌ها',
+	'Discount Usage' => 'مصرف',
+	'Discount Usage Info' => 'مشخصات مصرف',
+	// 'Create Discount Usage' => 'ایجاد مصرف',
+	// 'Update Discount Usage' => 'ویرایش مصرف',
+
 	'Receive by customer' => 'دریافت توسط مشتری',
 	'Send to customer' => 'ارسال به مشتری',
 

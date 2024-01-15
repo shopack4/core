@@ -45,6 +45,9 @@ $this->params['breadcrumbs'][] = $this->title;
               return Html::a($model->dscgrpName, ['view', 'id' => $model->dscgrpID]);
             },
           ],
+          'dscgrpComputeType',
+          'dscgrpMaxAmount',
+          'dscgrpMaxType',
           [
             'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
             'header' => $modelClass::canCreate() ? Html::createButton() : Yii::t('app', 'Actions'),

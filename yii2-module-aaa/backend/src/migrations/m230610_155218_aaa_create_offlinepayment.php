@@ -9,7 +9,7 @@ class m230610_155218_aaa_create_offlinepayment extends Migration
 {
   public function safeUp()
   {
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE `tbl_AAA_OfflinePayment` (
 	`ofpID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`ofpUUID` VARCHAR(38) NOT NULL COLLATE 'utf8mb4_unicode_ci',
@@ -46,23 +46,23 @@ CREATE TABLE `tbl_AAA_OfflinePayment` (
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_WalletTransaction`
   ADD CONSTRAINT `FK_tbl_AAA_WalletTransaction_tbl_AAA_Voucher` FOREIGN KEY (`wtrVoucherID`) REFERENCES `tbl_AAA_Voucher` (`vchID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
   ADD CONSTRAINT `FK_tbl_AAA_WalletTransaction_tbl_AAA_OnlinePayment` FOREIGN KEY (`wtrOnlinePaymentID`) REFERENCES `tbl_AAA_OnlinePayment` (`onpID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
   ADD CONSTRAINT `FK_tbl_AAA_WalletTransaction_tbl_AAA_OfflinePayment` FOREIGN KEY (`wtrOfflinePaymentID`) REFERENCES `tbl_AAA_OfflinePayment` (`ofpID`) ON UPDATE NO ACTION ON DELETE NO ACTION;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_OfflinePayment;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_OfflinePayment AFTER UPDATE ON tbl_AAA_OfflinePayment FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -94,7 +94,7 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_OfflinePayment AFTER UPDATE ON tbl_AAA_Offl
           , atlInfo   = JSON_OBJECT("ofpID", OLD.ofpID, "old", Changes);
   END IF;
 END;
-SQLSTR
+SQL
     );
   }
 

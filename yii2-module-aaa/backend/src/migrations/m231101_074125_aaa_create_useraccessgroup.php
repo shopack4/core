@@ -9,7 +9,7 @@ class m231101_074125_aaa_create_useraccessgroup extends Migration
 {
   public function safeUp()
   {
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TABLE `tbl_AAA_AccessGroup` (
 	`agpID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`agpUUID` VARCHAR(38) NOT NULL COLLATE 'utf8mb4_unicode_ci',
@@ -33,12 +33,12 @@ CREATE TABLE `tbl_AAA_AccessGroup` (
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
-SQLSTR
+SQL
     );
     $this->alterColumn('tbl_AAA_AccessGroup', 'agpPrivs', $this->json());
     $this->alterColumn('tbl_AAA_AccessGroup', 'agpI18NData', $this->json());
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE `tbl_AAA_User_AccessGroup` (
 	`usragpID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`usragpUUID` VARCHAR(38) NOT NULL COLLATE 'utf8mb4_unicode_ci',
@@ -66,11 +66,11 @@ CREATE TABLE `tbl_AAA_User_AccessGroup` (
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
-SQLSTR
+SQL
     );
 
     $this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_AccessGroup;");
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_AccessGroup AFTER UPDATE ON tbl_AAA_AccessGroup FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -93,11 +93,11 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_AccessGroup AFTER UPDATE ON tbl_AAA_AccessG
           , atlInfo   = JSON_OBJECT("agpID", OLD.agpID, "old", Changes);
   END IF;
 END
-SQLSTR
+SQL
     );
 
     $this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_User_AccessGroup;");
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_User_AccessGroup AFTER UPDATE ON tbl_AAA_User_AccessGroup FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -120,7 +120,7 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_User_AccessGroup AFTER UPDATE ON tbl_AAA_Us
           , atlInfo   = JSON_OBJECT("usragpID", OLD.usragpID, "old", Changes);
   END IF;
 END
-SQLSTR
+SQL
     );
 
   }

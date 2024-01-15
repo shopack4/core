@@ -13,7 +13,7 @@ class m230321_100104_aaa_create_tblAlertTemplate extends Migration
 
 		$this->execute('RENAME TABLE `tbl_AAA_AlertType` TO `DELETED_tbl_AAA_AlertType`;');
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE `tbl_AAA_AlertTemplate` (
 	`altID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`altKey` VARCHAR(64) NOT NULL COLLATE 'utf8mb4_unicode_ci',
@@ -36,7 +36,7 @@ CREATE TABLE `tbl_AAA_AlertTemplate` (
 	INDEX `altMedia` (`altMedia`) USING BTREE,
 	INDEX `altLanguage` (`altLanguage`) USING BTREE
 ) COLLATE='utf8mb4_unicode_ci' ENGINE=InnoDB ;
-SQLSTR
+SQL
 		);
 
 		//enuApprovalRequestAlertType

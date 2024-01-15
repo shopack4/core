@@ -23,6 +23,9 @@ use shopack\base\frontend\common\widgets\FormBuilder;
 
 		$builder->fields([
 			['dscgrpName'],
+			['dscgrpComputeType'],
+			['dscgrpMaxAmount'],
+			['dscgrpMaxType'],
 		]);
 	?>
 

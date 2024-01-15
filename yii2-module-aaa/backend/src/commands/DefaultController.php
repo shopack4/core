@@ -68,11 +68,11 @@ class DefaultController extends Controller
 
 	protected function removeOldActionLogs()
 	{
-		$qry =<<<SQLSTR
+		$qry =<<<SQL
 DELETE FROM tbl_SYS_ActionLogs
 	WHERE atlAt <= DATE_SUB(NOW(), INTERVAL 3 MONTH)
 ;
-SQLSTR;
+SQL;
 
 		Yii::$app->db->createCommand($qry)->execute();
 	}

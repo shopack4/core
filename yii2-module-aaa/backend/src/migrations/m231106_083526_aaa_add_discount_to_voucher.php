@@ -9,14 +9,14 @@ class m231106_083526_aaa_add_discount_to_voucher extends Migration
 {
   public function safeUp()
   {
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Voucher`
 	ADD COLUMN `vchDiscountAmount` DOUBLE UNSIGNED NULL AFTER `vchAmount`;
-SQLSTR
+SQL
     );
 
     $this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_Voucher;");
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_Voucher AFTER UPDATE ON tbl_AAA_Voucher FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -48,7 +48,7 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_Voucher AFTER UPDATE ON tbl_AAA_Voucher FOR
           , atlInfo   = JSON_OBJECT("vchID", OLD.vchID, "old", Changes);
   END IF;
 END
-SQLSTR
+SQL
     );
 
   }

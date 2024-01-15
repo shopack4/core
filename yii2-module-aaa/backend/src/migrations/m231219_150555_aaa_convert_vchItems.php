@@ -9,20 +9,20 @@ class m231219_150555_aaa_convert_vchItems extends Migration
 {
   public function safeUp()
   {
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Voucher`
   CHANGE COLUMN `vchItems` `OLD_vchItems` JSON NULL DEFAULT NULL AFTER `vchTotalPaid`;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Voucher`
   ADD COLUMN `vchItems` JSON NULL DEFAULT NULL AFTER `OLD_vchItems`;
-SQLSTR
+SQL
     );
     $this->alterColumn('tbl_AAA_Voucher', 'vchItems', $this->json());
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 UPDATE tbl_AAA_Voucher
   INNER JOIN (
       SELECT tbl_AAA_Voucher.vchID
@@ -79,7 +79,7 @@ UPDATE tbl_AAA_Voucher
           ON tmpJson.vchID = tbl_AAA_Voucher.vchID
          SET vchItems = tmpJson.NEW_vchItems
 ;
-SQLSTR
+SQL
     );
 
   }

@@ -9,14 +9,14 @@ class m231027_070958_aaa_add_deleteFileAfterUpload_to_spUploadedFile_Create exte
 {
     public function safeUp()
     {
-        $this->execute(<<<SQLSTR
+        $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_UploadFile`
     ADD COLUMN `uflDeleteLocalFileAfterUpload` BIT NULL AFTER `uflLocalFullFileName`;
-SQLSTR
+SQL
         );
 
         $this->execute("DROP PROCEDURE IF EXISTS spUploadedFile_Create;");
-        $this->execute(<<<SQLSTR
+        $this->execute(<<<SQL
 CREATE PROCEDURE `spUploadedFile_Create`(
 	IN `iPath` VARCHAR(256),
 	IN `iOriginalFileName` VARCHAR(256),
@@ -185,7 +185,7 @@ BEGIN
   COMMIT;
   /****************/
 END
-SQLSTR
+SQL
         );
     }
 

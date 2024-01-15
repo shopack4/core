@@ -79,6 +79,9 @@ $this->params['breadcrumbs'][] = $this->title;
           'attributes' => [
             'dscgrpID',
             'dscgrpName',
+            'dscgrpComputeType',
+            'dscgrpMaxAmount',
+            'dscgrpMaxType',
           ],
         ]);
       ?>

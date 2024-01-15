@@ -9,24 +9,24 @@ class m230527_113001_aaa_add_guid_column_to_all extends Migration
 {
 	public function addUUIDTo($tableName, $prefix, $idFieldSuffix = 'ID')
 	{
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `{$tableName}`
 	ADD COLUMN `{$prefix}UUID` VARCHAR(38) NULL AFTER `{$prefix}{$idFieldSuffix}`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 UPDATE `{$tableName}`
 	SET `{$prefix}UUID` = LOWER(UUID())
 	WHERE `{$prefix}UUID` IS NULL;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `{$tableName}`
 	CHANGE COLUMN `{$prefix}UUID` `{$prefix}UUID` VARCHAR(38) NOT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `{$prefix}{$idFieldSuffix}`,
 	ADD UNIQUE INDEX `{$prefix}UUID` (`{$prefix}UUID`);
-SQLSTR
+SQL
 		);
 	}
 
@@ -36,25 +36,25 @@ SQLSTR
 		$this->addUUIDTo('tbl_AAA_ForgotPasswordRequest',	'fpr');
 
 		//** tbl_AAA_Gateway
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Gateway`
 	DROP INDEX `gtwKey_gtwRemovedAt`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Gateway`
 	CHANGE COLUMN `gtwKey` `gtwUUID` VARCHAR(38) NOT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `gtwID`,
 	ADD UNIQUE INDEX `gtwUUID` (`gtwUUID`);
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 DROP TRIGGER IF EXISTS `trg_updatelog_tbl_AAA_Gateway`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_Gateway` AFTER UPDATE ON `tbl_AAA_Gateway` FOR EACH ROW BEGIN
 	DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -79,7 +79,7 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_Gateway` AFTER UPDATE ON `tbl_AAA_Gateway`
 					, atlInfo   = JSON_OBJECT("gtwID", OLD.gtwID, "old", Changes);
 	END IF;
 END ;
-SQLSTR
+SQL
 		);
 
 		//------------------
@@ -91,10 +91,10 @@ SQLSTR
 		$this->addUUIDTo('tbl_AAA_MessageTemplate',		'mst');
 
 		//** tbl_AAA_OnlinePayment
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_OnlinePayment`
 	ADD UNIQUE INDEX `onpUUID` (`onpUUID`);
-SQLSTR
+SQL
 		);
 
 		$this->addUUIDTo('tbl_AAA_Role',				'rol');
@@ -103,10 +103,10 @@ SQLSTR
 		$this->addUUIDTo('tbl_AAA_UploadQueue',	'uqu');
 
 		//** tbl_AAA_User
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_User`
 	ADD UNIQUE INDEX `usrUUID` (`usrUUID`);
-SQLSTR
+SQL
 		);
 
 		$this->addUUIDTo('tbl_AAA_Voucher',						'vch');

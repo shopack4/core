@@ -9,12 +9,12 @@ class m230607_072611_aaa_add_uuid_to_spfile extends Migration
 {
 	public function safeUp()
 	{
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 DROP TRIGGER IF EXISTS `trg_tbl_AAA_User_after_insert`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER `trg_tbl_AAA_User_after_insert` AFTER INSERT ON `tbl_AAA_User` FOR EACH ROW BEGIN
 	INSERT INTO tbl_AAA_Wallet
 	SET walOwnerUserID = NEW.usrID
@@ -24,15 +24,15 @@ CREATE TRIGGER `trg_tbl_AAA_User_after_insert` AFTER INSERT ON `tbl_AAA_User` FO
 		, walUUID = UUID()
 	;
 END;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 DROP PROCEDURE IF EXISTS `spUploadedFile_Create`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE PROCEDURE `spUploadedFile_Create`(
 	IN `iPath` VARCHAR(256),
 	IN `iOriginalFileName` VARCHAR(256),
@@ -193,7 +193,7 @@ BEGIN
   COMMIT;
   /****************/
 END;
-SQLSTR
+SQL
 		);
 
 	}

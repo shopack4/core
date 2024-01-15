@@ -107,7 +107,7 @@ class ForgotPasswordRequestModel extends AAAActiveRecord
     $userTableName = UserModel::tableName();
     $messageTableName = MessageModel::tableName();
 
-    $qry =<<<SQLSTR
+    $qry =<<<SQL
           UPDATE {$messageTableName} msg
       INNER JOIN {$forgotPasswordRequestTableName} fpr
               ON fpr.fprID = msg.msgForgotPasswordRequestID
@@ -119,10 +119,10 @@ class ForgotPasswordRequestModel extends AAAActiveRecord
               OR usrMobile = '{$normalizedInput}'
                  )
              AND fprExpireAt <= NOW()
-SQLSTR;
+SQL;
     static::getDb()->createCommand($qry)->execute();
 
-    $qry =<<<SQLSTR
+    $qry =<<<SQL
           UPDATE {$forgotPasswordRequestTableName} fpr
       INNER JOIN {$userTableName} usr
               ON usr.usrID = fpr.fprUserID
@@ -132,7 +132,7 @@ SQLSTR;
               OR usrMobile = '{$normalizedInput}'
                  )
              AND fprExpireAt <= NOW()
-SQLSTR;
+SQL;
     static::getDb()->createCommand($qry)->execute();
 
     //find current
@@ -156,7 +156,7 @@ SQLSTR;
       ->all();
 
     if (empty($models) == false && count($models) > 1) {
-      $qry =<<<SQLSTR
+      $qry =<<<SQL
           UPDATE {$messageTableName} msg
       INNER JOIN {$forgotPasswordRequestTableName} fpr
               ON fpr.fprID = msg.msgForgotPasswordRequestID
@@ -168,10 +168,10 @@ SQLSTR;
               OR usrMobile = '{$normalizedInput}'
                  )
              AND fprStatus IN ({$fnGetConst(enuForgotPasswordRequestStatus::New)}, {$fnGetConst(enuForgotPasswordRequestStatus::Sent)})
-SQLSTR;
+SQL;
       static::getDb()->createCommand($qry)->execute();
 
-      $qry =<<<SQLSTR
+      $qry =<<<SQL
           UPDATE {$forgotPasswordRequestTableName} fpr
       INNER JOIN {$userTableName} usr
               ON usr.usrID = fpr.fprUserID
@@ -181,7 +181,7 @@ SQLSTR;
               OR usrMobile = '{$normalizedInput}'
                  )
              AND fprStatus IN ({$fnGetConst(enuForgotPasswordRequestStatus::New)}, {$fnGetConst(enuForgotPasswordRequestStatus::Sent)})
-SQLSTR;
+SQL;
       static::getDb()->createCommand($qry)->execute();
 
       //kz@2023 08 26
@@ -274,11 +274,11 @@ SQLSTR;
       if ($forgotPasswordRequestModel->save() == false)
         throw new UnprocessableEntityHttpException("error in updating forgot password request\n" . implode("\n", $forgotPasswordRequestModel->getFirstErrors()));
 
-      $qry =<<<SQLSTR
+      $qry =<<<SQL
           UPDATE {$messageTableName}
              SET msgStatus = {$fnGetConst(enuMessageStatus::Removed)}
            WHERE msgForgotPasswordRequestID = '{$forgotPasswordRequestModel->fprID}'
-SQLSTR;
+SQL;
       static::getDb()->createCommand($qry)->execute();
     }
 

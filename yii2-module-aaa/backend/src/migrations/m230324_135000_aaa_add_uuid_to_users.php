@@ -9,23 +9,23 @@ class m230324_135000_aaa_add_uuid_to_users extends Migration
 {
 	public function safeUp()
 	{
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_User`
 	ADD COLUMN `usrUUID` VARCHAR(38) NULL AFTER `usrID`;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 UPDATE tbl_AAA_User
 	SET usrUUID = UUID()
 	WHERE usrUUID IS NULL;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_User`
 	CHANGE COLUMN `usrUUID` `usrUUID` VARCHAR(38) NOT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `usrID`;
-SQLSTR
+SQL
 		);
 	}
 

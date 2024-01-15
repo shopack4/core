@@ -9,7 +9,7 @@ class m230409_184249_aaa_create_wallet_and_payments extends Migration
 {
   public function safeUp()
 	{
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TABLE `tbl_AAA_Wallet` (
 	`walID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`walOwnerUserID` BIGINT(20) UNSIGNED NOT NULL,
@@ -30,10 +30,10 @@ CREATE TABLE `tbl_AAA_Wallet` (
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE `tbl_AAA_WalletTransaction` (
 	`wtrID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`wtrWalletID` BIGINT(20) UNSIGNED NOT NULL,
@@ -55,10 +55,10 @@ CREATE TABLE `tbl_AAA_WalletTransaction` (
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_Wallet AFTER UPDATE ON tbl_AAA_Wallet FOR EACH ROW BEGIN
 	DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -81,10 +81,10 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_Wallet AFTER UPDATE ON tbl_AAA_Wallet FOR E
 					, atlInfo   = JSON_OBJECT("walID", OLD.walID, "old", Changes);
 	END IF;
 END;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_WalletTransaction AFTER UPDATE ON tbl_AAA_WalletTransaction FOR EACH ROW BEGIN
 	DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -108,11 +108,11 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_WalletTransaction AFTER UPDATE ON tbl_AAA_W
 					, atlInfo   = JSON_OBJECT("wtrID", OLD.wtrID, "old", Changes);
 	END IF;
 END;
-SQLSTR
+SQL
 		);
 
 		//create default wallet trigger after user inserted
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER `trg_tbl_AAA_User_after_insert` AFTER INSERT ON `tbl_AAA_User` FOR EACH ROW BEGIN
 	INSERT INTO tbl_AAA_Wallet
 	SET walOwnerUserID = NEW.usrID
@@ -121,10 +121,10 @@ CREATE TRIGGER `trg_tbl_AAA_User_after_insert` AFTER INSERT ON `tbl_AAA_User` FO
 		, walRemainedAmount = 0
 	;
 END;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 INSERT INTO tbl_AAA_Wallet(
 		walOwnerUserID,
 		walName,
@@ -141,11 +141,11 @@ INSERT INTO tbl_AAA_Wallet(
 	AND tbl_AAA_Wallet.walIsDefault
 	WHERE walID IS NULL
 ;
-SQLSTR
+SQL
 		);
 
 		//--
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TABLE `tbl_AAA_Voucher` (
 	`vchID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`vchOwnerUserID` BIGINT(20) UNSIGNED NOT NULL,
@@ -170,11 +170,11 @@ CREATE TABLE `tbl_AAA_Voucher` (
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
-SQLSTR
+SQL
 		);
 		$this->alterColumn('tbl_AAA_Voucher', 'vchItems', $this->json());
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TABLE `tbl_AAA_OnlinePayment` (
 	`onpID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`onpUUID` VARCHAR(38) NOT NULL COLLATE 'utf8mb4_unicode_ci',
@@ -204,11 +204,11 @@ CREATE TABLE `tbl_AAA_OnlinePayment` (
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
-SQLSTR
+SQL
 		);
 		$this->alterColumn('tbl_AAA_OnlinePayment', 'onpResult', $this->json());
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_Voucher AFTER UPDATE ON tbl_AAA_Voucher FOR EACH ROW BEGIN
 	DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -235,10 +235,10 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_Voucher AFTER UPDATE ON tbl_AAA_Voucher FOR
 					, atlInfo   = JSON_OBJECT("vchID", OLD.vchID, "old", Changes);
 	END IF;
 END;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_OnlinePayment AFTER UPDATE ON tbl_AAA_OnlinePayment FOR EACH ROW BEGIN
 	DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -266,7 +266,7 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_OnlinePayment AFTER UPDATE ON tbl_AAA_Onlin
 					, atlInfo   = JSON_OBJECT("onpID", OLD.onpID, "old", Changes);
 	END IF;
 END;
-SQLSTR
+SQL
 		);
 
   }
