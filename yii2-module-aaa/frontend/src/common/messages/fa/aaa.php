@@ -539,12 +539,6 @@ return [
 	'Saleable' => 'طرح فروش',
 	'Saleables' => 'طرح‌های فروش',
 
-	'Discount Groups' => 'گروه‌های تخفیف',
-	'Discount Group' => 'گروه‌ تخفیف',
-	'Discount Group Info' => 'مشخصات گروه‌ تخفیف',
-	'Create Discount Group' => 'ایجاد گروه‌ تخفیف',
-	'Update Discount Group' => 'ویرایش گروه‌ تخفیف',
-
 	'Discounts' => 'تخفیف‌ها',
 	'Discount' => 'تخفیف',
 	'Discount Info' => 'مشخصات تخفیف',
@@ -553,7 +547,9 @@ return [
 
 	'Discount Type' => 'نوع تخفیف',
 	'System Discount' => 'تخفیف سیستمی',
-	'As Coupon' => 'تخفیف کوپنی',
+	'Fix System Discount' => 'سیستمی ثابت',
+	'Increase System Discount' => 'سیستمی اضافه شونده',
+	'As Coupon' => 'کوپنی',
 	'Discount Code' => 'کد تخفیف',
 	'Code Has Serial' => 'دارای سریال',
 	'Code Serial Count' => 'تعداد',

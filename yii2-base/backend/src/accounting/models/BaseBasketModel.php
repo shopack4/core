@@ -16,15 +16,12 @@ use yii\base\InvalidConfigException;
 use Ramsey\Uuid\Uuid;
 use shopack\base\common\enums\enuModelScenario;
 use shopack\base\common\accounting\enums\enuAmountType;
-use shopack\base\common\accounting\enums\enuDiscountGroupComputeType;
 use shopack\base\common\accounting\enums\enuDiscountStatus;
 use shopack\base\common\accounting\enums\enuDiscountType;
 use shopack\base\common\accounting\enums\enuUserAssetStatus;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\helpers\Json;
 use shopack\base\common\security\RsaPrivate;
-
-// use shopack\base\common\accounting\enums\enuDiscountType;
 
 /*
 TAPI_DEFINE_STRUCT(stuPrize,
@@ -864,191 +861,221 @@ SQL;
 		/*IO*/ stuBasketItem   &$_basketItem,
 		?stuVoucherItem           $_oldVoucherItem = null
 	) {
+    $fnGetConst = function($value) { return $value; };
+		$fnGetConstQouted = function($value) { return "'{$value}'"; };
+
 		$discountModelClass = $this->discountModelClass;
 
 		//1: fetch effective system discounts
-		// $query = $discountModelClass::find()
-		// 	->andWhere(['!=', 'dscStatus', enuDiscountStatus::Removed])
-		// 	->andWhere(['dscType', enuDiscountType::System])
-		// ;
-
-    $fnGetConst = function($value) { return $value; };
 
 		$qry_discount_with_usage =<<<SQL
-		select tbl_MHA_Accounting_Discount.dscID as _dscID
-		, tmp_total_used.total_used_cnt
-		, tmp_total_amount.total_used_amount
-		, tmp_user_used.user_used_cnt
-		, tmp_user_amount.user_used_amount
+			select tbl_MHA_Accounting_Discount.dscID
+			, tmp_total_used.totalUsedCount
+			, tmp_total_amount.totalUsedAmount
+			, tmp_user_used.userUsedCount
+			, tmp_user_amount.userUsedAmount
 
-		from tbl_MHA_Accounting_Discount
+			from tbl_MHA_Accounting_Discount
 
-		left join (
-			select dscusgDiscountID
-			, count(*) as total_used_cnt
-			from tbl_MHA_Accounting_DiscountUsage
-			group by dscusgDiscountID
-		) as tmp_total_used
-		on tmp_total_used.dscusgDiscountID = tbl_MHA_Accounting_Discount.dscID
+			left join (
+				select dscusgDiscountID
+				, count(*) as totalUsedCount
+				from tbl_MHA_Accounting_DiscountUsage
+				group by dscusgDiscountID
+			) as tmp_total_used
+			on tmp_total_used.dscusgDiscountID = tbl_MHA_Accounting_Discount.dscID
 
-		left join (
-			select dscusgDiscountID
-			, sum(dscusgAmount) as total_used_amount
-			from tbl_MHA_Accounting_DiscountUsage
-			group by dscusgDiscountID
-		) as tmp_total_amount
-		on tmp_total_amount.dscusgDiscountID = tbl_MHA_Accounting_Discount.dscID
+			left join (
+				select dscusgDiscountID
+				, sum(dscusgAmount) as totalUsedAmount
+				from tbl_MHA_Accounting_DiscountUsage
+				group by dscusgDiscountID
+			) as tmp_total_amount
+			on tmp_total_amount.dscusgDiscountID = tbl_MHA_Accounting_Discount.dscID
 
-		left join (
-			select dscusgDiscountID
-			, count(*) as user_used_cnt
-			from tbl_MHA_Accounting_DiscountUsage
-			where dscusgUserID = {$_basketItem->assetActorID}
-			group by dscusgDiscountID
-		) as tmp_user_used
-		on tmp_user_used.dscusgDiscountID = tbl_MHA_Accounting_Discount.dscID
+			left join (
+				select dscusgDiscountID
+				, count(*) as userUsedCount
+				from tbl_MHA_Accounting_DiscountUsage
+				where dscusgUserID = {$_basketItem->assetActorID}
+				group by dscusgDiscountID
+			) as tmp_user_used
+			on tmp_user_used.dscusgDiscountID = tbl_MHA_Accounting_Discount.dscID
 
-		left join (
-			select dscusgDiscountID
-			, sum(dscusgAmount) as user_used_amount
-			from tbl_MHA_Accounting_DiscountUsage
-			where dscusgUserID = {$_basketItem->assetActorID}
-			group by dscusgDiscountID
-		) as tmp_user_amount
-		on tmp_user_amount.dscusgDiscountID = tbl_MHA_Accounting_Discount.dscID
+			left join (
+				select dscusgDiscountID
+				, sum(dscusgAmount) as userUsedAmount
+				from tbl_MHA_Accounting_DiscountUsage
+				where dscusgUserID = {$_basketItem->assetActorID}
+				group by dscusgDiscountID
+			) as tmp_user_amount
+			on tmp_user_amount.dscusgDiscountID = tbl_MHA_Accounting_Discount.dscID
+
+			where dscStatus != 'R'
+			and dscType IN ({$fnGetConstQouted(enuDiscountType::System)}, {$fnGetConstQouted(enuDiscountType::SystemIncrease)})
 SQL;
 
 		$qry_valid_discount =<<<SQL
-		select tbl_MHA_Accounting_Discount.*
+			select tbl_MHA_Accounting_Discount.*
+			, tmp_discount_with_usage.totalUsedAmount
+			, tmp_discount_with_usage.userUsedAmount
 
-		from tbl_MHA_Accounting_Discount
+			from tbl_MHA_Accounting_Discount
 
-		inner join (
-			{$qry_discount_with_usage}
-		) tmp_discount_with_usage
-		on tmp_discount_with_usage._dscID = tbl_MHA_Accounting_Discount.dscID
+			inner join (
+				{$qry_discount_with_usage}
+			) tmp_discount_with_usage
+			on tmp_discount_with_usage.dscID = tbl_MHA_Accounting_Discount.dscID
 
-		where dscStatus != 'R'
-		and dscType = 'S'
+			where (dscValidFrom is null
+			or dscValidFrom <= NOW()
+			)
 
-		and (dscValidFrom is null
-		or dscValidFrom <= NOW()
-		)
+			and (dscValidTo is null
+			or dscValidTo >= DATE_SUB(NOW(), INTERVAL 15 MINUTE)
+			)
 
-		and (dscValidTo is null
-		or dscValidTo >= DATE_SUB(NOW(), INTERVAL 15 MINUTE)
-		)
+			and (dscTargetUserIDs is null
+			or JSON_SEARCH(dscTargetUserIDs, 'one', {$_basketItem->assetActorID}) is not null
+			)
 
-		and (dscTargetUserIDs is null
-		or JSON_SEARCH(dscTargetUserIDs, 'one', {$_basketItem->assetActorID}) is not null
-		)
+			and (dscTargetProductIDs is null
+			or JSON_SEARCH(dscTargetProductIDs, 'one', {$_basketItem->saleable->slbProductID}) is not null
+			)
 
-		and (dscTargetProductIDs is null
-		or JSON_SEARCH(dscTargetProductIDs, 'one', {$_basketItem->saleable->slbProductID}) is not null
-		)
+			and (dscTargetSaleableIDs is null
+			or JSON_SEARCH(dscTargetSaleableIDs, 'one', {$_basketItem->saleable->slbID}) is not null
+			)
 
-		and (dscTargetSaleableIDs is null
-		or JSON_SEARCH(dscTargetSaleableIDs, 'one', {$_basketItem->saleable->slbID}) is not null
-		)
+			and (ifnull(dscTotalMaxCount, 0) = 0
+			or ifnull(tmp_discount_with_usage.totalUsedCount, 0) = 0
+			or dscTotalMaxCount > tmp_discount_with_usage.totalUsedCount
+			)
 
-		and (ifnull(dscTotalMaxCount, 0) = 0
-		or ifnull(tmp_discount_with_usage.total_used_cnt, 0) = 0
-		or dscTotalMaxCount > tmp_discount_with_usage.total_used_cnt
-		)
+			and (ifnull(dscTotalMaxPrice, 0) = 0
+			or ifnull(tmp_discount_with_usage.totalUsedAmount, 0) = 0
+			or dscTotalMaxPrice > tmp_discount_with_usage.totalUsedAmount
+			)
 
-		and (ifnull(dscTotalMaxPrice, 0) = 0
-		or ifnull(tmp_discount_with_usage.total_used_amount, 0) = 0
-		or dscTotalMaxPrice > tmp_discount_with_usage.total_used_amount
-		)
+			and (ifnull(dscPerUserMaxCount, 0) = 0
+			or ifnull(tmp_discount_with_usage.userUsedCount, 0) = 0
+			or dscPerUserMaxCount > tmp_discount_with_usage.userUsedCount
+			)
 
-		and (ifnull(dscPerUserMaxCount, 0) = 0
-		or ifnull(tmp_discount_with_usage.user_used_cnt, 0) = 0
-		or dscPerUserMaxCount > tmp_discount_with_usage.user_used_cnt
-		)
-
-		and (ifnull(dscPerUserMaxPrice, 0) = 0
-		or ifnull(tmp_discount_with_usage.user_used_amount, 0) = 0
-		or dscPerUserMaxPrice > tmp_discount_with_usage.user_used_amount
-		)
+			and (ifnull(dscPerUserMaxPrice, 0) = 0
+			or ifnull(tmp_discount_with_usage.userUsedAmount, 0) = 0
+			or dscPerUserMaxPrice > tmp_discount_with_usage.userUsedAmount
+			)
 SQL;
 
-		$qry_saleable_with_discount =<<<SQL
-		SELECT	row_number() OVER (
-PARTITION BY	slbID
-		ORDER BY	tmp_valid_computed_discount.discountAmount DESC) AS row_num
+		$qry_saleable_with_computd_valid_discounts =<<<SQL
+			select tbl_MHA_Accounting_Saleable.slbID
+			, tmp_valid_discount.*
+			,	LEAST(
+				slbBasePrice
 
-		select tbl_MHA_Accounting_Saleable.slbID AS _slbID
-		, tmp_valid_discount.*
+				, IF(IFNULL(dscTotalMaxPrice, 0) = 0
+					, slbBasePrice
+					, dscTotalMaxPrice - IFNULL(totalUsedAmount, 0)
+				)
 
-		, case tbl_MHA_Accounting_DiscountGroup.dscgrpComputeType
-			when '{$fnGetConst(enuDiscountGroupComputeType::Min)}' then
-				least(tbl_MHA_Accounting_Saleable.slbBasePrice, case
-					when ifnull(tmp_valid_discount.dscMaxAmount, 0) > 0 then
-						least(tmp_valid_discount.dscMaxAmount,
+				, IF(IFNULL(dscPerUserMaxPrice, 0) = 0
+					, slbBasePrice
+					, dscPerUserMaxPrice - IFNULL(userUsedAmount, 0)
+				)
 
-						)
-					else
-				end)
-		end
+				, CASE WHEN dscMaxAmount IS NULL OR dscMaxAmount = 0 THEN
+						CASE dscAmountType
+							WHEN {$fnGetConstQouted(enuAmountType::Price)}   THEN dscAmount
+							WHEN {$fnGetConstQouted(enuAmountType::Percent)} THEN (dscAmount / 100) * slbBasePrice
+							ELSE 0
+						END
+					ELSE CASE dscAmountType
+						WHEN {$fnGetConstQouted(enuAmountType::Price)}   THEN LEAST((dscMaxAmount / 100) * slbBasePrice, dscAmount)
+						WHEN {$fnGetConstQouted(enuAmountType::Percent)} THEN LEAST(dscMaxAmount, (dscAmount / 100) * slbBasePrice)
+						ELSE 0
+					END
+				END) AS discountAmount
 
-		from tbl_MHA_Accounting_Saleable
+			from tbl_MHA_Accounting_Saleable
 
-		cross join  (
-			{$qry_valid_discount}
-		) tmp_valid_discount
+			cross join  (
+				{$qry_valid_discount}
+			) tmp_valid_discount
 
-		inner join tbl_MHA_Accounting_DiscountGroup
-		on tbl_MHA_Accounting_DiscountGroup.dscgrpID = tmp_valid_discount.dscDiscountGroupID
-		and tbl_MHA_Accounting_DiscountGroup.dscgrpComputeType != '{$fnGetConst(enuDiscountGroupComputeType::Sum)}'
-
-		group by tbl_MHA_Accounting_Saleable.slbID
-
+			group by tbl_MHA_Accounting_Saleable.slbID
 SQL;
 
-		// has DiscountGroup and dscgrpComputeType == MIN|MAX
-		$qry_saleable_with_one_discount_in_group =<<<SQL
-		select tbl_MHA_Accounting_Saleable.slbID AS _slbID
-		, tmp_valid_discount.*
+		//SYSTEM
+		$qry_saleable_with_SF_discounts =<<<SQL
+			SELECT row_number() OVER (
+			PARTITION BY slbID
+			ORDER BY tmp_saleable_with_computd_valid_discounts.discountAmount DESC) AS row_num
 
-		, case tbl_MHA_Accounting_DiscountGroup.dscgrpComputeType
-			when '{$fnGetConst(enuDiscountGroupComputeType::Min)}' then
-				least(tbl_MHA_Accounting_Saleable.slbBasePrice, case
-					when ifnull(tmp_valid_discount.dscMaxAmount, 0) > 0 then
-						least(tmp_valid_discount.dscMaxAmount,
+			, tbl_MHA_Accounting_Saleable.slbID
+			, tmp_saleable_with_computd_valid_discounts.dscID
+			, tmp_saleable_with_computd_valid_discounts.discountAmount
 
-						)
-					else
-				end)
-		end
+			FROM tbl_MHA_Accounting_Saleable
 
-		from tbl_MHA_Accounting_Saleable
+			INNER JOIN (
+				{$qry_saleable_with_computd_valid_discounts}
+			) tmp_saleable_with_computd_valid_discounts
+			ON tmp_saleable_with_computd_valid_discounts.slbID = tbl_MHA_Accounting_Saleable.slbID
 
-		cross join  (
-			{$qry_valid_discount}
-		) tmp_valid_discount
-
-		inner join tbl_MHA_Accounting_DiscountGroup
-		on tbl_MHA_Accounting_DiscountGroup.dscgrpID = tmp_valid_discount.dscDiscountGroupID
-		and tbl_MHA_Accounting_DiscountGroup.dscgrpComputeType != '{$fnGetConst(enuDiscountGroupComputeType::Sum)}'
-
-		group by tbl_MHA_Accounting_Saleable.slbID
-
-SQL;
-// dscgrpMaxAmount
-// dscgrpMaxType
-
-		$qry_saleable_with_all_discounts_in_group =<<<SQL
+			where dscType = {$fnGetConstQouted(enuDiscountType::System)}
 SQL;
 
+		//SYSTEM INCREASE
+		$qry_saleable_with_SI_discounts =<<<SQL
+			SELECT tbl_MHA_Accounting_Saleable.slbID
+			, GROUP_CONCAT(CONCAT(tmp_saleable_with_computd_valid_discounts.dscID, ':', tmp_saleable_with_computd_valid_discounts.discountAmount)) AS dscIDs
+			, SUM(tmp_saleable_with_computd_valid_discounts.discountAmount) AS discountAmount
+
+			FROM tbl_MHA_Accounting_Saleable
+
+			INNER JOIN (
+				{$qry_saleable_with_computd_valid_discounts}
+			) tmp_saleable_with_computd_valid_discounts
+			ON tmp_saleable_with_computd_valid_discounts.slbID = tbl_MHA_Accounting_Saleable.slbID
+
+			where dscType = {$fnGetConstQouted(enuDiscountType::System)}
+
+			group by tbl_MHA_Accounting_Saleable.slbID
+SQL;
 
 		$qry =<<<SQL
-			select *
+			select tbl_MHA_Accounting_Saleable.*
+--				, tmp_saleable_with_SF_discounts.*
+--				, tmp_saleable_with_SI_discounts.*
+
+				, CONCAT_WS(','
+					, IF(tmp_saleable_with_SF_discounts.dscID IS NULL, NULL, CONCAT_WS(':', tmp_saleable_with_SF_discounts.dscID, tmp_saleable_with_SF_discounts.discountAmount))
+					, tmp_saleable_with_SI_discounts.dscIDs
+				) as discountIDs
+
+				, LEAST(slbBasePrice
+					, IFNULL(tmp_saleable_with_SF_discounts.discountAmount, 0)
+					+ IFNULL(tmp_saleable_with_SI_discounts.discountAmount, 0)
+				) AS discount
+
+				, slbBasePrice - LEAST(slbBasePrice
+					, IFNULL(tmp_saleable_with_SF_discounts.discountAmount, 0)
+					+ IFNULL(tmp_saleable_with_SI_discounts.discountAmount, 0)
+				) AS discountedSaleablePrice
 
 			from tbl_MHA_Accounting_Saleable
 
 			left join (
-				{$qry_saleable_with_one_discount_in_group}
-			) tmp_saleable_with_one_discount_in_group
+				{$qry_saleable_with_SF_discounts}
+			) tmp_saleable_with_SF_discounts
+			ON tmp_saleable_with_SF_discounts.slbID = tbl_MHA_Accounting_Saleable.slbID
+			AND tmp_saleable_with_SF_discounts.row_num = 1
+
+			left join (
+				{$qry_saleable_with_SI_discounts}
+			) tmp_saleable_with_SI_discounts
+			ON tmp_saleable_with_SI_discounts.slbID = tbl_MHA_Accounting_Saleable.slbID
 
 SQL;
 

@@ -7,18 +7,16 @@ namespace shopack\base\common\accounting\enums;
 
 use shopack\base\common\base\BaseEnum;
 
-abstract class enuDiscountGroupComputeType extends BaseEnum
+abstract class enuDiscountComputeType extends BaseEnum
 {
+	const Fix = 'F';
 	const Sum = 'S';
-	const Min = 'N';
-	const Max = 'S';
 
 	public static $messageCategory = 'aaa';
 
 	public static $list = [
+		self::Fix => 'Fix',
 		self::Sum => 'Sum',
-		self::Min => 'Min',
-		self::Max => 'Max',
 	];
 
 };
