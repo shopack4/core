@@ -18,6 +18,7 @@ abstract class AccountingModule
 	public $discountModelClass;
 	public $discountUsageModelClass;
 	public $userAssetModelClass;
+	public $basketModelClass;
 
 	public function init()
 	{
@@ -43,6 +44,10 @@ abstract class AccountingModule
 
 		if ($this->userAssetModelClass === null)
 			throw new InvalidConfigException('The "userAssetModelClass" property must be set.');
+
+		if ($this->basketModelClass === null)
+			throw new InvalidConfigException('The "basketModelClass" property must be set.');
+
 	}
 
 	public function bootstrap($app)

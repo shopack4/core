@@ -21,16 +21,6 @@ use yii\base\InvalidConfigException;
 //basket = Voucher[Type=Basket & Status=New]
 abstract class BaseAccountingController extends BaseRestController
 {
-	public $basketModelClass;
-
-	public function init()
-	{
-		parent::init();
-
-		if ($this->basketModelClass === null)
-			throw new InvalidConfigException('The "basketModelClass" property must be set.');
-	}
-
 	public function behaviors()
 	{
 		$behaviors = parent::behaviors();
@@ -47,12 +37,25 @@ abstract class BaseAccountingController extends BaseRestController
 		return 'options';
 	}
 
+	private static $_accountingModule = null;
+	public static function getAccountingModule()
+	{
+		if (self::$_accountingModule == null) {
+			self::$_accountingModule = Yii::$app->controller->module;
+			if (self::$_accountingModule->id != 'accounting')
+				self::$_accountingModule = self::$_accountingModule->accounting;
+		}
+
+		return self::$_accountingModule;
+	}
+
 	/**
 	 * add an item into prevoucher
 	 */
 	public function actionAddToBasket()
 	{
-		$modelClass = $this->basketModelClass;
+		$accountingModule = self::getAccountingModule();
+		$modelClass = $accountingModule->basketModelClass;
 		$model = new $modelClass;
 		// $model = new BasketModel();
 		// $model->scenario = enuModelScenario::CREATE;

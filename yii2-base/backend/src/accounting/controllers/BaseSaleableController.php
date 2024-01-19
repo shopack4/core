@@ -24,32 +24,15 @@ abstract class BaseSaleableController extends BaseCrudController
 		]);
 	}
 
-	private static $_accountingModule = null;
-	public static function getAccountingModule()
-	{
-		if (self::$_accountingModule == null) {
-			self::$_accountingModule = Yii::$app->controller->module;
-			if (self::$_accountingModule->id != 'accounting')
-				self::$_accountingModule = self::$_accountingModule->accounting;
-		}
-
-		return self::$_accountingModule;
-	}
-
 	public function queryAugmentaters()
 	{
-		$accountingModule = self::getAccountingModule();
 		$actorID = (Yii::$app->user->isGuest ? 0 : Yii::$app->user->id);
 		$modelClass = $this->modelClass;
 
 		return [
-			'index' => function($query) use ($accountingModule, $actorID, $modelClass) {
-				$modelClass::appendDiscountQuery(
-					$actorID,
-					$accountingModule->discountModelClass,
-					$accountingModule->discountUsageModelClass,
-					$query
-				);
+			'index' => function($query) use ($actorID, $modelClass) {
+				$modelClass::appendDiscountQuery($query, $actorID);
+
 				$query
 					->joinWith('product')
 					->joinWith('product.unit')
@@ -58,7 +41,9 @@ abstract class BaseSaleableController extends BaseCrudController
 					->with('removedByUser')
 				;
 			},
-			'view' => function($query) use ($accountingModule, $actorID, $modelClass) {
+			'view' => function($query) use ($actorID, $modelClass) {
+				$modelClass::appendDiscountQuery($query, $actorID);
+
 				$query
 					->joinWith('product')
 					->joinWith('product.unit')

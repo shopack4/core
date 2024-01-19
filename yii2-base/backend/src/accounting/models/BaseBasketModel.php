@@ -12,16 +12,13 @@ use yii\web\ServerErrorHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use yii\web\NotFoundHttpException;
-use yii\base\InvalidConfigException;
 use Ramsey\Uuid\Uuid;
-use shopack\base\common\enums\enuModelScenario;
-use shopack\base\common\accounting\enums\enuAmountType;
-use shopack\base\common\accounting\enums\enuDiscountStatus;
-use shopack\base\common\accounting\enums\enuDiscountType;
-use shopack\base\common\accounting\enums\enuUserAssetStatus;
-use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\helpers\Json;
+use shopack\base\common\helpers\HttpHelper;
+use shopack\base\common\enums\enuModelScenario;
 use shopack\base\common\security\RsaPrivate;
+use shopack\base\common\accounting\enums\enuAmountType;
+use shopack\base\common\accounting\enums\enuUserAssetStatus;
 
 /*
 TAPI_DEFINE_STRUCT(stuPrize,
@@ -840,268 +837,34 @@ SQL;
 
 	protected function computeAdditives(
 		/*IO*/ stuBasketItem	&$_basketItem,
-		?stuVoucherItem					$_oldVoucherItem = null
+		?stuVoucherItem				$_oldVoucherItem = null
 	) { }
 
 	protected function computeReferrer(
 		/*IO*/ stuBasketItem	&$_basketItem,
-		?stuVoucherItem					$_oldVoucherItem = null
+		?stuVoucherItem				$_oldVoucherItem = null
 	) { }
 
 	protected function computeSystemDiscounts(
 		/*IO*/ stuBasketItem	&$_basketItem,
 		?stuVoucherItem       $_oldVoucherItem = null
 	) {
-		$accountingModule = self::getAccountingModule();
+		//1: clear System Discounts from (basket|old voucher) and revert olds
+		if (isset($_oldVoucherItem->systemDiscounts)) {
+			$oldSystemDiscount = 0;
+			foreach ($_oldVoucherItem->systemDiscounts as $discount) {
+				$oldSystemDiscount += ($discount['applied-amount'] ?? $discount['amount']);
+			}
+			$_basketItem->systemDiscounts = [];
+			$_basketItem->discount -= $oldSystemDiscount;
 
-		/*
-    $fnGetConst = function($value) { return $value; };
-		$fnGetConstQouted = function($value) { return "'{$value}'"; };
-
-		$discountModelClass = $accountingModule->discountModelClass;
-		$discountTableName = $discountModelClass::tableName();
-
-		$discountUsageModelClass = $accountingModule->discountUsageModelClass;
-		$discountUsageTableName = $discountUsageModelClass::tableName();
-
-		$saleableModelClass = $accountingModule->saleableModelClass;
-		$saleableTableName = $saleableModelClass::tableName();
-
-		//1: fetch effective system discounts
-
-		$qry_discount_with_usage =<<<SQL
-			select {$discountTableName}.dscID
-					 , tmp_total_used.totalUsedCount
-					 , tmp_total_amount.totalUsedAmount
-					 , tmp_user_used.userUsedCount
-					 , tmp_user_amount.userUsedAmount
-
-			from {$discountTableName}
-
-			left join (
-				select dscusgDiscountID
-						 , count(*) as totalUsedCount
-				from {$discountUsageTableName}
-				group by dscusgDiscountID
-			) as tmp_total_used
-			on tmp_total_used.dscusgDiscountID = {$discountTableName}.dscID
-
-			left join (
-				select dscusgDiscountID
-						 , sum(dscusgAmount) as totalUsedAmount
-				from {$discountUsageTableName}
-				group by dscusgDiscountID
-			) as tmp_total_amount
-			on tmp_total_amount.dscusgDiscountID = {$discountTableName}.dscID
-
-			left join (
-				select dscusgDiscountID
-						 , count(*) as userUsedCount
-				from {$discountUsageTableName}
-				where dscusgUserID = {$_basketItem->assetActorID}
-				group by dscusgDiscountID
-			) as tmp_user_used
-			on tmp_user_used.dscusgDiscountID = {$discountTableName}.dscID
-
-			left join (
-				select dscusgDiscountID
-						 , sum(dscusgAmount) as userUsedAmount
-				from {$discountUsageTableName}
-				where dscusgUserID = {$_basketItem->assetActorID}
-				group by dscusgDiscountID
-			) as tmp_user_amount
-			on tmp_user_amount.dscusgDiscountID = {$discountTableName}.dscID
-
-			where dscStatus != 'R'
-
-			and dscType IN ({$fnGetConstQouted(enuDiscountType::System)}, {$fnGetConstQouted(enuDiscountType::SystemIncrease)})
-
-SQL; //$qry_discount_with_usage
-
-		$qry_valid_discount =<<<SQL
-			select {$discountTableName}.*
-					 , tmp_discount_with_usage.totalUsedAmount
-					 , tmp_discount_with_usage.userUsedAmount
-
-			from {$discountTableName}
-
-			inner join (
-				{$qry_discount_with_usage}
-			) tmp_discount_with_usage
-			on tmp_discount_with_usage.dscID = {$discountTableName}.dscID
-
-			where (dscValidFrom is null
-				or dscValidFrom <= NOW()
-			)
-
-			and (dscValidTo is null
-				or dscValidTo >= DATE_SUB(NOW(), INTERVAL 15 MINUTE)
-			)
-
-			and (dscTargetUserIDs is null
-				or JSON_SEARCH(dscTargetUserIDs, 'one', {$_basketItem->assetActorID}) is not null
-			)
-/ *
-			and (dscTargetProductIDs is null
-			or JSON_SEARCH(dscTargetProductIDs, 'one', {$_basketItem->saleable->slbProductID}) is not null
-			)
-
-			and (dscTargetSaleableIDs is null
-			or JSON_SEARCH(dscTargetSaleableIDs, 'one', {$_basketItem->saleable->slbID}) is not null
-			)
-* /
-			and (ifnull(dscTotalMaxCount, 0) = 0
-				or ifnull(tmp_discount_with_usage.totalUsedCount, 0) = 0
-				or dscTotalMaxCount > tmp_discount_with_usage.totalUsedCount
-			)
-
-			and (ifnull(dscTotalMaxPrice, 0) = 0
-				or ifnull(tmp_discount_with_usage.totalUsedAmount, 0) = 0
-				or dscTotalMaxPrice > tmp_discount_with_usage.totalUsedAmount
-			)
-
-			and (ifnull(dscPerUserMaxCount, 0) = 0
-				or ifnull(tmp_discount_with_usage.userUsedCount, 0) = 0
-				or dscPerUserMaxCount > tmp_discount_with_usage.userUsedCount
-			)
-
-			and (ifnull(dscPerUserMaxPrice, 0) = 0
-				or ifnull(tmp_discount_with_usage.userUsedAmount, 0) = 0
-				or dscPerUserMaxPrice > tmp_discount_with_usage.userUsedAmount
-			)
-
-SQL; //$qry_valid_discount
-
-		$qry_saleable_with_computd_valid_discounts =<<<SQL
-			select {$saleableTableName}.slbID
-			, tmp_valid_discount.*
-			,	LEAST(
-				slbBasePrice
-
-				, IF(IFNULL(dscTotalMaxPrice, 0) = 0
-					, slbBasePrice
-					, dscTotalMaxPrice - IFNULL(totalUsedAmount, 0)
-				)
-
-				, IF(IFNULL(dscPerUserMaxPrice, 0) = 0
-					, slbBasePrice
-					, dscPerUserMaxPrice - IFNULL(userUsedAmount, 0)
-				)
-
-				, CASE WHEN dscMaxAmount IS NULL OR dscMaxAmount = 0 THEN
-						CASE dscAmountType
-							WHEN {$fnGetConstQouted(enuAmountType::Price)}   THEN dscAmount
-							WHEN {$fnGetConstQouted(enuAmountType::Percent)} THEN (dscAmount / 100) * slbBasePrice
-							ELSE 0
-						END
-					ELSE CASE dscAmountType
-						WHEN {$fnGetConstQouted(enuAmountType::Price)}   THEN LEAST((dscMaxAmount / 100) * slbBasePrice, dscAmount)
-						WHEN {$fnGetConstQouted(enuAmountType::Percent)} THEN LEAST(dscMaxAmount, (dscAmount / 100) * slbBasePrice)
-						ELSE 0
-					END
-				END) AS discountAmount
-
-			from {$saleableTableName}
-
-			cross join  (
-				{$qry_valid_discount}
-			) tmp_valid_discount
-
-			where (dscTargetProductIDs is null
-				or JSON_SEARCH(dscTargetProductIDs, 'one', slbProductID) is not null
-			)
-
-			and (dscTargetSaleableIDs is null
-				or JSON_SEARCH(dscTargetSaleableIDs, 'one', slbID) is not null
-			)
-
-SQL; //$qry_saleable_with_computd_valid_discounts
-
-		//SYSTEM
-		$qry_saleable_with_SF_discounts =<<<SQL
-			SELECT *
-			FROM (
-				SELECT row_number() OVER (
-					PARTITION BY {$saleableTableName}.slbID
-					ORDER BY tmp_saleable_with_computd_valid_discounts.discountAmount DESC) AS row_num
-
-				, {$saleableTableName}.slbID AS _slbID
-				, tmp_saleable_with_computd_valid_discounts.dscID
-				, tmp_saleable_with_computd_valid_discounts.discountAmount
-
-				FROM {$saleableTableName}
-
-				INNER JOIN (
-					{$qry_saleable_with_computd_valid_discounts}
-				) tmp_saleable_with_computd_valid_discounts
-				ON tmp_saleable_with_computd_valid_discounts.slbID = {$saleableTableName}.slbID
-
-				where dscType = {$fnGetConstQouted(enuDiscountType::System)}
-			) tmp_outer
-
-			where row_num = 1
-SQL; //$qry_saleable_with_SF_discounts
-
-		//SYSTEM INCREASE
-		$qry_saleable_with_SI_discounts =<<<SQL
-			SELECT {$saleableTableName}.slbID AS _slbID
-				, GROUP_CONCAT(CONCAT(tmp_saleable_with_computd_valid_discounts.dscID, ':', tmp_saleable_with_computd_valid_discounts.discountAmount)) AS dscIDs
-				, SUM(tmp_saleable_with_computd_valid_discounts.discountAmount) AS discountAmount
-
-			FROM {$saleableTableName}
-
-			INNER JOIN (
-				{$qry_saleable_with_computd_valid_discounts}
-			) tmp_saleable_with_computd_valid_discounts
-			ON tmp_saleable_with_computd_valid_discounts.slbID = {$saleableTableName}.slbID
-
-			where dscType = {$fnGetConstQouted(enuDiscountType::System)}
-
-			group by {$saleableTableName}.slbID
-SQL; //$qry_saleable_with_SI_discounts
-
-		$qry =<<<SQL
-			select {$saleableTableName}.*
---				, tmp_saleable_with_SF_discounts.*
---				, tmp_saleable_with_SI_discounts.*
-
-				, CONCAT_WS(','
-					, IF(tmp_saleable_with_SF_discounts.dscID IS NULL, NULL, CONCAT_WS(':', tmp_saleable_with_SF_discounts.dscID, tmp_saleable_with_SF_discounts.discountAmount))
-					, tmp_saleable_with_SI_discounts.dscIDs
-				) as discounts
-
-				, LEAST(slbBasePrice
-					, IFNULL(tmp_saleable_with_SF_discounts.discountAmount, 0)
-						+ IFNULL(tmp_saleable_with_SI_discounts.discountAmount, 0)
-				) AS discountAmount
-
-				, slbBasePrice - LEAST(slbBasePrice
-					, IFNULL(tmp_saleable_with_SF_discounts.discountAmount, 0)
-						+ IFNULL(tmp_saleable_with_SI_discounts.discountAmount, 0)
-				) AS discountedBasePrice
-
-			from {$saleableTableName}
-
-			left join (
-				{$qry_saleable_with_SF_discounts}
-			) tmp_saleable_with_SF_discounts
-			ON tmp_saleable_with_SF_discounts._slbID = {$saleableTableName}.slbID
---			AND tmp_saleable_with_SF_discounts.row_num = 1
-
-			left join (
-				{$qry_saleable_with_SI_discounts}
-			) tmp_saleable_with_SI_discounts
-			ON tmp_saleable_with_SI_discounts._slbID = {$saleableTableName}.slbID
-
-			where slbID = {$_basketItem->saleable->slbID}
-
-SQL; //$qry
-
-		*/
-
-		//1: clear (basket|old voucher) System Discounts and revert olds
+			if ($_basketItem->qty == 0)
+				return;
+		}
 
 		//2: fetch effective system discounts
+		$accountingModule = self::getAccountingModule();
+
 		$saleableModelClass = $accountingModule->saleableModelClass;
 
 		$query = $saleableModelClass::find()
@@ -1111,21 +874,33 @@ SQL; //$qry
 		$currentUserID = (Yii::$app->user->isGuest ? 0 : Yii::$app->user->id);
 
 		$saleableModelClass::appendDiscountQuery(
-			$currentUserID,
-			$accountingModule->discountModelClass,
-			$accountingModule->discountUsageModelClass,
-			$query
+			$query,
+			$currentUserID
 		);
 
 		$row = $query->asArray()->one();
 		if (empty($row))
 			return false;
 
-		//3: call applySystemDiscount on max effective amount system discount (one)
+		//3: applySystemDiscounts
+		// discountsInfo
+		// discountAmount
+		// discountedBasePrice
+		$discountsInfo = explode(',', $row['discountsInfo']);
+		$discounts = [];
+		foreach ($discountsInfo as $discount) {
+			$parts = explode(':', $discount);
+			$discounts[] = [
+				'id' => $parts[0],
+				'amount' => $parts[1],
+			];
+		}
+		$_basketItem->systemDiscounts = $discounts;
+		$_basketItem->discount += $row['discountAmount'];
 	}
 
-	protected function applySystemDiscount(
-		/*IO*/ stuBasketItem   &$_basketItem,
+/*	protected function applySystemDiscount(
+		/ * IO * / stuBasketItem   &$_basketItem,
 		?stuPendingSystemDiscount $_pendingSystemDiscount,
 		?stuVoucherItem           $_oldVoucherItem = null
 	) {
@@ -1176,7 +951,7 @@ SQL; //$qry
 
 		$_basketItem->discount += $systemDiscount->amount;
 	}
-
+*/
 	protected function computeCouponDiscount(
 		/*IO*/ stuBasketItem	&$_basketItem,
 		?stuVoucherItem					$_oldVoucherItem = null

@@ -11,6 +11,10 @@ use Yii;
 
 trait BackendSaleableModelTrait
 {
+	public $discountsInfo;
+	public $discountAmount;
+	public $discountedBasePrice;
+
 	public static function reserve($actorID, $slbID, $qty, $productModelClass)
 	{
 		$saleableTableName = static::tableName();
@@ -83,22 +87,37 @@ SQL;
 		// ->execute();
 	}
 
+	private static $_accountingModule = null;
+	public static function getAccountingModule()
+	{
+		if (self::$_accountingModule == null) {
+			self::$_accountingModule = Yii::$app->controller->module;
+			if (self::$_accountingModule->id != 'accounting')
+				self::$_accountingModule = self::$_accountingModule->accounting;
+		}
+
+		return self::$_accountingModule;
+	}
+
 	public static function appendDiscountQuery(
-		$actorID,
-		$discountModelClass,
-		$discountUsageModelClass,
-		&$query
+		&$query,
+		$actorID = null
 	) {
+		if ($actorID == null)
+			$actorID = 0;
+
 		// $productTableName = $productModelClass::tableName();
+
+		$accountingModule = self::getAccountingModule();
 
     $fnGetConst = function($value) { return $value; };
 		$fnGetConstQouted = function($value) { return "'{$value}'"; };
 
 		// $discountModelClass = $this->discountModelClass;
-		$discountTableName = $discountModelClass::tableName();
+		$discountTableName = $accountingModule->discountModelClass::tableName();
 
 		// $discountUsageModelClass = $this->discountUsageModelClass;
-		$discountUsageTableName = $discountUsageModelClass::tableName();
+		$discountUsageTableName = $accountingModule->discountUsageModelClass::tableName();
 
 		// $saleableModelClass = $this->saleableModelClass;
 		// $saleableTableName = $saleableModelClass::tableName();
@@ -179,23 +198,23 @@ SQL; //$qry_discount_with_usage
 				or JSON_SEARCH(dscTargetUserIDs, 'one', {$actorID}) is not null
 			)
 
-			and (ifnull(dscTotalMaxCount, 0) = 0
-				or ifnull(tmp_discount_with_usage.totalUsedCount, 0) = 0
+			and (dscTotalMaxCount is null or dscTotalMaxCount = 0
+				or tmp_discount_with_usage.totalUsedCount is null or tmp_discount_with_usage.totalUsedCount = 0
 				or dscTotalMaxCount > tmp_discount_with_usage.totalUsedCount
 			)
 
-			and (ifnull(dscTotalMaxPrice, 0) = 0
-				or ifnull(tmp_discount_with_usage.totalUsedAmount, 0) = 0
+			and (dscTotalMaxPrice is null or dscTotalMaxPrice = 0
+				or tmp_discount_with_usage.totalUsedAmount is null or tmp_discount_with_usage.totalUsedAmount = 0
 				or dscTotalMaxPrice > tmp_discount_with_usage.totalUsedAmount
 			)
 
-			and (ifnull(dscPerUserMaxCount, 0) = 0
-				or ifnull(tmp_discount_with_usage.userUsedCount, 0) = 0
+			and (dscPerUserMaxCount is null or dscPerUserMaxCount = 0
+				or tmp_discount_with_usage.userUsedCount is null or tmp_discount_with_usage.userUsedCount = 0
 				or dscPerUserMaxCount > tmp_discount_with_usage.userUsedCount
 			)
 
-			and (ifnull(dscPerUserMaxPrice, 0) = 0
-				or ifnull(tmp_discount_with_usage.userUsedAmount, 0) = 0
+			and (dscPerUserMaxPrice is null or dscPerUserMaxPrice = 0
+				or tmp_discount_with_usage.userUsedAmount is null or tmp_discount_with_usage.userUsedAmount = 0
 				or dscPerUserMaxPrice > tmp_discount_with_usage.userUsedAmount
 			)
 
@@ -217,14 +236,14 @@ SQL; //$qry_valid_discount
 			,	LEAST(
 				slbBasePrice
 
-				, IF(IFNULL(dscTotalMaxPrice, 0) = 0
+				, IF(dscTotalMaxPrice is null or dscTotalMaxPrice = 0
 					, slbBasePrice
-					, dscTotalMaxPrice - IFNULL(totalUsedAmount, 0)
+					, dscTotalMaxPrice - IF(totalUsedAmount is null, 0, totalUsedAmount)
 				)
 
-				, IF(IFNULL(dscPerUserMaxPrice, 0) = 0
+				, IF(dscPerUserMaxPrice is null or dscPerUserMaxPrice = 0
 					, slbBasePrice
-					, dscPerUserMaxPrice - IFNULL(userUsedAmount, 0)
+					, dscPerUserMaxPrice - IF(userUsedAmount is null, 0, userUsedAmount)
 				)
 
 				, CASE WHEN dscMaxAmount IS NULL OR dscMaxAmount = 0 THEN
@@ -258,7 +277,7 @@ SQL; //$qry_saleable_with_computd_valid_discounts
 
 		//SYSTEM FIX
 		$qry_saleable_with_SF_discounts =<<<SQL
-			SELECT *
+			SELECT tmp_outer.*
 			FROM (
 				SELECT row_number() OVER (
 					PARTITION BY {$saleableTableName}.slbID
@@ -309,14 +328,14 @@ SQL; //$qry_saleable_with_SI_discounts
 			->addSelect(new \yii\db\Expression("CONCAT_WS(','
 				, IF(tmp_saleable_with_SF_discounts.dscID IS NULL, NULL, CONCAT_WS(':', tmp_saleable_with_SF_discounts.dscID, tmp_saleable_with_SF_discounts.discountAmount))
 				, tmp_saleable_with_SI_discounts.dscIDs
-			) as discounts"))
+			) as discountsInfo"))
 			->addSelect(new \yii\db\Expression("LEAST(slbBasePrice
-				, IFNULL(tmp_saleable_with_SF_discounts.discountAmount, 0)
-					+ IFNULL(tmp_saleable_with_SI_discounts.discountAmount, 0)
+				, IF(tmp_saleable_with_SF_discounts.discountAmount is null, 0, tmp_saleable_with_SF_discounts.discountAmount)
+					+ IF(tmp_saleable_with_SI_discounts.discountAmount is null, 0, tmp_saleable_with_SI_discounts.discountAmount)
 			) AS discountAmount"))
 			->addSelect(new \yii\db\Expression("slbBasePrice - LEAST(slbBasePrice
-				, IFNULL(tmp_saleable_with_SF_discounts.discountAmount, 0)
-					+ IFNULL(tmp_saleable_with_SI_discounts.discountAmount, 0)
+				, IF(tmp_saleable_with_SF_discounts.discountAmount is null, 0, tmp_saleable_with_SF_discounts.discountAmount)
+					+ IF(tmp_saleable_with_SI_discounts.discountAmount is null, 0, tmp_saleable_with_SI_discounts.discountAmount)
 			) AS discountedBasePrice"))
 		;
 
