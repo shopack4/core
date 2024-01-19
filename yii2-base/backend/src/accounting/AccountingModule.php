@@ -6,17 +6,43 @@
 namespace shopack\base\backend\accounting;
 
 use yii\base\BootstrapInterface;
+use yii\base\InvalidConfigException;
 
-class AccountingModule
+abstract class AccountingModule
 	extends \shopack\base\common\base\BaseModule
 	implements BootstrapInterface
 {
+	public $unitModelClass;
+	public $productModelClass;
+	public $saleableModelClass;
+	public $discountModelClass;
+	public $discountUsageModelClass;
+	public $userAssetModelClass;
+
 	public function init()
 	{
 		if (empty($this->id))
 			$this->id = 'accounting';
 
 		parent::init();
+
+		if ($this->unitModelClass === null)
+			throw new InvalidConfigException('The "unitModelClass" property must be set.');
+
+		if ($this->productModelClass === null)
+			throw new InvalidConfigException('The "productModelClass" property must be set.');
+
+		if ($this->saleableModelClass === null)
+			throw new InvalidConfigException('The "saleableModelClass" property must be set.');
+
+		if ($this->discountModelClass === null)
+			throw new InvalidConfigException('The "discountModelClass" property must be set.');
+
+		if ($this->discountUsageModelClass === null)
+			throw new InvalidConfigException('The "discountUsageModelClass" property must be set.');
+
+		if ($this->userAssetModelClass === null)
+			throw new InvalidConfigException('The "userAssetModelClass" property must be set.');
 	}
 
 	public function bootstrap($app)
