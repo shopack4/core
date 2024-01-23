@@ -86,7 +86,7 @@ class stuBasketItem
 	public $dependencies;
 
 	public $apiTokenPayload; //SF_QJsonObject
-	public $assetActorID; //SF_quint64 //CurrentUserID or APIToken.Payload[uid]
+	public $assetActorID; //SF_quint64 //$currentUserID or APIToken.Payload[uid]
 
 	//-- compute
 	public $unitPrice; //SF_qreal
@@ -141,28 +141,28 @@ class stuVoucherItem
 {
 	public string  $service;
 	public string  $key;
-	public ?int    $orderID;
-	public ?string $desc;
+	public ?int    $orderID = null;
+	public ?string $desc = null;
 	public string  $prdType;
 	public float   $qty;
-	public ?string $unit;
+	public ?string $unit = null;
 	public float   $unitPrice;
 	public float   $subTotal;
-	public ?array  $systemDiscounts; //stuSystemDiscount, SystemDiscounts_t),
-	public ?array  $couponDiscount;  //stuCouponDiscount, v.ID),
-	public ?float  $discount;
+	public ?array  $systemDiscounts = null; //stuSystemDiscount, SystemDiscounts_t),
+	public ?array  $couponDiscount = null;  //stuCouponDiscount, v.ID),
+	public ?float  $discount = null;
 	public float   $afterDiscount;
-	public ?float  $vatPercent;
-	public ?float  $vat;
+	public ?float  $vatPercent = null;
+	public ?float  $vat = null;
 	public float   $totalPrice;
 
-	public ?array  $params;
-	public ?array  $additives;
-	public ?string $referrer;
-	public ?array  $referrerParams;
-	public ?string $apiTokenID;
+	public ?array  $params = null;
+	public ?array  $additives = null;
+	public ?string $referrer = null;
+	public ?array  $referrerParams = null;
+	public ?string $apiTokenID = null;
 
-	public ?array  $dependencies;
+	public ?array  $dependencies = null;
 
 	// public $private; // SF_QString                //encrypted + base64
 	// public $subItems; // SF_QListOfVarStruct      stuVoucherItem),
@@ -331,7 +331,9 @@ class BaseBasketModel extends Model
 		return [$infoAsArray, $model];
 	}
 
-
+	/**
+	 * return (itemKey, lastPreVoucher)
+	 */
 	public function addToBasket()
 	{
 		/*
@@ -547,11 +549,11 @@ class BaseBasketModel extends Model
 
 		$userAssetModel = new $userAssetModelClass;
 
+		$userAssetModel->uasUUID            = $preVoucherItem->key;
 		$userAssetModel->uasActorID         = $basketItem->assetActorID;
 		$userAssetModel->uasSaleableID      = $basketItem->saleable->slbID;
 		$userAssetModel->uasQty             = $this->qty;
     $userAssetModel->uasVoucherID       = $lastPreVoucher['vchID'];
-		$userAssetModel->uasUUID            = $preVoucherItem->key;
 		$userAssetModel->uasVoucherItemInfo = array_filter(json_decode(json_encode($preVoucherItem), true));
 
 		//-- discount
@@ -662,6 +664,9 @@ SQL;
 		return $this->updateBasketItem();
 	}
 
+	/**
+	 * return (itemKey, lastPreVoucher)
+	 */
 	public function internalUpdateBasketItem(
 										$_lastPreVoucher,
     								$_voucherItemIndex,
@@ -669,18 +674,240 @@ SQL;
     float           $_newQty,
                     $_newDiscountCode
 	) {
+    /*
+      1: check prev and new coupon code
+        check available instock (minus $_voucherItem->qty)
+    */
 
+    //no change?
+    if (($_newQty == $_voucherItem->qty)
+			&& (($_newDiscountCode == null)
+				|| empty($_voucherItem->couponDiscount['code'])
+				|| ($_newDiscountCode == $_voucherItem->couponDiscount['code'])
+			)
+		) {
+			return [
+				$_voucherItem->key,
+				$_lastPreVoucher
+			];
+		}
 
+    //-- validate preVoucher and owner --------------------------------
+    // checkPreVoucherSanity(_lastPreVoucher);
 
+    // quint64 $currentUserID = _apiCallContext.getActorID();
+		$currentUserID = Yii::$app->user->id;
 
+    if (empty($_lastPreVoucher['vchItems']))
+			throw new UnprocessableEntityHttpException("Pre-Voucher is empty");
 
+    if ($_lastPreVoucher['vchOwnerUserID'] != $currentUserID)
+			throw new UnprocessableEntityHttpException("invalid pre-Voucher owner");
 
+    //-- find item --------------------------------
+    $found = false;
+		foreach ($_lastPreVoucher['vchItems'] as $index => $v) {
+			if ($v['key'] == $_voucherItem->key) {
+				$found = true;
+				break;
+			}
+    }
+		if ($found == false)
+			throw new UnprocessableEntityHttpException("Item not found in pre-Voucher");
 
+		$accountingModule = self::getAccountingModule();
 
+		$unitModelClass = $accountingModule->unitModelClass;
+		$productModelClass = $accountingModule->productModelClass;
+		$saleableModelClass = $accountingModule->saleableModelClass;
+		$userAssetModelClass = $accountingModule->userAssetModelClass;
 
+		// $unitTableName = $unitModelClass::tableName();
+		// $saleableTableName = $saleableModelClass::tableName();
+		$userAssetTableName = $userAssetModelClass::tableName();
 
+		//-- fetch SLB & PRD --------------------------------
+		$query = $userAssetModelClass::find()
+			->select($userAssetModelClass::selectableColumns())
 
+			->innerJoinWith('saleable')
+			->addSelect($saleableModelClass::selectableColumns())
+			->addSelect(new \yii\db\Expression("IF(slbInStockQty IS NULL, NULL, slbInStockQty - IFNULL(slbOrderedQty,0) + IFNULL(slbReturnedQty,0)) AS _saleableQtyInHand"))
 
+			->innerJoinWith('saleable.product')
+			->addSelect($productModelClass::selectableColumns())
+			->addSelect(new \yii\db\Expression("IF(prdInStockQty IS NULL, NULL, prdInStockQty - IFNULL(prdOrderedQty,0) + IFNULL(prdReturnedQty,0)) AS _productQtyInHand"))
+
+			->innerJoinWith('saleable.product.unit')
+			->addSelect($unitModelClass::selectableColumns())
+
+			->andWhere(['uasID' => $_voucherItem->orderID])
+
+			->andWhere(['<=', 'slbAvailableFromDate', new Expression('NOW()')])
+			->andWhere(['OR',
+				'slbAvailableToDate IS NULL',
+				['>=', 'slbAvailableToDate', new Expression('DATE_ADD(NOW(), INTERVAL 15 MINUTE)')],
+			])
+		;
+
+		[$userAssetInfo, $userAssetModel] = self::loadModelFromQuery($query);
+		if ($userAssetModel == null)
+			throw new NotFoundHttpException('NOT.FOUND.SALEABLE');
+
+		$basketItem = new stuBasketItem;
+		$basketItem->saleable = $userAssetModel->saleable;
+
+		$basketItem->productQtyInHand  = $userAssetInfo['_productQtyInHand'];
+		$basketItem->saleableQtyInHand = $userAssetInfo['_saleableQtyInHand'];
+
+		//-- --------------------------------
+    // QString StrPrivate = simpleCryptInstance()->decryptToString($_voucherItem->private);
+    // $basketItem->private.fromJson(QJsonDocument().fromJson(StrPrivate.toLatin1()).object());
+
+    //--  --------------------------------
+    $basketItem->discountCode      = ($_newDiscountCode ?? $_voucherItem->couponDiscount['code'] ?? null);
+		$basketItem->orderParams       = $_voucherItem->params;
+    $basketItem->orderAdditives    = $_voucherItem->additives;
+    $basketItem->referrer          = $_voucherItem->referrer;
+    $basketItem->referrerParams    = $_voucherItem->referrerParams;
+		$basketItem->dependencies      = $_voucherItem->dependencies;
+//    $basketItem->apiToken          = $_voucherItem->apiToken;
+
+    $basketItem->qty               = $_newQty;
+    // $basketItem->unit.untName      = $_voucherItem->unit;
+    $basketItem->unitPrice         = $basketItem->saleable->slbBasePrice;
+    $basketItem->discount          = $_voucherItem->discount;
+
+    //-- --------------------------------
+//    UsageLimits_t SaleableUsageLimits;
+//    for (auto Iter = this->AssetUsageLimitsCols.begin();
+//        Iter != this->AssetUsageLimitsCols.end();
+//        Iter++
+//    ) {
+//        SaleableUsageLimits.insert(Iter.key(), {
+//            NULLABLE_INSTANTIATE_FROM_QVARIANT(quint32, UserAssetInfo.value(Iter->PerDay)),
+//            NULLABLE_INSTANTIATE_FROM_QVARIANT(quint32, UserAssetInfo.value(Iter->PerWeek)),
+//            NULLABLE_INSTANTIATE_FROM_QVARIANT(quint32, UserAssetInfo.value(Iter->PerMonth)),
+//            NULLABLE_INSTANTIATE_FROM_QVARIANT(quint64, UserAssetInfo.value(Iter->Total))
+//        });
+//    }
+//    $basketItem->digested.Limits = SaleableUsageLimits;
+
+    //-- --------------------------------
+		$this->processItemForBasket($basketItem, $_voucherItem);
+
+    //-- --------------------------------
+    // qint64 FinalPrice = $_lastPreVoucher.ToPay + $_lastPreVoucher.Round;
+		$finalPrice = /*$_lastPreVoucher['vchRound'] + */ $_lastPreVoucher['vchTotalAmount'];
+    $finalPrice -= $_voucherItem->totalPrice;
+
+    if ($_newQty == 0) { //remove
+			//uasUUID in where is just for make condition safe and strong:
+			$qry =<<<SQL
+  DELETE
+    FROM {$userAssetTableName}
+   WHERE uasID = {$_voucherItem->orderID}
+	   AND uasUUID = '{$_voucherItem->key}'
+SQL;
+			Yii::$app->db->createCommand($qry)->execute();
+
+			//moved to processItemForBasket
+			// $saleableModelClass::unreserve(
+			// 	$currentUserID,
+			// 	$basketItem->saleable->slbID,
+			// 	$_voucherItem->qty,
+			// 	$productModelClass
+			// );
+
+			$vchItems = $_lastPreVoucher['vchItems'];
+			unset($vchItems[$_voucherItemIndex]);
+			$_lastPreVoucher['vchItems'] = $vchItems;
+
+    } else { //update
+			$finalPrice += $basketItem->totalPrice;
+
+			// QJsonDocument JSDPendingVouchers = QJsonDocument();
+			// JSDPendingVouchers.setObject($basketItem->private.toJson());
+			// $_voucherItem->private = simpleCryptInstance()->encryptToString(JSDPendingVouchers.toJson(QJsonDocument::Compact));
+
+			$parentModule = self::getParentModule();
+			$serviceName = $parentModule->id;
+
+			$_voucherItem->service            = $serviceName;
+//        $_voucherItem->key = $_voucherItem->key;
+			$_voucherItem->desc               = $basketItem->saleable->slbName;
+			$_voucherItem->qty                = $basketItem->qty;
+			$_voucherItem->unit               = $basketItem->saleable->product->unit->untName;
+			$_voucherItem->unitPrice          = $basketItem->unitPrice;
+			$_voucherItem->subTotal           = $basketItem->subTotal;
+
+			//store multiple discounts (system (multi) + coupon (one))
+			$_voucherItem->systemDiscounts    = $basketItem->systemDiscounts;
+			$_voucherItem->couponDiscount     = $basketItem->couponDiscount;
+
+			$_voucherItem->discount           = $basketItem->discount;
+			$_voucherItem->afterDiscount      = $basketItem->afterDiscount;
+
+			$_voucherItem->vatPercent         = $basketItem->vatPercent;
+			$_voucherItem->vat			          = $basketItem->vat;
+
+			$_voucherItem->totalPrice         = $basketItem->totalPrice;
+
+			$_voucherItem->params             = $basketItem->orderParams;
+			$_voucherItem->additives          = $basketItem->orderAdditives;
+			$_voucherItem->referrer           = $basketItem->referrer;
+			$_voucherItem->referrerParams     = $basketItem->referrerParams;
+//        $_voucherItem->apiToken           = $basketItem->apiToken;
+
+			$voucherItemArray = array_filter(json_decode(json_encode($_voucherItem), true));
+			$uasVoucherItemInfo = json_encode($voucherItemArray);
+			$uasDiscountID = $basketItem->couponDiscount['id'] ?? 'NULL';
+
+			$qry =<<<SQL
+				UPDATE	{$userAssetTableName}
+					 SET	uasVoucherItemInfo = '{$uasVoucherItemInfo}'
+						 ,	uasQty = {$_newQty}
+						 ,	uasDiscountAmount = {$basketItem->discount}
+						 ,	uasDiscountID = {$uasDiscountID}
+				 WHERE	uasID = {$_voucherItem->orderID}
+SQL;
+
+			///@TODO: change tblAccountUserAssetsBase::Fields::uasRelatedAPITokenID ?
+
+			//-- CustomUserAssetFields
+			// QVariantMap CustomFields = this->getCustomUserAssetFieldsForQuery(_apiCallContext, AssetItem, &_voucherItem);
+			// for (QVariantMap::const_iterator it = CustomFields.constBegin();
+			//      it != CustomFields.constEnd();
+			//      it++
+			// ) {
+			//     qry.set(it.key(), *it);
+			// }
+
+			//-- --------------------------------
+			Yii::$app->db->createCommand($qry)->execute();
+
+			//-- --------------------------------
+			// $_voucherItem->sign.clear();
+			// $_voucherItem->sign = QString(sign(_voucherItem));
+
+			$_lastPreVoucher['vchItems'][$_voucherItemIndex] = $voucherItemArray;
+    }
+
+    // if (empty($_lastPreVoucher['vchItems'])) {
+    //     $_lastPreVoucher.Summary = "";
+    // } else if ($_lastPreVoucher['vchItems'].size() > 1)
+    //     $_lastPreVoucher.Summary = QString("%1 items").arg($_lastPreVoucher['vchItems'].size());
+    // else {
+    //     auto item = $_lastPreVoucher['vchItems'].first();
+    //     $_lastPreVoucher.Summary = QString("%1 of %2").arg(item.Qty).arg(item.Desc);
+    // }
+
+		// $_lastPreVoucher['vchRound'] = 0; //$finalPrice % 1000;
+    $_lastPreVoucher['vchTotalAmount'] = $finalPrice; // - $_lastPreVoucher['vchRound'];
+    // $_lastPreVoucher.Sign.clear();
+    // $_lastPreVoucher.Sign = QString(sign(_lastPreVoucher));
+
+		self::updateCurrentBasket($_lastPreVoucher);
 
 		return [
 			$_voucherItem->key,
@@ -786,7 +1013,7 @@ SQL;
 		$fnComputeTotalPrice("after computeReferrer");
 
 		//-- --------------------------------
-		//    this->parsePrize(...); -> AssetItem.PendingVouchers
+		//    this->parsePrize(...); -> $basketItem->pendingVouchers
 
 		//-- discount --------------------------------
 		///@TODO: what if some one uses discount code and at the same time will pay by prize credit
@@ -890,10 +1117,7 @@ SQL;
 		// discountAmount
 		// discountedBasePrice
 
-		if (empty($row['discountsInfo']))
-			return false;
-
-		$items = json_decode($row['discountsInfo'], true);
+		$items = json_decode($row['discountsInfo'] ?? '', true);
 		if (empty($items))
 			return false;
 
@@ -966,7 +1190,7 @@ SQL;
 		/*IO*/ stuBasketItem	&$_basketItem,
 		?stuVoucherItem					$_oldVoucherItem = null
 	) {
-		//    quint64 CurrentUserID = _apiCallContext.getActorID();
+		//    quint64 $currentUserID = _apiCallContext.getActorID();
 
 		/**
 			* discount code:
@@ -1037,7 +1261,7 @@ SQL;
 					'uasVoucherID',
 					new \yii\db\Expression("COUNT(uasID) AS _discountUsedCount")
 				])
-				->where(['uasActorID' => $_basketItem->assetActorID]) //CurrentUserID })
+				->where(['uasActorID' => $_basketItem->assetActorID]) //$currentUserID })
 				->andWhere(['IN', 'uasStatus', [enuUserAssetStatus::Active, enuUserAssetStatus::Blocked]])
 				->andWhere($ommitOldCondition)
 				->groupBy(['uasDiscountID', 'uasVoucherID'])
@@ -1049,7 +1273,7 @@ SQL;
 					'uasDiscountID',
 					new \yii\db\Expression("SUM(uasDiscountAmount) AS _discountUsedAmount")
 				])
-				->where(['uasActorID' => $_basketItem->assetActorID]) //CurrentUserID })
+				->where(['uasActorID' => $_basketItem->assetActorID]) //$currentUserID })
 				->andWhere(['IN', 'uasStatus', [enuUserAssetStatus::Active, enuUserAssetStatus::Blocked]])
 				->andWhere($ommitOldCondition)
 				->groupBy('uasDiscountID')
