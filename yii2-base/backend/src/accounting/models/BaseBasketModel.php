@@ -876,6 +876,7 @@ SQL;
 		$saleableModelClass::appendDiscountQuery(
 			$query,
 			$currentUserID,
+			$_basketItem->qty,
 			$_basketItem->referrer,
 			$_basketItem->referrerParams
 		);
@@ -888,15 +889,22 @@ SQL;
 		// discountsInfo
 		// discountAmount
 		// discountedBasePrice
-		$discountsInfo = explode(',', $row['discountsInfo']);
+
+		if (empty($row['discountsInfo']))
+			return false;
+
+		$items = json_decode($row['discountsInfo'], true);
+		if (empty($items))
+			return false;
+
 		$discounts = [];
-		foreach ($discountsInfo as $discount) {
-			$parts = explode(':', $discount);
+		foreach ($items as $item) {
 			$discounts[] = [
-				'id' => $parts[0],
-				'amount' => $parts[1],
+				'id' => $item['id'],
+				'amount' => $item['amount'],
 			];
 		}
+
 		$_basketItem->systemDiscounts = $discounts;
 		$_basketItem->discount += $row['discountAmount'];
 	}

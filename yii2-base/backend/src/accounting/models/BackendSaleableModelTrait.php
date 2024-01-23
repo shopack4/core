@@ -297,7 +297,7 @@ SQL; //$qry_slb_with_SF_dscs
     //SYSTEM INCREASE
     $qry_slb_with_SI_dscs =<<<SQL
       SELECT slbsi.slbID AS _slbID
-        , GROUP_CONCAT(CONCAT(tmp_slb_with_computed_dscs.dscID, ':', tmp_slb_with_computed_dscs.discountAmount)) AS dscIDs
+        , GROUP_CONCAT(CONCAT('{"id":', tmp_slb_with_computed_dscs.dscID, ',\"amount\":', tmp_slb_with_computed_dscs.discountAmount, '}')) AS dscIDs
         , SUM(tmp_slb_with_computed_dscs.discountAmount) AS discountAmount
 
       FROM {$saleableTableName} AS slbsi
@@ -337,29 +337,22 @@ SQL; //$qry_slb_with_SI_dscs
   public static function appendDiscountQuery(
     &$query,
     $actorID = null,
+    $qty = 1,
     $referrer = null,
     $referrerParams = null
   ) {
     if ($actorID == null)
       $actorID = 0;
 
-    // $productTableName = $productModelClass::tableName();
-
-    $accountingModule = self::getAccountingModule();
-
     $fnGetConst = function($value) { return $value; };
     $fnGetConstQouted = function($value) { return "'{$value}'"; };
 
-    // $discountModelClass = $this->discountModelClass;
-    $discountTableName = $accountingModule->discountModelClass::tableName();
+    $accountingModule = self::getAccountingModule();
 
-    // $discountUsageModelClass = $this->discountUsageModelClass;
-    $discountUsageTableName = $accountingModule->discountUsageModelClass::tableName();
-
-    // $saleableModelClass = $this->saleableModelClass;
-    // $saleableTableName = $saleableModelClass::tableName();
     $saleableTableName = static::tableName();
     $productTableName = $accountingModule->productModelClass::tableName();
+    $discountTableName = $accountingModule->discountModelClass::tableName();
+    $discountUsageTableName = $accountingModule->discountUsageModelClass::tableName();
 
     //1: fetch effective system discounts
 
@@ -470,24 +463,24 @@ SQL; //$qry_valid_dsc
       SELECT  slbwcv.slbID
            ,  tmp_valid_dsc.*
            ,  LEAST(
-              slbBasePrice
+              slbBasePrice * {$qty}
               , IF(dscTotalMaxPrice IS NULL OR dscTotalMaxPrice = 0
-                , slbBasePrice
+                , slbBasePrice * {$qty}
                 , dscTotalMaxPrice - IF(totalUsedAmount IS NULL, 0, totalUsedAmount)
               )
               , IF(dscPerUserMaxPrice IS NULL OR dscPerUserMaxPrice = 0
-                , slbBasePrice
+                , slbBasePrice * {$qty}
                 , dscPerUserMaxPrice - IF(userUsedAmount IS NULL, 0, userUsedAmount)
               )
               , CASE WHEN dscMaxAmount IS NULL OR dscMaxAmount = 0 THEN
                   CASE dscAmountType
                     WHEN {$fnGetConstQouted(enuAmountType::Price)}   THEN dscAmount
-                    WHEN {$fnGetConstQouted(enuAmountType::Percent)} THEN (dscAmount / 100) * slbBasePrice
+                    WHEN {$fnGetConstQouted(enuAmountType::Percent)} THEN (dscAmount / 100) * slbBasePrice * {$qty}
                     ELSE 0
                   END
                 ELSE CASE dscAmountType
-                  WHEN {$fnGetConstQouted(enuAmountType::Price)}   THEN LEAST((dscMaxAmount / 100) * slbBasePrice, dscAmount)
-                  WHEN {$fnGetConstQouted(enuAmountType::Percent)} THEN LEAST(dscMaxAmount, (dscAmount / 100) * slbBasePrice)
+                  WHEN {$fnGetConstQouted(enuAmountType::Price)}   THEN LEAST((dscMaxAmount / 100) * (slbBasePrice * {$qty}), dscAmount)
+                  WHEN {$fnGetConstQouted(enuAmountType::Percent)} THEN LEAST(dscMaxAmount, (dscAmount / 100) * (slbBasePrice * {$qty}))
                   ELSE 0
                 END
               END
@@ -516,6 +509,7 @@ SQL; //$qry_slb_with_computed_dscs
       SELECT  row_number() OVER (PARTITION BY slbsf.slbID ORDER BY tmp_slb_with_computed_dscs.discountAmount DESC) AS row_num
            ,  slbsf.slbID AS _slbID
            ,  tmp_slb_with_computed_dscs.dscID
+           ,  tmp_slb_with_computed_dscs.dscName
            ,  tmp_slb_with_computed_dscs.discountAmount
         FROM  {$saleableTableName} AS slbsf
   INNER JOIN  qry_slb_with_computed_dscs AS tmp_slb_with_computed_dscs
@@ -530,7 +524,12 @@ SQL; //$qry_slb_with_SF_dscs
     $qry_slb_with_SI_dscs =<<<SQL
 
       SELECT  slbsi.slbID AS _slbID
-           ,  GROUP_CONCAT(CONCAT(tmp_slb_with_computed_dscs.dscID, ':', tmp_slb_with_computed_dscs.discountAmount)) AS dscIDs
+           ,  GROUP_CONCAT(CONCAT(
+                '{"id":', tmp_slb_with_computed_dscs.dscID,
+                ',"amount":', tmp_slb_with_computed_dscs.discountAmount,
+                ',"name":"', tmp_slb_with_computed_dscs.dscName, '"',
+                ',"type":"I"',
+                '}')) AS dscIDs
            ,  SUM(tmp_slb_with_computed_dscs.discountAmount) AS discountAmount
         FROM  {$saleableTableName} AS slbsi
   INNER JOIN  qry_slb_with_computed_dscs AS tmp_slb_with_computed_dscs
@@ -553,33 +552,26 @@ SQL; //$qry_slb_with_SI_dscs
       ->leftJoin(['tmp_slb_with_SI_dscs' => "qry_slb_with_SI_dscs"],
         "tmp_slb_with_SI_dscs._slbID = {$saleableTableName}.slbID")
 
-      ->addSelect(new \yii\db\Expression("CONCAT_WS(','
-        , IF(tmp_slb_with_SF_dscs.dscID IS NULL, NULL, CONCAT_WS(':', tmp_slb_with_SF_dscs.dscID, tmp_slb_with_SF_dscs.discountAmount))
+      ->addSelect(new \yii\db\Expression("CONCAT('[', CONCAT_WS(','
+        , IF(tmp_slb_with_SF_dscs.dscID IS NULL, NULL, CONCAT(
+          '{\"id\":', tmp_slb_with_SF_dscs.dscID,
+          ',\"amount\":', tmp_slb_with_SF_dscs.discountAmount,
+          ',\"name\":\"', tmp_slb_with_SF_dscs.dscName, '\"',
+          ',\"type\":\"S\"',
+          '}'))
         , tmp_slb_with_SI_dscs.dscIDs
-      ) AS discountsInfo"))
-      ->addSelect(new \yii\db\Expression("LEAST(slbBasePrice
+        ), ']') AS discountsInfo"))
+      ->addSelect(new \yii\db\Expression("LEAST(slbBasePrice * {$qty}
         , IF(tmp_slb_with_SF_dscs.discountAmount IS NULL, 0, tmp_slb_with_SF_dscs.discountAmount)
           + IF(tmp_slb_with_SI_dscs.discountAmount IS NULL, 0, tmp_slb_with_SI_dscs.discountAmount)
       ) AS discountAmount"))
-      ->addSelect(new \yii\db\Expression("slbBasePrice - LEAST(slbBasePrice
+      ->addSelect(new \yii\db\Expression("(slbBasePrice * {$qty}) - LEAST(slbBasePrice * {$qty}
         , IF(tmp_slb_with_SF_dscs.discountAmount IS NULL, 0, tmp_slb_with_SF_dscs.discountAmount)
           + IF(tmp_slb_with_SI_dscs.discountAmount IS NULL, 0, tmp_slb_with_SI_dscs.discountAmount)
       ) AS discountedBasePrice"))
     ;
 
     self::addCustomConditionsToResultQuery($actorID, $query);
-
-    /*
-      -- mha: --
-      dscTargetMemberGroupIDs
-      dscTargetKanoonIDs
-      dscTargetProductMhaTypes
-
-
-      dscReferrers
-      dscSaleableBasedMultiplier
-    */
-
   }
 
   public static function getCustomConditionsToValidDiscountsQuery(
