@@ -875,7 +875,9 @@ SQL;
 
 		$saleableModelClass::appendDiscountQuery(
 			$query,
-			$currentUserID
+			$currentUserID,
+			$_basketItem->referrer,
+			$_basketItem->referrerParams
 		);
 
 		$row = $query->asArray()->one();

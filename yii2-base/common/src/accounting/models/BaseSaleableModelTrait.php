@@ -40,6 +40,10 @@ use shopack\base\common\accounting\enums\enuSaleableStatus;
 */
 trait BaseSaleableModelTrait
 {
+  public $discountsInfo;
+  public $discountAmount;
+  public $discountedBasePrice;
+
   public static $primaryKey = ['slbID'];
 
 	public function primaryKeyValue() {

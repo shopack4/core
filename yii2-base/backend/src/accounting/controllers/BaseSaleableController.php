@@ -39,6 +39,8 @@ abstract class BaseSaleableController extends BaseCrudController
 					->with('createdByUser')
 					->with('updatedByUser')
 					->with('removedByUser')
+
+					// ->andWhere(['slbStatus' => 'A'])
 				;
 			},
 			'view' => function($query) use ($actorID, $modelClass) {
