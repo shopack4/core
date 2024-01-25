@@ -70,7 +70,7 @@ trait WalletModelTrait
 				enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'walRemainedAmount' => [
-				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,

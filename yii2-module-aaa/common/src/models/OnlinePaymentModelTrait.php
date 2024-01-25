@@ -66,7 +66,7 @@ trait OnlinePaymentModelTrait
 				enuColumnInfo::selectable => true,
 			],
 			'onpAmount' => [
-				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,

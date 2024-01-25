@@ -72,7 +72,7 @@ trait VoucherModelTrait
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'vchAmount' => [
-				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
@@ -80,7 +80,7 @@ trait VoucherModelTrait
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'vchDiscountAmount' => [
-				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
@@ -96,7 +96,7 @@ trait VoucherModelTrait
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'vchDeliveryAmount' => [
-				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
@@ -104,7 +104,7 @@ trait VoucherModelTrait
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'vchTotalAmount' => [
-				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,

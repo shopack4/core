@@ -79,7 +79,7 @@ trait WalletTransactionModelTrait
 				enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'wtrAmount' => [
-				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,

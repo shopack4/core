@@ -11,13 +11,13 @@ class m231219_150555_aaa_convert_vchItems extends Migration
   {
     $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Voucher`
-  CHANGE COLUMN `vchItems` `OLD_vchItems` JSON NULL DEFAULT NULL AFTER `vchTotalPaid`;
+  CHANGE COLUMN `vchItems` `vchItems_OLD` JSON NULL DEFAULT NULL AFTER `vchTotalPaid`;
 SQL
     );
 
     $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Voucher`
-  ADD COLUMN `vchItems` JSON NULL DEFAULT NULL AFTER `OLD_vchItems`;
+  ADD COLUMN `vchItems` JSON NULL DEFAULT NULL AFTER `vchItems_OLD`;
 SQL
     );
     $this->alterColumn('tbl_AAA_Voucher', 'vchItems', $this->json());
@@ -57,7 +57,7 @@ UPDATE tbl_AAA_Voucher
            , CASE WHEN tmp1.discount  IS NULL OR CONCAT(tmp1.discount , '') IN ('', '0') THEN '$.discount'  ELSE '$.dummy' END
              )) AS NEW_vchItems
         FROM tbl_AAA_Voucher
-           , JSON_TABLE(OLD_vchItems,
+           , JSON_TABLE(vchItems_OLD,
               '$[*]' COLUMNS (i FOR ORDINALITY
                 , service   VARCHAR(1024) PATH '$.service'
                 , `key`     VARCHAR(1024) PATH '$.key'
@@ -73,7 +73,7 @@ UPDATE tbl_AAA_Voucher
                 , discount  INT           PATH '$.discount'
              )) AS tmp1
        WHERE vchType='B'
-         AND JSON_LENGTH(IFNULL(OLD_vchItems, '[]')) > 0
+         AND JSON_LENGTH(IFNULL(vchItems_OLD, '[]')) > 0
     GROUP BY tbl_AAA_Voucher.vchID
              ) AS tmpJson
           ON tmpJson.vchID = tbl_AAA_Voucher.vchID

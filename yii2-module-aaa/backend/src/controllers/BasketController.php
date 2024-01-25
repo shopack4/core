@@ -106,25 +106,84 @@ class BasketController extends BaseRestController
 		if ($model->vchStatus != enuVoucherStatus::New)
 			throw new UnprocessableEntityHttpException('Voucher is not new');
 
-		$model->vchAmount           = $voucher['vchAmount'];
-		$model->vchDiscountAmount   = $voucher['vchDiscountAmount'] ?? null;
-		$model->vchDeliveryMethodID = $voucher['vchDeliveryMethodID'] ?? null;
-		$model->vchDeliveryAmount   = $voucher['vchDeliveryAmount'] ?? null;
-		$model->vchTotalAmount      = $voucher['vchTotalAmount'] ?? null;
-		$model->vchItems            = $voucher['vchItems'] ?? null;
+		//---------------------------------
+		$orgVchAmount         = $model->vchAmount ?? 0;
+		$orgVchDiscountAmount = $model->vchDiscountAmount ?? 0;
+		$orgVchTotalAmount    = $model->vchTotalAmount ?? 0;
 
+		//---------------------------------
+		$allData = $_POST;
+		$service = $allData['service'];
+
+		$newServiceItems = [];
+		foreach ($voucher['vchItems'] as $v) {
+			if ($v['service'] != $service)
+				continue;
+
+			$newServiceItems[] = $v;
+		}
+
+		$vchItems = $model->vchItems ?? [];
+		foreach ($vchItems as $k => $v) {
+			if ($v['service'] != $service)
+				continue;
+
+			$found = false;
+			foreach ($newServiceItems as $sk => $sv) {
+				//found in both: update
+				if ($v['key'] == $sv['key']) {
+					// if (Json::encode($v) != Json::encode($sv)) {
+						$orgVchAmount         -= $v['subTotal'] ?? 0;
+						$orgVchDiscountAmount -= $v['discount'] ?? 0;
+						$orgVchTotalAmount    -= $v['totalPrice'] ?? 0;
+
+						$orgVchAmount         += $sv['subTotal'] ?? 0;
+						$orgVchDiscountAmount += $sv['discount'] ?? 0;
+						$orgVchTotalAmount    += $sv['totalPrice'] ?? 0;
+
+						$vchItems[$k] = $sv;
+					// }
+
+					$found = true;
+					unset($newServiceItems[$sk]);
+					break;
+				}
+			}
+
+			//not found in new data: remove
+			if ($found == false) {
+				$orgVchAmount         -= $v['subTotal'] ?? 0;
+				$orgVchDiscountAmount -= $v['discount'] ?? 0;
+				$orgVchTotalAmount    -= $v['totalPrice'] ?? 0;
+
+				unset($vchItems[$k]);
+			}
+		}
+
+		//not exists in old data: add
+		foreach ($newServiceItems as $sk => $sv) {
+			$orgVchAmount         += $sv['subTotal'] ?? 0;
+			$orgVchDiscountAmount += $sv['discount'] ?? 0;
+			$orgVchTotalAmount    += $sv['totalPrice'] ?? 0;
+
+			$vchItems[] = $sv;
+		}
+
+		//---------------------------------
+		$model->vchItems = $vchItems ?? null;
+
+		$model->vchAmount         = $orgVchAmount; //$voucher['vchAmount'];
+		$model->vchDiscountAmount = $orgVchDiscountAmount; //$voucher['vchDiscountAmount'] ?? null;
+		$model->vchTotalAmount    = $orgVchTotalAmount; //$voucher['vchTotalAmount'] ?? null;
+		// $model->vchDeliveryMethodID = $voucher['vchDeliveryMethodID'] ?? null;
+		// $model->vchDeliveryAmount   = $voucher['vchDeliveryAmount'] ?? null;
+
+		//---------------------------------
 		if ($model->save() == false)
 			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
 
 		return [
 			'ok'
-			// // 'result' => [
-			// 	// 'message' => 'updated',
-			// 	'docID' => $model->docID,
-			// 	'docStatus' => $model->docStatus,
-			// 	'docUpdatedAt' => $model->docUpdatedAt,
-			// 	'docUpdatedBy' => $model->docUpdatedBy,
-			// // ],
 		];
 	}
 

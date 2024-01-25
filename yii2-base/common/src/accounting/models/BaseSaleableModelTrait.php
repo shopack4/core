@@ -118,7 +118,7 @@ trait BaseSaleableModelTrait
         enuColumnInfo::selectable => true,
       ],
       'slbBasePrice' => [
-        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::type       => 'double',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,

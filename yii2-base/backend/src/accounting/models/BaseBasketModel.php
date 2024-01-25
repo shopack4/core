@@ -55,6 +55,18 @@ class stuCouponDiscount
 	public int    $id;
 	public string $code;
 	public float  $amount;
+
+	public static function fromArray(array $values)
+	{
+		$obj = new self;
+
+		foreach ($values as $k => $v) {
+			$obj->$k = $v;
+		}
+
+		return $obj;
+	}
+
 }
 
 /*
@@ -123,7 +135,7 @@ MIGRATE:
    slbinfo         => params      | params
    maxqty          => maxQty      | x
    qtystep         => qtyStep     | x
-3) discount        => //          | -> uasDiscountAmount
+3) discount        => //          | // (uasDiscountAmount will be removed from tbl)
 
 -- NEW FIELDS:        vchItems    | uasVoucherItemInfo
 -------------------  -------------|----------------------
@@ -149,7 +161,7 @@ class stuVoucherItem
 	public float   $unitPrice;
 	public float   $subTotal;
 	public ?array  $systemDiscounts = null; //stuSystemDiscount, SystemDiscounts_t),
-	public ?array  $couponDiscount = null;  //stuCouponDiscount, v.ID),
+	public ?stuCouponDiscount $couponDiscount = null;  //stuCouponDiscount, v.ID),
 	public ?float  $discount = null;
 	public float   $afterDiscount;
 	public ?float  $vatPercent = null;
@@ -168,6 +180,21 @@ class stuVoucherItem
 	// public $subItems; // SF_QListOfVarStruct      stuVoucherItem),
 
 	// public $sign; // SF_QString
+
+	public static function fromArray(array $values)
+	{
+		$obj = new self;
+
+		foreach ($values as $k => $v) {
+			if ($k == 'couponDiscount') {
+				$obj->$k = stuCouponDiscount::fromArray($v);
+			} else {
+				$obj->$k = $v;
+			}
+		}
+
+		return $obj;
+	}
 }
 
 class BaseBasketModel extends Model
@@ -181,7 +208,7 @@ class BaseBasketModel extends Model
 	public $referrerParams;
 	public $apiTokenID;
 	public $dependencies;
-	public $itemUUID;
+	public $itemKey;
 	// public $lastPreVoucher;
 
 	public function rules()
@@ -196,7 +223,7 @@ class BaseBasketModel extends Model
 			['referrerParams',		'safe'],
 			['apiTokenID',				'safe'],
 			['dependencies',			'safe'],
-			['itemUUID',					'safe'],
+			['itemKey',						'safe'],
 			// ['lastPreVoucher',		'safe'],
 
 			['saleableCode',   'required', 'on' => [ enuModelScenario::CREATE ]],
@@ -206,7 +233,7 @@ class BaseBasketModel extends Model
 			// ['discountCode',   'required', 'on' => [ enuModelScenario::CREATE ]],
 			// ['referrer',       'required', 'on' => [ enuModelScenario::CREATE ]],
 			// ['referrerParams', 'required', 'on' => [ enuModelScenario::CREATE ]],
-			['itemUUID',       'required', 'on' => enuModelScenario::UPDATE],
+			['itemKey',       'required', 'on' => enuModelScenario::UPDATE],
 			// ['lastPreVoucher',  'required', 'on' => [ enuModelScenario::CREATE ]],
 		];
 	}
@@ -267,11 +294,12 @@ class BaseBasketModel extends Model
 				]
 			);
 
-			if ($resultStatus < 200 || $resultStatus >= 300)
+			if ($resultStatus < 200 || $resultStatus >= 300) {
 				throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+			}
 
 			if (empty($resultData['vchItems']) == false) {
-				$resultData['vchItems'] = json_decode($resultData['vchItems'], true);
+				$resultData['vchItems'] = Json::decode($resultData['vchItems'], true);
 			}
 
 			self::$_lastPreVoucher = $resultData;
@@ -389,10 +417,7 @@ class BaseBasketModel extends Model
 		if (empty($lastPreVoucher['vchItems']) == false) {
 			foreach ($lastPreVoucher['vchItems'] as $voucherItemIndex => $vItem) {
 
-				$voucherItem = new stuVoucherItem;
-				foreach ($vItem as $kk => $vv) {
-					$voucherItem->$kk = $vv;
-				}
+				$voucherItem = stuVoucherItem::fromArray($vItem);
 
 				if (($voucherItem->service ?? null) != $serviceName)
 					continue;
@@ -425,12 +450,12 @@ class BaseBasketModel extends Model
 				$newDiscountCode = $this->discountCode;
 
 				//C3,C4,C5:
-				if (($voucherItem->couponDiscount['id'] ?? null) > 0) {
+				if (($voucherItem->couponDiscount->id ?? null) > 0) {
 					//C3:
 					if (empty($newDiscountCode))
-						$newDiscountCode = $voucherItem->couponDiscount['code'];
+						$newDiscountCode = $voucherItem->couponDiscount->code;
 					//C5:
-					else if ($voucherItem->couponDiscount['code'] != $newDiscountCode)
+					else if ($voucherItem->couponDiscount->code != $newDiscountCode)
 						continue;
 				}
 
@@ -554,13 +579,13 @@ class BaseBasketModel extends Model
 		$userAssetModel->uasSaleableID      = $basketItem->saleable->slbID;
 		$userAssetModel->uasQty             = $this->qty;
     $userAssetModel->uasVoucherID       = $lastPreVoucher['vchID'];
-		$userAssetModel->uasVoucherItemInfo = array_filter(json_decode(json_encode($preVoucherItem), true));
+		$userAssetModel->uasVoucherItemInfo = array_filter(Json::decode(Json::encode($preVoucherItem), true));
 
 		//-- discount
-		if (empty($basketItem->couponDiscount->id) == false) {
-			$userAssetModel->uasDiscountID     = $basketItem->couponDiscount->id;
-			$userAssetModel->uasDiscountAmount = $basketItem->discount; //CouponDiscount.Amount);
-		}
+		// if (empty($basketItem->couponDiscount->id) == false) {
+		// 	$userAssetModel->uasDiscountID     = $basketItem->couponDiscount->id;
+		// 	$userAssetModel->uasDiscountAmount = $basketItem->discount; //CouponDiscount.Amount);
+		// }
 
 		//-- duration
 		if (empty($basketItem->saleable->product->prdDurationMinutes) == false) {
@@ -601,7 +626,7 @@ class BaseBasketModel extends Model
 		if (empty($lastPreVoucher['vchItems']))
 			$lastPreVoucher['vchItems'] = [];
 
-		$lastPreVoucher['vchItems'][] = array_filter(json_decode(json_encode($preVoucherItem), true));
+		$lastPreVoucher['vchItems'][] = array_filter(Json::decode(Json::encode($preVoucherItem), true));
 		// $lastPreVoucher['vchSummary'] = count($lastPreVoucher['vchItems']) > 1
 			// ? count($lastPreVoucher['vchItems']) . ' items'
 			// : $preVoucherItem->qty . ' of ' . $preVoucherItem->desc;
@@ -682,8 +707,8 @@ SQL;
     //no change?
     if (($_newQty == $_voucherItem->qty)
 			&& (($_newDiscountCode == null)
-				|| empty($_voucherItem->couponDiscount['code'])
-				|| ($_newDiscountCode == $_voucherItem->couponDiscount['code'])
+				|| empty($_voucherItem->couponDiscount->code)
+				|| ($_newDiscountCode == $_voucherItem->couponDiscount->code)
 			)
 		) {
 			return [
@@ -765,7 +790,7 @@ SQL;
     // $basketItem->private.fromJson(QJsonDocument().fromJson(StrPrivate.toLatin1()).object());
 
     //--  --------------------------------
-    $basketItem->discountCode      = ($_newDiscountCode ?? $_voucherItem->couponDiscount['code'] ?? null);
+    $basketItem->discountCode      = ($_newDiscountCode ?? $_voucherItem->couponDiscount->code ?? null);
 		$basketItem->orderParams       = $_voucherItem->params;
     $basketItem->orderAdditives    = $_voucherItem->additives;
     $basketItem->referrer          = $_voucherItem->referrer;
@@ -859,18 +884,18 @@ SQL;
 			$_voucherItem->referrerParams     = $basketItem->referrerParams;
 //        $_voucherItem->apiToken           = $basketItem->apiToken;
 
-			$voucherItemArray = array_filter(json_decode(json_encode($_voucherItem), true));
-			$uasVoucherItemInfo = json_encode($voucherItemArray);
-			$uasDiscountID = $basketItem->couponDiscount['id'] ?? 'NULL';
+			$voucherItemArray = array_filter(Json::decode(Json::encode($_voucherItem), true));
+			$uasVoucherItemInfo = Json::encode($voucherItemArray);
+			// $uasDiscountID = $basketItem->couponDiscount->id ?? 'NULL';
 
 			$qry =<<<SQL
 				UPDATE	{$userAssetTableName}
 					 SET	uasVoucherItemInfo = '{$uasVoucherItemInfo}'
 						 ,	uasQty = {$_newQty}
-						 ,	uasDiscountAmount = {$basketItem->discount}
-						 ,	uasDiscountID = {$uasDiscountID}
 				 WHERE	uasID = {$_voucherItem->orderID}
 SQL;
+						//  ,	uasDiscountAmount = {$basketItem->discount}
+						//  ,	uasDiscountID = {$uasDiscountID}
 
 			///@TODO: change tblAccountUserAssetsBase::Fields::uasRelatedAPITokenID ?
 
@@ -1117,7 +1142,7 @@ SQL;
 		// discountAmount
 		// discountedBasePrice
 
-		$items = json_decode($row['discountsInfo'] ?? '', true);
+		$items = Json::decode($row['discountsInfo'] ?? '', true);
 		if (empty($items))
 			return false;
 
@@ -1181,14 +1206,14 @@ SQL;
 		if ($systemDiscount->amount != $_pendingSystemDiscount->amount)
 			$systemDiscount->info['applied-amount'] = $systemDiscount->amount;
 
-		$_basketItem->systemDiscounts[$_pendingSystemDiscount->key] = json_decode(json_encode($systemDiscount), true);
+		$_basketItem->systemDiscounts[$_pendingSystemDiscount->key] = Json::decode(Json::encode($systemDiscount), true);
 
 		$_basketItem->discount += $systemDiscount->amount;
 	}
 */
 	protected function computeCouponDiscount(
 		/*IO*/ stuBasketItem	&$_basketItem,
-		?stuVoucherItem					$_oldVoucherItem = null
+		?stuVoucherItem				$_oldVoucherItem = null
 	) {
 		//    quint64 $currentUserID = _apiCallContext.getActorID();
 
@@ -1208,24 +1233,24 @@ SQL;
 			$_basketItem->discountCode = trim($_basketItem->discountCode);
 
 		//C1:
-		if ((($_oldVoucherItem == null) || empty($_oldVoucherItem->couponDiscount['code']))
+		if ((($_oldVoucherItem == null) || empty($_oldVoucherItem->couponDiscount->code))
 				&& empty($_basketItem->discountCode))
 			return;
 
 		//C4.1: qty not changed
 		if (($_oldVoucherItem != null)
-				&& (empty($_oldVoucherItem->couponDiscount['code']) == false)
+				&& (empty($_oldVoucherItem->couponDiscount->code) == false)
 				&& (empty($_basketItem->discountCode) == false)
-				&& ($_basketItem->discountCode == $_oldVoucherItem->couponDiscount['code'])
+				&& ($_basketItem->discountCode == $_oldVoucherItem->couponDiscount->code)
 				&& ($_basketItem->qty == $_oldVoucherItem->qty))
 			return;
 
 		//C3, 4.2, 5: remove
 		if (($_oldVoucherItem != null)
-				&& (empty($_oldVoucherItem->couponDiscount['code']) == false)
-				// && ($_basketItem->discountCode != $_oldVoucherItem->couponDiscount['code'])
+				&& (empty($_oldVoucherItem->couponDiscount->code) == false)
+				// && ($_basketItem->discountCode != $_oldVoucherItem->couponDiscount->code)
 		) {
-			$_basketItem->discount -= $_oldVoucherItem->couponDiscount['amount'];
+			$_basketItem->discount -= $_oldVoucherItem->couponDiscount->amount;
 
 			//C3:
 			if (empty($_basketItem->discountCode)) {
@@ -1245,9 +1270,9 @@ SQL;
 		$discountModelClass = $accountingModule->discountModelClass;
 		$userAssetModelClass = $accountingModule->userAssetModelClass;
 
-		$ommitOldCondition = null;
+		$ommitOldCondition = "1=1";
 		if (($_oldVoucherItem != null)
-			&& (empty($_oldVoucherItem->couponDiscount['code']) == false)
+			&& (empty($_oldVoucherItem->couponDiscount->code) == false)
 		) {
 			$ommitOldCondition = ['!=', 'uasID', $_oldVoucherItem->orderID];
 		}
@@ -1255,6 +1280,7 @@ SQL;
 		$query = $discountModelClass::find()
 			->select($discountModelClass::selectableColumns())
 
+/*
 			->leftJoin(['tmp_cpn_count' => $userAssetModelClass::find()
 				->select([
 					'uasDiscountID',
@@ -1267,7 +1293,21 @@ SQL;
 				->groupBy(['uasDiscountID', 'uasVoucherID'])
 			], "tmp_cpn_count.uasDiscountID = {$discountModelClass::tableName()}.dscID")
 			->addSelect('tmp_cpn_count._discountUsedCount')
+*/
+			->leftJoin(['tmp_cpn_count' => $userAssetModelClass::find()
+				->select([
+					new \yii\db\Expression("JSON_UNQUOTE(JSON_EXTRACT(uasVoucherItemInfo, '$.couponDiscount[0].id')) AS discountID"),
+					'uasVoucherID',
+					new \yii\db\Expression("COUNT(uasID) AS _discountUsedCount")
+				])
+				->where(['uasActorID' => $_basketItem->assetActorID]) //$currentUserID })
+				->andWhere(['IN', 'uasStatus', [enuUserAssetStatus::Active, enuUserAssetStatus::Blocked]])
+				->andWhere($ommitOldCondition)
+				->groupBy(['discountID', 'uasVoucherID'])
+			], "tmp_cpn_count.discountID = {$discountModelClass::tableName()}.dscID")
+			->addSelect('tmp_cpn_count._discountUsedCount')
 
+/*
 			->leftJoin(['tmp_cpn_amount' => $userAssetModelClass::find()
 				->select([
 					'uasDiscountID',
@@ -1279,15 +1319,27 @@ SQL;
 				->groupBy('uasDiscountID')
 			], "tmp_cpn_amount.uasDiscountID = {$discountModelClass::tableName()}.dscID")
 			->addSelect('tmp_cpn_amount._discountUsedAmount')
+*/
+			->leftJoin(['tmp_cpn_amount' => $userAssetModelClass::find()
+				->select([
+					new \yii\db\Expression("JSON_UNQUOTE(JSON_EXTRACT(uasVoucherItemInfo, '$.couponDiscount[0].id')) AS discountID"),
+					new \yii\db\Expression("SUM(JSON_UNQUOTE(JSON_EXTRACT(uasVoucherItemInfo, '$.couponDiscount[0].amount'))) AS _discountUsedAmount")
+				])
+				->where(['uasActorID' => $_basketItem->assetActorID]) //$currentUserID })
+				->andWhere(['IN', 'uasStatus', [enuUserAssetStatus::Active, enuUserAssetStatus::Blocked]])
+				->andWhere($ommitOldCondition)
+				->groupBy('discountID')
+			], "tmp_cpn_amount.discountID = {$discountModelClass::tableName()}.dscID")
+			->addSelect('tmp_cpn_amount._discountUsedAmount')
 
-			->where(['dscCode' => $_basketItem->discountCode])
+			->where(['dscCodeString' => $_basketItem->discountCode])
 			->andWhere(['OR',
 				'dscValidFrom IS NULL',
 				['<=', 'dscValidFrom', new \yii\db\Expression('NOW()')],
 			])
 			->andWhere(['OR',
 				'dscValidTo IS NULL',
-				['>=', 'dscValidTo', new \yii\db\Expression('DATE_ADD(NOW(), INTERVAL 15 MINUTE)')],
+				['>=', 'dscValidTo', new \yii\db\Expression('DATE_SUB(NOW(), INTERVAL 15 MINUTE)')],
 			])
 		;
 
@@ -1295,40 +1347,34 @@ SQL;
 		if ($discountModel == null)
 			throw new UnprocessableEntityHttpException("Discount code not found.");
 
-		// QDateTime Now = DiscountInfo.value(Targoman::API::CURRENT_TIMESTAMP).toDateTime();
-
 		$discount = new stuCouponDiscount;
-		$discount->id     = $discountModel->cpnID;
-		$discount->code   = $discountModel->cpnCode;
-		$discount->amount = $discountModel->cpnAmount;
+		$discount->id     = $discountModel->dscID;
+		$discount->code   = $discountModel->dscCodeString;
+		$discount->amount = $discountModel->dscAmount;
 
 		$_discountUsedCount = $discountInfo['_discountUsedCount'] ?? 0;
 		$_discountUsedAmount = $discountInfo['_discountUsedAmount'] ?? 0;
 
-		// NULLABLE_TYPE(quint32) _discountUsedCount;
-		// TAPI::setFromVariant(_discountUsedCount, DiscountInfo.value("_discountUsedCount"));
-		// NULLABLE_TYPE(quint32) _discountUsedAmount;
-		// TAPI::setFromVariant(_discountUsedAmount, DiscountInfo.value("_discountUsedAmount"));
-
-	//        if (NULLABLE_HAS_VALUE(cpnExpiryTime) && NULLABLE_GET(cpnExpiryTime).toDateTime() < Now)
-	//            throw new UnprocessableEntityHttpException("Discount code has been expired");
-
-		if ($discountModel->cpnTotalUsedCount >= $discountModel->cpnPrimaryCount)
+		//total
+		if (($discountModel->dscTotalMaxCount > 0)
+				&& ($discountModel->dscTotalUsedCount >= $discountModel->dscTotalMaxCount))
 			throw new UnprocessableEntityHttpException("Discount code has been finished");
 
-		if (($discountModel->cpnPerUserMaxCount > 0)
-				&& ($_discountUsedCount >= $discountModel->cpnPerUserMaxCount))
-			throw new UnprocessableEntityHttpException("Max discount usage per user has been reached");
-
-		if ($discountModel->cpnTotalUsedAmount >= $discountModel->cpnTotalMaxAmount)
+		if (($discountModel->dscTotalMaxPrice > 0)
+				&& ($discountModel->dscTotalUsedPrice >= $discountModel->dscTotalMaxPrice))
 			throw new UnprocessableEntityHttpException("Max discount usage amount has been reached");
 
-		if (($discountModel->cpnPerUserMaxAmount > 0)
-				&& ($_discountUsedAmount >= $discountModel->cpnPerUserMaxAmount))
+		//per user
+		if (($discountModel->dscPerUserMaxCount > 0)
+				&& ($_discountUsedCount >= $discountModel->dscPerUserMaxCount))
+			throw new UnprocessableEntityHttpException("Max discount usage per user has been reached");
+
+		if (($discountModel->dscPerUserMaxPrice > 0)
+				&& ($_discountUsedAmount >= $discountModel->dscPerUserMaxPrice))
 			throw new UnprocessableEntityHttpException("Max discount usage amount per user has been reached");
 
 		//-- SaleableBasedMultiplier ---------------------------
-		/*QJsonArray arr = $discountModel->cpnSaleableBasedMultiplier.array();
+		/*QJsonArray arr = $discountModel->dscSaleableBasedMultiplier.array();
 		if (arr.size()) {
 			stuDiscountSaleableBasedMultiplier multiplier;
 
@@ -1373,8 +1419,8 @@ SQL;
 			"amount" => $discount->amount,
 		]);
 
-		if ($discountModel->cpnAmountType == enuAmountType::Percent)
-			$discount->amount = $_basketItem->subTotal * $discount->amount / 100.0;
+		if ($discountModel->dscAmountType == enuAmountType::Percent)
+			$discount->amount = $_basketItem->afterDiscount * $discount->amount / 100.0;
 
 		Yii::info([
 			"Discount" => 2,
@@ -1384,12 +1430,12 @@ SQL;
 		]);
 
 		//check cpnMaxAmount
-		if (empty($discountModel->cpnMaxAmount) == false) {
+		if (empty($discountModel->dscMaxAmount) == false) {
 			//note: cpnMaxAmount type is opposite to cpnAmountType
-			if ($discountModel->cpnAmountType == enuAmountType::Percent)
-				$discount->amount = min($discount->amount, $discountModel->cpnMaxAmount);
+			if ($discountModel->dscAmountType == enuAmountType::Percent)
+				$discount->amount = min($discount->amount, $discountModel->dscMaxAmount);
 			else {
-				$_max = /*ceil*/($_basketItem->subTotal * $discountModel->cpnMaxAmount / 100.0);
+				$_max = /*ceil*/($_basketItem->afterDiscount * $discountModel->dscMaxAmount / 100.0);
 				$discount->amount = min($discount->amount, $_max);
 			}
 
@@ -1402,21 +1448,23 @@ SQL;
 		}
 
 		//check total - used amount
-		$remainDiscountAmount = $discountModel->cpnTotalMaxAmount - $discountModel->cpnTotalUsedAmount;
-		if ($remainDiscountAmount < $discount->amount) {
-			$discount->amount = $remainDiscountAmount;
+		if (empty($discountModel->dscTotalMaxPrice) == false) {
+			$remainDiscountAmount = $discountModel->dscTotalMaxPrice - $discountModel->dscTotalUsedPrice;
+			if ($remainDiscountAmount < $discount->amount) {
+				$discount->amount = $remainDiscountAmount;
 
-			Yii::info([
-				"Discount" => 4,
-				"id" => $discount->id,
-				"code" => $discount->code,
-				"amount" => $discount->amount,
-			]);
+				Yii::info([
+					"Discount" => 4,
+					"id" => $discount->id,
+					"code" => $discount->code,
+					"amount" => $discount->amount,
+				]);
+			}
 		}
 
 		//check per user - used amount
-		if ($discountModel->cpnPerUserMaxAmount > 0) {
-			$remainDiscountAmount = $discountModel->cpnPerUserMaxAmount - $_discountUsedAmount;
+		if (empty($discountModel->dscPerUserMaxPrice) == false) {
+			$remainDiscountAmount = $discountModel->dscPerUserMaxPrice - $_discountUsedAmount;
 			if ($remainDiscountAmount <= 0)
 				$discount->amount = 0;
 			else if ($remainDiscountAmount < $discount->amount)
