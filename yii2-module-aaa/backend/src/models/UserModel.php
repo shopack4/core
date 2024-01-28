@@ -21,6 +21,7 @@ class UserModel extends AAAActiveRecord
   use \shopack\base\common\db\SoftDeleteActiveRecordTrait;
   public function initSoftDelete()
   {
+    $this->softdelete_ActiveStatus   = enuUserStatus::Active;
     $this->softdelete_RemovedStatus  = enuUserStatus::Removed;
     // $this->softdelete_StatusField    = 'usrStatus';
     $this->softdelete_RemovedAtField = 'usrRemovedAt';

@@ -82,6 +82,11 @@ class Html extends \yii\bootstrap5\Html
 
 		$url = array_replace_recursive(['delete'], $url ?? []);
 
+		$options = array_replace_recursive([
+				'btn' => 'danger',
+			], $options
+		);
+
 		return self::confirmButton($text, $url, Yii::t('app', 'Are you sure you want to delete this item?'), $options);
 	}
 
@@ -90,6 +95,11 @@ class Html extends \yii\bootstrap5\Html
 			$text = Yii::t('app', 'Undelete');
 
 		$url = array_replace_recursive(['undelete'], $url ?? []);
+
+		$options = array_replace_recursive([
+				'btn' => 'warning',
+			], $options
+		);
 
 		return self::confirmButton($text, $url, Yii::t('app', 'Are you sure you want to un-delete this item?'), $options);
 	}

@@ -212,4 +212,24 @@ abstract class BaseCrudController extends BaseRestController
 		];
 	}
 
+	public function actionUndelete($id)
+	{
+		$model = $this->findModel($id);
+
+		$this->checkPermission($model);
+
+		if ($model->undelete() === false)
+			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
+
+		return [
+			// // 'result' => [
+			// 	// 'message' => 'deleted',
+			// 	'docID' => $model->docID,
+			// 	'docStatus' => $model->docStatus,
+			// 	'docRemovedAt' => $model->docRemovedAt,
+			// 	'docRemovedBy' => $model->docRemovedBy,
+			// // ],
+		];
+	}
+
 }

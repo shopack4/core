@@ -156,7 +156,10 @@ class ECDamavandPaymentGateway
 			];
 
 		} catch (\Exception $exp) {
-			throw new UnprocessableEntityHttpException('Error in prepare payment (' . $exp->getMessage() . ')');
+			throw new UnprocessableEntityHttpException('Error in prepare payment ('
+				. $exp->getMessage() . ')'
+				// . " callback({$callbackUrl})"
+			);
 		}
 	}
 

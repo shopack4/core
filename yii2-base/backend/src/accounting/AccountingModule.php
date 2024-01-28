@@ -63,50 +63,50 @@ abstract class AccountingModule
 			//-- accounting ---------------------------------
 			$rules = array_merge($rules, [
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/unit'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/discount'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/discount-serial'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/discount-usage'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/product'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/saleable'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/user-asset'],
 					'pluralize' => false,
 				],
 
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID => $thisID . '/default'],
 					'pluralize' => false,

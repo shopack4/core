@@ -225,6 +225,11 @@ abstract class RestClientActiveRecord extends BaseActiveRecord
 		return self::find()->restDeleteAll($condition);
   }
 
+  public function undelete()
+  {
+		return self::find()->restUndelete($this);
+  }
+
 	public static function getDb()
 	{
 		throw new NotSupportedException(__METHOD__ . ' is not supported.');

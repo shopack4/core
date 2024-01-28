@@ -28,6 +28,9 @@ use shopack\aaa\common\enums\enuOfflinePaymentStatus;
 
 class PaymentManager extends Component
 {
+  //used for central payment callback. e.g: *www.x.com -> api.x.com -> ui.x.com
+  public $topmostPayCallback = null;
+
   /**
    * return [onpkey, paymentUrl]
    * or $exp
@@ -67,6 +70,14 @@ class PaymentManager extends Component
       '/aaa/online-payment/callback',
       'paymentkey' => $onlinePaymentModel->onpUUID,
     ], true);
+
+    if (empty($this->topmostPayCallback) == false) {
+      // if (str_ends_with($this->topmostPayCallback, '/') == false)
+      //   $this->topmostPayCallback .= '/';
+
+      $ch = (strpos($this->topmostPayCallback, '?') === false ? '?' : '&');
+      $backendCallback = $this->topmostPayCallback . $ch . 'done=' .urlencode($backendCallback);
+    }
 
     $gatewayClass = $gatewayModel->getGatewayClass();
 

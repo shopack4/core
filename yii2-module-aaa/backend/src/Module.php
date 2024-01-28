@@ -28,7 +28,7 @@ class Module
 		if ($app instanceof \yii\web\Application) {
 			$rules = [
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/auth'],
 					'pluralize' => false,
@@ -54,7 +54,7 @@ class Module
 					],
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/user'],
 					'pluralize' => false,
@@ -68,55 +68,55 @@ class Module
 					],
 				],
 				// [
-				// 	'class' => \yii\rest\UrlRule::class,
+				// 	'class' => \shopack\base\common\rest\UrlRule::class,
 				// 	// 'prefix' => 'v1',
 				// 	'controller' => [$this->id . '/user-extra-info'],
 				// 	'pluralize' => false,
 				// ],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/message'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/message-template'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/approval-request'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/request-forgot-password'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/role'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/access-group'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/user-access-group'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/gateway'],
 					'pluralize' => false,
@@ -132,7 +132,7 @@ class Module
 
 				//fin
 				// [
-				// 	'class' => \yii\rest\UrlRule::class,
+				// 	'class' => \shopack\base\common\rest\UrlRule::class,
 				// 	// 'prefix' => 'v1',
 				// 	'controller' => [$this->id . '/payment-gateway'],
 				// 	'pluralize' => false,
@@ -141,7 +141,7 @@ class Module
 				// 	],
 				// ],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/online-payment'],
 					'pluralize' => false,
@@ -157,7 +157,7 @@ class Module
 					] + (YII_ENV_DEV ? ['devtestpaymentpage' => 'devtestpaymentpage'] : []),
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/offline-payment'],
 					'pluralize' => false,
@@ -168,7 +168,7 @@ class Module
 					],
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/basket'],
 					'pluralize' => false,
@@ -196,19 +196,19 @@ class Module
 					],
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/delivery-method'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/voucher'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/wallet'],
 					'pluralize' => false,
@@ -220,37 +220,37 @@ class Module
 					],
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/wallet-transaction'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/geo-country'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/geo-state'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/geo-city-or-village'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/geo-town'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/upload-file'],
 					'pluralize' => false,

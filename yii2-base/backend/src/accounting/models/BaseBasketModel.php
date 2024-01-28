@@ -203,6 +203,8 @@ class BaseBasketModel extends Model
 	public $orderParams;
 	public $orderAdditives;
 	public $qty;
+	public $maxQty;
+	public $qtyStep;
 	public $discountCode;
 	public $referrer;
 	public $referrerParams;
@@ -218,6 +220,8 @@ class BaseBasketModel extends Model
 			['orderParams',				'safe'],
 			['orderAdditives',		'safe'],
 			['qty',								'integer', 'min' => 0], // >0 for CREATE, >=0 for UPDATE
+			// ['maxQty',					'integer'], //not allowed to assign from ->load()
+			// ['qtyStep',				'integer'], //not allowed to assign from ->load()
 			['discountCode',			'safe'],
 			['referrer',					'safe'],
 			['referrerParams',		'safe'],
