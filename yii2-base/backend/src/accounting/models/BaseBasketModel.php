@@ -349,14 +349,20 @@ class BaseBasketModel extends Model
 	//[$infoAsArray, $model]
 	public static function loadModelFromQuery($query)
 	{
-		$infoAsArray = $query->asArray()->one();
+		$local_query = clone $query;
+
+		$infoAsArray = $local_query->asArray()->one();
 		if (empty($infoAsArray))
 			return [null, null];
 
-		$models = $query->asArray(false)->populate([$infoAsArray]);
+		$models = $local_query->asArray(false)->populate([$infoAsArray]);
 		$model = reset($models) ?? null;
 
 		return [$infoAsArray, $model];
+	}
+
+	public function addToBasketInquiry()
+	{
 	}
 
 	/**
@@ -520,19 +526,19 @@ class BaseBasketModel extends Model
 		$basketItem->discount          = 0;
 
 		//-- --------------------------------
-	//    UsageLimits_t SaleableUsageLimits;
-	//    for (auto Iter = this->AssetUsageLimitsCols.begin();
-	//        Iter != this->AssetUsageLimitsCols.end();
-	//        Iter++
-	//    ) {
-	//        SaleableUsageLimits.insert(Iter.key(), {
-	//            NULLABLE_INSTANTIATE_FROM_QVARIANT(quint32, SaleableInfo.value(Iter->PerDay)),
-	//            NULLABLE_INSTANTIATE_FROM_QVARIANT(quint32, SaleableInfo.value(Iter->PerWeek)),
-	//            NULLABLE_INSTANTIATE_FROM_QVARIANT(quint32, SaleableInfo.value(Iter->PerMonth)),
-	//            NULLABLE_INSTANTIATE_FROM_QVARIANT(quint64, SaleableInfo.value(Iter->Total))
-	//        });
-	//    }
-	//    $basketItem->digested.Limits = SaleableUsageLimits;
+		//    UsageLimits_t SaleableUsageLimits;
+		//    for (auto Iter = this->AssetUsageLimitsCols.begin();
+		//        Iter != this->AssetUsageLimitsCols.end();
+		//        Iter++
+		//    ) {
+		//        SaleableUsageLimits.insert(Iter.key(), {
+		//            NULLABLE_INSTANTIATE_FROM_QVARIANT(quint32, SaleableInfo.value(Iter->PerDay)),
+		//            NULLABLE_INSTANTIATE_FROM_QVARIANT(quint32, SaleableInfo.value(Iter->PerWeek)),
+		//            NULLABLE_INSTANTIATE_FROM_QVARIANT(quint32, SaleableInfo.value(Iter->PerMonth)),
+		//            NULLABLE_INSTANTIATE_FROM_QVARIANT(quint64, SaleableInfo.value(Iter->Total))
+		//        });
+		//    }
+		//    $basketItem->digested.Limits = SaleableUsageLimits;
 
 		//-- --------------------------------
 		$this->processItemForBasket($basketItem);
