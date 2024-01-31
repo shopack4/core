@@ -164,7 +164,7 @@ SQL;
     GROUP BY	dscusgDiscountID
               ) AS tmp_user_amount
           ON	tmp_user_amount.dscusgDiscountID = dscu.dscID
-       WHERE	dscStatus != 'R'
+       WHERE	dscStatus != {$fnGetConstQouted(enuDiscountStatus::Removed)}
          AND 	scType IN ({$fnGetConstQouted(enuDiscountType::System)}, {$fnGetConstQouted(enuDiscountType::SystemIncrease)})
 
 SQL; //$qry_dsc_with_usg

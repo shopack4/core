@@ -520,6 +520,8 @@ return [
 	'Deleted Files Size' => 'حجم فایل‌های حذف شده',
 	'Last Action Time' => 'آخرین زمان عملیات',
 
+	'Add To Basket' => 'افزودن به سبد خرید',
+
 	'Baskets' => 'سبدهای خرید',
 	'Basket' => 'سبد خرید',
 	'Shopping Card' => 'سبد خرید',

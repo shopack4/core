@@ -103,6 +103,18 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 
 	private function setCurrentVoucher()
 	{
+
+
+		//get current basket for finalize (and recheck items / price / discount / ...)
+
+
+
+
+
+
+
+
+
     $voucherModel = VoucherModel::find()
       ->andWhere(['vchOwnerUserID' => Yii::$app->user->id])
       ->andWhere(['vchType' => enuVoucherType::Basket])

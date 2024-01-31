@@ -9,8 +9,9 @@ use shopack\base\common\base\BaseEnum;
 
 abstract class enuUserAssetStatus extends BaseEnum
 {
-  const Active 		= 'A';
+  const Draft 		= 'D';
   const Pending 	= 'P';
+  const Active 		= 'A';
   const Blocked 	= 'B';
   const Removed 	= 'R';
 
@@ -18,14 +19,16 @@ abstract class enuUserAssetStatus extends BaseEnum
 
 	public static $list = [
 		[
-			self::Active		=> 'Active',
+			self::Draft			=> 'Draft',
 			self::Pending		=> 'Pending',
+			self::Active		=> 'Active',
 			self::Blocked		=> 'Blocked',
 			self::Removed 	=> 'Removed',
 		],
 		'form' => [
-			self::Active,
+			self::Draft,
 			self::Pending,
+			self::Active,
 			self::Blocked,
 		],
 	];

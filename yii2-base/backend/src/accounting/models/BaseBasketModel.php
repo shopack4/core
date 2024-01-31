@@ -157,6 +157,8 @@ class stuVoucherItem
 	public ?string $desc = null;
 	public string  $prdType;
 	public float   $qty;
+	public ?float  $maxQty = null; //null: infinite
+	public ?float  $qtyStep = null; //default = 1
 	public ?string $unit = null;
 	public float   $unitPrice;
 	public float   $subTotal;
@@ -200,11 +202,11 @@ class stuVoucherItem
 class BaseBasketModel extends Model
 {
 	public $saleableCode;
-	public $orderParams;
-	public $orderAdditives;
 	public $qty;
 	public $maxQty;
 	public $qtyStep;
+	public $orderParams;
+	public $orderAdditives;
 	public $discountCode;
 	public $referrer;
 	public $referrerParams;
@@ -217,11 +219,11 @@ class BaseBasketModel extends Model
 	{
 		return [
 			['saleableCode',			'safe'],
-			['orderParams',				'safe'],
-			['orderAdditives',		'safe'],
 			['qty',								'integer', 'min' => 0], // >0 for CREATE, >=0 for UPDATE
 			// ['maxQty',					'integer'], //not allowed to assign from ->load()
 			// ['qtyStep',				'integer'], //not allowed to assign from ->load()
+			['orderParams',				'safe'],
+			['orderAdditives',		'safe'],
 			['discountCode',			'safe'],
 			['referrer',					'safe'],
 			['referrerParams',		'safe'],
@@ -490,6 +492,10 @@ class BaseBasketModel extends Model
 			} //find duplicates
 		}
 
+		if ((empty($this->maxQty) == false) && ($this->qty > $this->maxQty)) {
+			throw new UnprocessableEntityHttpException("max qty reached");
+		}
+
 		//-- fetch SLB & PRD --------------------------------
 		$query = $saleableModelClass::find()
 			->select($saleableModelClass::selectableColumns())
@@ -558,6 +564,8 @@ class BaseBasketModel extends Model
 		$preVoucherItem->key              = Uuid::uuid4()->toString();
 		$preVoucherItem->desc             = $this->makeDesc($basketItem);
 		$preVoucherItem->qty              = $basketItem->qty; //$this->qty;
+		$preVoucherItem->maxQty           = $this->maxQty;
+		$preVoucherItem->qtyStep          = $this->qtyStep;
 		$preVoucherItem->unit             = $basketItem->saleable->product->unit->untName;
 		$preVoucherItem->unitPrice        = $basketItem->unitPrice;
 		$preVoucherItem->subTotal         = $basketItem->subTotal;
@@ -624,6 +632,7 @@ class BaseBasketModel extends Model
 		}
 
 		//-- --------------------------------
+		$userAssetModel->uasStatus = enuUserAssetStatus::Draft;
 		if ($userAssetModel->save() == false) {
 			//************ ERROR ************
 		}
@@ -725,6 +734,10 @@ SQL;
 				$_voucherItem->key,
 				$_lastPreVoucher
 			];
+		}
+
+		if ((empty($_voucherItem->maxQty) == false) && ($_newQty > $_voucherItem->maxQty)) {
+			throw new UnprocessableEntityHttpException("max qty reached");
 		}
 
     //-- validate preVoucher and owner --------------------------------
@@ -872,6 +885,8 @@ SQL;
 //        $_voucherItem->key = $_voucherItem->key;
 			$_voucherItem->desc               = $basketItem->saleable->slbName;
 			$_voucherItem->qty                = $basketItem->qty;
+			// $_voucherItem->maxQty             = //no change
+			// $_voucherItem->qtyStep            = //no change
 			$_voucherItem->unit               = $basketItem->saleable->product->unit->untName;
 			$_voucherItem->unitPrice          = $basketItem->unitPrice;
 			$_voucherItem->subTotal           = $basketItem->subTotal;

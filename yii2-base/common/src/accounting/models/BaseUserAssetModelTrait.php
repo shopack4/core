@@ -158,7 +158,7 @@ trait BaseUserAssetModelTrait
         enuColumnInfo::isStatus   => true,
         enuColumnInfo::type       => ['string', 'max' => 1],
         enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => enuUserAssetStatus::Pending,
+        enuColumnInfo::default    => null, enuUserAssetStatus::Pending,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::exact,
