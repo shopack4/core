@@ -53,7 +53,7 @@ class BasketController extends BaseController
 		$model = new BasketCheckoutForm;
 		// $model->setVoucher($this->getCurrentBasket());
 
-		if (empty($model->voucher) || empty($model->voucher->vchItems)) {
+		if (empty($model->voucher) || empty($model->voucher['vchItems'])) {
 			return $this->render('empty', [
 				'model' => $model,
 			]);
@@ -91,7 +91,7 @@ class BasketController extends BaseController
 		$model = new BasketCheckoutForm;
 		// $model->setVoucher($this->getCurrentBasket());
 
-		if (empty($model->voucher) || empty($model->voucher->vchItems)) {
+		if (empty($model->voucher) || empty($model->voucher['vchItems'])) {
 			return $this->render('empty', [
 				'model' => $model,
 			]);
@@ -107,7 +107,7 @@ class BasketController extends BaseController
 
 				return $this->redirect(Url::to([
 					'checkout-done',
-					'voucher' => $model->voucher->vchID,
+					'voucher' => $model->voucher['vchID'],
 				]));
 
 			} catch (\Throwable $th) {
@@ -130,7 +130,7 @@ class BasketController extends BaseController
 
 				return $this->redirect(Url::to([
 					'checkout-done',
-					'voucher' => $model->voucher->vchID,
+					'voucher' => $model->voucher['vchID'],
 				]));
 
 			} catch (\Throwable $th) {

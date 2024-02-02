@@ -51,13 +51,18 @@ class BasketController extends BaseRestController
 		return $data;
 	}
 
-	public function actionGetCurrent()
+	public function actionGetCurrent($recheckItems = false)
 	{
-		$data = $this->getSecureData();
+		if (Yii::$app->user->isGuest)
+			throw new ForbiddenHttpException('guest not allowed');
 
-		$userid = $data['userid'];
-		if ($userid != Yii::$app->user->id)
-			throw new ForbiddenHttpException('Access denied');
+		// $recheckItems = $_POST['recheckItems'] ?? false;
+
+		// $data = $this->getSecureData();
+
+		// $userid = $data['userid'];
+		// if ($userid != Yii::$app->user->id)
+		// 	throw new ForbiddenHttpException('Access denied');
 
 		$model = VoucherModel::find()
 			->select(VoucherModel::selectableColumns())
@@ -77,6 +82,11 @@ class BasketController extends BaseRestController
 			if ($model->save() == false) {
 				throw new UnprocessableEntityHttpException('could not create new basket');
 			}
+			return $model;
+		}
+
+		if ($recheckItems) {
+
 		}
 
 		return $model;

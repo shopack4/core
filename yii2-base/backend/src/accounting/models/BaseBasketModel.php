@@ -279,24 +279,26 @@ class BaseBasketModel extends Model
 	public static function getCurrentBasket() //$userid = null)
 	{
 		if (self::$_lastPreVoucher == null) {
-			$parentModule = self::getParentModule();
-			$serviceName = $parentModule->id;
+			// $parentModule = self::getParentModule();
+			// $serviceName = $parentModule->id;
 
-			if (empty($parentModule->servicePrivateKey))
-				throw new ServerErrorHttpException('INVALID.SERVICE.PRIVATE.KEY');
+			// if (empty($parentModule->servicePrivateKey))
+			// 	throw new ServerErrorHttpException('INVALID.SERVICE.PRIVATE.KEY');
 
-			$data = Json::encode([
-				'service' => $serviceName,
-				'userid' => Yii::$app->user->id,
-			]);
-			$data = RsaPrivate::model($parentModule->servicePrivateKey)->encrypt($data);
+			// $data = Json::encode([
+			// 	'service' => $serviceName,
+			// 	'userid' => Yii::$app->user->id,
+			// ]);
+			// $data = RsaPrivate::model($parentModule->servicePrivateKey)->encrypt($data);
 
 			list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/get-current',
 				HttpHelper::METHOD_POST,
-				[],
 				[
-					'service' => $serviceName,
-					'data' => $data,
+					'recheckItems' => true,
+				],
+				[
+				// 	'service' => $serviceName,
+				// 	'data' => $data,
 				]
 			);
 

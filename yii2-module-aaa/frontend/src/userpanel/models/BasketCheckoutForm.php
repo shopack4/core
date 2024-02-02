@@ -16,6 +16,7 @@ use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\base\common\accounting\enums\enuProductType;
 use shopack\aaa\frontend\common\models\DeliveryMethodModel;
 use shopack\aaa\frontend\common\models\WalletModel;
+use shopack\base\common\helpers\Json;
 
 class BasketCheckoutForm extends Model //RestClientActiveRecord
 {
@@ -101,11 +102,51 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 		$this->setCurrentVoucher();
 	}
 
+	private static ?array $_lastPreVoucher = null;
+	public static function getCurrentBasket()
+	{
+		if (self::$_lastPreVoucher == null) {
+			// $parentModule = self::getParentModule();
+			// $serviceName = $parentModule->id;
+
+			// if (empty($parentModule->servicePrivateKey))
+			// 	throw new ServerErrorHttpException('INVALID.SERVICE.PRIVATE.KEY');
+
+			// $data = Json::encode([
+			// 	'service' => $serviceName,
+			// 	'userid' => Yii::$app->user->id,
+			// ]);
+			// $data = RsaPrivate::model($parentModule->servicePrivateKey)->encrypt($data);
+
+			list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/get-current',
+				HttpHelper::METHOD_POST,
+				[
+					'recheckItems' => true,
+				],
+				[
+					// 'service' => $serviceName,
+					// 'data' => $data,
+				]
+			);
+
+			if ($resultStatus < 200 || $resultStatus >= 300) {
+				throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+			}
+
+			if (empty($resultData['vchItems']) == false) {
+				$resultData['vchItems'] = Json::decode($resultData['vchItems'], true);
+			}
+
+			self::$_lastPreVoucher = $resultData;
+		}
+
+		return self::$_lastPreVoucher;
+	}
+
 	private function setCurrentVoucher()
 	{
-
-
 		//get current basket for finalize (and recheck items / price / discount / ...)
+		$this->voucher = self::getCurrentBasket();
 
 
 
@@ -113,8 +154,7 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 
 
 
-
-
+		/*
     $voucherModel = VoucherModel::find()
       ->andWhere(['vchOwnerUserID' => Yii::$app->user->id])
       ->andWhere(['vchType' => enuVoucherType::Basket])
@@ -149,6 +189,8 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 				$voucherModel->vchAmount
 			- $this->totalDiscounts
 			- ($voucherModel->vchTotalPaid ?? 0);
+
+		*/
 
 		//-------------------------
 		$this->steps = [];

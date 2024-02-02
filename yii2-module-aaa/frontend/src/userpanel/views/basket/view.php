@@ -47,7 +47,7 @@ JS;
             $this->registerJs($js, \yii\web\View::POS_END);
 
             $dataProvider = new ArrayDataProvider([
-              'allModels' => $model->voucher->vchItems,
+              'allModels' => $model->voucher['vchItems'],
               'key' => 'key',
               'pagination' => false,
             ]);
