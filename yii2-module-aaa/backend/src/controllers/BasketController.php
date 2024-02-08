@@ -17,7 +17,9 @@ use shopack\aaa\backend\models\BasketCheckoutForm;
 use shopack\aaa\backend\models\VoucherModel;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuVoucherType;
+use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\helpers\Json;
+use shopack\base\common\security\RsaPrivate;
 use shopack\base\common\security\RsaPublic;
 
 // use shopack\base\backend\models\BasketModel;
@@ -86,7 +88,60 @@ class BasketController extends BaseRestController
 		}
 
 		if ($recheckItems) {
+			$parentModule = Yii::$app->topModule;
 
+			if (empty($model['vchItems']) == false) {
+				if (is_string($model['vchItems'])) {
+					$model['vchItems'] = Json::decode($model['vchItems']);
+				}
+
+				$services = [];
+
+				//1- get services
+				foreach ($model['vchItems'] as $item) {
+					if (empty($services[$item['service']])) {
+						$services[$item['service']] = [];
+					}
+
+					$services[$item['service']][] = $item;
+				}
+
+				$model['vchItems'] = null;
+				$newItems = [];
+
+				//2: call recheck for every service
+				foreach ($services as $service => $items) {
+					$data = Json::encode([
+						'service' => $service,
+						'prevoucher' => $model,
+						'items' => $items,
+					]);
+
+					$data = RsaPublic::model($parentModule->servicesPublicKeys[$service])->encrypt($data);
+
+					list ($resultStatus, $resultData) = HttpHelper::callApi(
+						"{$service}/accounting/recheck-basket-items",
+						HttpHelper::METHOD_POST,
+						[],
+						[
+							'service'	=> $service,
+							'data' => $data,
+						]
+					);
+
+					if ($resultStatus < 200 || $resultStatus >= 300) {
+						// throw new \yii\web\HttpException($resultStatus, Yii::t('mha', $resultData['message'], $resultData));
+					} else {
+
+						//add to $newItems
+
+					}
+				}
+
+				//3: add new items
+				$model['vchItems'] = $newItems;
+
+			}
 		}
 
 		return $model;

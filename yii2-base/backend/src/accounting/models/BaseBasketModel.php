@@ -251,17 +251,17 @@ class BaseBasketModel extends Model
 	// {
 	// }
 
-	private static $_parentModule = null;
-	public static function getParentModule()
-	{
-		if (self::$_parentModule == null) {
-			self::$_parentModule = Yii::$app->controller->module;
-			if (self::$_parentModule->id == 'accounting')
-				self::$_parentModule = self::$_parentModule->module;
-		}
+	// private static $_parentModule = null;
+	// public static function getParentModule()
+	// {
+	// 	if (self::$_parentModule == null) {
+	// 		self::$_parentModule = Yii::$app->controller->module;
+	// 		if (self::$_parentModule->id == 'accounting')
+	// 			self::$_parentModule = self::$_parentModule->module;
+	// 	}
 
-		return self::$_parentModule;
-	}
+	// 	return self::$_parentModule;
+	// }
 
 	private static $_accountingModule = null;
 	public static function getAccountingModule()
@@ -279,7 +279,7 @@ class BaseBasketModel extends Model
 	public static function getCurrentBasket() //$userid = null)
 	{
 		if (self::$_lastPreVoucher == null) {
-			// $parentModule = self::getParentModule();
+			// $parentModule = Yii::$app->topModule;
 			// $serviceName = $parentModule->id;
 
 			// if (empty($parentModule->servicePrivateKey))
@@ -327,7 +327,7 @@ class BaseBasketModel extends Model
 	{
 		self::$_lastPreVoucher = $basketModel;
 
-		$parentModule = self::getParentModule();
+		$parentModule = Yii::$app->topModule;
 		$serviceName = $parentModule->id;
 
 		if (empty($parentModule->servicePrivateKey))
@@ -395,7 +395,7 @@ class BaseBasketModel extends Model
 		if ($this->qty <= 0)
 			throw new UnprocessableEntityHttpException("invalid qty");
 
-		$parentModule = self::getParentModule();
+		$parentModule = Yii::$app->topModule;
 		$serviceName = $parentModule->id;
 
 		$lastPreVoucher = self::getCurrentBasket();
@@ -880,7 +880,7 @@ SQL;
 			// JSDPendingVouchers.setObject($basketItem->private.toJson());
 			// $_voucherItem->private = simpleCryptInstance()->encryptToString(JSDPendingVouchers.toJson(QJsonDocument::Compact));
 
-			$parentModule = self::getParentModule();
+			$parentModule = Yii::$app->topModule;
 			$serviceName = $parentModule->id;
 
 			$_voucherItem->service            = $serviceName;
@@ -1527,6 +1527,35 @@ SQL;
 	protected function makeDesc($basketItem)
 	{
 		return $basketItem->saleable->slbName;
+	}
+
+	/**
+	 * recheck basket item(s) before check out
+	 * called by BaseAccountingController
+	 * @return:
+	 * 		array of changes (update, remove)
+	 * 		and [old, new] voucher prices for $itemKey or this service items
+	 */
+	public static function recheckBasketItems($lastPrevoucher, $voucherItems)
+	{
+		$parentModule = Yii::$app->topModule;
+		$serviceName = $parentModule->id;
+
+		foreach ($voucherItems as $kItem => $vItem) {
+			//is mine?
+			if ($vItem['service'] != $serviceName) {
+				throw new ForbiddenHttpException('INVALID:Item.Service');
+			}
+
+
+
+
+
+
+		}
+
+
+
 	}
 
 }

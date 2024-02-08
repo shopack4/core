@@ -9,14 +9,10 @@ use Yii;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
-use yii\data\ActiveDataProvider;
 use shopack\base\common\helpers\ExceptionHelper;
 use shopack\base\backend\controller\BaseRestController;
-use shopack\base\backend\helpers\PrivHelper;
-use shopack\base\backend\models\BasketModel;
-// use shopack\aaa\common\enums\enuVoucherType;
-use shopack\base\common\enums\enuModelScenario;
-use yii\base\InvalidConfigException;
+use shopack\base\common\helpers\Json;
+use shopack\base\common\security\RsaPrivate;
 
 //basket = Voucher[Type=Basket & Status=New]
 abstract class BaseAccountingController extends BaseRestController
@@ -94,9 +90,47 @@ abstract class BaseAccountingController extends BaseRestController
 	{
 	}
 
-	/******************************************************************\
-	|** internals *****************************************************|
-	\******************************************************************/
+	public function getSecureData()
+	{
+		$allData = $_POST;
 
+		$service = $allData['service'];
+		if (empty($service))
+			throw new UnprocessableEntityHttpException('NOT_PROVIDED:Service');
+
+		$parentModule = Yii::$app->topModule;
+
+		if ($service != $parentModule->id)
+			throw new ForbiddenHttpException('INVALID:Service.id');
+
+		$data = $allData['data'];
+		if (empty($data))
+			throw new UnprocessableEntityHttpException('NOT_PROVIDED:Data');
+
+		$data = RsaPrivate::model($parentModule->servicePrivateKey)->decrypt($data);
+		$data = Json::decode($data);
+
+		if ($service != $data['service']) //todo: change to sanity check
+			throw new ForbiddenHttpException('INVALID:Service');
+
+		return $data;
+	}
+
+	/**
+	 * recheck basket item(s) before check out
+	 * called by /aaa/basket/get-current($recheckItems = true)
+	 * @note: MUST BE CALL IN SECURE CHANNEL
+	 */
+	public function actionRecheckBasketItems()
+	{
+		$data = $this->getSecureData();
+		$lastPrevoucher = $data['prevoucher'];
+		$voucherItems = $data['items'];
+
+		$accountingModule = self::getAccountingModule();
+		$modelClass = $accountingModule->basketModelClass;
+
+		return $modelClass::recheckBasketItems($lastPrevoucher, $voucherItems);
+	}
 
 }

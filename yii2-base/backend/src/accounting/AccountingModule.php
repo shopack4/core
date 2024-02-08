@@ -112,7 +112,10 @@ abstract class AccountingModule
 					'pluralize' => false,
 
 					'patterns' => [
-						'GET remove-basket-item' => 'remove-basket-item',
+						'POST add-to-basket' => 'add-to-basket',
+						'POST update-basket-item' => 'update-basket-item',
+						'POST remove-basket-item' => 'remove-basket-item',
+						'POST recheck-basket-items' => 'recheck-basket-items',
 					],
 				],
 
