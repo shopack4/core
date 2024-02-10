@@ -63,6 +63,7 @@ use shopack\base\frontend\common\widgets\grid\GridView;
           'تعداد',
           'مبلغ واحد',
           'تخفیف',
+          'مالیات',
           'مبلغ کل',
         ]) . '</td></tr>';
         $vchItems = $model->vchItems;
@@ -74,6 +75,7 @@ use shopack\base\frontend\common\widgets\grid\GridView;
             Yii::$app->formatter->asDecimal($vchItem['qty']),
             Yii::$app->formatter->asToman($vchItem['unitPrice']),
             Yii::$app->formatter->asToman($vchItem['discount'] ?? 0),
+            Yii::$app->formatter->asToman($vchItem['vat'] ?? 0),
             Yii::$app->formatter->asToman($vchItem['totalPrice']),
           ]) . '</td></tr>';
         }
@@ -105,7 +107,14 @@ use shopack\base\frontend\common\widgets\grid\GridView;
       ],
     ],
     [
-      'attribute' => 'vchDiscountAmount',
+      'attribute' => 'vchItemsDiscounts',
+      'format' => 'toman',
+      'contentOptions' => [
+        'class' => ['text-nowrap', 'tabular-nums'],
+      ],
+    ],
+    [
+      'attribute' => 'vchItemsVATs',
       'format' => 'toman',
       'contentOptions' => [
         'class' => ['text-nowrap', 'tabular-nums'],

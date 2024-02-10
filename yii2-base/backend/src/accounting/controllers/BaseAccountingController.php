@@ -73,7 +73,6 @@ abstract class BaseAccountingController extends BaseRestController
 				'prevoucher' => $model->getPrevoucher(),
 			// ],
 		];
-
 	}
 
 	/**
@@ -81,6 +80,27 @@ abstract class BaseAccountingController extends BaseRestController
 	 */
 	public function actionUpdateBasketItem($key)
 	{
+		$accountingModule = self::getAccountingModule();
+		$modelClass = $accountingModule->basketModelClass;
+		$model = new $modelClass;
+
+		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
+			throw new NotFoundHttpException("parameters not provided");
+
+		try {
+			if ($model->updateBasketItem() == false)
+				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
+		} catch(\Exception $exp) {
+			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
+			throw new UnprocessableEntityHttpException($msg);
+		}
+
+		return [
+			// 'result' => [
+				// 'message' => 'created',
+				'prevoucher' => $model->getPrevoucher(),
+			// ],
+		];
 	}
 
 	/**
@@ -88,6 +108,27 @@ abstract class BaseAccountingController extends BaseRestController
 	 */
 	public function actionRemoveBasketItem($key)
 	{
+		$accountingModule = self::getAccountingModule();
+		$modelClass = $accountingModule->basketModelClass;
+		$model = new $modelClass;
+
+		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
+			throw new NotFoundHttpException("parameters not provided");
+
+		try {
+			if ($model->removeBasketItem() == false)
+				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
+		} catch(\Exception $exp) {
+			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
+			throw new UnprocessableEntityHttpException($msg);
+		}
+
+		return [
+			// 'result' => [
+				// 'message' => 'created',
+				'prevoucher' => $model->getPrevoucher(),
+			// ],
+		];
 	}
 
 	public function getSecureData()

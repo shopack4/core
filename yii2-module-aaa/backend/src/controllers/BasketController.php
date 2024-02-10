@@ -106,6 +106,9 @@ class BasketController extends BaseRestController
 					$services[$item['service']][] = $item;
 				}
 
+				//@TEMP:
+				$_old_vchItems = $model['vchItems'];
+
 				$model['vchItems'] = null;
 				$newItems = [];
 
@@ -141,6 +144,10 @@ class BasketController extends BaseRestController
 				//3: add new items
 				$model['vchItems'] = $newItems;
 
+
+				//@TEMP:
+				$model['vchItems'] = $_old_vchItems;
+
 			}
 		}
 
@@ -173,7 +180,8 @@ class BasketController extends BaseRestController
 
 		//---------------------------------
 		$orgVchAmount         = $model->vchAmount ?? 0;
-		$orgVchDiscountAmount = $model->vchDiscountAmount ?? 0;
+		$orgVchItemsDiscounts = $model->vchItemsDiscounts ?? 0;
+		$orgVchItemsVATs			= $model->vchItemsVATs ?? 0;
 		$orgVchTotalAmount    = $model->vchTotalAmount ?? 0;
 
 		//---------------------------------
@@ -199,11 +207,13 @@ class BasketController extends BaseRestController
 				if ($v['key'] == $sv['key']) {
 					// if (Json::encode($v) != Json::encode($sv)) {
 						$orgVchAmount         -= $v['subTotal'] ?? 0;
-						$orgVchDiscountAmount -= $v['discount'] ?? 0;
+						$orgVchItemsDiscounts -= $v['discount'] ?? 0;
+						$orgVchItemsVATs			-= $v['vat'] ?? 0;
 						$orgVchTotalAmount    -= $v['totalPrice'] ?? 0;
 
 						$orgVchAmount         += $sv['subTotal'] ?? 0;
-						$orgVchDiscountAmount += $sv['discount'] ?? 0;
+						$orgVchItemsDiscounts += $sv['discount'] ?? 0;
+						$orgVchItemsVATs			+= $sv['vat'] ?? 0;
 						$orgVchTotalAmount    += $sv['totalPrice'] ?? 0;
 
 						$vchItems[$k] = $sv;
@@ -218,7 +228,8 @@ class BasketController extends BaseRestController
 			//not found in new data: remove
 			if ($found == false) {
 				$orgVchAmount         -= $v['subTotal'] ?? 0;
-				$orgVchDiscountAmount -= $v['discount'] ?? 0;
+				$orgVchItemsDiscounts -= $v['discount'] ?? 0;
+				$orgVchItemsVATs			-= $v['vat'] ?? 0;
 				$orgVchTotalAmount    -= $v['totalPrice'] ?? 0;
 
 				unset($vchItems[$k]);
@@ -228,7 +239,8 @@ class BasketController extends BaseRestController
 		//not exists in old data: add
 		foreach ($newServiceItems as $sk => $sv) {
 			$orgVchAmount         += $sv['subTotal'] ?? 0;
-			$orgVchDiscountAmount += $sv['discount'] ?? 0;
+			$orgVchItemsDiscounts += $sv['discount'] ?? 0;
+			$orgVchItemsVATs			+= $sv['vat'] ?? 0;
 			$orgVchTotalAmount    += $sv['totalPrice'] ?? 0;
 
 			$vchItems[] = $sv;
@@ -238,7 +250,8 @@ class BasketController extends BaseRestController
 		$model->vchItems = $vchItems ?? null;
 
 		$model->vchAmount         = $orgVchAmount; //$voucher['vchAmount'];
-		$model->vchDiscountAmount = $orgVchDiscountAmount; //$voucher['vchDiscountAmount'] ?? null;
+		$model->vchItemsDiscounts = $orgVchItemsDiscounts; //$voucher['vchItemsDiscounts'] ?? null;
+		$model->vchItemsVATs			= $orgVchItemsVATs; //$voucher['vchItemsVATs'] ?? null;
 		$model->vchTotalAmount    = $orgVchTotalAmount; //$voucher['vchTotalAmount'] ?? null;
 		// $model->vchDeliveryMethodID = $voucher['vchDeliveryMethodID'] ?? null;
 		// $model->vchDeliveryAmount   = $voucher['vchDeliveryAmount'] ?? null;

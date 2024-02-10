@@ -18,7 +18,8 @@ use shopack\aaa\common\enums\enuVoucherType;
 'vchOwnerUserID',
 'vchType',
 'vchAmount',
-'vchDiscountAmount',
+'vchItemsDiscounts',
+'vchItemsVATs',
 'vchDeliveryMethodID',
 'vchDeliveryAmount',
 'vchTotalAmount',
@@ -79,7 +80,15 @@ trait VoucherModelTrait
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
-			'vchDiscountAmount' => [
+			'vchItemsDiscounts' => [
+				enuColumnInfo::type       => 'double',
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => null,
+				enuColumnInfo::required   => false,
+				enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
+			],
+			'vchItemsVATs' => [
 				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,

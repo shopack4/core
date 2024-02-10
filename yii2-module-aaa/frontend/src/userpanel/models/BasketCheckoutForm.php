@@ -31,10 +31,10 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 	// public static $resourceName = 'aaa/basket';
 
 	public $voucher;
-	public $totalPrices = 0;
-	public $totalDiscounts = 0;
-	public $totalTaxes = 0;
-	public $vchtotal = 0;
+	// public $totalPrices = 0;
+	// public $totalDiscounts = 0;
+	// public $totalTaxes = 0;
+	// public $vchtotal = 0;
 
 	public $physicalCount = 0;
 	public $deliveryMethod = null;
@@ -133,7 +133,7 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 				throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
 			}
 
-			if (empty($resultData['vchItems']) == false) {
+			if ((empty($resultData['vchItems']) == false) && (is_array($resultData['vchItems']) == false)) {
 				$resultData['vchItems'] = Json::decode($resultData['vchItems'], true);
 			}
 
@@ -183,7 +183,7 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 		}
 
 		//-------------------------
-		$this->vchtotal	= $voucherModel->vchAmount; // - ($voucherModel->vchDiscountAmount ?? 0);
+		$this->vchtotal	= $voucherModel->vchAmount; // - ($voucherModel->vchItemsDiscounts ?? 0);
 		$this->paid			= $voucherModel->vchTotalPaid;
 		$this->total		=
 				$voucherModel->vchAmount

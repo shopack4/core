@@ -294,7 +294,7 @@ class BaseBasketModel extends Model
 			list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/get-current',
 				HttpHelper::METHOD_POST,
 				[
-					'recheckItems' => true,
+					// 'recheckItems' => true,
 				],
 				[
 				// 	'service' => $serviceName,
@@ -306,7 +306,7 @@ class BaseBasketModel extends Model
 				throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
 			}
 
-			if (empty($resultData['vchItems']) == false) {
+			if ((empty($resultData['vchItems']) == false) && (is_array($resultData['vchItems']) == false)) {
 				$resultData['vchItems'] = Json::decode($resultData['vchItems'], true);
 			}
 
@@ -495,7 +495,7 @@ class BaseBasketModel extends Model
 		}
 
 		if ((empty($this->maxQty) == false) && ($this->qty > $this->maxQty)) {
-			throw new UnprocessableEntityHttpException("max qty reached");
+			throw new UnprocessableEntityHttpException("Max Qty Reached");
 		}
 
 		//-- fetch SLB & PRD --------------------------------
@@ -677,8 +677,13 @@ SQL;
 
 		$lastPreVoucher['vchAmount'] = $lastPreVoucher['vchAmount'] + $preVoucherItem->subTotal;
 
-		if (empty($preVoucherItem->discount) == false)
-			$lastPreVoucher['vchDiscountAmount'] = ($lastPreVoucher['vchDiscountAmount'] ?? 0) + $preVoucherItem->discount;
+		if (empty($preVoucherItem->discount) == false) {
+			$lastPreVoucher['vchItemsDiscounts'] = ($lastPreVoucher['vchItemsDiscounts'] ?? 0) + $preVoucherItem->discount;
+		}
+
+		if (empty($preVoucherItem->vat) == false) {
+			$lastPreVoucher['vchItemsVATs'] = ($lastPreVoucher['vchItemsVATs'] ?? 0) + $preVoucherItem->vat;
+		}
 
 		$lastPreVoucher['vchDeliveryMethodID'] = null;
 		$lastPreVoucher['vchDeliveryAmount'] = null;
@@ -698,15 +703,44 @@ SQL;
 
 	public function updateBasketItem()
 	{
-		$this->scenario = enuModelScenario::UPDATE;
+		if ($this->scenario != enuModelScenario::DELETE) {
+			$this->scenario = enuModelScenario::UPDATE;
+		}
+
 		if ($this->validate() == false)
 			return false;
 
+		if ($this->qty < 0) //==0 is valid for remove item
+			throw new UnprocessableEntityHttpException("invalid qty");
+
+		$lastPreVoucher = self::getCurrentBasket();
+
+		if (empty($lastPreVoucher['vchItems'])) {
+			throw new UnprocessableEntityHttpException("no items");
+		}
+
+		foreach ($lastPreVoucher['vchItems'] as $voucherItemIndex => $vItem) {
+			$voucherItem = stuVoucherItem::fromArray($vItem);
+
+			if ($vItem['key'] == $this->itemKey) {
+				return $this->internalUpdateBasketItem(
+					$lastPreVoucher,
+					$voucherItemIndex,
+					$voucherItem,
+					$this->qty,
+					$this->discountCode
+				);
+			}
+		}
+
+		throw new NotFoundHttpException("item not found");
 	}
 
 	public function removeBasketItem()
 	{
+		$this->scenario = enuModelScenario::DELETE;
 		$this->qty = 0;
+
 		return $this->updateBasketItem();
 	}
 
@@ -739,7 +773,7 @@ SQL;
 		}
 
 		if ((empty($_voucherItem->maxQty) == false) && ($_newQty > $_voucherItem->maxQty)) {
-			throw new UnprocessableEntityHttpException("max qty reached");
+			throw new UnprocessableEntityHttpException("Max Qty Reached");
 		}
 
     //-- validate preVoucher and owner --------------------------------

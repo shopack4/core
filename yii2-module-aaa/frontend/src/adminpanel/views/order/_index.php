@@ -107,7 +107,7 @@ use shopack\aaa\frontend\common\models\VoucherModel;
       ],
     ],
     [
-      'attribute' => 'vchDiscountAmount',
+      'attribute' => 'vchItemsDiscounts',
       'format' => 'toman',
       'contentOptions' => [
         'class' => ['text-nowrap', 'tabular-nums'],

@@ -67,7 +67,7 @@ class BasketItemForm extends Model
 
       $voucherModel->vchAmount += ($unitprice * $qty);
       if ($discount > 0)
-        $voucherModel->vchDiscountAmount = ($voucherModel->vchDiscountAmount ?? 0) + $discount;
+        $voucherModel->vchItemsDiscounts = ($voucherModel->vchItemsDiscounts ?? 0) + $discount;
 
       //check current items
       if (empty($maxqty) == false) {
@@ -106,7 +106,7 @@ class BasketItemForm extends Model
 
     $voucherModel->vchTotalAmount =
         $voucherModel->vchAmount
-      - ($voucherModel->vchDiscountAmount ?? 0);
+      - ($voucherModel->vchItemsDiscounts ?? 0);
 
     return $voucherModel->save();
   }

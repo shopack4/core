@@ -22,19 +22,19 @@ use shopack\base\frontend\common\helpers\Html;
       'attribute' => 'totalPrices',
       'label' => 'جمع کل',
       'format' => 'toman',
-      'value' => $model['totalPrices'],
+      'value' => $model->voucher['vchTotalAmount'],
     ],
     [
       'attribute' => 'totalDiscounts',
       'label' => 'تخفیف',
       'format' => 'toman',
-      'value' => $model['totalDiscounts'],
+      'value' => $model->voucher['vchItemsDiscounts'],
     ],
     [
       'attribute' => 'totalTaxes',
       'label' => 'مالیات',
       'format' => 'toman',
-      'value' => $model['totalTaxes'],
+      'value' => $model->voucher['vchItemsVATs'],
     ],
   ];
 
