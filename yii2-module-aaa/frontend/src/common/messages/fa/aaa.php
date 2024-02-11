@@ -192,8 +192,10 @@ return [
 	'Wallet Transaction' => 'تراکنش کیف پول',
 	'Wallet Transaction Info' => 'مشخصات تراکنش کیف پول',
 
+	'Qty' => 'تعداد / مقدار',
 	'Amount' => 'مبلغ',
-	'Discount Amount' => 'مقدار تخفیف',
+	'Discount Amount' => 'تخفیف',
+	'VAT Amount' => 'مالیات',
 	'Delivery Amount' => 'هزینه ارسال',
 	'Total Amount' => 'مبلغ کل',
 	'Remained Amount' => 'موجودی',

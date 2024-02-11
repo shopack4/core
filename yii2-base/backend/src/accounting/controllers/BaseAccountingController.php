@@ -60,25 +60,24 @@ abstract class BaseAccountingController extends BaseRestController
 			throw new NotFoundHttpException("parameters not provided");
 
 		try {
-			if ($model->addToBasket() == false)
-				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
+			list ($key, $lastPreVoucher) = $model->addToBasket();
+
+			return [
+				'key' => $key,
+				'prevoucher' => $lastPreVoucher,
+			];
+
+			// throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
 		} catch(\Exception $exp) {
 			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
 			throw new UnprocessableEntityHttpException($msg);
 		}
-
-		return [
-			// 'result' => [
-				// 'message' => 'created',
-				'prevoucher' => $model->getPrevoucher(),
-			// ],
-		];
 	}
 
 	/**
 	 * update a prevoucher item
 	 */
-	public function actionUpdateBasketItem($key)
+	public function actionUpdateBasketItem()
 	{
 		$accountingModule = self::getAccountingModule();
 		$modelClass = $accountingModule->basketModelClass;
@@ -88,25 +87,22 @@ abstract class BaseAccountingController extends BaseRestController
 			throw new NotFoundHttpException("parameters not provided");
 
 		try {
-			if ($model->updateBasketItem() == false)
-				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
+			list ($key, $lastPreVoucher) = $model->updateBasketItem();
+
+			return [
+				'key' => $key,
+				'prevoucher' => $lastPreVoucher,
+			];
 		} catch(\Exception $exp) {
 			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
 			throw new UnprocessableEntityHttpException($msg);
 		}
-
-		return [
-			// 'result' => [
-				// 'message' => 'created',
-				'prevoucher' => $model->getPrevoucher(),
-			// ],
-		];
 	}
 
 	/**
 	 * remove an item from prevoucher
 	 */
-	public function actionRemoveBasketItem($key)
+	public function actionRemoveBasketItem()
 	{
 		$accountingModule = self::getAccountingModule();
 		$modelClass = $accountingModule->basketModelClass;
@@ -116,19 +112,16 @@ abstract class BaseAccountingController extends BaseRestController
 			throw new NotFoundHttpException("parameters not provided");
 
 		try {
-			if ($model->removeBasketItem() == false)
-				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
+			list ($key, $lastPreVoucher) = $model->removeBasketItem();
+
+			return [
+				'key' => $key,
+				'prevoucher' => $lastPreVoucher,
+			];
 		} catch(\Exception $exp) {
 			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
 			throw new UnprocessableEntityHttpException($msg);
 		}
-
-		return [
-			// 'result' => [
-				// 'message' => 'created',
-				'prevoucher' => $model->getPrevoucher(),
-			// ],
-		];
 	}
 
 	public function getSecureData()

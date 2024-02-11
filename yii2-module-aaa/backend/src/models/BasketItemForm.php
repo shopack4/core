@@ -23,8 +23,10 @@ use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\backend\models\BasketForm;
 
+//deprecated
 class BasketItemForm extends Model
 {
+/*
   public static function addItem()
   {
 		$service = $_POST['service'];
@@ -110,7 +112,8 @@ class BasketItemForm extends Model
 
     return $voucherModel->save();
   }
-
+*/
+/*
   public static function removeItem($key)
   {
     $voucherModel = BasketForm::getCurrentBasket();
@@ -190,5 +193,6 @@ SQL;
 
     throw new NotFoundHttpException('Basket item not found');
   }
+*/
 
 }

@@ -77,9 +77,8 @@ class BasketCheckoutForm extends Model
 				$voucherModel->vchDeliveryAmount = $deliveryMethodModel->dlvAmount;
 
 				$voucherModel->vchTotalAmount =
-						$voucherModel->vchAmount
-					- ($voucherModel->vchItemsDiscounts ?? 0)
-					+ $deliveryMethodModel->dlvAmount;
+						$voucherModel->vchTotalAmount
+					+ $voucherModel->vchDeliveryAmount;
 			}
 
 			$voucherModel->save();
@@ -129,9 +128,9 @@ class BasketCheckoutForm extends Model
 			if ($walletAmount > 0) {
 				//2.1: create wallet transaction
 				$walletTransactionModel = new WalletTransactionModel();
-				$walletTransactionModel->wtrWalletID		= $this->walletID;
-				$walletTransactionModel->wtrVoucherID		= $voucherModel->vchID;
-				$walletTransactionModel->wtrAmount			= (-1) * $walletAmount;
+				$walletTransactionModel->wtrWalletID	= $this->walletID;
+				$walletTransactionModel->wtrVoucherID	= $voucherModel->vchID;
+				$walletTransactionModel->wtrAmount		= (-1) * $walletAmount;
 				$walletTransactionModel->save();
 
 				//2.2: decrease wallet amount
@@ -144,10 +143,10 @@ SQL;
 
 				//3: save to the voucher
 				$qry =<<<SQL
-				UPDATE	{$voucherTableName}
-					 SET	vchPaidByWallet = IFNULL(vchPaidByWallet, 0) + {$walletAmount}
-					 	 ,	vchTotalPaid = IFNULL(vchTotalPaid, 0) + {$walletAmount}
-				 WHERE	vchID = {$voucherModel->vchID}
+	UPDATE	{$voucherTableName}
+		 SET	vchPaidByWallet = IFNULL(vchPaidByWallet, 0) + {$walletAmount}
+		 	 ,	vchTotalPaid = IFNULL(vchTotalPaid, 0) + {$walletAmount}
+	 WHERE	vchID = {$voucherModel->vchID}
 SQL;
 				$rowsCount = Yii::$app->db->createCommand($qry)->execute();
 

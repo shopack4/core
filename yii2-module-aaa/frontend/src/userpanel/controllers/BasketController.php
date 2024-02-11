@@ -78,10 +78,11 @@ class BasketController extends BaseController
       throw new BadRequestHttpException('دستور حذف باید تایید شده باشد');
 
 		$model = new BasketItemForm;
-		$model->itemkey = $key;
-		$model->setIsNewRecord(false);
+		// $model->itemkey = $key;
+		// $model->setIsNewRecord(false);
 
-		$done = $model->delete();
+		// $done = $model->delete();
+		$done = $model->removeItem($key);
 
     return $this->redirect('index');
   }

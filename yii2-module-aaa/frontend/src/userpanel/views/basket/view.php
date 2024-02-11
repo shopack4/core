@@ -35,12 +35,7 @@ $this->params['breadcrumbs'][] = $this->title;
 function plusQty()
 {
 }
-
 function minusQty()
-{
-}
-
-function deleteItem()
 {
 }
 JS;
@@ -65,14 +60,14 @@ JS;
                 // 'slbid',
                 [
                   'attribute' => 'desc',
-                  'label' => 'شرح',
+                  'label' => Yii::t('app', 'Description'),
                 ],
                 [
                   'attribute' => 'qty',
-                  'label' => 'تعداد / مقدار',
+                  'label' => Yii::t('aaa', 'Qty'),
                   'format' => 'raw',
                   'value' => function ($model, $key, $index, $widget) {
-                    if (empty($model['qtystep'])) {
+                    if (empty($model['qtyStep'])) {
                       return Yii::$app->formatter->asDecimal($model['qty']);
                     }
 
@@ -97,26 +92,26 @@ JS;
                 ],
                 [
                   'attribute' => 'unit',
-                  'label' => 'واحد',
+                  'label' => 'واحد', //Yii::t('aaa', 'Unit'),
                 ],
                 [
                   'attribute' => 'unitPrice',
-                  'label' => 'مبلغ واحد',
+                  'label' => Yii::t('aaa', 'Unit Price'),
                   'format' => 'toman',
                 ],
                 [
                   'attribute' => 'discount',
-                  'label' => 'تخفیف',
+                  'label' => Yii::t('aaa', 'Discount Amount'),
                   'format' => 'toman',
                 ],
                 [
                   'attribute' => 'vat',
-                  'label' => 'مالیات',
+                  'label' => Yii::t('aaa', 'VAT Amount'),
                   'format' => 'toman',
                 ],
                 [
                   'attribute' => 'totalPrice',
-                  'label' => 'مبلغ کل',
+                  'label' => Yii::t('aaa', 'Total Amount'),
                   'format' => 'toman',
                 ],
                 [
@@ -127,9 +122,10 @@ JS;
                       return Html::deleteButton("<i class='indicator fas fa-trash'></i>", [
                         // '/' . $model['service'] . '/basket/remove-item',
                         'remove-item',
-                        'key' => $model['key'],
+                        'key' => $model['service'] . '/' . $model['key'],
                       ], [
                         'class' => 'btn btn-sm btn-outline-danger',
+                        'title' => Yii::t('app', 'Delete'),
                       ]);
                     },
                   ],

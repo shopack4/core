@@ -239,7 +239,7 @@ class BaseBasketModel extends Model
 			// ['discountCode',   'required', 'on' => [ enuModelScenario::CREATE ]],
 			// ['referrer',       'required', 'on' => [ enuModelScenario::CREATE ]],
 			// ['referrerParams', 'required', 'on' => [ enuModelScenario::CREATE ]],
-			['itemKey',       'required', 'on' => enuModelScenario::UPDATE],
+			['itemKey',       'required', 'on' => [ enuModelScenario::UPDATE, enuModelScenario::DELETE ]],
 			// ['lastPreVoucher',  'required', 'on' => [ enuModelScenario::CREATE ]],
 		];
 	}
@@ -552,148 +552,170 @@ class BaseBasketModel extends Model
 		//    }
 		//    $basketItem->digested.Limits = SaleableUsageLimits;
 
-		//-- --------------------------------
-		$this->processItemForBasket($basketItem);
+		try {
+			//start transaction
+			$transaction = Yii::$app->db->beginTransaction();
 
-		//-- --------------------------------
-		$preVoucherItem = new stuVoucherItem;
+			//-- --------------------------------
+			$this->processItemForBasket($basketItem);
 
-		// QJsonDocument JSDPendingVouchers = QJsonDocument();
-		// JSDPendingVouchers.setObject($basketItem->private.toJson());
-		// $preVoucherItem->private = simpleCryptInstance()->encryptToString(JSDPendingVouchers.toJson(QJsonDocument::Compact));
+			//-- --------------------------------
+			$preVoucherItem = new stuVoucherItem;
 
-		$preVoucherItem->service          = $serviceName;
-		$preVoucherItem->key              = Uuid::uuid4()->toString();
-		$preVoucherItem->desc             = $this->makeDesc($basketItem);
-		$preVoucherItem->qty              = $basketItem->qty; //$this->qty;
-		$preVoucherItem->maxQty           = $this->maxQty;
-		$preVoucherItem->qtyStep          = $this->qtyStep;
-		$preVoucherItem->unit             = $basketItem->saleable->product->unit->untName;
-		$preVoucherItem->unitPrice        = $basketItem->unitPrice;
-		$preVoucherItem->subTotal         = $basketItem->subTotal;
+			// QJsonDocument JSDPendingVouchers = QJsonDocument();
+			// JSDPendingVouchers.setObject($basketItem->private.toJson());
+			// $preVoucherItem->private = simpleCryptInstance()->encryptToString(JSDPendingVouchers.toJson(QJsonDocument::Compact));
 
-		//store multiple discounts (system (multi) + coupon (one))
-		$preVoucherItem->systemDiscounts  = $basketItem->systemDiscounts;
-		$preVoucherItem->couponDiscount   = $basketItem->couponDiscount;
+			$preVoucherItem->service          = $serviceName;
+			$preVoucherItem->key              = Uuid::uuid4()->toString();
+			$preVoucherItem->desc             = $this->makeDesc($basketItem);
+			$preVoucherItem->prdType					= $basketItem->saleable->product->prdType;
+			$preVoucherItem->qty              = $basketItem->qty; //$this->qty;
+			$preVoucherItem->maxQty           = $this->maxQty;
+			$preVoucherItem->qtyStep          = $this->qtyStep;
+			$preVoucherItem->unit             = $basketItem->saleable->product->unit->untName;
+			$preVoucherItem->unitPrice        = $basketItem->unitPrice;
+			$preVoucherItem->subTotal         = $basketItem->subTotal;
 
-		$preVoucherItem->discount        	= $basketItem->discount;
-		$preVoucherItem->afterDiscount    = $basketItem->afterDiscount;
+			//store multiple discounts (system (multi) + coupon (one))
+			$preVoucherItem->systemDiscounts  = $basketItem->systemDiscounts;
+			$preVoucherItem->couponDiscount   = $basketItem->couponDiscount;
 
-		$preVoucherItem->vatPercent       = $basketItem->vatPercent;
-		$preVoucherItem->vat        			= $basketItem->vat;
+			$preVoucherItem->discount        	= $basketItem->discount;
+			$preVoucherItem->afterDiscount    = $basketItem->afterDiscount;
 
-		$preVoucherItem->totalPrice       = $basketItem->totalPrice;
+			$preVoucherItem->vatPercent       = $basketItem->vatPercent;
+			$preVoucherItem->vat        			= $basketItem->vat;
 
-		$preVoucherItem->params           = $basketItem->orderParams;
-		$preVoucherItem->additives        = $basketItem->orderAdditives;
-		$preVoucherItem->referrer         = $basketItem->referrer;
-		$preVoucherItem->referrerParams   = $basketItem->referrerParams;
-		$preVoucherItem->dependencies     = $basketItem->dependencies;
+			$preVoucherItem->totalPrice       = $basketItem->totalPrice;
 
-		$preVoucherItem->apiTokenID       = $this->apiTokenID;
+			$preVoucherItem->params           = $basketItem->orderParams;
+			$preVoucherItem->additives        = $basketItem->orderAdditives;
+			$preVoucherItem->referrer         = $basketItem->referrer;
+			$preVoucherItem->referrerParams   = $basketItem->referrerParams;
+			$preVoucherItem->dependencies     = $basketItem->dependencies;
 
-		$userAssetModel = new $userAssetModelClass;
+			$preVoucherItem->apiTokenID       = $this->apiTokenID;
 
-		$userAssetModel->uasUUID            = $preVoucherItem->key;
-		$userAssetModel->uasActorID         = $basketItem->assetActorID;
-		$userAssetModel->uasSaleableID      = $basketItem->saleable->slbID;
-		$userAssetModel->uasQty             = $this->qty;
-    $userAssetModel->uasVoucherID       = $lastPreVoucher['vchID'];
-		$userAssetModel->uasVoucherItemInfo = array_filter(Json::decode(Json::encode($preVoucherItem), true));
+			$userAssetModel = new $userAssetModelClass;
 
-		//-- discount
-		// if (empty($basketItem->couponDiscount->id) == false) {
-		// 	$userAssetModel->uasDiscountID     = $basketItem->couponDiscount->id;
-		// 	$userAssetModel->uasDiscountAmount = $basketItem->discount; //CouponDiscount.Amount);
-		// }
+			$userAssetModel->uasUUID            = $preVoucherItem->key;
+			$userAssetModel->uasActorID         = $basketItem->assetActorID;
+			$userAssetModel->uasSaleableID      = $basketItem->saleable->slbID;
+			$userAssetModel->uasQty             = $this->qty;
+			$userAssetModel->uasVoucherID       = $lastPreVoucher['vchID'];
+			$userAssetModel->uasVoucherItemInfo = array_filter(Json::decode(Json::encode($preVoucherItem), true));
 
-		//-- duration
-		if (empty($basketItem->saleable->product->prdDurationMinutes) == false) {
-			$userAssetModel->uasDurationMinutes = $basketItem->saleable->product->prdDurationMinutes;
+			//-- discount
+			// if (empty($basketItem->couponDiscount->id) == false) {
+			// 	$userAssetModel->uasDiscountID     = $basketItem->couponDiscount->id;
+			// 	$userAssetModel->uasDiscountAmount = $basketItem->discount; //CouponDiscount.Amount);
+			// }
 
-			if ($basketItem->saleable->product->prdStartAtFirstUse == false) {
-				$userAssetModel->uasValidFromDate = new \yii\db\Expression('NOW()');
-				$userAssetModel->uasValidToDate   = new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$basketItem->saleable->product->prdDurationMinutes} MINUTE");
+			//-- duration
+			if (empty($basketItem->saleable->product->prdDurationMinutes) == false) {
+				$userAssetModel->uasDurationMinutes = $basketItem->saleable->product->prdDurationMinutes;
+
+				if ($basketItem->saleable->product->prdStartAtFirstUse == false) {
+					$userAssetModel->uasValidFromDate = new \yii\db\Expression('NOW()');
+					$userAssetModel->uasValidToDate   = new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$basketItem->saleable->product->prdDurationMinutes} MINUTE");
+				}
 			}
-		}
 
-		if (empty($basketItem->saleable->product->prdValidFromHour) == false) {
-			$userAssetModel->uasValidFromHour = $basketItem->saleable->product->prdValidFromHour;
-		}
-
-		if (empty($basketItem->saleable->product->prdValidToHour) == false) {
-			$userAssetModel->uasValidToHour = $basketItem->saleable->product->prdValidToHour;
-		}
-
-		//-- CustomUserAssetFields
-		$customFields = $this->getCustomUserAssetFieldsForQuery($basketItem);
-		if (($customFields != null) && (empty($customFields) == false)) {
-			foreach ($customFields as $k => $v) {
-				$userAssetModel->$k = $v;
+			if (empty($basketItem->saleable->product->prdValidFromHour) == false) {
+				$userAssetModel->uasValidFromHour = $basketItem->saleable->product->prdValidFromHour;
 			}
-		}
 
-		//-- --------------------------------
-		$userAssetModel->uasStatus = enuUserAssetStatus::Draft;
-		if ($userAssetModel->save() == false) {
-			//************ ERROR ************
-		}
-		$preVoucherItem->orderID = $userAssetModel->uasID;
+			if (empty($basketItem->saleable->product->prdValidToHour) == false) {
+				$userAssetModel->uasValidToHour = $basketItem->saleable->product->prdValidToHour;
+			}
 
-		//-- --------------------------------
-		// $preVoucherItem->sign = sign(PreVoucherItem);
+			//-- CustomUserAssetFields
+			$customFields = $this->getCustomUserAssetFieldsForQuery($basketItem);
+			if (($customFields != null) && (empty($customFields) == false)) {
+				foreach ($customFields as $k => $v) {
+					$userAssetModel->$k = $v;
+				}
+			}
 
-		//-- add to the last pre voucher --------------------------------
-		if (empty($lastPreVoucher['vchItems']))
-			$lastPreVoucher['vchItems'] = [];
+			//-- --------------------------------
+			$userAssetModel->uasStatus = enuUserAssetStatus::Draft;
+			if ($userAssetModel->save() == false) {
+				//************ ERROR ************
+			}
+			$preVoucherItem->orderID = $userAssetModel->uasID;
 
-		$lastPreVoucher['vchItems'][] = array_filter(Json::decode(Json::encode($preVoucherItem), true));
-		// $lastPreVoucher['vchSummary'] = count($lastPreVoucher['vchItems']) > 1
-			// ? count($lastPreVoucher['vchItems']) . ' items'
-			// : $preVoucherItem->qty . ' of ' . $preVoucherItem->desc;
+			//-- --------------------------------
+			// $preVoucherItem->sign = sign(PreVoucherItem);
 
-		$finalPrice = /*$lastPreVoucher['vchRound'] + */$lastPreVoucher['vchTotalAmount'] + $preVoucherItem->totalPrice;
+			//-- add to the last pre voucher --------------------------------
+			if (empty($lastPreVoucher['vchItems']))
+				$lastPreVoucher['vchItems'] = [];
 
-		if ($finalPrice < 0) {
-			$userAssetTableName = $userAssetModelClass::tableName();
-			//uasUUID in where is just for make condition safe and strong:
-			$qry =<<<SQL
+			$lastPreVoucher['vchItems'][] = array_filter(Json::decode(Json::encode($preVoucherItem), true));
+			// $lastPreVoucher['vchSummary'] = count($lastPreVoucher['vchItems']) > 1
+				// ? count($lastPreVoucher['vchItems']) . ' items'
+				// : $preVoucherItem->qty . ' of ' . $preVoucherItem->desc;
+
+			$finalPrice = /*$lastPreVoucher['vchRound'] + */$lastPreVoucher['vchTotalAmount'] + $preVoucherItem->totalPrice;
+
+			if ($finalPrice < 0) {
+/*
+not needed: reverted in rollback
+
+				$userAssetTableName = $userAssetModelClass::tableName();
+				//uasUUID in where is just for make condition safe and strong:
+				$qry =<<<SQL
   DELETE
     FROM {$userAssetTableName}
    WHERE uasID = {$preVoucherItem->orderID}
 	   AND uasUUID = '{$preVoucherItem->key}'
 SQL;
-			Yii::$app->db->createCommand($qry)->execute();
+				Yii::$app->db->createCommand($qry)->execute();
 
-			$saleableModelClass::unreserve(
-				$currentUserID,
-				$basketItem->saleable->slbID,
-				$preVoucherItem->qty,
-				$productModelClass
-			);
+				$saleableModelClass::unreserve(
+					$currentUserID,
+					$basketItem->saleable->slbID,
+					$preVoucherItem->qty,
+					$productModelClass
+				);
+*/
+				throw new ServerErrorHttpException("Final amount computed negative!");
+			}
 
-			throw new ServerErrorHttpException("Final amount computed negative!");
+			$lastPreVoucher['vchAmount'] = $lastPreVoucher['vchAmount'] + $preVoucherItem->subTotal;
+
+			if (empty($preVoucherItem->discount) == false) {
+				$lastPreVoucher['vchItemsDiscounts'] = ($lastPreVoucher['vchItemsDiscounts'] ?? 0) + $preVoucherItem->discount;
+			}
+
+			if (empty($preVoucherItem->vat) == false) {
+				$lastPreVoucher['vchItemsVATs'] = ($lastPreVoucher['vchItemsVATs'] ?? 0) + $preVoucherItem->vat;
+			}
+
+			$lastPreVoucher['vchDeliveryMethodID'] = null;
+			$lastPreVoucher['vchDeliveryAmount'] = null;
+
+			// $lastPreVoucher['vchRound'] = 0; //$finalPrice % 1000;
+			$lastPreVoucher['vchTotalAmount'] = $finalPrice /*- $lastPreVoucher['vchRound']*/;
+			// $lastPreVoucher->sign.clear();
+			// $lastPreVoucher->sign = sign($lastPreVoucher);
+
+			self::updateCurrentBasket($lastPreVoucher);
+
+			//commit
+			if (isset($transaction))
+				$transaction->commit();
+
+		} catch (\Exception $e) {
+			if (isset($transaction))
+				$transaction->rollBack();
+			throw $e;
+		} catch (\Throwable $e) {
+			if (isset($transaction))
+				$transaction->rollBack();
+			throw $e;
 		}
-
-		$lastPreVoucher['vchAmount'] = $lastPreVoucher['vchAmount'] + $preVoucherItem->subTotal;
-
-		if (empty($preVoucherItem->discount) == false) {
-			$lastPreVoucher['vchItemsDiscounts'] = ($lastPreVoucher['vchItemsDiscounts'] ?? 0) + $preVoucherItem->discount;
-		}
-
-		if (empty($preVoucherItem->vat) == false) {
-			$lastPreVoucher['vchItemsVATs'] = ($lastPreVoucher['vchItemsVATs'] ?? 0) + $preVoucherItem->vat;
-		}
-
-		$lastPreVoucher['vchDeliveryMethodID'] = null;
-		$lastPreVoucher['vchDeliveryAmount'] = null;
-
-		// $lastPreVoucher['vchRound'] = 0; //$finalPrice % 1000;
-		$lastPreVoucher['vchTotalAmount'] = $finalPrice /*- $lastPreVoucher['vchRound']*/;
-		// $lastPreVoucher->sign.clear();
-		// $lastPreVoucher->sign = sign($lastPreVoucher);
-
-		self::updateCurrentBasket($lastPreVoucher);
 
 		return [
 			$preVoucherItem->key,
@@ -703,7 +725,9 @@ SQL;
 
 	public function updateBasketItem()
 	{
-		if ($this->scenario != enuModelScenario::DELETE) {
+		if ($this->scenario == enuModelScenario::DELETE) {
+			$this->qty = 0;
+		} else {
 			$this->scenario = enuModelScenario::UPDATE;
 		}
 
@@ -877,123 +901,142 @@ SQL;
 //    }
 //    $basketItem->digested.Limits = SaleableUsageLimits;
 
-    //-- --------------------------------
-		$this->processItemForBasket($basketItem, $_voucherItem);
+		try {
+			//start transaction
+			$transaction = Yii::$app->db->beginTransaction();
 
-    //-- --------------------------------
-    // qint64 FinalPrice = $_lastPreVoucher.ToPay + $_lastPreVoucher.Round;
-		$finalPrice = /*$_lastPreVoucher['vchRound'] + */ $_lastPreVoucher['vchTotalAmount'];
-    $finalPrice -= $_voucherItem->totalPrice;
+			//-- --------------------------------
+			$this->processItemForBasket($basketItem, $_voucherItem);
 
-    if ($_newQty == 0) { //remove
-			//uasUUID in where is just for make condition safe and strong:
-			$qry =<<<SQL
+			//-- --------------------------------
+			// qint64 FinalPrice = $_lastPreVoucher.ToPay + $_lastPreVoucher.Round;
+			$finalPrice = /*$_lastPreVoucher['vchRound'] + */ $_lastPreVoucher['vchTotalAmount'];
+			$finalPrice -= $_voucherItem->totalPrice;
+
+			if ($_newQty == 0) { //remove
+				//uasUUID in where is just for make condition safe and strong:
+				$qry =<<<SQL
   DELETE
     FROM {$userAssetTableName}
    WHERE uasID = {$_voucherItem->orderID}
 	   AND uasUUID = '{$_voucherItem->key}'
 SQL;
-			Yii::$app->db->createCommand($qry)->execute();
+				Yii::$app->db->createCommand($qry)->execute();
 
-			//moved to processItemForBasket
-			// $saleableModelClass::unreserve(
-			// 	$currentUserID,
-			// 	$basketItem->saleable->slbID,
-			// 	$_voucherItem->qty,
-			// 	$productModelClass
-			// );
+				//moved to processItemForBasket
+				// $saleableModelClass::unreserve(
+				// 	$currentUserID,
+				// 	$basketItem->saleable->slbID,
+				// 	$_voucherItem->qty,
+				// 	$productModelClass
+				// );
 
-			$vchItems = $_lastPreVoucher['vchItems'];
-			unset($vchItems[$_voucherItemIndex]);
-			$_lastPreVoucher['vchItems'] = $vchItems;
+				$vchItems = $_lastPreVoucher['vchItems'];
+				unset($vchItems[$_voucherItemIndex]);
+				$_lastPreVoucher['vchItems'] = $vchItems;
 
-    } else { //update
-			$finalPrice += $basketItem->totalPrice;
+			} else { //update
+				$finalPrice += $basketItem->totalPrice;
 
-			// QJsonDocument JSDPendingVouchers = QJsonDocument();
-			// JSDPendingVouchers.setObject($basketItem->private.toJson());
-			// $_voucherItem->private = simpleCryptInstance()->encryptToString(JSDPendingVouchers.toJson(QJsonDocument::Compact));
+				// QJsonDocument JSDPendingVouchers = QJsonDocument();
+				// JSDPendingVouchers.setObject($basketItem->private.toJson());
+				// $_voucherItem->private = simpleCryptInstance()->encryptToString(JSDPendingVouchers.toJson(QJsonDocument::Compact));
 
-			$parentModule = Yii::$app->topModule;
-			$serviceName = $parentModule->id;
+				$parentModule = Yii::$app->topModule;
+				$serviceName = $parentModule->id;
 
-			$_voucherItem->service            = $serviceName;
-//        $_voucherItem->key = $_voucherItem->key;
-			$_voucherItem->desc               = $basketItem->saleable->slbName;
-			$_voucherItem->qty                = $basketItem->qty;
-			// $_voucherItem->maxQty             = //no change
-			// $_voucherItem->qtyStep            = //no change
-			$_voucherItem->unit               = $basketItem->saleable->product->unit->untName;
-			$_voucherItem->unitPrice          = $basketItem->unitPrice;
-			$_voucherItem->subTotal           = $basketItem->subTotal;
+				$_voucherItem->service            = $serviceName;
+	//        $_voucherItem->key = $_voucherItem->key;
+				$_voucherItem->desc               = $basketItem->saleable->slbName;
+				// $_voucherItem->prdType						= $basketItem->saleable->product->prdType;
+				$_voucherItem->qty                = $basketItem->qty;
+				// $_voucherItem->maxQty             = //no change
+				// $_voucherItem->qtyStep            = //no change
+				$_voucherItem->unit               = $basketItem->saleable->product->unit->untName;
+				$_voucherItem->unitPrice          = $basketItem->unitPrice;
+				$_voucherItem->subTotal           = $basketItem->subTotal;
 
-			//store multiple discounts (system (multi) + coupon (one))
-			$_voucherItem->systemDiscounts    = $basketItem->systemDiscounts;
-			$_voucherItem->couponDiscount     = $basketItem->couponDiscount;
+				//store multiple discounts (system (multi) + coupon (one))
+				$_voucherItem->systemDiscounts    = $basketItem->systemDiscounts;
+				$_voucherItem->couponDiscount     = $basketItem->couponDiscount;
 
-			$_voucherItem->discount           = $basketItem->discount;
-			$_voucherItem->afterDiscount      = $basketItem->afterDiscount;
+				$_voucherItem->discount           = $basketItem->discount;
+				$_voucherItem->afterDiscount      = $basketItem->afterDiscount;
 
-			$_voucherItem->vatPercent         = $basketItem->vatPercent;
-			$_voucherItem->vat			          = $basketItem->vat;
+				$_voucherItem->vatPercent         = $basketItem->vatPercent;
+				$_voucherItem->vat			          = $basketItem->vat;
 
-			$_voucherItem->totalPrice         = $basketItem->totalPrice;
+				$_voucherItem->totalPrice         = $basketItem->totalPrice;
 
-			$_voucherItem->params             = $basketItem->orderParams;
-			$_voucherItem->additives          = $basketItem->orderAdditives;
-			$_voucherItem->referrer           = $basketItem->referrer;
-			$_voucherItem->referrerParams     = $basketItem->referrerParams;
-//        $_voucherItem->apiToken           = $basketItem->apiToken;
+				$_voucherItem->params             = $basketItem->orderParams;
+				$_voucherItem->additives          = $basketItem->orderAdditives;
+				$_voucherItem->referrer           = $basketItem->referrer;
+				$_voucherItem->referrerParams     = $basketItem->referrerParams;
+	//        $_voucherItem->apiToken           = $basketItem->apiToken;
 
-			$voucherItemArray = array_filter(Json::decode(Json::encode($_voucherItem), true));
-			$uasVoucherItemInfo = Json::encode($voucherItemArray);
-			// $uasDiscountID = $basketItem->couponDiscount->id ?? 'NULL';
+				$voucherItemArray = array_filter(Json::decode(Json::encode($_voucherItem), true));
+				$uasVoucherItemInfo = Json::encode($voucherItemArray);
+				// $uasDiscountID = $basketItem->couponDiscount->id ?? 'NULL';
 
-			$qry =<<<SQL
-				UPDATE	{$userAssetTableName}
-					 SET	uasVoucherItemInfo = '{$uasVoucherItemInfo}'
-						 ,	uasQty = {$_newQty}
-				 WHERE	uasID = {$_voucherItem->orderID}
+				$qry =<<<SQL
+	UPDATE	{$userAssetTableName}
+		 SET	uasVoucherItemInfo = '{$uasVoucherItemInfo}'
+			 ,	uasQty = {$_newQty}
+	 WHERE	uasID = {$_voucherItem->orderID}
 SQL;
-						//  ,	uasDiscountAmount = {$basketItem->discount}
-						//  ,	uasDiscountID = {$uasDiscountID}
+							//  ,	uasDiscountAmount = {$basketItem->discount}
+							//  ,	uasDiscountID = {$uasDiscountID}
 
-			///@TODO: change tblAccountUserAssetsBase::Fields::uasRelatedAPITokenID ?
+				///@TODO: change tblAccountUserAssetsBase::Fields::uasRelatedAPITokenID ?
 
-			//-- CustomUserAssetFields
-			// QVariantMap CustomFields = this->getCustomUserAssetFieldsForQuery(_apiCallContext, AssetItem, &_voucherItem);
-			// for (QVariantMap::const_iterator it = CustomFields.constBegin();
-			//      it != CustomFields.constEnd();
-			//      it++
-			// ) {
-			//     qry.set(it.key(), *it);
+				//-- CustomUserAssetFields
+				// QVariantMap CustomFields = this->getCustomUserAssetFieldsForQuery(_apiCallContext, AssetItem, &_voucherItem);
+				// for (QVariantMap::const_iterator it = CustomFields.constBegin();
+				//      it != CustomFields.constEnd();
+				//      it++
+				// ) {
+				//     qry.set(it.key(), *it);
+				// }
+
+				//-- --------------------------------
+				Yii::$app->db->createCommand($qry)->execute();
+
+				//-- --------------------------------
+				// $_voucherItem->sign.clear();
+				// $_voucherItem->sign = QString(sign(_voucherItem));
+
+				$_lastPreVoucher['vchItems'][$_voucherItemIndex] = $voucherItemArray;
+			}
+
+			// if (empty($_lastPreVoucher['vchItems'])) {
+			//     $_lastPreVoucher.Summary = "";
+			// } else if ($_lastPreVoucher['vchItems'].size() > 1)
+			//     $_lastPreVoucher.Summary = QString("%1 items").arg($_lastPreVoucher['vchItems'].size());
+			// else {
+			//     auto item = $_lastPreVoucher['vchItems'].first();
+			//     $_lastPreVoucher.Summary = QString("%1 of %2").arg(item.Qty).arg(item.Desc);
 			// }
 
-			//-- --------------------------------
-			Yii::$app->db->createCommand($qry)->execute();
+			// $_lastPreVoucher['vchRound'] = 0; //$finalPrice % 1000;
+			$_lastPreVoucher['vchTotalAmount'] = $finalPrice; // - $_lastPreVoucher['vchRound'];
+			// $_lastPreVoucher.Sign.clear();
+			// $_lastPreVoucher.Sign = QString(sign(_lastPreVoucher));
 
-			//-- --------------------------------
-			// $_voucherItem->sign.clear();
-			// $_voucherItem->sign = QString(sign(_voucherItem));
+			self::updateCurrentBasket($_lastPreVoucher);
 
-			$_lastPreVoucher['vchItems'][$_voucherItemIndex] = $voucherItemArray;
-    }
+			//commit
+			if (isset($transaction))
+				$transaction->commit();
 
-    // if (empty($_lastPreVoucher['vchItems'])) {
-    //     $_lastPreVoucher.Summary = "";
-    // } else if ($_lastPreVoucher['vchItems'].size() > 1)
-    //     $_lastPreVoucher.Summary = QString("%1 items").arg($_lastPreVoucher['vchItems'].size());
-    // else {
-    //     auto item = $_lastPreVoucher['vchItems'].first();
-    //     $_lastPreVoucher.Summary = QString("%1 of %2").arg(item.Qty).arg(item.Desc);
-    // }
-
-		// $_lastPreVoucher['vchRound'] = 0; //$finalPrice % 1000;
-    $_lastPreVoucher['vchTotalAmount'] = $finalPrice; // - $_lastPreVoucher['vchRound'];
-    // $_lastPreVoucher.Sign.clear();
-    // $_lastPreVoucher.Sign = QString(sign(_lastPreVoucher));
-
-		self::updateCurrentBasket($_lastPreVoucher);
+		} catch (\Exception $e) {
+			if (isset($transaction))
+				$transaction->rollBack();
+			throw $e;
+		} catch (\Throwable $e) {
+			if (isset($transaction))
+				$transaction->rollBack();
+			throw $e;
+		}
 
 		return [
 			$_voucherItem->key,
@@ -1064,7 +1107,7 @@ SQL;
 			$_basketItem->vatPercent = ($_basketItem->saleable->product->prdVAT ?? 0);
 			$_basketItem->vat = $_basketItem->afterDiscount * $_basketItem->vatPercent / 100.0;
 
-			$_basketItem->totalPrice = $_basketItem->afterDiscount - $_basketItem->vat;
+			$_basketItem->totalPrice = $_basketItem->afterDiscount + $_basketItem->vat;
 
 			/*
 			print_r([

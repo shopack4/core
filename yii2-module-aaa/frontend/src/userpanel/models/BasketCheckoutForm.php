@@ -40,7 +40,7 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 	public $deliveryMethod = null;
 	public $deliveryAmount = 0;
 
-	public $paid = 0;
+	// public $paid = 0;
 	public $total = 0;
 
 	public $currentStep;
@@ -92,8 +92,22 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 	public function attributeLabels()
 	{
 		return [
-			'walletID'		=> Yii::t('aaa', 'Wallet'),
-			'gatewayType'	=> Yii::t('aaa', 'Payment Method'),
+			'vchAmount'           => Yii::t('aaa', 'Amount'),
+			'vchItemsDiscounts'   => Yii::t('aaa', 'Discount Amount'),
+			'vchItemsVATs'   			=> Yii::t('aaa', 'VAT Amount'),
+			'vchDeliveryAmount'   => Yii::t('aaa', 'Delivery Amount'),
+			'vchTotalAmount'      => Yii::t('aaa', 'Total Amount'),
+			'vchPaidByWallet'     => Yii::t('aaa', 'Paid By Wallet'),
+			'vchOnlinePaid'       => Yii::t('aaa', 'Online Paid'),
+			'vchOfflinePaid'      => Yii::t('aaa', 'Offline Paid'),
+			'vchTotalPaid'        => Yii::t('aaa', 'Total Paid'),
+
+      'walletamount' => 'برداشت از کیف پول',
+			'total'        => 'قابل پرداخت',
+
+			'deliveryMethod'			=> Yii::t('aaa', 'Delivery Method'),
+			'walletID'						=> Yii::t('aaa', 'Wallet'),
+			'gatewayType'					=> Yii::t('aaa', 'Payment Method'),
 		];
 	}
 
@@ -148,49 +162,19 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 		//get current basket for finalize (and recheck items / price / discount / ...)
 		$this->voucher = self::getCurrentBasket();
 
-
-
-
-
-
-
-		/*
-    $voucherModel = VoucherModel::find()
-      ->andWhere(['vchOwnerUserID' => Yii::$app->user->id])
-      ->andWhere(['vchType' => enuVoucherType::Basket])
-      ->andWhere(['vchStatus' => enuVoucherStatus::New])
-      ->andWhere(['vchRemovedAt' => 0])
-      ->all();
-
-		$this->voucher = $voucherModel = ($voucherModel[0] ?? null);
-
-		if ($voucherModel == null)
-			return;
-
 		$this->physicalCount = 0;
 
-		$vchItems = $voucherModel->vchItems;
+		$vchItems = $this->voucher['vchItems'] ?? [];
 
 		foreach ($vchItems as $item) {
-			$this->totalPrices += $item['unitPrice'] * $item['qty'];
-			// $this->total += $this->totalPrices;
-
-			$this->totalDiscounts += ($item['discount'] ?? 0);
-
-			if (isset($item['prdtype']) && ($item['prdtype'] == enuProductType::Physical)) {
+			if (isset($item['prdType']) && ($item['prdType'] == enuProductType::Physical)) {
 				++$this->physicalCount;
 			}
 		}
 
-		//-------------------------
-		$this->vchtotal	= $voucherModel->vchAmount; // - ($voucherModel->vchItemsDiscounts ?? 0);
-		$this->paid			= $voucherModel->vchTotalPaid;
-		$this->total		=
-				$voucherModel->vchAmount
-			- $this->totalDiscounts
-			- ($voucherModel->vchTotalPaid ?? 0);
-
-		*/
+		$this->total =
+			$this->voucher['vchTotalAmount']
+			- ($this->voucher['vchTotalPaid'] ?? 0);
 
 		//-------------------------
 		$this->steps = [];

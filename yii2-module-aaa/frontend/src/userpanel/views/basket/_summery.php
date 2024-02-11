@@ -17,51 +17,56 @@ use shopack\base\frontend\common\helpers\Html;
   //   'total'           => $total,
   // ];
 
-  $attributes = [
+  $attributes = [];
+
+  $attributes = array_merge($attributes, [
     [
-      'attribute' => 'totalPrices',
-      'label' => 'جمع کل',
+      'attribute' => 'vchAmount',
       'format' => 'toman',
-      'value' => $model->voucher['vchTotalAmount'],
-    ],
+      'value' => $model->voucher['vchAmount'],
+    ]
+  ]);
+
+  $attributes = array_merge($attributes, [
     [
-      'attribute' => 'totalDiscounts',
-      'label' => 'تخفیف',
+      'attribute' => 'vchItemsDiscounts',
       'format' => 'toman',
       'value' => $model->voucher['vchItemsDiscounts'],
-    ],
+    ]
+  ]);
+
+  $attributes = array_merge($attributes, [
     [
-      'attribute' => 'totalTaxes',
-      'label' => 'مالیات',
+      'attribute' => 'vchItemsVATs',
       'format' => 'toman',
       'value' => $model->voucher['vchItemsVATs'],
-    ],
-  ];
+    ]
+  ]);
+
+  $attributes = array_merge($attributes, [
+    [
+      'attribute' => 'vchTotalAmount',
+      'format' => 'toman',
+      'value' => $model->voucher['vchTotalAmount'],
+    ]
+  ]);
 
   if ($model->physicalCount > 0) {
     $attributes = array_merge($attributes, [
       [
-        'attribute' => 'deliveryAmount',
-        'label' => 'هزینه ارسال',
+        'attribute' => 'vchDeliveryAmount',
         'format' => 'toman',
         'value' => $model['deliveryAmount'],
       ],
     ]);
   }
 
-  if ($model->paid > 0) {
+  if (empty($model->voucher['vchTotalPaid']) == false) {
     $attributes = array_merge($attributes, [
-      // [
-      //   'attribute' => 'vchtotal',
-      //   'label' => 'جمع کل',
-      //   'format' => 'toman',
-      //   'value' => $model['vchtotal'],
-      // ],
       [
-        'attribute' => 'paid',
-        'label' => 'پرداخت شده',
+        'attribute' => 'vchTotalPaid',
         'format' => 'toman',
-        'value' => $model['paid'],
+        'value' => $model->voucher['vchTotalPaid'],
       ],
     ]);
   }
@@ -69,7 +74,6 @@ use shopack\base\frontend\common\helpers\Html;
   $attributes = array_merge($attributes, [
     [
       'attribute' => 'walletamount',
-      'label' => 'برداشت از کیف پول',
       'format' => 'raw',
       'value' => Html::span('', ['id' => 'spn-walletamount']),
       'rowOptions' => [
@@ -80,7 +84,6 @@ use shopack\base\frontend\common\helpers\Html;
     ],
     [
       'attribute' => 'total',
-      'label' => 'قابل پرداخت',
       'format' => 'raw',
       'value' => Html::span(Yii::$app->formatter->asToman($model['total']), ['id' => 'spn-total']),
       'rowOptions' => [

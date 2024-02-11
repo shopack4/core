@@ -15,6 +15,8 @@ use shopack\aaa\backend\models\BasketForm;
 use shopack\aaa\backend\models\BasketItemForm;
 use shopack\aaa\backend\models\BasketCheckoutForm;
 use shopack\aaa\backend\models\VoucherModel;
+use shopack\aaa\backend\models\WalletModel;
+use shopack\aaa\backend\models\WalletTransactionModel;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuVoucherType;
 use shopack\base\common\helpers\HttpHelper;
@@ -167,98 +169,143 @@ class BasketController extends BaseRestController
 		if (empty($voucher['vchID']))
 			throw new UnprocessableEntityHttpException('Invalid voucher id');
 
-		$model = VoucherModel::findOne(['vchID' => $voucher['vchID']]);
+		$voucherModel = VoucherModel::findOne(['vchID' => $voucher['vchID']]);
 
-		if ($model == null)
+		if ($voucherModel == null)
 			throw new NotFoundHttpException('Voucher not found');
 
-		if ($model->vchType != enuVoucherType::Basket)
-			throw new UnprocessableEntityHttpException('Voucher is not basket type');
+		if ($voucherModel->vchType != enuVoucherType::Basket)
+			throw new UnprocessableEntityHttpException('Voucher is not basket');
 
-		if ($model->vchStatus != enuVoucherStatus::New)
-			throw new UnprocessableEntityHttpException('Voucher is not new');
+		if ($voucherModel->vchStatus != enuVoucherStatus::New)
+			throw new UnprocessableEntityHttpException('Basket is not open');
 
 		//---------------------------------
-		$orgVchAmount         = $model->vchAmount ?? 0;
-		$orgVchItemsDiscounts = $model->vchItemsDiscounts ?? 0;
-		$orgVchItemsVATs			= $model->vchItemsVATs ?? 0;
-		$orgVchTotalAmount    = $model->vchTotalAmount ?? 0;
+		$orgVchAmount         = $voucherModel->vchAmount ?? 0;
+		$orgVchItemsDiscounts = $voucherModel->vchItemsDiscounts ?? 0;
+		$orgVchItemsVATs			= $voucherModel->vchItemsVATs ?? 0;
+		$orgVchTotalAmount    = $voucherModel->vchTotalAmount ?? 0;
 
 		//---------------------------------
 		$allData = $_POST;
 		$service = $allData['service'];
 
 		$newServiceItems = [];
-		foreach ($voucher['vchItems'] as $v) {
-			if ($v['service'] != $service)
+		foreach ($voucher['vchItems'] as $newItem) {
+			if ($newItem['service'] != $service)
 				continue;
 
-			$newServiceItems[] = $v;
+			$newServiceItems[] = $newItem;
 		}
 
-		$vchItems = $model->vchItems ?? [];
-		foreach ($vchItems as $k => $v) {
-			if ($v['service'] != $service)
+		$vchItems = $voucherModel->vchItems ?? [];
+		foreach ($vchItems as $oldKey => $oldItem) {
+			if ($oldItem['service'] != $service)
 				continue;
 
 			$found = false;
-			foreach ($newServiceItems as $sk => $sv) {
+			foreach ($newServiceItems as $newIndex => $newItem) {
 				//found in both: update
-				if ($v['key'] == $sv['key']) {
-					// if (Json::encode($v) != Json::encode($sv)) {
-						$orgVchAmount         -= $v['subTotal'] ?? 0;
-						$orgVchItemsDiscounts -= $v['discount'] ?? 0;
-						$orgVchItemsVATs			-= $v['vat'] ?? 0;
-						$orgVchTotalAmount    -= $v['totalPrice'] ?? 0;
+				if ($oldItem['key'] == $newItem['key']) {
+					// if (Json::encode($oldItem) != Json::encode($newItem)) {
+						$orgVchAmount         -= $oldItem['subTotal'] ?? 0;
+						$orgVchItemsDiscounts -= $oldItem['discount'] ?? 0;
+						$orgVchItemsVATs			-= $oldItem['vat'] ?? 0;
+						$orgVchTotalAmount    -= $oldItem['totalPrice'] ?? 0;
 
-						$orgVchAmount         += $sv['subTotal'] ?? 0;
-						$orgVchItemsDiscounts += $sv['discount'] ?? 0;
-						$orgVchItemsVATs			+= $sv['vat'] ?? 0;
-						$orgVchTotalAmount    += $sv['totalPrice'] ?? 0;
+						$orgVchAmount         += $newItem['subTotal'] ?? 0;
+						$orgVchItemsDiscounts += $newItem['discount'] ?? 0;
+						$orgVchItemsVATs			+= $newItem['vat'] ?? 0;
+						$orgVchTotalAmount    += $newItem['totalPrice'] ?? 0;
 
-						$vchItems[$k] = $sv;
+						$vchItems[$oldKey] = $newItem;
 					// }
 
 					$found = true;
-					unset($newServiceItems[$sk]);
+					unset($newServiceItems[$newIndex]);
 					break;
 				}
 			}
 
 			//not found in new data: remove
 			if ($found == false) {
-				$orgVchAmount         -= $v['subTotal'] ?? 0;
-				$orgVchItemsDiscounts -= $v['discount'] ?? 0;
-				$orgVchItemsVATs			-= $v['vat'] ?? 0;
-				$orgVchTotalAmount    -= $v['totalPrice'] ?? 0;
+				$orgVchAmount         -= $oldItem['subTotal'] ?? 0;
+				$orgVchItemsDiscounts -= $oldItem['discount'] ?? 0;
+				$orgVchItemsVATs			-= $oldItem['vat'] ?? 0;
+				$orgVchTotalAmount    -= $oldItem['totalPrice'] ?? 0;
 
-				unset($vchItems[$k]);
+				unset($vchItems[$oldKey]);
 			}
 		}
 
 		//not exists in old data: add
-		foreach ($newServiceItems as $sk => $sv) {
-			$orgVchAmount         += $sv['subTotal'] ?? 0;
-			$orgVchItemsDiscounts += $sv['discount'] ?? 0;
-			$orgVchItemsVATs			+= $sv['vat'] ?? 0;
-			$orgVchTotalAmount    += $sv['totalPrice'] ?? 0;
+		foreach ($newServiceItems as $newItem) {
+			$orgVchAmount         += $newItem['subTotal'] ?? 0;
+			$orgVchItemsDiscounts += $newItem['discount'] ?? 0;
+			$orgVchItemsVATs			+= $newItem['vat'] ?? 0;
+			$orgVchTotalAmount    += $newItem['totalPrice'] ?? 0;
 
-			$vchItems[] = $sv;
+			$vchItems[] = $newItem;
 		}
 
 		//---------------------------------
-		$model->vchItems = $vchItems ?? null;
+		$voucherModel->vchItems = $vchItems ?? null;
 
-		$model->vchAmount         = $orgVchAmount; //$voucher['vchAmount'];
-		$model->vchItemsDiscounts = $orgVchItemsDiscounts; //$voucher['vchItemsDiscounts'] ?? null;
-		$model->vchItemsVATs			= $orgVchItemsVATs; //$voucher['vchItemsVATs'] ?? null;
-		$model->vchTotalAmount    = $orgVchTotalAmount; //$voucher['vchTotalAmount'] ?? null;
-		// $model->vchDeliveryMethodID = $voucher['vchDeliveryMethodID'] ?? null;
-		// $model->vchDeliveryAmount   = $voucher['vchDeliveryAmount'] ?? null;
+		$voucherModel->vchAmount					= $orgVchAmount;
+		$voucherModel->vchItemsDiscounts	= $orgVchItemsDiscounts;
+		$voucherModel->vchItemsVATs				= $orgVchItemsVATs;
+		$voucherModel->vchTotalAmount			= $orgVchTotalAmount;
+		// $voucherModel->vchDeliveryMethodID = $voucher['vchDeliveryMethodID'] ?? null;
+		// $voucherModel->vchDeliveryAmount   = $voucher['vchDeliveryAmount'] ?? null;
 
-		//---------------------------------
-		if ($model->save() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
+		try {
+			//2: check paid by wallet return amount
+			if (($voucherModel->vchPaidByWallet ?? 0) > $voucherModel->vchTotalAmount) {
+				//start transaction
+				$transaction = Yii::$app->db->beginTransaction();
+
+				$walletReturnAmount = $voucherModel->vchPaidByWallet - $voucherModel->vchTotalAmount;
+
+				$walletModel = WalletModel::ensureIHaveDefaultWallet();
+
+				//2.1: create wallet transaction
+				$walletTransactionModel = new WalletTransactionModel();
+				$walletTransactionModel->wtrWalletID	= $walletModel->walID;
+				$walletTransactionModel->wtrVoucherID	= $voucherModel->vchID;
+				$walletTransactionModel->wtrAmount		= $walletReturnAmount;
+				$walletTransactionModel->save();
+
+				//2.2: increase wallet amount
+				$walletTableName = WalletModel::tableName();
+				$qry =<<<SQL
+  UPDATE {$walletTableName}
+     SET walRemainedAmount = walRemainedAmount + {$walletReturnAmount}
+   WHERE walID = {$walletModel->walID}
+SQL;
+				$rowsCount = Yii::$app->db->createCommand($qry)->execute();
+
+				//3: save to the voucher
+				$voucherModel->vchPaidByWallet = $voucherModel->vchTotalAmount;
+				$voucherModel->vchTotalPaid = $voucherModel->vchTotalPaid - $walletReturnAmount;
+			}
+
+			//---------------------------------
+			if ($voucherModel->save() == false)
+				throw new UnprocessableEntityHttpException(implode("\n", $voucherModel->getFirstErrors()));
+
+			//commit
+			if (isset($transaction))
+				$transaction->commit();
+
+		} catch (\Exception $e) {
+			if (isset($transaction))
+				$transaction->rollBack();
+			throw $e;
+		} catch (\Throwable $e) {
+			if (isset($transaction))
+				$transaction->rollBack();
+			throw $e;
+		}
 
 		return [
 			'ok'
@@ -266,15 +313,15 @@ class BasketController extends BaseRestController
 	}
 
 	//just called from other services with encryption
-	public function actionAddItem()
-	{
-		return BasketItemForm::addItem();
-	}
+	// public function actionAddItem()
+	// {
+	// 	return BasketItemForm::addItem();
+	// }
 
-	public function actionRemoveItem($key)
-	{
-		return BasketItemForm::removeItem($key);
-	}
+	// public function actionRemoveItem($key)
+	// {
+	// 	return BasketItemForm::removeItem($key);
+	// }
 
 	public function actionCheckout()
 	{

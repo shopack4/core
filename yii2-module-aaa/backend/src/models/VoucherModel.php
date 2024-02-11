@@ -56,7 +56,7 @@ class VoucherModel extends AAAActiveRecord
 		// 		&& ($this->vchStatus != enuVoucherStatus::Error))
     //   throw new UnprocessableEntityHttpException('The voucher status is not settled or error');
 
-		if ($this->vchTotalAmount != $this->vchTotalPaid ?? 0)
+		if ($this->vchTotalAmount != ($this->vchTotalPaid ?? 0))
       throw new UnprocessableEntityHttpException('This voucher not paid totaly');
 
 		$errorCount = 0;
