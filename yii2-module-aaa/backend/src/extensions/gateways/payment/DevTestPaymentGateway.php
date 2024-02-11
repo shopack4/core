@@ -72,10 +72,10 @@ class DevTestPaymentGateway
 		}
 
 		if ($result == 'error')
-			throw new UnprocessableEntityHttpException('payment failed');
+			throw new UnprocessableEntityHttpException('Payment Failed');
 
 		if ($result == 'cancel')
-			throw new UnprocessableEntityHttpException('payment cancelled');
+			throw new UnprocessableEntityHttpException('Payment Cancelled');
 
 		throw new ServerErrorHttpException('unknown payment result');
 	}

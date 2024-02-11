@@ -501,6 +501,9 @@ return [
 	//-- FIN ---------------
 	'Financial' => 'مالی',
 
+	'Payment Failed' => 'پرداخت موفق نبود',
+	'Payment Cancelled' => 'عملیات پرداخت لغو شد',
+
 	'Payment gateway' => 'درگاه پرداخت',
 	'Payment gateways' => 'درگاه‌های پرداخت',
 

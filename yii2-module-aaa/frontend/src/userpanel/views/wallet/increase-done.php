@@ -30,16 +30,16 @@ $this->params['breadcrumbs'][] = $this->title;
 				?>
 			</p>
 			<p class='text-center'>
+				<?php
+					if (empty($errors) == false)
+						echo Yii::t('aaa', $errors);
+				?>
+			</p>
+			<p class='text-center'>
 				<?= Html::a(Yii::t('aaa', 'Return to the wallet'), [
 					'view',
 					'id' => $onlinePaymentModel->onpWalletID,
 				]); ?>
-			</p>
-			<p class='text-center'>
-				<?php
-					if (empty($errors) == false)
-						echo $errors;
-				?>
 			</p>
     </div>
   </div>

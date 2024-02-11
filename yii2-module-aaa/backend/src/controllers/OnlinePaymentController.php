@@ -17,6 +17,7 @@ use shopack\aaa\common\enums\enuPaymentGatewayType;
 use shopack\aaa\backend\models\OnlinePaymentModel;
 use shopack\aaa\backend\models\GatewayModel;
 use shopack\aaa\common\enums\enuGatewayStatus;
+use shopack\aaa\common\enums\enuOnlinePaymentStatus;
 use shopack\base\common\helpers\ArrayHelper;
 use shopack\aaa\common\enums\enuVoucherType;
 
@@ -239,7 +240,17 @@ HTML;
 		try {
 			$onlinePaymentModel = Yii::$app->paymentManager->approveOnlinePayment($paymentkey, $pgwResponse);
 
-			$done = $onlinePaymentModel->voucher->processVoucher();
+      if ($onlinePaymentModel->onpStatus == enuOnlinePaymentStatus::Error) {
+				if (empty($onlinePaymentModel->onpResult['error']) == false) {
+					if (YII_DEBUG) {
+						$onlinePaymentModel->addError('', $onlinePaymentModel->onpResult['error']);
+					} else {
+						$errors = 'Payment Failed';
+					}
+				}
+			} else {
+				$done = $onlinePaymentModel->voucher->processVoucher();
+			}
 
 		} catch (\Throwable $th) {
 			if (empty($onlinePaymentModel)) {
@@ -263,7 +274,8 @@ HTML;
 			$url .= '&';
 		$url .= 'paymentkey=' . $paymentkey;
 
-		$errors = $onlinePaymentModel->getErrorSummary(true);
+		if (YII_DEBUG)
+			$errors = $onlinePaymentModel->getErrorSummary(true);
 		if ($errors)
 			$url .= '&errors=' . urlencode(implode('\n', $errors));
 

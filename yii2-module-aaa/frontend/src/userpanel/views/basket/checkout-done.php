@@ -29,7 +29,7 @@ $this->params['breadcrumbs'][] = $this->title;
 			<p class='text-center'>
 				<?php
 					if (empty($errors) == false)
-						echo $errors;
+						echo Yii::t('aaa', $errors);
 				?>
 			</p>
     </div>

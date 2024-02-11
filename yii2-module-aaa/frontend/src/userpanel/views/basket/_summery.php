@@ -10,48 +10,53 @@ use shopack\base\frontend\common\helpers\Html;
 ?>
 
 <?php
-  // $model = [
-  //   'totalPrices'     => $totalPrices,
-  //   'totalDiscounts'  => $totalDiscounts,
-  //   'totalTaxes'      => $totalTaxes,
-  //   'total'           => $total,
-  // ];
+  $hasDiscount = (empty($model->voucher['vchItemsDiscounts']) == false);
+  $hasVAT = (empty($model->voucher['vchItemsVATs']) == false);
+  $hasPhysical = ($model->physicalCount > 0);
 
   $attributes = [];
 
-  $attributes = array_merge($attributes, [
-    [
-      'attribute' => 'vchAmount',
-      'format' => 'toman',
-      'value' => $model->voucher['vchAmount'],
-    ]
-  ]);
+  if ($hasDiscount || $hasVAT) {
+    $attributes = array_merge($attributes, [
+      [
+        'attribute' => 'vchAmount',
+        'format' => 'toman',
+        'value' => $model->voucher['vchAmount'],
+      ]
+    ]);
+  }
 
-  $attributes = array_merge($attributes, [
-    [
-      'attribute' => 'vchItemsDiscounts',
-      'format' => 'toman',
-      'value' => $model->voucher['vchItemsDiscounts'],
-    ]
-  ]);
+  if ($hasDiscount) {
+    $attributes = array_merge($attributes, [
+      [
+        'attribute' => 'vchItemsDiscounts',
+        'format' => 'toman',
+        'value' => $model->voucher['vchItemsDiscounts'],
+      ]
+    ]);
+  }
 
-  $attributes = array_merge($attributes, [
-    [
-      'attribute' => 'vchItemsVATs',
-      'format' => 'toman',
-      'value' => $model->voucher['vchItemsVATs'],
-    ]
-  ]);
+  if ($hasVAT) {
+    $attributes = array_merge($attributes, [
+      [
+        'attribute' => 'vchItemsVATs',
+        'format' => 'toman',
+        'value' => $model->voucher['vchItemsVATs'],
+      ]
+    ]);
+  }
 
-  $attributes = array_merge($attributes, [
-    [
-      'attribute' => 'vchTotalAmount',
-      'format' => 'toman',
-      'value' => $model->voucher['vchTotalAmount'],
-    ]
-  ]);
+  if ($hasDiscount || $hasVAT || $hasPhysical) {
+    $attributes = array_merge($attributes, [
+      [
+        'attribute' => 'vchTotalAmount',
+        'format' => 'toman',
+        'value' => $model->voucher['vchTotalAmount'],
+      ]
+    ]);
+  }
 
-  if ($model->physicalCount > 0) {
+  if ($hasPhysical) {
     $attributes = array_merge($attributes, [
       [
         'attribute' => 'vchDeliveryAmount',
@@ -102,5 +107,4 @@ use shopack\base\frontend\common\helpers\Html;
     'valueColOptions' => ['class' => ['w-50', 'text-nowrap']],
     'attributes' => $attributes,
   ]);
-  // echo $model->voucher->vchAmount;
 ?>
