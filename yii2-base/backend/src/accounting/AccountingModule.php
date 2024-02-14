@@ -116,6 +116,7 @@ abstract class AccountingModule
 						'POST update-basket-item' => 'update-basket-item',
 						'POST remove-basket-item' => 'remove-basket-item',
 						'POST recheck-basket-items' => 'recheck-basket-items',
+						'POST process-voucher-items' => 'process-voucher-items',
 					],
 				],
 

@@ -59,6 +59,68 @@ class VoucherModel extends AAAActiveRecord
 		if ($this->vchTotalAmount != ($this->vchTotalPaid ?? 0))
       throw new UnprocessableEntityHttpException('This voucher not paid totaly');
 
+		$services = [];
+
+		//1- get services
+		foreach ($this->vchItems as $k => $voucherItem) {
+			if (empty($services[$voucherItem['service']])) {
+				$services[$voucherItem['service']] = [];
+			}
+
+			$services[$voucherItem['service']][] = $voucherItem;
+		}
+
+		//@TEMP:
+		$_old_vchItems = $this->vchItems;
+
+		$this->vchItems = null;
+		$newItems = [];
+
+		//2: call process-voucher-items for every service
+		$parentModule = Yii::$app->topModule;
+
+		foreach ($services as $service => $items) {
+			$data = Json::encode([
+				'service' => $service,
+				'prevoucher' => $this,
+				'items' => $items,
+			]);
+
+			$data = RsaPublic::model($parentModule->servicesPublicKeys[$service])->encrypt($data);
+
+			list ($resultStatus, $resultData) = HttpHelper::callApi(
+				"{$service}/accounting/process-voucher-items",
+				HttpHelper::METHOD_POST,
+				[],
+				[
+					'service'	=> $service,
+					'data' => $data,
+				]
+			);
+
+			if ($resultStatus < 200 || $resultStatus >= 300) {
+				// throw new \yii\web\HttpException($resultStatus, Yii::t('mha', $resultData['message'], $resultData));
+			} else {
+
+				//add to $newItems
+
+			}
+		}
+
+		//3: add new items
+		$this->vchItems = $newItems;
+
+
+		//@TEMP:
+		$this->vchItems = $_old_vchItems;
+
+
+
+
+
+
+
+
 		$errorCount = 0;
 		$vchItems = $this->vchItems;
 		foreach ($vchItems as $k => $voucherItem) {

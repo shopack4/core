@@ -46,6 +46,9 @@ class UserSendMessageForm extends Model
     if (empty($userModel))
       throw new UnauthorizedHttpException('User not found');
 
+    if (empty($userModel['usrMobile']))
+      throw new UnprocessableEntityHttpException('Mobile not defined');
+
     $memberFullName = [];
     if ((empty($userModel['usrGender']) == false)
         && ($userModel['usrGender'] != enuGender::NotSet))

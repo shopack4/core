@@ -494,6 +494,9 @@ return [
 	'Incorrect Email or password.' => 'ایمیل یا رمز ورود صحیح نیست.',
 	'Incorrect email or Password.' => 'ایمیل و رمز ورود صحیح نیست.',
 
+	'One of the email or mobile is required' => 'یکی از موارد ایمیل یا موبایل اجباری است',
+	'Invalid SSID' => 'کد ملی صحیح نیست',
+
 	'Not allowed for Guest.' => 'دسترسی به این قسمت برای کاربر مهمان امکان پذیر نمی‌باشد.',
 	'Owner Count' => 'تعداد مالکان',
 	'Queue ID' => 'صف اجرا',

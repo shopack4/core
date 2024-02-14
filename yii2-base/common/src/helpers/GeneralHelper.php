@@ -14,6 +14,39 @@ class GeneralHelper
   const PHRASETYPE_SSID   = 'S';
   const PHRASETYPE_NONE   = 'N';
 
+  static function isValidIranSSID(string $ssid)
+  {
+    $ssid = trim($ssid);
+
+    if (preg_match('/^[0-9]{8,10}$/', $ssid) == false)
+      return false;
+
+    if ((strlen($ssid) < 8) || (strlen($ssid) > 10))
+      return false;
+
+    while (strlen($ssid) != 10) {
+      $ssid = '0' . $ssid;
+    }
+
+    $sum = 0;
+    for ($i=0; $i<10; $i++) {
+      if (preg_match('/^' . $i . '{10}$/', $ssid)) {
+        return false;
+      }
+
+      if ($i < 9) {
+        $sum = $sum + (intval(substr($ssid, $i, 1)) * (10 - $i));
+      }
+    }
+    $rem = $sum % 11;
+
+    $parity = intval(substr($ssid, 9, 1));
+    if(($rem < 2 && $rem == $parity) || ($rem >= 2 && $rem == 11 - $parity))
+      return true;
+
+    return false;
+  }
+
   static function isEmail($email)
   {
     if (strpos($email, '@') !== false) {
@@ -37,6 +70,14 @@ class GeneralHelper
     if (static::isEmail($input))
       return [$input, static::PHRASETYPE_EMAIL];
 
+    //ssid
+    if ($checkSSID) {
+      if (self::isValidIranSSID($input))
+      // $sidMatched = preg_match('/^[0-9]{8,10}$/', $input);
+      // if ($sidMatched === 1)
+        return [$input, static::PHRASETYPE_SSID];
+    }
+
     //mobile
     try {
       $phone = PhoneHelper::normalizePhoneNumber($input);
@@ -44,13 +85,6 @@ class GeneralHelper
         return [$phone, static::PHRASETYPE_MOBILE];
     } catch(\Exception $exp) {
       $message = $exp->getMessage();
-    }
-
-    //ssid
-    if ($checkSSID) {
-      $sidMatched = preg_match('/^[0-9]{8,10}$/', $input);
-      if ($sidMatched === 1)
-        return [$input, static::PHRASETYPE_SSID];
     }
 
     //

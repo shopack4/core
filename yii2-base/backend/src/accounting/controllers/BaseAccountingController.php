@@ -167,4 +167,21 @@ abstract class BaseAccountingController extends BaseRestController
 		return $modelClass::recheckBasketItems($lastPrevoucher, $voucherItems);
 	}
 
+	/**
+	 * process voucher item(s) after basket paid and ready for finalize
+	 * called by /aaa/basket/get-current($recheckItems = true)
+	 * @note: MUST BE CALL IN SECURE CHANNEL
+	 */
+	public function actionProcessVoucherItems()
+	{
+		$data = $this->getSecureData();
+		$lastPrevoucher = $data['prevoucher'];
+		$voucherItems = $data['items'];
+
+		$accountingModule = self::getAccountingModule();
+		$modelClass = $accountingModule->basketModelClass;
+
+		return $modelClass::recheckBasketItems($lastPrevoucher, $voucherItems);
+	}
+
 }
