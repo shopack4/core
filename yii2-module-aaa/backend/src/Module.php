@@ -206,6 +206,10 @@ class Module
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/voucher'],
 					'pluralize' => false,
+
+					'extraPatterns' => [
+						'process-voucher/{id}' => 'process-voucher',
+					],
 				],
 				[
 					'class' => \shopack\base\common\rest\UrlRule::class,

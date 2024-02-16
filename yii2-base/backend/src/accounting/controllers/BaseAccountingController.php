@@ -21,9 +21,10 @@ abstract class BaseAccountingController extends BaseRestController
 	{
 		$behaviors = parent::behaviors();
 
-		// $behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['except'] = [
-		// 	'callback',
-		// ];
+		$behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['except'] = [
+			'recheck-basket-items',
+			'process-voucher-items',
+		];
 
 		return $behaviors;
 	}
@@ -175,13 +176,19 @@ abstract class BaseAccountingController extends BaseRestController
 	public function actionProcessVoucherItems()
 	{
 		$data = $this->getSecureData();
-		$lastPrevoucher = $data['prevoucher'];
-		$voucherItems = $data['items'];
+		$voucher = $data['voucher'];
+		$items = $data['items'];
 
-		$accountingModule = self::getAccountingModule();
-		$modelClass = $accountingModule->basketModelClass;
+		// $accountingModule = self::getAccountingModule();
+		// $modelClass = $accountingModule->basketModelClass;
 
-		return $modelClass::recheckBasketItems($lastPrevoucher, $voucherItems);
+		$this->processVoucherItems($voucher, $items);
+
+		return [
+			'ok'
+		];
 	}
+	//override in services
+	protected function processVoucherItems($voucher, $items) { ; }
 
 }

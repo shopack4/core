@@ -82,7 +82,7 @@ class VoucherModel extends AAAActiveRecord
 		foreach ($services as $service => $items) {
 			$data = Json::encode([
 				'service' => $service,
-				'prevoucher' => $this,
+				'voucher' => $this,
 				'items' => $items,
 			]);
 
@@ -99,7 +99,7 @@ class VoucherModel extends AAAActiveRecord
 			);
 
 			if ($resultStatus < 200 || $resultStatus >= 300) {
-				// throw new \yii\web\HttpException($resultStatus, Yii::t('mha', $resultData['message'], $resultData));
+				throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
 			} else {
 
 				//add to $newItems
@@ -120,7 +120,7 @@ class VoucherModel extends AAAActiveRecord
 
 
 
-
+/*
 		$errorCount = 0;
 		$vchItems = $this->vchItems;
 		foreach ($vchItems as $k => $voucherItem) {
@@ -146,6 +146,7 @@ class VoucherModel extends AAAActiveRecord
 		$this->vchItems = $vchItems;
 		$this->vchStatus = ($errorCount > 0 ? enuVoucherStatus::Error : enuVoucherStatus::Finished);
 		return $this->save();
+		*/
 	}
 
 	public function processVoucherItem($voucherItem)
