@@ -14,6 +14,7 @@ abstract class enuUserAssetStatus extends BaseEnum
   const Active 		= 'A';
   const Blocked 	= 'B';
   const Removed 	= 'R';
+  // const Error			= 'E';
 
 	public static $messageCategory = 'aaa';
 
@@ -24,12 +25,14 @@ abstract class enuUserAssetStatus extends BaseEnum
 			self::Active		=> 'Active',
 			self::Blocked		=> 'Blocked',
 			self::Removed 	=> 'Removed',
+			// self::Error 		=> 'Error',
 		],
 		'form' => [
 			self::Draft,
 			self::Pending,
 			self::Active,
 			self::Blocked,
+			// self::Error,
 		],
 	];
 

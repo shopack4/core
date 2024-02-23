@@ -182,13 +182,16 @@ abstract class BaseAccountingController extends BaseRestController
 		// $accountingModule = self::getAccountingModule();
 		// $modelClass = $accountingModule->basketModelClass;
 
-		$this->processVoucherItems($voucher, $items);
-
-		return [
-			'ok'
-		];
+		return $this->processVoucherItems($voucher, $items);
 	}
-	//override in services
-	protected function processVoucherItems($voucher, $items) { ; }
+	/**
+	 * must override in services
+	 *
+	 * return: status|error of every item
+	 */
+	protected function processVoucherItems($voucher, $items)
+	{
+		return [];
+	}
 
 }

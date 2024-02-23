@@ -88,10 +88,10 @@ class VoucherController extends BaseRestController
 
 	public function actionProcessVoucher($id)
 	{
-		$this->findModel($id)->processVoucher();
+		$res = $this->findModel($id)->processVoucher();
 
 		return [
-			'ok'
+			'result' => $res ? 'ok' : 'error',
 		];
 	}
 

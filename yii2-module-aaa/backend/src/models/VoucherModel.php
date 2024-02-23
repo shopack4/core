@@ -13,6 +13,7 @@ use shopack\aaa\backend\classes\AAAActiveRecord;
 use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuVoucherItemStatus;
+use shopack\base\common\accounting\enums\enuUserAssetStatus;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\security\RsaPublic;
 
@@ -52,6 +53,9 @@ class VoucherModel extends AAAActiveRecord
 		if ($this->vchType != enuVoucherType::Basket)
 			return true;
 
+		if ($this->vchStatus == enuVoucherStatus::Finished)
+			return true;
+
 		// if (($this->vchStatus != enuVoucherStatus::Settled)
 		// 		&& ($this->vchStatus != enuVoucherStatus::Error))
     //   throw new UnprocessableEntityHttpException('The voucher status is not settled or error');
@@ -70,11 +74,9 @@ class VoucherModel extends AAAActiveRecord
 			$services[$voucherItem['service']][] = $voucherItem;
 		}
 
-		//@TEMP:
-		$_old_vchItems = $this->vchItems;
-
+		$org_vchItems = $this->vchItems;
 		$this->vchItems = null;
-		$newItems = [];
+		$errorCount = 0;
 
 		//2: call process-voucher-items for every service
 		$parentModule = Yii::$app->topModule;
@@ -100,20 +102,36 @@ class VoucherModel extends AAAActiveRecord
 
 			if ($resultStatus < 200 || $resultStatus >= 300) {
 				throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+				++$errorCount;
 			} else {
+				foreach ($resultData as $resKey => $resVal) {
+					foreach ($org_vchItems as $orgKey => $orgVal) {
+						if ($orgVal['key'] == $resKey) {
+							if (isset($resVal['ok'])) {
+								$org_vchItems[$orgKey]['status'] = enuVoucherItemStatus::Processed;
 
-				//add to $newItems
+								if (isset($org_vchItems[$orgKey]['error'])) {
+									unset($org_vchItems[$orgKey]['error']);
+								}
+							} else if (isset($resVal['error'])) {
+								++$errorCount;
 
+								$org_vchItems[$orgKey]['status'] = enuVoucherItemStatus::Error;
+								$org_vchItems[$orgKey]['error'] = $resVal['error'];
+							}
+
+							break;
+						}
+					}
+				}
 			}
 		}
 
-		//3: add new items
-		$this->vchItems = $newItems;
+		//3: update items
+		$this->vchItems = $org_vchItems;
 
-
-		//@TEMP:
-		$this->vchItems = $_old_vchItems;
-
+		$this->vchStatus = ($errorCount > 0 ? enuVoucherStatus::Error : enuVoucherStatus::Finished);
+		return $this->save();
 
 
 
