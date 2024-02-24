@@ -170,7 +170,6 @@ abstract class BaseAccountingController extends BaseRestController
 
 	/**
 	 * process voucher item(s) after basket paid and ready for finalize
-	 * called by /aaa/basket/get-current($recheckItems = true)
 	 * @note: MUST BE CALL IN SECURE CHANNEL
 	 */
 	public function actionProcessVoucherItems()
@@ -184,14 +183,35 @@ abstract class BaseAccountingController extends BaseRestController
 
 		return $this->processVoucherItems($voucher, $items);
 	}
+
 	/**
-	 * must override in services
-	 *
 	 * return: status|error of every item
 	 */
 	protected function processVoucherItems($voucher, $items)
 	{
-		return [];
+		$accountingModule = self::getAccountingModule();
+		$saleableModelClass = $accountingModule->saleableModelClass;
+
+		$result = [];
+
+		foreach ($items as $item) {
+			try {
+				$ret = $saleableModelClass::ProcessVoucherItem(null, null, $item);
+
+				if ($ret === true) {
+					$result[$item['key']] = [
+						'ok' => 1,
+					];
+				} //else : no new status. already processed
+
+			} catch (\Throwable $th) {
+				$result[$item['key']] = [
+					'error' => $th->getMessage(),
+				];
+			}
+		}
+
+		return $result;
 	}
 
 }

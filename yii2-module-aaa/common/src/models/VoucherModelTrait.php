@@ -121,7 +121,7 @@ trait VoucherModelTrait
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'vchPaidByWallet' => [
-				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
@@ -129,7 +129,7 @@ trait VoucherModelTrait
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'vchOnlinePaid' => [
-				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
@@ -137,7 +137,7 @@ trait VoucherModelTrait
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'vchOfflinePaid' => [
-				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
@@ -145,7 +145,7 @@ trait VoucherModelTrait
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'vchTotalPaid' => [
-				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,

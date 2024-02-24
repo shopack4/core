@@ -131,7 +131,9 @@ class VoucherModel extends AAAActiveRecord
 		$this->vchItems = $org_vchItems;
 
 		$this->vchStatus = ($errorCount > 0 ? enuVoucherStatus::Error : enuVoucherStatus::Finished);
-		return $this->save();
+		$ret = $this->save();
+
+		return $ret;
 
 
 
