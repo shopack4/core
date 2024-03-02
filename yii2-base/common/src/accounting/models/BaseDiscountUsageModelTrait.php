@@ -13,9 +13,9 @@ use shopack\base\common\validators\JsonValidator;
 /*
 'dscusgID',
 'dscusgUserID',
+'dscusgUserAssetID',
 'dscusgDiscountID',
 'dscusgDiscountSerialID',
-'dscusgUserAssetID',
 'dscusgAmount',
 'dscusgCreatedAt',
 */
@@ -44,6 +44,13 @@ trait BaseDiscountUsageModelTrait
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
       ],
+      'dscusgUserAssetID' => [
+        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+      ],
       'dscusgDiscountID' => [
         enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
@@ -56,13 +63,6 @@ trait BaseDiscountUsageModelTrait
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-      ],
-      'dscusgUserAssetID' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
       ],
       'dscusgAmount' => [

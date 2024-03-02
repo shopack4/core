@@ -478,6 +478,9 @@ class BaseBasketModel extends Model
 					->andWhere(['uasID' => $voucherItem->orderID])
 					->one();
 
+				if ($userAssetInfo == null)
+					break;
+
 				if (($userAssetInfo->saleable->slbCode != $this->saleableCode)
 					|| ($userAssetInfo->uasActorID != $basketItem->assetActorID)
 					|| ($userAssetInfo->uasVoucherItemInfo['key'] != $voucherItem->key)
@@ -860,7 +863,7 @@ SQL;
 
 		[$userAssetInfo, $userAssetModel] = self::loadModelFromQuery($query);
 		if ($userAssetModel == null)
-			throw new NotFoundHttpException('NOT.FOUND.SALEABLE');
+			throw new NotFoundHttpException('NOT.FOUND.USERASSET');
 
 		$basketItem = new stuBasketItem;
 		$basketItem->saleable = $userAssetModel->saleable;
