@@ -353,6 +353,7 @@ SQL; //$qry_slb_with_SI_dscs
     $productTableName = $accountingModule->productModelClass::tableName();
     $discountTableName = $accountingModule->discountModelClass::tableName();
     $discountUsageTableName = $accountingModule->discountUsageModelClass::tableName();
+    $userAssetTableName = $accountingModule->userAssetModelClass::tableName();
 
     //1: fetch effective system discounts
 
@@ -368,7 +369,12 @@ SQL; //$qry_slb_with_SI_dscs
       SELECT  dscusgDiscountID
            ,  count(*) AS totalUsedCount
         FROM  {$discountUsageTableName} AS dscusgtuc
+
+--  INNER JOIN  {$userAssetTableName} AS uas
+--          ON  uas.uasID = dscusgtuc.dscusgUserAssetID
+--    GROUP BY  uasVoucherID
     GROUP BY  dscusgDiscountID
+
               ) AS tmp_total_used
           ON  tmp_total_used.dscusgDiscountID = dscu.dscID
    LEFT JOIN  (
@@ -382,8 +388,13 @@ SQL; //$qry_slb_with_SI_dscs
       SELECT  dscusgDiscountID
            ,  count(*) AS userUsedCount
         FROM  {$discountUsageTableName} AS dscusguuc
+
+--  INNER JOIN  {$userAssetTableName} AS uas
+--          ON  uas.uasID = dscusguuc.dscusgUserAssetID
        WHERE  dscusgUserID = {$actorID}
+--    GROUP BY  uasVoucherID
     GROUP BY  dscusgDiscountID
+
               ) AS tmp_user_used
           ON  tmp_user_used.dscusgDiscountID = dscu.dscID
    LEFT JOIN  (

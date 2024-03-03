@@ -202,6 +202,10 @@ abstract class BaseAccountingController extends BaseRestController
 					$result[$item['key']] = [
 						'ok' => 1,
 					];
+				// } else if (is_array($ret)) { //$ret is $discountsAmounts
+					//TODO: save to
+					// dscTotalUsedCount
+					// dscTotalUsedPrice
 				} //else : no new status. already processed
 
 			} catch (\Throwable $th) {
