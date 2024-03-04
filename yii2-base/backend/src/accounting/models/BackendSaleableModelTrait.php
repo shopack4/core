@@ -101,7 +101,7 @@ SQL;
     return self::$_accountingModule;
   }
 
-  public static function appendDiscountQueryNonCte(
+  private static function appendDiscountQueryNonCte(
     &$query,
     $actorID = null
   ) {
@@ -129,51 +129,39 @@ SQL;
 
     $qry_dsc_with_usg =<<<SQL
       SELECT	dscu.dscID
-           ,	tmp_total_used.totalUsedCount
-           ,	tmp_total_amount.totalUsedAmount
            ,	tmp_user_used.userUsedCount
            ,	tmp_user_amount.userUsedAmount
+
         FROM	{$discountTableName} AS dscu
-   LEFT JOIN	(
-      SELECT 	dscusgDiscountID
-           , 	count(*) AS totalUsedCount
-        FROM 	{$discountUsageTableName} AS dscusgtuc
-    GROUP BY 	dscusgDiscountID
-              ) AS tmp_total_used
-          ON	tmp_total_used.dscusgDiscountID = dscu.dscID
+
    LEFT JOIN	(
       SELECT	dscusgDiscountID
-           ,	sum(dscusgAmount) AS totalUsedAmount
-        FROM	{$discountUsageTableName} AS dscusgtua
-    GROUP BY	dscusgDiscountID
-              ) AS tmp_total_amount
-          ON	tmp_total_amount.dscusgDiscountID = dscu.dscID
-   LEFT JOIN	(
-      SELECT	dscusgDiscountID
-           ,	count(*) AS userUsedCount
+           ,	COUNT(*) AS userUsedCount
         FROM	{$discountUsageTableName} AS dscusguuc
        WHERE	dscusgUserID = {$actorID}
     GROUP BY	dscusgDiscountID
               ) AS tmp_user_used
           ON	tmp_user_used.dscusgDiscountID = dscu.dscID
+
    LEFT JOIN	(
       SELECT	dscusgDiscountID
-           ,	sum(dscusgAmount) AS userUsedAmount
+           ,	SUM(dscusgAmount) AS userUsedAmount
         FROM	{$discountUsageTableName} AS dscusguua
        WHERE	dscusgUserID = {$actorID}
     GROUP BY	dscusgDiscountID
               ) AS tmp_user_amount
           ON	tmp_user_amount.dscusgDiscountID = dscu.dscID
+
        WHERE	dscStatus != {$fnGetConstQouted(enuDiscountStatus::Removed)}
-         AND 	scType IN ({$fnGetConstQouted(enuDiscountType::System)}, {$fnGetConstQouted(enuDiscountType::SystemIncrease)})
+         AND 	dscType IN ({$fnGetConstQouted(enuDiscountType::System)}, {$fnGetConstQouted(enuDiscountType::SystemIncrease)})
 
 SQL; //$qry_dsc_with_usg
 
     $qry_valid_dsc =<<<SQL
-      select dscv.*
-           , tmp_dsc_with_usg.totalUsedAmount
-           , tmp_dsc_with_usg.userUsedAmount
-      from {$discountTableName} AS dscv
+      select  dscv.*
+           ,  tmp_dsc_with_usg.userUsedCount
+           ,  tmp_dsc_with_usg.userUsedAmount
+        from  {$discountTableName} AS dscv
 
       inner join (
         {$qry_dsc_with_usg}
@@ -193,13 +181,13 @@ SQL; //$qry_dsc_with_usg
       )
 
       and (dscTotalMaxCount IS NULL OR dscTotalMaxCount = 0
-        OR tmp_dsc_with_usg.totalUsedCount IS NULL OR tmp_dsc_with_usg.totalUsedCount = 0
-        OR dscTotalMaxCount > tmp_dsc_with_usg.totalUsedCount
+        OR dscTotalUsedCount IS NULL OR dscTotalUsedCount = 0
+        OR dscTotalMaxCount > dscTotalUsedCount
       )
 
       and (dscTotalMaxPrice IS NULL OR dscTotalMaxPrice = 0
-        OR tmp_dsc_with_usg.totalUsedAmount IS NULL OR tmp_dsc_with_usg.totalUsedAmount = 0
-        OR dscTotalMaxPrice > tmp_dsc_with_usg.totalUsedAmount
+        OR dscTotalUsedPrice IS NULL OR dscTotalUsedPrice = 0
+        OR dscTotalMaxPrice > dscTotalUsedPrice
       )
 
       and (dscPerUserMaxCount IS NULL OR dscPerUserMaxCount = 0
@@ -232,7 +220,7 @@ SQL; //$qry_valid_dsc
 
         , IF(dscTotalMaxPrice IS NULL OR dscTotalMaxPrice = 0
           , slbBasePrice
-          , dscTotalMaxPrice - IF(totalUsedAmount IS NULL, 0, totalUsedAmount)
+          , dscTotalMaxPrice - IF(dscTotalUsedPrice IS NULL, 0, dscTotalUsedPrice)
         )
 
         , IF(dscPerUserMaxPrice IS NULL OR dscPerUserMaxPrice = 0
@@ -334,7 +322,7 @@ SQL; //$qry_slb_with_SI_dscs
     ;
   }
 
-  public static function appendDiscountQuery(
+  private static function appendDiscountQueryCte(
     &$query,
     $actorID = null,
     $qty = 1,
@@ -360,51 +348,38 @@ SQL; //$qry_slb_with_SI_dscs
     $qry_dsc_with_usg =<<<SQL
 
       SELECT  dscu.dscID
-           ,  tmp_total_used.totalUsedCount
-           ,  tmp_total_amount.totalUsedAmount
            ,  tmp_user_used.userUsedCount
            ,  tmp_user_amount.userUsedAmount
+
         FROM  {$discountTableName} AS dscu
-   LEFT JOIN  (
-      SELECT  dscusgDiscountID
-           ,  count(*) AS totalUsedCount
-        FROM  {$discountUsageTableName} AS dscusgtuc
 
---  INNER JOIN  {$userAssetTableName} AS uas
---          ON  uas.uasID = dscusgtuc.dscusgUserAssetID
---    GROUP BY  uasVoucherID
-    GROUP BY  dscusgDiscountID
-
-              ) AS tmp_total_used
-          ON  tmp_total_used.dscusgDiscountID = dscu.dscID
    LEFT JOIN  (
       SELECT  dscusgDiscountID
-           ,  sum(dscusgAmount) AS totalUsedAmount
-        FROM  {$discountUsageTableName} AS dscusgtua
-    GROUP BY  dscusgDiscountID
-              ) AS tmp_total_amount
-          ON  tmp_total_amount.dscusgDiscountID = dscu.dscID
-   LEFT JOIN  (
+           ,  SUM(_cnt) AS userUsedCount
+        FROM  (
       SELECT  dscusgDiscountID
-           ,  count(*) AS userUsedCount
+           ,  uasVoucherID
+           ,  1 AS _cnt
         FROM  {$discountUsageTableName} AS dscusguuc
-
---  INNER JOIN  {$userAssetTableName} AS uas
---          ON  uas.uasID = dscusguuc.dscusgUserAssetID
+  INNER JOIN  {$userAssetTableName} AS uas
+          ON  uas.uasID = dscusguuc.dscusgUserAssetID
        WHERE  dscusgUserID = {$actorID}
---    GROUP BY  uasVoucherID
     GROUP BY  dscusgDiscountID
-
+           ,  uasVoucherID
+              ) t
+    GROUP BY  dscusgDiscountID
               ) AS tmp_user_used
           ON  tmp_user_used.dscusgDiscountID = dscu.dscID
+
    LEFT JOIN  (
       SELECT  dscusgDiscountID
-           ,  sum(dscusgAmount) AS userUsedAmount
+           ,  SUM(dscusgAmount) AS userUsedAmount
         FROM  {$discountUsageTableName} AS dscusguua
        WHERE  dscusgUserID = {$actorID}
     GROUP BY  dscusgDiscountID
               ) AS tmp_user_amount
           ON  tmp_user_amount.dscusgDiscountID = dscu.dscID
+
        WHERE  dscStatus = {$fnGetConstQouted(enuDiscountStatus::Active)}
          AND  dscType IN ({$fnGetConstQouted(enuDiscountType::System)}, {$fnGetConstQouted(enuDiscountType::SystemIncrease)})
 
@@ -413,7 +388,7 @@ SQL; //$qry_dsc_with_usg
     $qry_valid_dsc =<<<SQL
 
       SELECT  dscv.*
-           ,  tmp_dsc_with_usg.totalUsedAmount
+           ,  tmp_dsc_with_usg.userUsedCount
            ,  tmp_dsc_with_usg.userUsedAmount
         FROM  {$discountTableName} AS dscv
   INNER JOIN  qry_dsc_with_usg AS tmp_dsc_with_usg
@@ -428,12 +403,12 @@ SQL; //$qry_dsc_with_usg
           OR  JSON_SEARCH(dscTargetUserIDs, 'one', {$actorID}) IS NOT NULL
               )
          AND  (dscTotalMaxCount IS NULL OR dscTotalMaxCount = 0
-          OR  tmp_dsc_with_usg.totalUsedCount IS NULL OR tmp_dsc_with_usg.totalUsedCount = 0
-          OR  dscTotalMaxCount > tmp_dsc_with_usg.totalUsedCount
+          OR  dscTotalUsedCount IS NULL OR dscTotalUsedCount = 0
+          OR  dscTotalMaxCount > dscTotalUsedCount
               )
          AND  (dscTotalMaxPrice IS NULL OR dscTotalMaxPrice = 0
-          OR  tmp_dsc_with_usg.totalUsedAmount IS NULL OR tmp_dsc_with_usg.totalUsedAmount = 0
-          OR  dscTotalMaxPrice > tmp_dsc_with_usg.totalUsedAmount
+          OR  dscTotalUsedPrice IS NULL OR dscTotalUsedPrice = 0
+          OR  dscTotalMaxPrice > dscTotalUsedPrice
               )
          AND  (dscPerUserMaxCount IS NULL OR dscPerUserMaxCount = 0
           OR  tmp_dsc_with_usg.userUsedCount IS NULL OR tmp_dsc_with_usg.userUsedCount = 0
@@ -477,7 +452,7 @@ SQL; //$qry_valid_dsc
               slbBasePrice * {$qty}
               , IF(dscTotalMaxPrice IS NULL OR dscTotalMaxPrice = 0
                 , slbBasePrice * {$qty}
-                , dscTotalMaxPrice - IF(totalUsedAmount IS NULL, 0, totalUsedAmount)
+                , dscTotalMaxPrice - IF(dscTotalUsedPrice IS NULL, 0, dscTotalUsedPrice)
               )
               , IF(dscPerUserMaxPrice IS NULL OR dscPerUserMaxPrice = 0
                 , slbBasePrice * {$qty}
@@ -583,6 +558,22 @@ SQL; //$qry_slb_with_SI_dscs
     ;
 
     self::addCustomConditionsToResultQuery($actorID, $query);
+  }
+
+  public static function appendDiscountQuery(
+    &$query,
+    $actorID = null,
+    $qty = 1,
+    $referrer = null,
+    $referrerParams = null
+  ) {
+    return self::appendDiscountQueryCte(
+      $query,
+      $actorID,
+      $qty,
+      $referrer,
+      $referrerParams
+    );
   }
 
   public static function getCustomConditionsToValidDiscountsQuery(
