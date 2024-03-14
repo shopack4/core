@@ -26,8 +26,6 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 
 	const DELIVERY_ReceiveByCustomer = 'C';
 
-	// use \shopack\aaa\common\models\BasketModelTrait;
-
 	// public static $resourceName = 'aaa/basket';
 
 	public $voucher;

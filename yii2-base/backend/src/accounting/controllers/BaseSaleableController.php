@@ -32,7 +32,6 @@ abstract class BaseSaleableController extends BaseCrudController
 		return [
 			'index' => function($query) use ($actorID, $modelClass) {
 				$modelClass::appendDiscountQuery($query, $actorID);
-
 				$query
 					->joinWith('product')
 					->joinWith('product.unit')
@@ -41,9 +40,9 @@ abstract class BaseSaleableController extends BaseCrudController
 					->with('removedByUser')
 				;
 			},
+
 			'view' => function($query) use ($actorID, $modelClass) {
 				$modelClass::appendDiscountQuery($query, $actorID);
-
 				$query
 					->joinWith('product')
 					->joinWith('product.unit')
