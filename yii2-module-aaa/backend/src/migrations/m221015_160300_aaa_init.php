@@ -12,7 +12,7 @@ class m221015_160300_aaa_init extends Migration
 {
   public function safeUp()
 	{
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE PROCEDURE `DropIndexIfExists`(
 	IN i_table_name VARCHAR(128),
 	IN i_index_name VARCHAR(128)
@@ -44,10 +44,10 @@ GROUP BY	TABLE_NAME,INDEX_NAME
 		DEALLOCATE PREPARE stmt;
 	END IF;
 END ;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_GeoCountry` (
   `cntrID` smallint unsigned NOT NULL AUTO_INCREMENT,
   `cntrName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -60,10 +60,10 @@ CREATE TABLE IF NOT EXISTS `tbl_AAA_GeoCountry` (
   PRIMARY KEY (`cntrID`),
   KEY `cntrCreatedAt` (`cntrCreatedAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_GeoState` (
   `sttID` mediumint unsigned NOT NULL AUTO_INCREMENT,
   `sttName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -79,10 +79,10 @@ CREATE TABLE IF NOT EXISTS `tbl_AAA_GeoState` (
   KEY `sttCreatedAt` (`sttCreatedAt`),
   CONSTRAINT `FK_tblGeoState_tblGeoCountry` FOREIGN KEY (`sttCountryID`) REFERENCES `tbl_AAA_GeoCountry` (`cntrID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_GeoCityOrVillage` (
   `ctvID` mediumint unsigned NOT NULL AUTO_INCREMENT,
   `ctvName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -99,10 +99,10 @@ CREATE TABLE IF NOT EXISTS `tbl_AAA_GeoCityOrVillage` (
   KEY `ctvCreatedAt` (`ctvCreatedAt`),
   CONSTRAINT `FK_tblGeoCityOrVillage_tblGeoState` FOREIGN KEY (`ctvStateID`) REFERENCES `tbl_AAA_GeoState` (`sttID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_GeoTown` (
   `twnID` mediumint unsigned NOT NULL AUTO_INCREMENT,
   `twnName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -118,10 +118,10 @@ CREATE TABLE IF NOT EXISTS `tbl_AAA_GeoTown` (
   KEY `twnCreatedAt` (`twnCreatedAt`),
   CONSTRAINT `FK_tblGeoTown_tblGeoCityOrVillage` FOREIGN KEY (`twnCityID`) REFERENCES `tbl_AAA_GeoCityOrVillage` (`ctvID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_User` (
   `usrID` bigint unsigned NOT NULL AUTO_INCREMENT,
   `usrGender` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'M:Male, F:Female, N:Not Set',
@@ -156,11 +156,11 @@ CREATE TABLE IF NOT EXISTS `tbl_AAA_User` (
   CONSTRAINT `FK_tbl_AAA_User_tbl_AAA_User_modifier` FOREIGN KEY (`usrUpdatedBy`) REFERENCES `tbl_AAA_User` (`usrID`),
   CONSTRAINT `FK_tbl_AAA_User_tbl_AAA_User_remover` FOREIGN KEY (`usrRemovedBy`) REFERENCES `tbl_AAA_User` (`usrID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
 		);
     $this->alterColumn('{{%AAA_User}}', 'usrPrivs', $this->json());
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_UserExtraInfo` (
   `uexUserID` bigint unsigned NOT NULL,
   `uexBirthDate` date DEFAULT NULL,
@@ -189,10 +189,10 @@ CREATE TABLE IF NOT EXISTS `tbl_AAA_UserExtraInfo` (
   CONSTRAINT `FK_tbl_AAA_UserExtraInfo_tbl_AAA_GeoTown` FOREIGN KEY (`uexTownID`) REFERENCES `tbl_AAA_GeoTown` (`twnID`),
   CONSTRAINT `FK_tbl_AAA_UserExtraInfo_tbl_AAA_User` FOREIGN KEY (`uexUserID`) REFERENCES `tbl_AAA_User` (`usrID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_Role` (
   `rolID` int unsigned NOT NULL AUTO_INCREMENT,
   `rolName` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -210,17 +210,17 @@ CREATE TABLE IF NOT EXISTS `tbl_AAA_Role` (
   CONSTRAINT `FK_tbl_AAA_Role_tbl_AAA_User_creator` FOREIGN KEY (`rolCreatedBy`) REFERENCES `tbl_AAA_User` (`usrID`),
   CONSTRAINT `FK_tbl_AAA_Role_tbl_AAA_User_modifier` FOREIGN KEY (`rolUpdatedBy`) REFERENCES `tbl_AAA_User` (`usrID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
 		);
     $this->alterColumn('{{%AAA_Role}}', 'rolPrivs', $this->json());
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_User`
   ADD CONSTRAINT `FK_tbl_AAA_User_tbl_AAA_Role` FOREIGN KEY (`usrRoleID`) REFERENCES `tbl_AAA_Role` (`rolID`) ON UPDATE NO ACTION ON DELETE NO ACTION;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_ApprovalRequest` (
   `aprID` bigint unsigned NOT NULL AUTO_INCREMENT,
   `aprUserID` bigint unsigned DEFAULT NULL,
@@ -242,10 +242,10 @@ CREATE TABLE IF NOT EXISTS `tbl_AAA_ApprovalRequest` (
   KEY `FK_tbl_AAA_ApprovalRequest_tbl_AAA_User` (`aprUserID`),
   CONSTRAINT `FK_tbl_AAA_ApprovalRequest_tbl_AAA_User` FOREIGN KEY (`aprUserID`) REFERENCES `tbl_AAA_User` (`usrID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_ForgotPasswordRequest` (
   `fprID` bigint unsigned NOT NULL AUTO_INCREMENT,
   `fprUserID` bigint unsigned NOT NULL,
@@ -266,10 +266,10 @@ CREATE TABLE IF NOT EXISTS `tbl_AAA_ForgotPasswordRequest` (
   KEY `FK_tbl_AAA_ForgotPasswordRequest_tbl_AAA_User` (`fprUserID`),
   CONSTRAINT `FK_tbl_AAA_ForgotPasswordRequest_tbl_AAA_User` FOREIGN KEY (`fprUserID`) REFERENCES `tbl_AAA_User` (`usrID`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_AlertType` (
   `altID` int unsigned NOT NULL AUTO_INCREMENT,
   `altKey` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -285,10 +285,10 @@ CREATE TABLE IF NOT EXISTS `tbl_AAA_AlertType` (
   UNIQUE KEY `altKey` (`altKey`),
   KEY `altCreatedAt` (`altCreatedAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_Alert` (
   `alrID` bigint unsigned NOT NULL AUTO_INCREMENT,
   `alrUserID` bigint unsigned DEFAULT NULL,
@@ -319,12 +319,12 @@ CREATE TABLE IF NOT EXISTS `tbl_AAA_Alert` (
   CONSTRAINT `FK_tbl_AAA_Alert_tbl_AAA_User` FOREIGN KEY (`alrUserID`) REFERENCES `tbl_AAA_User` (`usrID`) ON DELETE CASCADE,
   CONSTRAINT `FK_tbl_AAA_Alert_tbl_AAA_User_creator` FOREIGN KEY (`alrCreatedBy`) REFERENCES `tbl_AAA_User` (`usrID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
 		);
     $this->alterColumn('{{%AAA_Alert}}', 'alrInfo', $this->json());
     $this->alterColumn('{{%AAA_Alert}}', 'alrResult', $this->json());
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_Gateway` (
   `gtwID` int unsigned NOT NULL AUTO_INCREMENT,
   `gtwName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -348,11 +348,11 @@ CREATE TABLE IF NOT EXISTS `tbl_AAA_Gateway` (
   CONSTRAINT `FK_tbl_AAA_Gateway_tbl_AAA_User_modifier` FOREIGN KEY (`gtwUpdatedBy`) REFERENCES `tbl_AAA_User` (`usrID`),
   CONSTRAINT `FK_tbl_AAA_Gateway_tbl_AAA_User_remover` FOREIGN KEY (`gtwRemovedBy`) REFERENCES `tbl_AAA_User` (`usrID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
 		);
     $this->alterColumn('{{%AAA_Gateway}}', 'gtwPluginParameters', $this->json());
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_Session` (
   `ssnID` bigint unsigned NOT NULL AUTO_INCREMENT,
   `ssnUserID` bigint unsigned NOT NULL,
@@ -373,10 +373,10 @@ CREATE TABLE IF NOT EXISTS `tbl_AAA_Session` (
   CONSTRAINT `FK_tblSession_tblUser` FOREIGN KEY (`ssnUserID`) REFERENCES `tbl_AAA_User` (`usrID`) ON DELETE CASCADE,
   CONSTRAINT `FK_tblSession_tblUser_modifier` FOREIGN KEY (`ssnUpdatedBy`) REFERENCES `tbl_AAA_User` (`usrID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_SYS_ActionLogs` (
   `atlID` bigint unsigned NOT NULL AUTO_INCREMENT,
   `atlAction` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -390,11 +390,11 @@ CREATE TABLE IF NOT EXISTS `tbl_SYS_ActionLogs` (
   KEY `atlType` (`atlAction`) USING BTREE,
   CONSTRAINT `FK_tbl_SYS_ActionLogs_tbl_AAA_User` FOREIGN KEY (`atlBy`) REFERENCES `tbl_AAA_User` (`usrID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-SQLSTR
+SQL
 		);
     $this->alterColumn('{{%SYS_ActionLogs}}', 'atlInfo', $this->json());
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE PROCEDURE `spAutoUpdateTableTriggerAndCols`()
 BEGIN
   DECLARE vTableName VARCHAR(200);
@@ -435,10 +435,10 @@ BEGIN
 	SELECT vQueryStr;
 
 END ;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE PROCEDURE `spFindTablePrefix`(
 	IN `iTable` VARCHAR(128),
 	OUT `oPrefix` VARCHAR(64)
@@ -498,10 +498,10 @@ ORDER BY COLUMN_NAME DESC
   END IF;
 
 END ;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE PROCEDURE `spUpdateTableTriggerAndCols`(
 	IN `iSchema` VARCHAR(50),
 	IN `iTable` VARCHAR(50),
@@ -700,10 +700,10 @@ DELIMITER ;');
 --  DEALLOCATE PREPARE stmt;
 
 END ;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_Alert` AFTER UPDATE ON `tbl_AAA_Alert` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -733,10 +733,10 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_Alert` AFTER UPDATE ON `tbl_AAA_Alert` FOR
          , atlInfo   = JSON_OBJECT("alrID", OLD.alrID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_AlertType` AFTER UPDATE ON `tbl_AAA_AlertType` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -757,10 +757,10 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_AlertType` AFTER UPDATE ON `tbl_AAA_AlertT
          , atlInfo   = JSON_OBJECT("altID", OLD.altID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_ApprovalRequest` AFTER UPDATE ON `tbl_AAA_ApprovalRequest` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -787,10 +787,10 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_ApprovalRequest` AFTER UPDATE ON `tbl_AAA_
          , atlInfo   = JSON_OBJECT("aprID", OLD.aprID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_ForgotPasswordRequest` AFTER UPDATE ON `tbl_AAA_ForgotPasswordRequest` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -816,10 +816,10 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_ForgotPasswordRequest` AFTER UPDATE ON `tb
          , atlInfo   = JSON_OBJECT("fprID", OLD.fprID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_Gateway` AFTER UPDATE ON `tbl_AAA_Gateway` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -843,10 +843,10 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_Gateway` AFTER UPDATE ON `tbl_AAA_Gateway`
          , atlInfo   = JSON_OBJECT("gtwID", OLD.gtwID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_GeoCityOrVillage` AFTER UPDATE ON `tbl_AAA_GeoCityOrVillage` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -867,10 +867,10 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_GeoCityOrVillage` AFTER UPDATE ON `tbl_AAA
          , atlInfo   = JSON_OBJECT("ctvID", OLD.ctvID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_GeoCountry` AFTER UPDATE ON `tbl_AAA_GeoCountry` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -889,10 +889,10 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_GeoCountry` AFTER UPDATE ON `tbl_AAA_GeoCo
          , atlInfo   = JSON_OBJECT("cntrID", OLD.cntrID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_GeoState` AFTER UPDATE ON `tbl_AAA_GeoState` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -912,10 +912,10 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_GeoState` AFTER UPDATE ON `tbl_AAA_GeoStat
          , atlInfo   = JSON_OBJECT("sttID", OLD.sttID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_GeoTown` AFTER UPDATE ON `tbl_AAA_GeoTown` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -935,10 +935,10 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_GeoTown` AFTER UPDATE ON `tbl_AAA_GeoTown`
          , atlInfo   = JSON_OBJECT("twnID", OLD.twnID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_Role` AFTER UPDATE ON `tbl_AAA_Role` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -959,10 +959,10 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_Role` AFTER UPDATE ON `tbl_AAA_Role` FOR E
          , atlInfo   = JSON_OBJECT("rolID", OLD.rolID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_Session` AFTER UPDATE ON `tbl_AAA_Session` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -985,10 +985,10 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_Session` AFTER UPDATE ON `tbl_AAA_Session`
          , atlInfo   = JSON_OBJECT("ssnID", OLD.ssnID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_User` AFTER UPDATE ON `tbl_AAA_User` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -1021,10 +1021,10 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_User` AFTER UPDATE ON `tbl_AAA_User` FOR E
          , atlInfo   = JSON_OBJECT("usrID", OLD.usrID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_UserExtraInfo` AFTER UPDATE ON `tbl_AAA_UserExtraInfo` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -1050,7 +1050,7 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_UserExtraInfo` AFTER UPDATE ON `tbl_AAA_Us
          , atlInfo   = JSON_OBJECT("uexUserID", OLD.uexUserID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
     );
 
     $this->batchInsertIgnore('{{%AAA_Role}}', ['rolID', 'rolName', 'rolParentID', 'rolPrivs'], [
@@ -1068,9 +1068,9 @@ SQLSTR
       ]],
     ]);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE {{%AAA_Role}} AUTO_INCREMENT=101;
-SQLSTR
+SQL
 		);
 
     $this->batchInsertIgnore('{{%AAA_GeoCountry}}', [
@@ -1121,9 +1121,9 @@ SQLSTR
       ],
 		]);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE {{%AAA_User}} AUTO_INCREMENT=101;
-SQLSTR
+SQL
 		);
 
 	}

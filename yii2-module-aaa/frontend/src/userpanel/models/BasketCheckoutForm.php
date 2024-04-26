@@ -16,6 +16,7 @@ use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\base\common\accounting\enums\enuProductType;
 use shopack\aaa\frontend\common\models\DeliveryMethodModel;
 use shopack\aaa\frontend\common\models\WalletModel;
+use shopack\base\common\helpers\Json;
 
 class BasketCheckoutForm extends Model //RestClientActiveRecord
 {
@@ -25,21 +26,19 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 
 	const DELIVERY_ReceiveByCustomer = 'C';
 
-	// use \shopack\aaa\common\models\BasketModelTrait;
-
 	// public static $resourceName = 'aaa/basket';
 
 	public $voucher;
-	public $totalPrices = 0;
-	public $totalDiscounts = 0;
-	public $totalTaxes = 0;
-	public $vchtotal = 0;
+	// public $totalPrices = 0;
+	// public $totalDiscounts = 0;
+	// public $totalTaxes = 0;
+	// public $vchtotal = 0;
 
 	public $physicalCount = 0;
 	public $deliveryMethod = null;
 	public $deliveryAmount = 0;
 
-	public $paid = 0;
+	// public $paid = 0;
 	public $total = 0;
 
 	public $currentStep;
@@ -91,8 +90,22 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 	public function attributeLabels()
 	{
 		return [
-			'walletID'		=> Yii::t('aaa', 'Wallet'),
-			'gatewayType'	=> Yii::t('aaa', 'Payment Method'),
+			'vchAmount'           => Yii::t('aaa', 'Amount'),
+			'vchItemsDiscounts'   => Yii::t('aaa', 'Discount Amount'),
+			'vchItemsVATs'   			=> Yii::t('aaa', 'VAT Amount'),
+			'vchDeliveryAmount'   => Yii::t('aaa', 'Delivery Amount'),
+			'vchTotalAmount'      => Yii::t('aaa', 'Total Amount'),
+			'vchPaidByWallet'     => Yii::t('aaa', 'Paid By Wallet'),
+			'vchOnlinePaid'       => Yii::t('aaa', 'Online Paid'),
+			'vchOfflinePaid'      => Yii::t('aaa', 'Offline Paid'),
+			'vchTotalPaid'        => Yii::t('aaa', 'Total Paid'),
+
+      'walletamount' => 'برداشت از کیف پول',
+			'total'        => 'قابل پرداخت',
+
+			'deliveryMethod'			=> Yii::t('aaa', 'Delivery Method'),
+			'walletID'						=> Yii::t('aaa', 'Wallet'),
+			'gatewayType'					=> Yii::t('aaa', 'Payment Method'),
 		];
 	}
 
@@ -101,43 +114,65 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 		$this->setCurrentVoucher();
 	}
 
+	private static ?array $_lastPreVoucher = null;
+	public static function getCurrentBasket()
+	{
+		if (self::$_lastPreVoucher == null) {
+			// $parentModule = self::getParentModule();
+			// $serviceName = $parentModule->id;
+
+			// if (empty($parentModule->servicePrivateKey))
+			// 	throw new ServerErrorHttpException('INVALID.SERVICE.PRIVATE.KEY');
+
+			// $data = Json::encode([
+			// 	'service' => $serviceName,
+			// 	'userid' => Yii::$app->user->id,
+			// ]);
+			// $data = RsaPrivate::model($parentModule->servicePrivateKey)->encrypt($data);
+
+			list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/get-current',
+				HttpHelper::METHOD_POST,
+				[
+					'recheckItems' => true,
+				],
+				[
+					// 'service' => $serviceName,
+					// 'data' => $data,
+				]
+			);
+
+			if ($resultStatus < 200 || $resultStatus >= 300) {
+				throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+			}
+
+			if ((empty($resultData['vchItems']) == false) && (is_array($resultData['vchItems']) == false)) {
+				$resultData['vchItems'] = Json::decode($resultData['vchItems'], true);
+			}
+
+			self::$_lastPreVoucher = $resultData;
+		}
+
+		return self::$_lastPreVoucher;
+	}
+
 	private function setCurrentVoucher()
 	{
-    $voucherModel = VoucherModel::find()
-      ->andWhere(['vchOwnerUserID' => Yii::$app->user->id])
-      ->andWhere(['vchType' => enuVoucherType::Basket])
-      ->andWhere(['vchStatus' => enuVoucherStatus::New])
-      ->andWhere(['vchRemovedAt' => 0])
-      ->all();
-		$voucherModel = ($voucherModel[0] ?? null);
-
-		$this->voucher = $voucherModel;
-
-		if ($voucherModel == null)
-			return;
+		//get current basket for finalize (and recheck items / price / discount / ...)
+		$this->voucher = self::getCurrentBasket();
 
 		$this->physicalCount = 0;
 
-		$vchItems = $voucherModel->vchItems;
+		$vchItems = $this->voucher['vchItems'] ?? [];
 
 		foreach ($vchItems as $item) {
-			$this->totalPrices += $item['unitprice'] * $item['qty'];
-			// $this->total += $this->totalPrices;
-
-			$this->totalDiscounts += ($item['discount'] ?? 0);
-
-			if (isset($item['prdtype']) && ($item['prdtype'] == enuProductType::Physical)) {
+			if (isset($item['prdType']) && ($item['prdType'] == enuProductType::Physical)) {
 				++$this->physicalCount;
 			}
 		}
 
-		//-------------------------
-		$this->vchtotal	= $voucherModel->vchAmount; // - ($voucherModel->vchDiscountAmount ?? 0);
-		$this->paid			= $voucherModel->vchTotalPaid;
-		$this->total		=
-				$voucherModel->vchAmount
-			- $this->totalDiscounts
-			- ($voucherModel->vchTotalPaid ?? 0);
+		$this->total =
+			$this->voucher['vchTotalAmount']
+			- ($this->voucher['vchTotalPaid'] ?? 0);
 
 		//-------------------------
 		$this->steps = [];

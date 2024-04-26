@@ -9,7 +9,7 @@ class m230324_135300_aaa_create_files extends Migration
 {
   public function safeUp()
 	{
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE `tbl_AAA_UploadFile` (
   `uflID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `uflOwnerUserID` BIGINT(20) UNSIGNED NOT NULL,
@@ -34,10 +34,10 @@ CREATE TABLE `tbl_AAA_UploadFile` (
   INDEX `FK_tbl_AAA_UploadFile_tbl_AAA_User` (`uflOwnerUserID`) USING BTREE,
   CONSTRAINT `FK_tbl_AAA_UploadFile_tbl_AAA_User` FOREIGN KEY (`uflOwnerUserID`) REFERENCES `tbl_AAA_User` (`usrID`) ON UPDATE NO ACTION ON DELETE NO ACTION
 ) COLLATE='utf8mb4_unicode_ci' ENGINE=InnoDB;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE `tbl_AAA_UploadQueue` (
   `uquID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
   `uquFileID` BIGINT(20) UNSIGNED NOT NULL,
@@ -60,25 +60,25 @@ CREATE TABLE `tbl_AAA_UploadQueue` (
   CONSTRAINT `FK_tbl_AAA_UploadQueue_tbl_AAA_Gateway` FOREIGN KEY (`uquGatewayID`) REFERENCES `tbl_AAA_Gateway` (`gtwID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
   CONSTRAINT `FK_tbl_AAA_UploadQueue_tbl_AAA_UploadFiles` FOREIGN KEY (`uquFileID`) REFERENCES `tbl_AAA_UploadFile` (`uflID`) ON UPDATE NO ACTION ON DELETE CASCADE
 ) COLLATE='utf8mb4_unicode_ci' ENGINE=InnoDB;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_User`
 	ADD COLUMN `usrImageFileID` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `usrImage`,
 	ADD CONSTRAINT `FK_tbl_AAA_User_tbl_AAA_UploadFile` FOREIGN KEY (`usrImageFileID`) REFERENCES `tbl_AAA_UploadFile` (`uflID`) ON UPDATE NO ACTION ON DELETE NO ACTION;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_User`
 	DROP COLUMN `usrImage`;
-SQLSTR
+SQL
     );
 
     $this->execute('DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_User;');
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER `trg_updatelog_tbl_AAA_User` AFTER UPDATE ON `tbl_AAA_User` FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -119,10 +119,10 @@ CREATE TRIGGER `trg_updatelog_tbl_AAA_User` AFTER UPDATE ON `tbl_AAA_User` FOR E
           , atlInfo   = JSON_OBJECT("usrID", OLD.usrID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
 		);
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE FUNCTION `fnApplyCounterToFileName`(
   `iFileName` TEXT,
   `iCounter` INT UNSIGNED
@@ -169,10 +169,10 @@ BEGIN
   RETURN vResult;
 
 END ;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE PROCEDURE `spUploadedFile_Create`(
   IN `iPath` VARCHAR(256),
   IN `iOriginalFileName` VARCHAR(256),
@@ -330,7 +330,7 @@ BEGIN
   COMMIT;
   /****************/
 END ;
-SQLSTR
+SQL
     );
 
   }

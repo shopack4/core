@@ -65,7 +65,7 @@ trait DeliveryMethodModelTrait
         enuColumnInfo::selectable => true,
       ],
       'dlvAmount' => [
-        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::type       => 'double',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
@@ -81,7 +81,7 @@ trait DeliveryMethodModelTrait
         enuColumnInfo::search     => true,
       ],
       'dlvTotalUsedAmount' => [
-        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::type       => 'double',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,

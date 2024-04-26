@@ -9,15 +9,15 @@ class m230619_090419_aaa_add_usrMustChangePassword_to_tbl_user extends Migration
 {
 	public function safeUp()
 	{
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_User`
 	ADD COLUMN `usrMustChangePassword` BIT NULL DEFAULT NULL AFTER `usrPasswordCreatedAt`;
-SQLSTR
+SQL
     );
 
 		$this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_User;");
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_User AFTER UPDATE ON tbl_AAA_User FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -68,7 +68,7 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_User AFTER UPDATE ON tbl_AAA_User FOR EACH 
           , atlInfo   = JSON_OBJECT("usrID", OLD.usrID, "old", Changes);
   END IF;
 END
-SQLSTR
+SQL
     );
 
 	}

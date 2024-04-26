@@ -93,10 +93,12 @@ class RsaPublic extends BaseObject
 			$encrypted = '';
 			$result = openssl_public_encrypt($chunk, $encrypted, $key);
 
-			if ($result === false)
+			if ($result === false) {
+				$error = openssl_error_string();
 				return null;
+			}
 
-				$output .= $encrypted;
+			$output .= $encrypted;
 		}
 
 		return base64_encode($output);
@@ -122,8 +124,10 @@ class RsaPublic extends BaseObject
 			$decrypted = '';
 			$result = openssl_public_decrypt($chunk, $decrypted, $key);
 
-			if ($result === false)
+			if ($result === false) {
+				$error = openssl_error_string();
 				return null;
+			}
 
 			$output .= $decrypted;
 		}

@@ -19,8 +19,8 @@ use shopack\base\common\accounting\enums\enuUserAssetStatus;
 'uasQty',
 'uasVoucherID',
 'uasVoucherItemInfo',
-'uasDiscountID',
-'uasDiscountAmount',
+// 'uasDiscountID',
+// 'uasDiscountAmount',
 'uasPrefered',
 'uasValidFromDate',
 'uasValidToDate',
@@ -91,20 +91,20 @@ trait BaseUserAssetModelTrait
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
 			],
-      'uasDiscountID' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-      ],
-      'uasDiscountAmount' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-      ],
+      // 'uasDiscountID' => [
+      //   enuColumnInfo::type       => 'integer',
+      //   enuColumnInfo::validator  => null,
+      //   enuColumnInfo::default    => null,
+      //   enuColumnInfo::required   => false,
+      //   enuColumnInfo::selectable => true,
+      // ],
+      // 'uasDiscountAmount' => [
+      //   enuColumnInfo::type       => 'double',
+      //   enuColumnInfo::validator  => null,
+      //   enuColumnInfo::default    => null,
+      //   enuColumnInfo::required   => false,
+      //   enuColumnInfo::selectable => true,
+      // ],
       'uasPrefered' => [
         enuColumnInfo::type       => 'boolean',
         enuColumnInfo::validator  => null,
@@ -158,7 +158,7 @@ trait BaseUserAssetModelTrait
         enuColumnInfo::isStatus   => true,
         enuColumnInfo::type       => ['string', 'max' => 1],
         enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => enuUserAssetStatus::Pending,
+        enuColumnInfo::default    => null, //enuUserAssetStatus::Pending,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::exact,
@@ -217,9 +217,9 @@ trait BaseUserAssetModelTrait
 		return $this->hasOne($this->getSaleableModelClass(), ['slbID' => 'uasSaleableID']);
 	}
 
-  abstract public static function getDiscountModelClass();
-	public function getDiscount() {
-		return $this->hasOne($this->getDiscountModelClass(), ['dscID' => 'uasDiscountID']);
-	}
+  // abstract public static function getDiscountModelClass();
+	// public function getDiscount() {
+	// 	return $this->hasOne($this->getDiscountModelClass(), ['dscID' => 'uasDiscountID']);
+	// }
 
 }

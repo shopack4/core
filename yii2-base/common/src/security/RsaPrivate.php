@@ -93,8 +93,10 @@ class RsaPrivate extends BaseObject
 			$encrypted = '';
 			$result = openssl_private_encrypt($chunk, $encrypted, $key);
 
-			if ($result === false)
+			if ($result === false) {
+				$error = openssl_error_string();
 				return null;
+			}
 
 			$output .= $encrypted;
 		}
@@ -122,8 +124,10 @@ class RsaPrivate extends BaseObject
 			$decrypted = '';
 			$result = openssl_private_decrypt($chunk, $decrypted, $key);
 
-			if ($result === false)
+			if ($result === false) {
+				$error = openssl_error_string();
 				return null;
+			}
 
 			$output .= $decrypted;
 		}

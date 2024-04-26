@@ -143,7 +143,7 @@ class ApprovalRequestModel extends AAAActiveRecord
     $approvalRequestTableName = static::tableName();
     $messageTableName = MessageModel::tableName();
 
-    $qry =<<<SQLSTR
+    $qry =<<<SQL
           UPDATE {$messageTableName} msg
       INNER JOIN {$approvalRequestTableName} apr
               ON apr.aprID = msg.msgApprovalRequestID
@@ -151,16 +151,16 @@ class ApprovalRequestModel extends AAAActiveRecord
            WHERE aprKey = '{$normalizedInput}'
              AND aprExpireAt <= NOW()
              AND msgStatus != {$fnGetConst(enuMessageStatus::Sent)}
-SQLSTR;
+SQL;
     static::getDb()->createCommand($qry)->execute();
 
-    $qry =<<<SQLSTR
+    $qry =<<<SQL
           UPDATE {$approvalRequestTableName}
              SET aprStatus = {$fnGetConst(enuApprovalRequestStatus::Expired)}
            WHERE aprKey = '{$normalizedInput}'
              AND aprExpireAt <= NOW()
              AND aprStatus != {$fnGetConst(enuApprovalRequestStatus::Applied)}
-SQLSTR;
+SQL;
     static::getDb()->createCommand($qry)->execute();
 
     //find current
@@ -181,22 +181,22 @@ SQLSTR;
       ->all();
 
     if (empty($models) == false && count($models) > 1) {
-      $qry =<<<SQLSTR
+      $qry =<<<SQL
           UPDATE {$messageTableName} msg
       INNER JOIN {$approvalRequestTableName} apr
               ON apr.aprID = msg.msgApprovalRequestID
              SET msgStatus = {$fnGetConst(enuMessageStatus::Removed)}
            WHERE aprKey = '{$normalizedInput}'
              AND aprStatus IN ({$fnGetConst(enuApprovalRequestStatus::New)}, {$fnGetConst(enuApprovalRequestStatus::Sent)})
-SQLSTR;
+SQL;
       static::getDb()->createCommand($qry)->execute();
 
-      $qry =<<<SQLSTR
+      $qry =<<<SQL
           UPDATE {$approvalRequestTableName}
              SET aprStatus = {$fnGetConst(enuApprovalRequestStatus::Expired)}
            WHERE aprKey = '{$normalizedInput}'
              AND aprStatus IN ({$fnGetConst(enuApprovalRequestStatus::New)}, {$fnGetConst(enuApprovalRequestStatus::Sent)})
-SQLSTR;
+SQL;
       static::getDb()->createCommand($qry)->execute();
 
       //kz@2023 08 26
@@ -306,11 +306,11 @@ SQLSTR;
       if ($approvalRequestModel->save() == false)
         throw new UnprocessableEntityHttpException("error in updating approval request\n" . implode("\n", $approvalRequestModel->getFirstErrors()));
 
-      $qry =<<<SQLSTR
+      $qry =<<<SQL
           UPDATE {$messageTableName}
              SET msgStatus = {$fnGetConst(enuMessageStatus::Removed)}
            WHERE msgApprovalRequestID = '{$approvalRequestModel->aprID}'
-SQLSTR;
+SQL;
       static::getDb()->createCommand($qry)->execute();
     }
 
@@ -534,12 +534,12 @@ SQLSTR;
         throw new UnprocessableEntityHttpException("could not save approval request\n" . implode("\n", $approvalRequestModel->getFirstErrors()));
 
       //3: old message
-      $qry =<<<SQLSTR
+      $qry =<<<SQL
           UPDATE {$messageTableName}
              SET msgUserID = :UserID
            WHERE msgApprovalRequestID = '{$approvalRequestModel->aprID}'
              AND msgUserID IS NULL
-SQLSTR;
+SQL;
       static::getDb()->createCommand($qry, [
         ':UserID' => $userModel->usrID,
       ])->execute();

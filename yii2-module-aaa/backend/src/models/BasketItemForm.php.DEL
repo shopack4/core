@@ -23,12 +23,13 @@ use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\backend\models\BasketForm;
 
+//deprecated
 class BasketItemForm extends Model
 {
+/*
   public static function addItem()
   {
 		$service = $_POST['service'];
-
 		$data = $_POST['data'];
 
 		if (empty(Yii::$app->controller->module->servicesPublicKeys[$service]))
@@ -68,7 +69,7 @@ class BasketItemForm extends Model
 
       $voucherModel->vchAmount += ($unitprice * $qty);
       if ($discount > 0)
-        $voucherModel->vchDiscountAmount = ($voucherModel->vchDiscountAmount ?? 0) + $discount;
+        $voucherModel->vchItemsDiscounts = ($voucherModel->vchItemsDiscounts ?? 0) + $discount;
 
       //check current items
       if (empty($maxqty) == false) {
@@ -107,11 +108,12 @@ class BasketItemForm extends Model
 
     $voucherModel->vchTotalAmount =
         $voucherModel->vchAmount
-      - ($voucherModel->vchDiscountAmount ?? 0);
+      - ($voucherModel->vchItemsDiscounts ?? 0);
 
     return $voucherModel->save();
   }
-
+*/
+/*
   public static function removeItem($key)
   {
     $voucherModel = BasketForm::getCurrentBasket();
@@ -131,7 +133,7 @@ class BasketItemForm extends Model
         try {
           unset($vchItems[$k]);
 
-          $voucherModel->vchAmount -= ($vchItem['unitprice'] * $vchItem['qty']);
+          $voucherModel->vchAmount -= ($vchItem['unitPrice'] * $vchItem['qty']);
           $voucherModel->vchItems = $vchItems;
 
           if (($voucherModel->vchPaidByWallet ?? 0) > $voucherModel->vchAmount) {
@@ -191,5 +193,6 @@ SQL;
 
     throw new NotFoundHttpException('Basket item not found');
   }
+*/
 
 }

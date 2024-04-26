@@ -9,7 +9,7 @@ class m230301_194301_aaa_merge_userextrainfo_to_user extends Migration
 {
   public function safeUp()
   {
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_User`
 	ADD COLUMN `usrBirthDate` DATE NULL DEFAULT NULL AFTER `usrPasswordCreatedAt`,
 	ADD COLUMN `usrCountryID` SMALLINT(5) UNSIGNED NULL DEFAULT NULL AFTER `usrBirthDate`,
@@ -20,20 +20,20 @@ ALTER TABLE `tbl_AAA_User`
 	ADD COLUMN `usrZipCode` VARCHAR(32) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `usrHomeAddress`,
 	ADD COLUMN `usrImage` VARCHAR(128) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `usrZipCode`
   ;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_User`
 	ADD CONSTRAINT `FK_tbl_AAA_User_tbl_AAA_GeoCountry` FOREIGN KEY (`usrCountryID`) REFERENCES `tbl_AAA_GeoCountry` (`cntrID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	ADD CONSTRAINT `FK_tbl_AAA_User_tbl_AAA_GeoCityOrVillage` FOREIGN KEY (`usrCityOrVillageID`) REFERENCES `tbl_AAA_GeoCityOrVillage` (`ctvID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	ADD CONSTRAINT `FK_tbl_AAA_User_tbl_AAA_GeoState` FOREIGN KEY (`usrStateID`) REFERENCES `tbl_AAA_GeoState` (`sttID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	ADD CONSTRAINT `FK_tbl_AAA_User_tbl_AAA_GeoTown` FOREIGN KEY (`usrTownID`) REFERENCES `tbl_AAA_GeoTown` (`twnID`) ON UPDATE NO ACTION ON DELETE NO ACTION
 	;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 UPDATE tbl_AAA_User
   INNER JOIN tbl_AAA_UserExtraInfo
           ON tbl_AAA_UserExtraInfo.uexUserID = tbl_AAA_User.usrID
@@ -46,12 +46,12 @@ UPDATE tbl_AAA_User
            , tbl_AAA_User.usrZipCode         = tbl_AAA_UserExtraInfo.uexZipCode
            , tbl_AAA_User.usrImage           = tbl_AAA_UserExtraInfo.uexImage
   ;
-SQLSTR
+SQL
     );
 
     $this->execute('DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_User;');
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_User AFTER UPDATE ON tbl_AAA_User FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -92,14 +92,14 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_User AFTER UPDATE ON tbl_AAA_User FOR EACH 
           , atlInfo   = JSON_OBJECT("usrID", OLD.usrID, "old", Changes);
   END IF;
 END ;
-SQLSTR
+SQL
     );
 
     $this->execute('DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_UserExtraInfo;');
 
     $this->execute('DROP PROCEDURE IF EXISTS spUpdateTableTriggerAndCols;');
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE PROCEDURE `spUpdateTableTriggerAndCols`(
   IN `iSchema` VARCHAR(50),
   IN `iTable` VARCHAR(50),
@@ -299,13 +299,13 @@ DELIMITER ;');
   DEALLOCATE PREPARE stmt;
   /**/
 END ;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_UserExtraInfo`
 	DROP FOREIGN KEY `FK_tbl_AAA_UserExtraInfo_tbl_AAA_User`;
-SQLSTR
+SQL
     );
 
     $this->execute('RENAME TABLE `tbl_AAA_UserExtraInfo` TO `DELETED_tbl_AAA_UserExtraInfo`;');

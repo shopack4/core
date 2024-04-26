@@ -31,6 +31,7 @@ use shopack\base\common\accounting\enums\enuDiscountType;
 'dscTargetUserIDs',
 'dscTargetProductIDs',
 'dscTargetSaleableIDs',
+'dscReferrers',
 'dscSaleableBasedMultiplier',
 'dscAmount',
 'dscAmountType',
@@ -143,7 +144,7 @@ trait BaseDiscountModelTrait
         enuColumnInfo::selectable => true,
       ],
 			'dscTotalMaxPrice' => [
-        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::type       => 'double',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
@@ -157,7 +158,7 @@ trait BaseDiscountModelTrait
         enuColumnInfo::selectable => true,
       ],
 			'dscPerUserMaxPrice' => [
-        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::type       => 'double',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
@@ -184,6 +185,13 @@ trait BaseDiscountModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
+      'dscReferrers' => [
+        enuColumnInfo::type       => JsonValidator::class,
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
 			'dscSaleableBasedMultiplier' => [
         enuColumnInfo::type       => JsonValidator::class,
         enuColumnInfo::validator  => null,
@@ -192,10 +200,7 @@ trait BaseDiscountModelTrait
         enuColumnInfo::selectable => true,
       ],
 			'dscAmount' => [
-        enuColumnInfo::type       => [
-          'number',
-          'min' => 0,
-          'max' => 100,
+        enuColumnInfo::type       => ['double', 'min' => 0, 'max' => 100,
           'when' => function ($model) {
             return ($model->dscAmountType == enuAmountType::Percent);
           },
@@ -213,7 +218,7 @@ trait BaseDiscountModelTrait
         enuColumnInfo::selectable => true,
       ],
 			'dscMaxAmount' => [
-        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::type       => 'double',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
@@ -227,7 +232,7 @@ trait BaseDiscountModelTrait
         enuColumnInfo::selectable => true,
       ],
 			'dscTotalUsedPrice' => [
-        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::type       => 'double',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,

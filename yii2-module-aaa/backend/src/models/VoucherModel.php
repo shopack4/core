@@ -13,6 +13,7 @@ use shopack\aaa\backend\classes\AAAActiveRecord;
 use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuVoucherItemStatus;
+use shopack\base\common\accounting\enums\enuUserAssetStatus;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\security\RsaPublic;
 
@@ -52,13 +53,94 @@ class VoucherModel extends AAAActiveRecord
 		if ($this->vchType != enuVoucherType::Basket)
 			return true;
 
+		if ($this->vchStatus == enuVoucherStatus::Finished)
+			return true;
+
 		// if (($this->vchStatus != enuVoucherStatus::Settled)
 		// 		&& ($this->vchStatus != enuVoucherStatus::Error))
     //   throw new UnprocessableEntityHttpException('The voucher status is not settled or error');
 
-		if ($this->vchTotalAmount != $this->vchTotalPaid ?? 0)
+		if ($this->vchTotalAmount != ($this->vchTotalPaid ?? 0))
       throw new UnprocessableEntityHttpException('This voucher not paid totaly');
 
+		$services = [];
+
+		//1- get services
+		foreach ($this->vchItems as $k => $voucherItem) {
+			if (empty($services[$voucherItem['service']])) {
+				$services[$voucherItem['service']] = [];
+			}
+
+			$services[$voucherItem['service']][] = $voucherItem;
+		}
+
+		$org_vchItems = $this->vchItems;
+		$this->vchItems = null;
+		$errorCount = 0;
+
+		//2: call process-voucher-items for every service
+		$parentModule = Yii::$app->topModule;
+
+		foreach ($services as $service => $items) {
+			$data = Json::encode([
+				'service' => $service,
+				'voucher' => $this,
+				'items' => $items,
+			]);
+
+			$data = RsaPublic::model($parentModule->servicesPublicKeys[$service])->encrypt($data);
+
+			list ($resultStatus, $resultData) = HttpHelper::callApi(
+				"{$service}/accounting/process-voucher-items",
+				HttpHelper::METHOD_POST,
+				[],
+				[
+					'service'	=> $service,
+					'data' => $data,
+				]
+			);
+
+			if ($resultStatus < 200 || $resultStatus >= 300) {
+				throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+				++$errorCount;
+			} else {
+				foreach ($resultData as $resKey => $resVal) {
+					foreach ($org_vchItems as $orgKey => $orgVal) {
+						if ($orgVal['key'] == $resKey) {
+							if (isset($resVal['ok'])) {
+								$org_vchItems[$orgKey]['status'] = enuVoucherItemStatus::Processed;
+
+								if (isset($org_vchItems[$orgKey]['error'])) {
+									unset($org_vchItems[$orgKey]['error']);
+								}
+							} else if (isset($resVal['error'])) {
+								++$errorCount;
+
+								$org_vchItems[$orgKey]['status'] = enuVoucherItemStatus::Error;
+								$org_vchItems[$orgKey]['error'] = $resVal['error'];
+							}
+
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		//3: update items
+		$this->vchItems = $org_vchItems;
+
+		$this->vchStatus = ($errorCount > 0 ? enuVoucherStatus::Error : enuVoucherStatus::Finished);
+		$ret = $this->save();
+
+		return $ret;
+
+
+
+
+
+
+/*
 		$errorCount = 0;
 		$vchItems = $this->vchItems;
 		foreach ($vchItems as $k => $voucherItem) {
@@ -84,6 +166,7 @@ class VoucherModel extends AAAActiveRecord
 		$this->vchItems = $vchItems;
 		$this->vchStatus = ($errorCount > 0 ? enuVoucherStatus::Error : enuVoucherStatus::Finished);
 		return $this->save();
+		*/
 	}
 
 	public function processVoucherItem($voucherItem)

@@ -10,7 +10,7 @@ class m231021_122609_aaa_create_deliverymethod extends Migration
 {
 	public function safeUp()
 	{
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TABLE `tbl_AAA_DeliveryMethod` (
 	`dlvID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
 	`dlvUUID` VARCHAR(38) NOT NULL COLLATE 'utf8mb4_unicode_ci',
@@ -38,38 +38,38 @@ CREATE TABLE `tbl_AAA_DeliveryMethod` (
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
 ;
-SQLSTR
+SQL
     );
     $this->alterColumn('tbl_AAA_DeliveryMethod', 'dlvI18NData', $this->json());
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Voucher`
 	ADD COLUMN `vchDeliveryMethodID` INT NULL DEFAULT NULL AFTER `vchAmount`,
 	ADD COLUMN `vchDeliveryAmount` INT(10) NULL DEFAULT NULL AFTER `vchDeliveryMethodID`;
-SQLSTR
+SQL
     );
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Voucher`
 	ADD COLUMN `vchTotalAmount` INT(10) NULL AFTER `vchDeliveryAmount`;
-SQLSTR
+SQL
     );
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 UPDATE tbl_AAA_Voucher
 	SET vchTotalAmount = vchAmount
 	WHERE vchTotalAmount IS NULL;
-SQLSTR
+SQL
     );
 
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Voucher`
 	CHANGE COLUMN `vchTotalAmount` `vchTotalAmount` INT(10) NOT NULL AFTER `vchDeliveryAmount`;
-SQLSTR
+SQL
     );
 
     $this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_DeliveryMethod;");
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_DeliveryMethod AFTER UPDATE ON tbl_AAA_DeliveryMethod FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -95,11 +95,11 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_DeliveryMethod AFTER UPDATE ON tbl_AAA_Deli
           , atlInfo   = JSON_OBJECT("dlvID", OLD.dlvID, "old", Changes);
   END IF;
 END
-SQLSTR
+SQL
     );
 
     $this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_Voucher;");
-    $this->execute(<<<SQLSTR
+    $this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_Voucher AFTER UPDATE ON tbl_AAA_Voucher FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -130,7 +130,7 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_Voucher AFTER UPDATE ON tbl_AAA_Voucher FOR
           , atlInfo   = JSON_OBJECT("vchID", OLD.vchID, "old", Changes);
   END IF;
 END
-SQLSTR
+SQL
     );
 	}
 

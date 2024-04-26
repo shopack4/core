@@ -6,17 +6,48 @@
 namespace shopack\base\backend\accounting;
 
 use yii\base\BootstrapInterface;
+use yii\base\InvalidConfigException;
 
-class AccountingModule
+abstract class AccountingModule
 	extends \shopack\base\common\base\BaseModule
 	implements BootstrapInterface
 {
+	public $unitModelClass;
+	public $productModelClass;
+	public $saleableModelClass;
+	public $discountModelClass;
+	public $discountUsageModelClass;
+	public $userAssetModelClass;
+	public $basketModelClass;
+
 	public function init()
 	{
 		if (empty($this->id))
 			$this->id = 'accounting';
 
 		parent::init();
+
+		if ($this->unitModelClass === null)
+			throw new InvalidConfigException('The "unitModelClass" property must be set.');
+
+		if ($this->productModelClass === null)
+			throw new InvalidConfigException('The "productModelClass" property must be set.');
+
+		if ($this->saleableModelClass === null)
+			throw new InvalidConfigException('The "saleableModelClass" property must be set.');
+
+		if ($this->discountModelClass === null)
+			throw new InvalidConfigException('The "discountModelClass" property must be set.');
+
+		if ($this->discountUsageModelClass === null)
+			throw new InvalidConfigException('The "discountUsageModelClass" property must be set.');
+
+		if ($this->userAssetModelClass === null)
+			throw new InvalidConfigException('The "userAssetModelClass" property must be set.');
+
+		if ($this->basketModelClass === null)
+			throw new InvalidConfigException('The "basketModelClass" property must be set.');
+
 	}
 
 	public function bootstrap($app)
@@ -32,44 +63,60 @@ class AccountingModule
 			//-- accounting ---------------------------------
 			$rules = array_merge($rules, [
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/unit'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/discount'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
+					// 'prefix' => 'v1',
+					'controller' => [$thisID . '/discount-serial'],
+					'pluralize' => false,
+				],
+				[
+					'class' => \shopack\base\common\rest\UrlRule::class,
+					// 'prefix' => 'v1',
+					'controller' => [$thisID . '/discount-usage'],
+					'pluralize' => false,
+				],
+				[
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/product'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/saleable'],
 					'pluralize' => false,
 				],
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID . '/user-asset'],
 					'pluralize' => false,
 				],
 
 				[
-					'class' => \yii\rest\UrlRule::class,
+					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
 					'controller' => [$thisID => $thisID . '/default'],
 					'pluralize' => false,
 
 					'patterns' => [
-						'GET remove-basket-item' => 'remove-basket-item',
+						'POST add-to-basket' => 'add-to-basket',
+						'POST update-basket-item' => 'update-basket-item',
+						'POST remove-basket-item' => 'remove-basket-item',
+						'POST recheck-basket-items' => 'recheck-basket-items',
+						'POST process-voucher-items' => 'process-voucher-items',
 					],
 				],
 

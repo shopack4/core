@@ -35,19 +35,14 @@ $this->params['breadcrumbs'][] = $this->title;
 function plusQty()
 {
 }
-
 function minusQty()
-{
-}
-
-function deleteItem()
 {
 }
 JS;
             $this->registerJs($js, \yii\web\View::POS_END);
 
             $dataProvider = new ArrayDataProvider([
-              'allModels' => $model->voucher->vchItems,
+              'allModels' => $model->voucher['vchItems'],
               'key' => 'key',
               'pagination' => false,
             ]);
@@ -65,14 +60,14 @@ JS;
                 // 'slbid',
                 [
                   'attribute' => 'desc',
-                  'label' => 'شرح',
+                  'label' => Yii::t('app', 'Description'),
                 ],
                 [
                   'attribute' => 'qty',
-                  'label' => 'تعداد / مقدار',
+                  'label' => Yii::t('aaa', 'Qty'),
                   'format' => 'raw',
                   'value' => function ($model, $key, $index, $widget) {
-                    if (empty($model['qtystep'])) {
+                    if (empty($model['qtyStep'])) {
                       return Yii::$app->formatter->asDecimal($model['qty']);
                     }
 
@@ -97,25 +92,27 @@ JS;
                 ],
                 [
                   'attribute' => 'unit',
-                  'label' => 'واحد',
+                  'label' => 'واحد', //Yii::t('aaa', 'Unit'),
                 ],
                 [
-                  'attribute' => 'unitprice',
-                  'label' => 'مبلغ واحد',
+                  'attribute' => 'unitPrice',
+                  'label' => Yii::t('aaa', 'Unit Price'),
                   'format' => 'toman',
                 ],
                 [
                   'attribute' => 'discount',
-                  'label' => 'تخفیف',
+                  'label' => Yii::t('aaa', 'Discount Amount'),
                   'format' => 'toman',
                 ],
                 [
-                  'attribute' => 'totalprice',
-                  'label' => 'مبلغ کل',
+                  'attribute' => 'vat',
+                  'label' => Yii::t('aaa', 'VAT Amount'),
                   'format' => 'toman',
-                  'value' => function ($model, $key, $index, $widget) {
-                    return $model['unitprice'] * $model['qty'] - ($model['discount'] ?? 0);
-                  },
+                ],
+                [
+                  'attribute' => 'totalPrice',
+                  'label' => Yii::t('aaa', 'Total Amount'),
+                  'format' => 'toman',
                 ],
                 [
                   'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
@@ -125,9 +122,10 @@ JS;
                       return Html::deleteButton("<i class='indicator fas fa-trash'></i>", [
                         // '/' . $model['service'] . '/basket/remove-item',
                         'remove-item',
-                        'key' => $model['key'],
+                        'key' => $model['service'] . '/' . $model['key'],
                       ], [
                         'class' => 'btn btn-sm btn-outline-danger',
+                        'title' => Yii::t('app', 'Delete'),
                       ]);
                     },
                   ],

@@ -12,7 +12,7 @@ class m230604_065324_aaa_add_some_fields_to_user extends Migration
 {
 	public function safeUp()
 	{
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_User`
 	ADD COLUMN `usrFatherName` VARCHAR(128) NULL DEFAULT NULL AFTER `usrLastName_en`,
 	ADD COLUMN `usrFatherName_en` VARCHAR(128) NULL DEFAULT NULL AFTER `usrFatherName`,
@@ -22,7 +22,7 @@ ALTER TABLE `tbl_AAA_User`
 	ADD COLUMN `usrWorkAddress` VARCHAR(2048) NULL DEFAULT NULL AFTER `usrPhones`,
 	ADD COLUMN `usrWorkPhones` VARCHAR(1024) NULL DEFAULT NULL AFTER `usrWorkAddress`,
 	ADD COLUMN `usrWebsite` VARCHAR(1024) NULL DEFAULT NULL AFTER `usrWorkPhones`;
-SQLSTR
+SQL
 		);
 
 	}

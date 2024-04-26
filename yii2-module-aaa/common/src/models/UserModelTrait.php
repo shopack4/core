@@ -12,6 +12,7 @@ use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
 use shopack\base\common\validators\GroupRequiredValidator;
 use shopack\aaa\common\enums\enuRole;
+use shopack\base\common\helpers\GeneralHelper;
 
 /*
 new: must be add to the model lables, index and view
@@ -186,7 +187,7 @@ trait UserModelTrait
       ],
       'usrSSID' => [
         enuColumnInfo::type       => ['string', 'min' => 10, 'max' => 10],
-        enuColumnInfo::validator  => null,
+        enuColumnInfo::validator  => 'validateSSID',
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
@@ -430,9 +431,16 @@ trait UserModelTrait
           'usrEmail',
           'usrMobile'
         ],
-        'message' => Yii::t('aaa', 'one of email or mobile is required'),
+        'message' => Yii::t('aaa', 'One of the email or mobile is required'),
       ],
     ];
+  }
+
+  public function validateSSID($attribute, $params)
+  {
+    if ((empty($this[$attribute]) == false) && (GeneralHelper::isValidIranSSID($this[$attribute]) == false)) {
+      $this->addError($attribute, Yii::t('aaa', 'Invalid SSID'));
+    }
   }
 
   public function getCreatedByUser() {

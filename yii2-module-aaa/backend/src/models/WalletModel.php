@@ -46,7 +46,7 @@ class WalletModel extends AAAActiveRecord
 		if (empty($userid)) {
 			$userid = Yii::$app->user->id;
 
-			if (Yii::$app->user->isGuest || empty($_GET['justForMe']))
+			if (Yii::$app->user->isGuest) // || empty($_GET['justForMe']))
 				return false;
 		}
 

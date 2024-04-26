@@ -192,8 +192,10 @@ return [
 	'Wallet Transaction' => 'تراکنش کیف پول',
 	'Wallet Transaction Info' => 'مشخصات تراکنش کیف پول',
 
+	'Qty' => 'تعداد / مقدار',
 	'Amount' => 'مبلغ',
-	'Discount Amount' => 'مقدار تخفیف',
+	'Discount Amount' => 'تخفیف',
+	'VAT Amount' => 'مالیات',
 	'Delivery Amount' => 'هزینه ارسال',
 	'Total Amount' => 'مبلغ کل',
 	'Remained Amount' => 'موجودی',
@@ -492,12 +494,18 @@ return [
 	'Incorrect Email or password.' => 'ایمیل یا رمز ورود صحیح نیست.',
 	'Incorrect email or Password.' => 'ایمیل و رمز ورود صحیح نیست.',
 
+	'One of the email or mobile is required' => 'یکی از موارد ایمیل یا موبایل اجباری است',
+	'Invalid SSID' => 'کد ملی صحیح نیست',
+
 	'Not allowed for Guest.' => 'دسترسی به این قسمت برای کاربر مهمان امکان پذیر نمی‌باشد.',
 	'Owner Count' => 'تعداد مالکان',
 	'Queue ID' => 'صف اجرا',
 
 	//-- FIN ---------------
 	'Financial' => 'مالی',
+
+	'Payment Failed' => 'پرداخت موفق نبود',
+	'Payment Cancelled' => 'عملیات پرداخت لغو شد',
 
 	'Payment gateway' => 'درگاه پرداخت',
 	'Payment gateways' => 'درگاه‌های پرداخت',
@@ -519,6 +527,8 @@ return [
 	'Deleted Files Count' => 'تعداد فایل‌های حذف شده',
 	'Deleted Files Size' => 'حجم فایل‌های حذف شده',
 	'Last Action Time' => 'آخرین زمان عملیات',
+
+	'Add To Basket' => 'افزودن به سبد خرید',
 
 	'Baskets' => 'سبدهای خرید',
 	'Basket' => 'سبد خرید',
@@ -547,11 +557,25 @@ return [
 
 	'Discount Type' => 'نوع تخفیف',
 	'System Discount' => 'تخفیف سیستمی',
-	'As Coupon' => 'تخفیف کوپنی',
+	'Fix System Discount' => 'سیستمی ثابت',
+	'Increase System Discount' => 'سیستمی اضافه شونده',
+	'As Coupon' => 'کوپنی',
 	'Discount Code' => 'کد تخفیف',
 	'Code Has Serial' => 'دارای سریال',
 	'Code Serial Count' => 'تعداد',
 	'Code SerialL ength' => 'طول سریال',
+
+	'Discount Serials' => 'سریال‌ها',
+	'Discount Serial' => 'سریال',
+	'Discount Serial Info' => 'مشخصات سریال',
+	// 'Create Discount Serial' => 'ایجاد سریال',
+	// 'Update Discount Serial' => 'ویرایش سریال',
+
+	'Discount Usages' => 'مصرف‌ها',
+	'Discount Usage' => 'مصرف',
+	'Discount Usage Info' => 'مشخصات مصرف',
+	// 'Create Discount Usage' => 'ایجاد مصرف',
+	// 'Update Discount Usage' => 'ویرایش مصرف',
 
 	'Receive by customer' => 'دریافت توسط مشتری',
 	'Send to customer' => 'ارسال به مشتری',

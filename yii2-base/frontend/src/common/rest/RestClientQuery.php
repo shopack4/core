@@ -527,6 +527,18 @@ class RestClientQuery
     return ($statusCode == 200);
 	}
 
+  public function restUndelete(RestClientActiveRecord $model)
+  {
+    $response = $this->_request('undelete', $this->_getUrl('element', $model->getPrimaryKey()), [
+      'json' => $model->getAttributes(),
+    ]);
+
+    $this->_populate($response, false);
+
+    $statusCode = $response->getStatusCode();
+    return ($statusCode == 200);
+  }
+
   /**
    * @inheritdoc
    */

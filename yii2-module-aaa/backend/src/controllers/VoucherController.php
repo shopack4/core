@@ -21,9 +21,9 @@ class VoucherController extends BaseRestController
 	{
 		$behaviors = parent::behaviors();
 
-		// $behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['except'] = [
-		// 	'callback',
-		// ];
+		$behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['except'] = [
+			'process-voucher',
+		];
 
 		return $behaviors;
 	}
@@ -34,6 +34,11 @@ class VoucherController extends BaseRestController
 			return $model;
 
 		throw new NotFoundHttpException('The requested item not exist.');
+	}
+
+	public function actionOptions()
+	{
+		return 'options';
 	}
 
 	public function actionIndex()
@@ -81,87 +86,13 @@ class VoucherController extends BaseRestController
 		return $this->modelToResponse($model);
 	}
 
-	/*
-	public function actionCreate()
+	public function actionProcessVoucher($id)
 	{
-		PrivHelper::checkPriv(['aaa/voucher/crud' => '1000']);
-
-		$model = new VoucherModel();
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		try {
-			if ($model->save() == false)
-				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-		} catch(\Exception $exp) {
-			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
-			throw new UnprocessableEntityHttpException($msg);
-		}
+		$res = $this->findModel($id)->processVoucher();
 
 		return [
-			// 'result' => [
-				// 'message' => 'created',
-				'vchID' => $model->vchID,
-				'vchStatus' => $model->vchStatus,
-				'vchCreatedAt' => $model->vchCreatedAt,
-				'vchCreatedBy' => $model->vchCreatedBy,
-			// ],
+			'result' => $res ? 'ok' : 'error',
 		];
-	}
-
-	public function actionUpdate($id)
-	{
-		if (PrivHelper::hasPriv('aaa/voucher/crud', '0010') == false) {
-			if (Yii::$app->user->id != $id)
-				throw new ForbiddenHttpException('access denied');
-		}
-
-		$model = $this->findModel($id);
-
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		if ($model->save() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
-		return [
-			// 'result' => [
-				// 'message' => 'updated',
-				'vchID' => $model->vchID,
-				'vchStatus' => $model->vchStatus,
-				'vchUpdatedAt' => $model->vchUpdatedAt,
-				'vchUpdatedBy' => $model->vchUpdatedBy,
-			// ],
-		];
-	}
-
-	public function actionDelete($id)
-	{
-		if (PrivHelper::hasPriv('aaa/voucher/crud', '0001') == false) {
-			if (Yii::$app->user->id != $id)
-				throw new ForbiddenHttpException('access denied');
-		}
-
-		$model = $this->findModel($id);
-
-		if ($model->delete() === false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
-		return [
-			// 'result' => [
-				// 'message' => 'deleted',
-				'vchID' => $model->vchID,
-				'vchStatus' => $model->vchStatus,
-				'vchRemovedAt' => $model->vchRemovedAt,
-				'vchRemovedBy' => $model->vchRemovedBy,
-			// ],
-		];
-	}
-	*/
-
-	public function actionOptions()
-	{
-		return 'options';
 	}
 
 }

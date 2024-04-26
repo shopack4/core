@@ -9,23 +9,23 @@ class m230518_181736_aaa_rename_alert_to_message extends Migration
 {
 	public function safeUp()
 	{
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 DROP TRIGGER IF EXISTS `trg_updatelog_tbl_AAA_Alert`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 RENAME TABLE `tbl_AAA_Alert` TO `tbl_AAA_Message`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Message`
 	DROP FOREIGN KEY `FK_tbl_AAA_Alert_tbl_AAA_ApprovalRequest`,
 	DROP FOREIGN KEY `FK_tbl_AAA_Alert_tbl_AAA_ForgotPasswordRequest`,
 	DROP FOREIGN KEY `FK_tbl_AAA_Alert_tbl_AAA_User`,
 	DROP FOREIGN KEY `FK_tbl_AAA_Alert_tbl_AAA_User_creator`;
-SQLSTR
+SQL
 		);
 
 		$this->execute("CALL DropIndexIfExists('tbl_AAA_Message', 'FK_tbl_AAA_Alert_tbl_AAA_User');");
@@ -33,7 +33,7 @@ SQLSTR
 		$this->execute("CALL DropIndexIfExists('tbl_AAA_Message', 'FK_tbl_AAA_Alert_tbl_AAA_ApprovalRequest');");
 		$this->execute("CALL DropIndexIfExists('tbl_AAA_Message', 'FK_tbl_AAA_Alert_tbl_AAA_ForgotPasswordRequest');");
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Message`
 	CHANGE COLUMN `alrID` `msgID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT FIRST,
 	CHANGE COLUMN `alrUserID` `msgUserID` BIGINT(20) UNSIGNED NULL DEFAULT NULL AFTER `msgID`,
@@ -56,39 +56,39 @@ ALTER TABLE `tbl_AAA_Message`
 	CHANGE COLUMN `alrRemovedBy` `msgRemovedBy` BIGINT(20) UNSIGNED NULL DEFAULT NULL AFTER `msgRemovedAt`,
 	DROP PRIMARY KEY,
 	ADD PRIMARY KEY (`msgID`) USING BTREE;
-SQLSTR
+SQL
 		);
 		$this->alterColumn('tbl_AAA_Message', 'msgInfo', $this->json());
 		$this->alterColumn('tbl_AAA_Message', 'msgResult', $this->json());
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Message`
 	ADD CONSTRAINT `FK_tbl_AAA_Message_tbl_AAA_User` FOREIGN KEY (`msgUserID`) REFERENCES `tbl_AAA_User` (`usrID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	ADD CONSTRAINT `FK_tbl_AAA_Message_tbl_AAA_ApprovalRequest` FOREIGN KEY (`msgApprovalRequestID`) REFERENCES `tbl_AAA_ApprovalRequest` (`aprID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
 	ADD CONSTRAINT `FK_tbl_AAA_Message_tbl_AAA_ForgotPasswordRequest` FOREIGN KEY (`msgForgotPasswordRequestID`) REFERENCES `tbl_AAA_ForgotPasswordRequest` (`fprID`) ON UPDATE NO ACTION ON DELETE NO ACTION;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Message`
 	ADD COLUMN `msgIssuer` VARCHAR(64) NULL DEFAULT NULL AFTER `msgInfo`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 UPDATE `tbl_AAA_Message`
 	SET `msgIssuer` = 'aaa'
 	WHERE `msgIssuer` IS NULL;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Message`
 	CHANGE COLUMN `msgIssuer` `msgIssuer` VARCHAR(64) NOT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `msgInfo`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_Message AFTER UPDATE ON tbl_AAA_Message FOR EACH ROW BEGIN
 	DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -119,29 +119,29 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_Message AFTER UPDATE ON tbl_AAA_Message FOR
 					, atlInfo   = JSON_OBJECT("msgID", OLD.msgID, "old", Changes);
 	END IF;
 END;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 DROP TRIGGER IF EXISTS `trg_updatelog_tbl_AAA_AlertTemplate`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 RENAME TABLE `tbl_AAA_AlertTemplate` TO `tbl_AAA_MessageTemplate`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_MessageTemplate`
 	DROP INDEX `altKey_altMedia_altLanguage`,
 	DROP INDEX `altKey`,
 	DROP INDEX `altMedia`,
 	DROP INDEX `altLanguage`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_MessageTemplate`
 	CHANGE COLUMN `altID` `mstID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT FIRST,
 	CHANGE COLUMN `altKey` `mstKey` VARCHAR(64) NOT NULL COLLATE 'utf8mb4_unicode_ci' AFTER `mstID`,
@@ -160,35 +160,35 @@ ALTER TABLE `tbl_AAA_MessageTemplate`
 	CHANGE COLUMN `altRemovedBy` `mstRemovedBy` BIGINT(19) NULL DEFAULT NULL AFTER `mstRemovedAt`,
 	DROP PRIMARY KEY,
 	ADD PRIMARY KEY (`mstID`) USING BTREE;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_MessageTemplate`
 	ADD UNIQUE INDEX `mstKey_mstMedia_mstLanguage` (`mstKey`, `mstMedia`, `mstLanguage`);
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_MessageTemplate`
 	ADD COLUMN `mstIsSystem` BIT NULL AFTER `mstParamsSuffix`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 UPDATE `tbl_AAA_MessageTemplate`
 	SET `mstIsSystem` = 1
 	WHERE `mstIsSystem` IS NULL;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_MessageTemplate`
 	CHANGE COLUMN `mstIsSystem` `mstIsSystem` BIT(1) NOT NULL AFTER `mstParamsSuffix`;
-SQLSTR
+SQL
 		);
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_MessageTemplate AFTER UPDATE ON tbl_AAA_MessageTemplate FOR EACH ROW BEGIN
 	DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -215,7 +215,7 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_MessageTemplate AFTER UPDATE ON tbl_AAA_Mes
 					, atlInfo   = JSON_OBJECT("mstID", OLD.mstID, "old", Changes);
 	END IF;
 END;
-SQLSTR
+SQL
 		);
 
     $this->batchInsertIgnore('tbl_AAA_MessageTemplate', [

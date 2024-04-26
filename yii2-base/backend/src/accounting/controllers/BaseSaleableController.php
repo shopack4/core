@@ -5,14 +5,8 @@
 
 namespace shopack\base\backend\accounting\controllers;
 
-use Yii;
-use yii\web\ForbiddenHttpException;
-use yii\web\NotFoundHttpException;
-use yii\web\UnprocessableEntityHttpException;
-use yii\data\ActiveDataProvider;
-use shopack\base\common\helpers\ExceptionHelper;
 use shopack\base\backend\controller\BaseCrudController;
-use shopack\base\backend\helpers\PrivHelper;
+use Yii;
 
 abstract class BaseSaleableController extends BaseCrudController
 {
@@ -28,6 +22,36 @@ abstract class BaseSaleableController extends BaseCrudController
 			['LIKE', 'prdCode', $q],
 			['LIKE', 'prdName', $q],
 		]);
+	}
+
+	public function queryAugmentaters()
+	{
+		$actorID = (Yii::$app->user->isGuest ? 0 : Yii::$app->user->id);
+		$modelClass = $this->modelClass;
+
+		return [
+			'index' => function($query) use ($actorID, $modelClass) {
+				$modelClass::appendDiscountQuery($query, $actorID);
+				$query
+					->joinWith('product')
+					->joinWith('product.unit')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+
+			'view' => function($query) use ($actorID, $modelClass) {
+				$modelClass::appendDiscountQuery($query, $actorID);
+				$query
+					->joinWith('product')
+					->joinWith('product.unit')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+		];
 	}
 
 }

@@ -239,8 +239,8 @@ trait ActiveRecordTrait
 			if (is_string($this->$column))
 				$this->$column = trim($this->$column);
 
-			if (($this->$column === '') &&
-					(empty($info[enuColumnInfo::required]) || ($info[enuColumnInfo::required] === false))
+			if (($this->$column === '')
+				&& (empty($info[enuColumnInfo::required]) || ($info[enuColumnInfo::required] !== true))
 			) {
 				$this->$column = null;
 			}

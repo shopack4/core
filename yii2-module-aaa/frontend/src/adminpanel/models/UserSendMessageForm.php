@@ -46,7 +46,7 @@ class UserSendMessageForm extends Model
       [],
       [
 				'userID'  => $this->userID,
-				'message'   => $this->message,
+				'message' => $this->message,
 			]
     );
 

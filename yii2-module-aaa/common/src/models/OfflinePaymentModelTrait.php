@@ -96,7 +96,7 @@ trait OfflinePaymentModelTrait
         enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'ofpAmount' => [
-				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,

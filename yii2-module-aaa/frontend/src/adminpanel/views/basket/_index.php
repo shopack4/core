@@ -59,11 +59,13 @@ use shopack\base\frontend\common\widgets\grid\GridView;
         $result = [];
         $result[] = '<tr><td>' . implode('</td><td>', [
           '#',
-          'شرح',
-          'تعداد',
-          'مبلغ واحد',
-          'تخفیف',
-          'مبلغ کل',
+          Yii::t('app', 'Description'),
+          Yii::t('aaa', 'Qty'),
+          Yii::t('aaa', 'Unit'),
+          Yii::t('aaa', 'Unit Price'),
+          Yii::t('aaa', 'Discount Amount'),
+          Yii::t('aaa', 'VAT Amount'),
+          Yii::t('aaa', 'Total Amount'),
         ]) . '</td></tr>';
         $vchItems = $model->vchItems;
         foreach ($vchItems as $k => $vchItem)
@@ -72,9 +74,11 @@ use shopack\base\frontend\common\widgets\grid\GridView;
             $k + 1,
             $vchItem['desc'],
             Yii::$app->formatter->asDecimal($vchItem['qty']),
-            Yii::$app->formatter->asToman($vchItem['unitprice']),
+            $vchItem['unit'],
+            Yii::$app->formatter->asToman($vchItem['unitPrice']),
             Yii::$app->formatter->asToman($vchItem['discount'] ?? 0),
-            Yii::$app->formatter->asToman(($vchItem['qty'] * $vchItem['unitprice']) - ($vchItem['discount'] ?? 0)),
+            Yii::$app->formatter->asToman($vchItem['vat'] ?? 0),
+            Yii::$app->formatter->asToman($vchItem['totalPrice']),
           ]) . '</td></tr>';
         }
         return '<table class="table table-bordered table-striped">' . implode('', $result) . '</table>';
@@ -105,7 +109,14 @@ use shopack\base\frontend\common\widgets\grid\GridView;
       ],
     ],
     [
-      'attribute' => 'vchDiscountAmount',
+      'attribute' => 'vchItemsDiscounts',
+      'format' => 'toman',
+      'contentOptions' => [
+        'class' => ['text-nowrap', 'tabular-nums'],
+      ],
+    ],
+    [
+      'attribute' => 'vchItemsVATs',
       'format' => 'toman',
       'contentOptions' => [
         'class' => ['text-nowrap', 'tabular-nums'],

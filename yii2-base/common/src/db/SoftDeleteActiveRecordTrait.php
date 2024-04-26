@@ -13,6 +13,9 @@ use yii\base\NotSupportedException;
 
 trait SoftDeleteActiveRecordTrait
 {
+  //todo: assign ActiveStatus in models :: initSoftDelete()
+  public $softdelete_ActiveStatus = 'A';
+
   public $softdelete_RemovedStatus = 'R';
   // public $softdelete_StatusField;
   public $softdelete_RemovedAtField;
@@ -28,10 +31,16 @@ trait SoftDeleteActiveRecordTrait
     $this->initSoftDelete();
 
     if (empty($this->softdelete_RemovedStatus)
-        || empty($this->statusColumnName)
-        || empty($this->softdelete_RemovedAtField)
-        || empty($this->softdelete_RemovedByField))
+      || empty($this->statusColumnName)
+      || empty($this->softdelete_RemovedAtField)
+      || empty($this->softdelete_RemovedByField)
+    ) {
       throw new UnprocessableEntityHttpException('soft delete not initialized');
+    }
+
+    if ($this->{$this->statusColumnName} == $this->softdelete_RemovedStatus) {
+      throw new UnprocessableEntityHttpException('object already deleted');
+    }
 
     $this->setAttribute($this->statusColumnName, $this->softdelete_RemovedStatus);
     $this->setAttribute($this->softdelete_RemovedAtField, new Expression('UNIX_TIMESTAMP(NOW())'));
@@ -45,13 +54,6 @@ trait SoftDeleteActiveRecordTrait
       call_user_func($this->softdelete_CustomLambda);
 
     return $this->save();
-  }
-
-  public function softUndelete()
-  {
-    $this->initSoftDelete();
-
-    throw new NotSupportedException(__METHOD__ . ' is not supported yet.');
   }
 
   protected function deleteInternal()
@@ -68,7 +70,35 @@ trait SoftDeleteActiveRecordTrait
 
   public function undelete()
   {
-    $this->softUndelete();
+    $this->initSoftDelete();
+
+    if (empty($this->softdelete_RemovedStatus)
+      || empty($this->statusColumnName)
+      || empty($this->softdelete_RemovedAtField)
+      || empty($this->softdelete_RemovedByField)
+    ) {
+      throw new UnprocessableEntityHttpException('soft delete not initialized');
+    }
+
+    if ($this->{$this->statusColumnName} != $this->softdelete_RemovedStatus) {
+      throw new UnprocessableEntityHttpException('object not deleted yet');
+    }
+
+    $this->setAttribute($this->statusColumnName, $this->softdelete_ActiveStatus);
+    $this->setAttribute($this->softdelete_RemovedAtField, 0);
+    $this->setAttribute($this->softdelete_RemovedByField, null);
+
+    // if (isset(Yii::$app->user->identity) && (Yii::$app->user->getIsGuest() == false))
+    //   $this->setAttribute($this->softdelete_RemovedByField, Yii::$app->user->id);
+
+    if ($this->softdelete_CustomLambda instanceof Closure
+      || (is_array($this->softdelete_CustomLambda)
+        && is_callable($this->softdelete_CustomLambda))
+    ) {
+      call_user_func($this->softdelete_CustomLambda);
+    }
+
+    return $this->save();
   }
 
 }

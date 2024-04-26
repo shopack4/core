@@ -214,7 +214,7 @@ $this->params['breadcrumbs'][] = $this->title;
               ?>
             </div>
             <div class='col-3'>
-            <div class='card border-default mb-3'>
+              <div class='card border-default mb-3'>
                 <div class='card-body'>
                   <?php
                     $buttons = [];

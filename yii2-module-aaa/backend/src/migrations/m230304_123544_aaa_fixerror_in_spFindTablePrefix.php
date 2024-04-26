@@ -11,7 +11,7 @@ class m230304_123544_aaa_fixerror_in_spFindTablePrefix extends Migration
 	{
 		$this->execute("DROP PROCEDURE IF EXISTS `spFindTablePrefix`");
 
-		$this->execute(<<<SQLSTR
+		$this->execute(<<<SQL
 CREATE PROCEDURE `spFindTablePrefix`(
 	IN `iTable` VARCHAR(128),
 	OUT `oPrefix` VARCHAR(64)
@@ -71,7 +71,7 @@ ORDER BY COLUMN_NAME DESC
 	END IF;
 
 END
-SQLSTR
+SQL
 		);
 	}
 
