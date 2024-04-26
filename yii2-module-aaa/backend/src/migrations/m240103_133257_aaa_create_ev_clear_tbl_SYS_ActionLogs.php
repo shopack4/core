@@ -10,7 +10,6 @@ class m240103_133257_aaa_create_ev_clear_tbl_SYS_ActionLogs extends Migration
   public function safeUp()
   {
     $this->execute("DROP EVENT IF EXISTS ev_clear_tbl_SYS_ActionLogs;");
-
     $this->execute(<<<SQL
 CREATE EVENT `ev_clear_tbl_SYS_ActionLogs`
 	ON SCHEDULE

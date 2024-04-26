@@ -108,7 +108,7 @@ class BasketController extends BaseRestController
 					$services[$item['service']][] = $item;
 				}
 
-				//@TEMP:
+				//todo: TEMP:
 				$_old_vchItems = $model['vchItems'];
 
 				$model['vchItems'] = null;
@@ -134,6 +134,7 @@ class BasketController extends BaseRestController
 						]
 					);
 
+					//todo: complete by return values from recheck-basket-items
 					if ($resultStatus < 200 || $resultStatus >= 300) {
 						// throw new \yii\web\HttpException($resultStatus, Yii::t('mha', $resultData['message'], $resultData));
 					} else {
@@ -146,8 +147,7 @@ class BasketController extends BaseRestController
 				//3: add new items
 				$model['vchItems'] = $newItems;
 
-
-				//@TEMP:
+				//todo: TEMP:
 				$model['vchItems'] = $_old_vchItems;
 
 			}

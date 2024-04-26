@@ -23,18 +23,6 @@ ALTER TABLE `tbl_AAA_Voucher`
 SQL
     );
 
-    $this->execute(<<<SQL
-SQL
-    );
-
-    $this->execute(<<<SQL
-SQL
-    );
-
-    $this->execute(<<<SQL
-SQL
-    );
-
   }
 
   public function safeDown()
