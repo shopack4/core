@@ -5,15 +5,15 @@
 
 namespace shopack\aaa\backend\extensions\gateways\payment;
 
-use GuzzleHttp\Client;
 use Yii;
 use yii\web\UnprocessableEntityHttpException;
+use GuzzleHttp\Client;
 use shopack\base\common\helpers\Json;
 use shopack\aaa\common\enums\enuPaymentGatewayType;
 use shopack\aaa\backend\classes\BasePaymentGateway;
 use shopack\aaa\backend\classes\IPaymentGateway;
 
-//https://github.com/shetabit/multipay/blob/master/src/Drivers/Asanpardakht/Asanpardakht.php
+//https://github.com/shetabit/multipay/blob/master/src/Drivers/Saman/Saman.php
 
 class AsanPardakhtPaymentGateway
 	extends BasePaymentGateway
@@ -69,26 +69,49 @@ class AsanPardakhtPaymentGateway
 		]);
 	}
 
-	protected function callApi($method, $url, $data = []): array
+	protected function callApi($method, $url, $urlparams = [], $data = []): array
 	{
-		$username = $this->extensionModel->gtwPluginParameters[self::PARAM_USERNAME];
-		$password = $this->extensionModel->gtwPluginParameters[self::PARAM_PASSWORD];
-
 		$client = new Client(['base_uri' => self::URL_APISERVER]);
+
+		if (empty($urlparams) == false) {
+			$idx = 0;
+			foreach ($urlparams as $k => $v) {
+				$url .= ($idx == 0 ? '?' : '&');
+				++$idx;
+
+				$url .= $k;
+				$url .= '=';
+				$url .= $v;
+			}
+		}
+
+		$headers = [
+			'Content-Type' => 'application/json',
+		];
+
+		// if (strcasecmp($method, 'get') != 0) {
+			$headers['usr'] = $this->extensionModel->gtwPluginParameters[self::PARAM_USERNAME];
+			$headers['pwd'] = $this->extensionModel->gtwPluginParameters[self::PARAM_PASSWORD];
+		// }
+
 		$response = $client->request($method, $url, [
 			"json" => $data,
-			"headers" => [
-				'Content-Type' => 'application/json',
-				'usr' => $username,
-				'pwd' => $password
-			],
+			"headers" => $headers,
 			"http_errors" => false,
 		]);
 
-		return [
-			'status_code' => $response->getStatusCode(),
-			'content' => Json::decode($response->getBody()->getContents()),
-		];
+		$responseStatus = $response->getStatusCode();
+		if ($responseStatus != 200) {
+			$this->throwFailed($responseStatus);
+			// throw new UnprocessableEntityHttpException("Error ($responseStatus) in call api");
+		}
+
+		return Json::decode($response->getBody()->getContents());
+
+		// return [
+		// 	'status_code' => $response->getStatusCode(),
+		// 	'content' => Json::decode($response->getBody()->getContents()),
+		// ];
 	}
 
 	public function prepare(&$gatewayModel, $onlinePaymentModel, $callbackUrl)
@@ -98,11 +121,11 @@ class AsanPardakhtPaymentGateway
 		$price = $onlinePaymentModel->onpAmount * 10; //toman -> rial
 		$callBackUrl = urlencode($callbackUrl);
 
-		$serverTime = $this->callApi('GET', self::URLTime)['content'];
+		$serverTime = $this->callApi('GET', self::URLTime);
 
 		try {
 			//--token
-			$token = $this->callApi('POST', self::URLToken, [
+			$token = $this->callApi('POST', self::URLToken, [], [
 				'serviceTypeId'							=> 1,
 				'merchantConfigurationId'		=> $merchant_id,
 				'localInvoiceId'						=> $onlinePaymentModel->onpID,
@@ -117,11 +140,12 @@ class AsanPardakhtPaymentGateway
 			throw new UnprocessableEntityHttpException('Error in prepare payment (' . $exp->getMessage() . ')');
 		}
 
-		if (!isset($token['status_code']) || $token['status_code'] != 200) {
-			$this->throwFailed($token['status_code']);
-		}
+		// if (!isset($token['status_code']) || $token['status_code'] != 200) {
+		// 	$this->throwFailed($token['status_code']);
+		// }
+		// $token = $token['content'];
 
-		$token = $token['content'];
+		//todo: check result
 
 		return [
 			/* $response   */ 'ok',
@@ -139,41 +163,45 @@ class AsanPardakhtPaymentGateway
 	{
 		$merchant_id = $this->extensionModel->gtwPluginParameters[self::PARAM_MERCHANT_ID];
 
-		$result = $this->callApi('GET', self::URLTranResult
-			. '?merchantConfigurationId=' . $merchant_id
-			. '&localInvoiceId=' . $onlinePaymentModel->onpID,
-		);
+		$result = $this->callApi('GET', self::URLTranResult, [
+			'merchantConfigurationId' => $merchant_id,
+			'localInvoiceId' => $onlinePaymentModel->onpID,
+		]);
 
-		if (!isset($result['status_code']) || $result['status_code'] != 200) {
-			$this->throwFailed($result['status_code']);
-		}
+		// if (!isset($result['status_code']) || $result['status_code'] != 200) {
+		// 	$this->throwFailed($result['status_code']);
+		// }
 
-		$payGateTransactionId = $result['content']['payGateTranID'];
+		//todo: check result
+
+		$payGateTransactionId = $result['payGateTranID'];
 
 		//step1: verify
-		$verify_result = $this->callApi('POST', self::URLVerify, [
+		$verify_result = $this->callApi('POST', self::URLVerify, [], [
 			'merchantConfigurationId' => (int)$merchant_id,
 			'payGateTranId' => (int)$payGateTransactionId,
 		]);
 
-		if (!isset($verify_result['status_code']) or $verify_result['status_code'] != 200) {
-			$this->throwFailed($verify_result['status_code']);
-		}
+		// if (!isset($verify_result['status_code']) or $verify_result['status_code'] != 200) {
+		// 	$this->throwFailed($verify_result['status_code']);
+		// }
+
+		//todo: check result
 
 		//step2: settlement
-		$this->callApi('POST', self::URLSettlement, [
+		$this->callApi('POST', self::URLSettlement, [], [
 			'merchantConfigurationId' => (int)$merchant_id,
 			'payGateTranId' => (int)$payGateTransactionId,
 		]);
 
 		//
 		return [
-			'ok',
-			$result['content']['rrn'],
+			$result, //'ok',
+			$result['rrn'],
 			// 'traceNo'				=> $payGateTransactionId,
-			// 'referenceNo'		=> $result['content']['rrn'],
-			// 'transactionId'	=> $result['content']['refID'],
-			// 'cardNo'				=> $result['content']['cardNumber'],
+			// 'referenceNo'		=> $result['rrn'],
+			// 'transactionId'	=> $result['refID'],
+			// 'cardNo'				=> $result['cardNumber'],
 		];
 	}
 

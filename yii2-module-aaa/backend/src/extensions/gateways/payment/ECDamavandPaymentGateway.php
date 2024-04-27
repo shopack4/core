@@ -253,7 +253,7 @@ class ECDamavandPaymentGateway
 
 			//------------------
 			return [
-				'ok',
+				$pgwResponse, //'ok',
 				$res_ReferenceNumber,
 				// 'referenceNo'		=> $res_ReferenceNumber,
 				// 'transactionId'	=> $res_TrackingNumber,

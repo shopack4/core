@@ -66,7 +66,7 @@ class DevTestPaymentGateway
 
 		if ($result == 'ok') {
 			return [
-				'ok',
+				$pgwResponse, //'ok',
 				'rrn-' . $onlinePaymentModel->onpUUID,
 			];
 		}

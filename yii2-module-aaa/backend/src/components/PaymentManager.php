@@ -76,7 +76,7 @@ class PaymentManager extends Component
       //   $this->topmostPayCallback .= '/';
 
       $ch = (strpos($this->topmostPayCallback, '?') === false ? '?' : '&');
-      $backendCallback = $this->topmostPayCallback . $ch . 'done=' .urlencode($backendCallback);
+      $backendCallback = $this->topmostPayCallback . $ch . 'done=' . urlencode($backendCallback);
     }
 
     $gatewayClass = $gatewayModel->getGatewayClass();
@@ -88,7 +88,6 @@ class PaymentManager extends Component
         $backendCallback
       );
     } catch (\Throwable $exp) {
-
       $onlinePaymentModel->onpResult = [
         'error' => $exp->getMessage(),
       ];
