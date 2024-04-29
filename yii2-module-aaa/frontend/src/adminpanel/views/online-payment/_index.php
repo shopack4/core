@@ -69,6 +69,12 @@ use shopack\aaa\frontend\common\models\OnlinePaymentModel;
       },
     ],
     [
+      'attribute' => 'onpPaymentToken',
+      'contentOptions' => [
+        'class' => ['small'],
+      ],
+    ],
+    [
       'attribute' => 'onpTrackNumber',
       'contentOptions' => [
         'class' => ['small'],

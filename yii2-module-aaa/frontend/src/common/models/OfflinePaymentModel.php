@@ -27,7 +27,7 @@ class OfflinePaymentModel extends RestClientActiveRecord
 			'ofpVoucherID'        => Yii::t('aaa', 'Voucher'),
 			'ofpBankOrCart'       => Yii::t('aaa', 'Bank or Cart'),
 			'ofpTrackNumber'      => Yii::t('aaa', 'Track Number'),
-			'ofpReferenceNumber'	=> Yii::t('aaa', 'Reference Number'),
+			'ofpReferenceNumber'	=> Yii::t('aaa', 'RRN'),
 			'ofpAmount'           => Yii::t('aaa', 'Amount'),
 			'ofpPayDate'        	=> Yii::t('aaa', 'Paid at'),
 			'ofpPayer'        	  => Yii::t('aaa', 'Payer'),

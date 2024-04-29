@@ -175,7 +175,6 @@ return [
 	'Offline Payment' => 'پرداخت آفلاین',
 
 	'Bank or Cart' => 'بانک/کارت مقصد',
-	'Reference Number' => 'شماره ارجاع',
 	'Paid at' => 'تاریخ پرداخت',
 	'Payer' => 'پرداخت کننده',
 	'Source Cart Number' => 'شماره کارت مبدا',
@@ -600,7 +599,10 @@ return [
 	'Settled' => 'تسویه شده',
 	'Finished' => 'پایان یافته',
 
+	'Payment Token' => 'کلید پرداخت',
 	'Track Number' => 'شماره پیگیری',
+	'RRN' => 'شماره مرجع',
+
 	'Order' => 'سفارش',
 	'Orders' => 'سفارشات',
 

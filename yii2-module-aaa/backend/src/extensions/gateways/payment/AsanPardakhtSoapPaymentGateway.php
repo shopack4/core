@@ -129,7 +129,7 @@ class AsanPardakhtSoapPaymentGateway
 			$RefId = implode(',', $resultParts);
 			return [
 				/* $response   */ 'ok',
-				/* $trackID    */ $RefId,
+				/* $paymentToken    */ $RefId,
 				/* $paymentUrl */ ['post', self::URL_PAYMENT, 'RefId' => $RefId],
 			];
 
@@ -147,7 +147,7 @@ class AsanPardakhtSoapPaymentGateway
 			'method' => 'post',
 			'url' => self::URL_PAYMENT,
 			'params' => [
-				'RefId' => $onlinePaymentModel->onpTrackNumber,
+				'RefId' => $onlinePaymentModel->onpPaymentToken,
 			],
 		];
 	}
@@ -237,6 +237,7 @@ class AsanPardakhtSoapPaymentGateway
 
 		return [
 			'ok',
+			$RRN, //todo: must be Tracking Number
 			$RRN,
 		];
 	}

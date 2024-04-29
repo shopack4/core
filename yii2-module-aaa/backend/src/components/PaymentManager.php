@@ -98,7 +98,7 @@ class PaymentManager extends Component
     $gatewayClass = $gatewayModel->getGatewayClass();
 
     try {
-      list ($response, $trackID, $paymentUrl) = $gatewayClass->prepare(
+      list ($response, $paymentToken, $paymentUrl) = $gatewayClass->prepare(
         $gatewayModel,
         $onlinePaymentModel,
         $backendCallback
@@ -123,9 +123,9 @@ class PaymentManager extends Component
     }
 
     //4: save to onp
-    $onlinePaymentModel->onpTrackNumber	= $trackID;
-    $onlinePaymentModel->onpResult			= (array)$response;
-    $onlinePaymentModel->onpStatus			= enuOnlinePaymentStatus::Pending;
+    $onlinePaymentModel->onpPaymentToken	= $paymentToken;
+    $onlinePaymentModel->onpResult		  	= (array)$response;
+    $onlinePaymentModel->onpStatus			  = enuOnlinePaymentStatus::Pending;
     if ($onlinePaymentModel->save() == false)
       throw new ServerErrorHttpException('It is not possible to update online payment');
 
@@ -307,10 +307,12 @@ HTML;
 
     } else if ($result['type'] == 'link') {
 
-      //redirect in frontend
-      return [
-        'url' => $result['url'],
-      ];
+      return Yii::$app->controller->redirect($result['url']);
+
+      // //redirect in frontend
+      // return [
+      //   'url' => $result['url'],
+      // ];
     }
 
     throw new UnprocessableEntityHttpException("Unknown payment page type ({$result['type']})");
@@ -433,11 +435,12 @@ SQL;
     $gatewayClass = $onlinePaymentModel->gateway->getGatewayClass();
 
     try {
-      list ($result, $rrn) = $gatewayClass->verify($onlinePaymentModel->gateway, $onlinePaymentModel, $pgwResponse);
+      list ($result, $trackNumber, $rrn) = $gatewayClass->verify($onlinePaymentModel->gateway, $onlinePaymentModel, $pgwResponse);
 
-      $onlinePaymentModel->onpRRN = $rrn;
-      $onlinePaymentModel->onpResult = (array)$result;
-      $onlinePaymentModel->onpStatus = enuOnlinePaymentStatus::Paid;
+      $onlinePaymentModel->onpTrackNumber = $trackNumber;
+      $onlinePaymentModel->onpRRN         = $rrn;
+      $onlinePaymentModel->onpResult      = (array)$result;
+      $onlinePaymentModel->onpStatus      = enuOnlinePaymentStatus::Paid;
       if ($onlinePaymentModel->save() == false) {
         //todo: ???
       }

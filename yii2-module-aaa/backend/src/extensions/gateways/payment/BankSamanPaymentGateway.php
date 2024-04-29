@@ -18,7 +18,7 @@ class BankSamanPaymentGateway
 	implements IPaymentGateway
 {
 	const URL_Request			= "https://sep.shaparak.ir/onlinepg/onlinepg";
-	const URL_PayStart		= "https://sep.shaparak.ir/onlinepg/sendtoken";
+	const URL_PayStart		= "https://sep.shaparak.ir/OnlinePG/SendToken";
 	const URL_Verify			= "https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/VerifyTransaction";
 	const URL_PayReverse	= "https://sep.shaparak.ir/verifyTxnRandomSessionkey/ipg/ReverseTransaction";
 
@@ -99,7 +99,7 @@ class BankSamanPaymentGateway
 		$terminal_id = $this->extensionModel->gtwPluginParameters[self::PARAM_TERMINAL_ID];
 
 		$price = $onlinePaymentModel->onpAmount * 10; //toman -> rial
-		$callBackUrl = urlencode($callbackUrl);
+		// $callbackUrl = urlencode($callbackUrl);
 
 		// $serverTime = $this->callApi('GET', self::URLTime);
 
@@ -111,7 +111,7 @@ class BankSamanPaymentGateway
 				// 'Wage'							=> ,
 				'TerminalId'				=> $terminal_id,
 				'ResNum'						=> $onlinePaymentModel->onpID,
-				'RedirectURL'				=> $callBackUrl,
+				'RedirectURL'				=> $callbackUrl,
 				// 'CellNumber'				=> ,
 				// 'TokenExpiryInMin'	=> ,
 				// 'HashedCardNumber'	=> ,
@@ -132,9 +132,9 @@ class BankSamanPaymentGateway
 		$token = $result['token'];
 
 		return [
-			/* $response   */ 'ok',
-			/* $trackID    */ $token,
-			/* $paymentUrl */ [
+			/* $response     */ 'ok',
+			/* $paymentToken */ $token,
+			/* $paymentUrl   */ [
 				'post',
 				self::URL_PayStart,
 				'Token' => $token,
@@ -145,14 +145,19 @@ class BankSamanPaymentGateway
 
 	public function pay(&$gatewayModel, $onlinePaymentModel)
 	{
+		// return [
+		// 	'type' => 'form',
+		// 	'method' => 'post',
+		// 	'url' => self::URL_PayStart,
+		// 	'params' => [
+		// 		'Token' => $onlinePaymentModel->onpPaymentToken,
+		// 		'GetMethod' => 0,
+		// 	],
+		// ];
 		return [
-			'type' => 'form',
-			'method' => 'post',
-			'url' => self::URL_PayStart,
-			'params' => [
-				'Token' => $onlinePaymentModel->onpTrackNumber,
-				'GetMethod' => false,
-			],
+			'type' => 'link',
+			'url' => self::URL_PayStart
+				. '?' . 'Token=' . $onlinePaymentModel->onpPaymentToken,
 		];
 	}
 
@@ -163,7 +168,7 @@ class BankSamanPaymentGateway
 		$MID								= $pgwResponse['MID'];							//شماره ترمینال
 		$State							= $pgwResponse['State'];						//وضعیت تراکنش: حروف انگلیسی
 		$Status							= $pgwResponse['Status'];						//وضعیت تراکنش: مقدار عددی
-		$RRN								= $pgwResponse['RRN'];							//شماره مرجع
+		$RRN								= $pgwResponse['Rrn'] ?? $pgwResponse['RRN']; //شماره مرجع
 		$RefNum							= $pgwResponse['RefNum'];						//رسید دیجیتالی خرید
 		$ResNum							= $pgwResponse['ResNum'];						//شماره خرید
 		$TerminalId					= $pgwResponse['TerminalId'];				//شماره ترمینال
@@ -197,8 +202,8 @@ class BankSamanPaymentGateway
 		}
 
 		//1: validate data
-		if ($terminal_id != $MID) {
-			throw new UnprocessableEntityHttpException("Error: mismatched mid");
+		if ($terminal_id != $TerminalId) {
+			throw new UnprocessableEntityHttpException("Error: mismatched Terminal Id");
 		}
 
 		//2: check double spending
@@ -226,6 +231,7 @@ class BankSamanPaymentGateway
 		//
 		return [
 			$transactionDetail, //'ok',
+			$transactionDetail['StraceNo'],
 			$transactionDetail['RRN'],
 			// 'traceNo'				=> $payGateTransactionId,
 			// 'referenceNo'		=> $result['rrn'],

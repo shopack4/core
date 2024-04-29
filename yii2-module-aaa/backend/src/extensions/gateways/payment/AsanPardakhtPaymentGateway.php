@@ -148,9 +148,9 @@ class AsanPardakhtPaymentGateway
 		//todo: check result
 
 		return [
-			/* $response   */ 'ok',
-			/* $trackID    */ $token,
-			/* $paymentUrl */ [
+			/* $response     */ 'ok',
+			/* $paymentToken */ $token,
+			/* $paymentUrl   */ [
 				'post',
 				self::URL_PAYMENT,
 				'RefId' => $token,
@@ -166,7 +166,7 @@ class AsanPardakhtPaymentGateway
 			'method' => 'post',
 			'url' => self::URL_PAYMENT,
 			'params' => [
-				'RefId' => $onlinePaymentModel->onpTrackNumber,
+				'RefId' => $onlinePaymentModel->onpPaymentToken,
 			],
 		];
 	}
@@ -209,6 +209,7 @@ class AsanPardakhtPaymentGateway
 		//
 		return [
 			$result, //'ok',
+			$result['rrn'], //todo: must be Tracking Number
 			$result['rrn'],
 			// 'traceNo'				=> $payGateTransactionId,
 			// 'referenceNo'		=> $result['rrn'],

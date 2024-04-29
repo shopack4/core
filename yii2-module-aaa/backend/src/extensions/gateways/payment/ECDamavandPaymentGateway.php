@@ -146,9 +146,9 @@ class ECDamavandPaymentGateway
 			// }
 
 			return [
-				/* $response   */ 'ok',
-				/* $trackID    */ $res_Res,
-				/* $paymentUrl */ [
+				/* $response     */ 'ok',
+				/* $paymentToken */ $res_Res,
+				/* $paymentUrl   */ [
 					'post',
 					self::URL_PayStart,
 					'Token' => $res_Res,
@@ -170,7 +170,7 @@ class ECDamavandPaymentGateway
 			'method' => 'post',
 			'url' => self::URL_PayStart,
 			'params' => [
-				'Token' => $onlinePaymentModel->onpTrackNumber,
+				'Token' => $onlinePaymentModel->onpPaymentToken,
 			],
 		];
 	}
@@ -266,6 +266,7 @@ class ECDamavandPaymentGateway
 			//------------------
 			return [
 				$pgwResponse, //'ok',
+				$res_TrackingNumber,
 				$res_ReferenceNumber,
 				// 'referenceNo'		=> $res_ReferenceNumber,
 				// 'transactionId'	=> $res_TrackingNumber,

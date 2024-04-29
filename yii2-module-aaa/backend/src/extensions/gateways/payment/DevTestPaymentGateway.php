@@ -42,13 +42,13 @@ class DevTestPaymentGateway
 		]);
 	}
 
-	//list ($response, $trackID, $paymentUrl)
+	//list ($response, $paymentToken, $paymentUrl)
 	public function prepare(&$gatewayModel, $onlinePaymentModel, $callbackUrl)
 	{
 		return [
-			/* $response   */ 'ok',
-			/* $trackID    */ 'track-' . $onlinePaymentModel->onpUUID,
-			/* $paymentUrl */ //[
+			/* $response     */ 'ok',
+			/* $paymentToken */ 'token-' . $onlinePaymentModel->onpUUID,
+			/* $paymentUrl   */ //[
 				'aaa',
 				// Url::to([
 				// 	'/aaa/online-payment/devtestpaymentpage',
@@ -101,6 +101,7 @@ HTML;
 		if ($result == 'ok') {
 			return [
 				$pgwResponse, //'ok',
+				'trace-' . $onlinePaymentModel->onpUUID,
 				'rrn-' . $onlinePaymentModel->onpUUID,
 			];
 		}
