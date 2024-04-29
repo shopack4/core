@@ -140,6 +140,18 @@ class AsanPardakhtSoapPaymentGateway
 		// echo "<div class=\"error\">خطای شماره: {$result}</div>";
 	}
 
+	public function pay(&$gatewayModel, $onlinePaymentModel)
+	{
+		return [
+			'type' => 'form',
+			'method' => 'post',
+			'url' => self::URL_PAYMENT,
+			'params' => [
+				'RefId' => $onlinePaymentModel->onpTrackNumber,
+			],
+		];
+	}
+
 	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse)
 	{
 		$username = $this->extensionModel->gtwPluginParameters[self::PARAM_USERNAME];

@@ -13,12 +13,28 @@ use yii\console\Controller;
 
 cd /home2/iranhmus/domains/api.iranhmusic.ir/public_html; /usr/local/php-8.1/bin/php yii aaa/default/new-keys 2>&1 >>logs/new-keys.log
 
-cd /home2/iranhmus/domains/api.iranhmusic.ir/public_html; /usr/local/php-8.1/bin/php yii aaa/default/heartbeat 2>&1 >>logs/heartbeat.log
+cd /home2/iranhmus/domains/api.iranhmusic.ir/public_html; /usr/local/php-8.1/bin/php yii aaa/default/heartbeat 2>&1 >>logs/aaa-heartbeat.log
 
 */
 
 class DefaultController extends Controller
 {
+  public function log($message, $type='INFO')
+  {
+		if (Yii::$app->isConsole == false)
+			return;
+
+    if ($message instanceof \Throwable) {
+			$message = $message->getMessage();
+      $type = 'ERROR';
+    }
+
+		if (empty($type))
+    	echo "[" . date('Y/m/d H:i:s') . "] {$message}\n";
+		else
+    	echo "[" . date('Y/m/d H:i:s') . "][{$type}] {$message}\n";
+  }
+
 	public function actionNewKeys()
 	{
 		$config = [
@@ -38,11 +54,11 @@ class DefaultController extends Controller
 		$pubkey = openssl_pkey_get_details($res);
 		$pubkey = $pubkey['key'];
 
-		echo "************ Private key: ************\n";
-		echo $privkey . "\n\n";
+		$this->log("************ Private key: ************");
+		$this->log($privkey . "\n");
 
-		echo "************ Public key: ************\n";
-		echo $pubkey . "\n\n";
+		$this->log("************ Public key: ************");
+		$this->log($pubkey . "\n");
 
     return ExitCode::OK;
 	}
@@ -52,14 +68,14 @@ class DefaultController extends Controller
 		try {
 			$this->removeOldActionLogs();
 		} catch (\Throwable $e) {
-      echo $e->getMessage();
+      $this->log($e);
       Yii::error($e, __METHOD__);
 		}
 
 		// try {
 		// 	$this->removeExpiredBasketItems();
 		// } catch (\Throwable $e) {
-    //   echo $e->getMessage();
+    //   $this->log($e);
     //   Yii::error($e, __METHOD__);
 		// }
 

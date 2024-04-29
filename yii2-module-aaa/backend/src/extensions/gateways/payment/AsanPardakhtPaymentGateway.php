@@ -159,6 +159,18 @@ class AsanPardakhtPaymentGateway
 		];
 	}
 
+	public function pay(&$gatewayModel, $onlinePaymentModel)
+	{
+		return [
+			'type' => 'form',
+			'method' => 'post',
+			'url' => self::URL_PAYMENT,
+			'params' => [
+				'RefId' => $onlinePaymentModel->onpTrackNumber,
+			],
+		];
+	}
+
 	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse)
 	{
 		$merchant_id = $this->extensionModel->gtwPluginParameters[self::PARAM_MERCHANT_ID];

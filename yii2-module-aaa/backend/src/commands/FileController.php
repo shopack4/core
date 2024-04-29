@@ -16,15 +16,29 @@ cd /home2/iranhmus/domains/api.iranhmusic.ir/public_html; /usr/local/php-8.1/bin
 
 class FileController extends Controller
 {
+  public function log($message, $type='INFO')
+  {
+		if (Yii::$app->isConsole == false)
+			return;
+
+    if ($message instanceof \Throwable) {
+			$message = $message->getMessage();
+      $type = 'ERROR';
+    }
+
+		if (empty($type))
+    	echo "[" . date('Y/m/d H:i:s') . "] {$message}\n";
+		else
+    	echo "[" . date('Y/m/d H:i:s') . "][{$type}] {$message}\n";
+  }
+
   //must be called by cron
   public function actionProcessQueue($maxItemCount = 100)
   {
     try {
-
       Yii::$app->fileManager->processQueue($maxItemCount);
-
 		} catch(\Exception $e) {
-      echo $e->getMessage();
+      $this->log($e);
 			Yii::error($e, __METHOD__);
 		}
 

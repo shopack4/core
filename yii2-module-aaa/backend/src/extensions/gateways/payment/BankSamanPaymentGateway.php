@@ -143,6 +143,19 @@ class BankSamanPaymentGateway
 		];
 	}
 
+	public function pay(&$gatewayModel, $onlinePaymentModel)
+	{
+		return [
+			'type' => 'form',
+			'method' => 'post',
+			'url' => self::URL_PayStart,
+			'params' => [
+				'Token' => $onlinePaymentModel->onpTrackNumber,
+				'GetMethod' => false,
+			],
+		];
+	}
+
 	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse)
 	{
 		$terminal_id = $this->extensionModel->gtwPluginParameters[self::PARAM_TERMINAL_ID];

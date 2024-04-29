@@ -163,6 +163,18 @@ class ECDamavandPaymentGateway
 		}
 	}
 
+	public function pay(&$gatewayModel, $onlinePaymentModel)
+	{
+		return [
+			'type' => 'form',
+			'method' => 'post',
+			'url' => self::URL_PayStart,
+			'params' => [
+				'Token' => $onlinePaymentModel->onpTrackNumber,
+			],
+		];
+	}
+
 	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse)
 	{
 		try

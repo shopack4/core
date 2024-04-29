@@ -27,9 +27,20 @@ class MessageManager extends Component
 {
   private $defaultSmsGatewayModel = null;
 
-  public function log($message)
+  public function log($message, $type='INFO')
   {
-    echo "[" . date('Y/m/d H:i:s') . "] {$message}\n";
+		if (Yii::$app->isConsole == false)
+			return;
+
+    if ($message instanceof \Throwable) {
+			$message = $message->getMessage();
+      $type = 'ERROR';
+    }
+
+		if (empty($type))
+    	echo "[" . date('Y/m/d H:i:s') . "] {$message}\n";
+		else
+    	echo "[" . date('Y/m/d H:i:s') . "][{$type}] {$message}\n";
   }
 
 	public function getDefaultSmsGateway()
@@ -110,10 +121,10 @@ SQL;
              )
 SQL;
 
-      $this->log("unlock query:\n{$qry}\n");
+      $this->log("unlock query:\n{$qry}");
 
       $rowsCount = Yii::$app->db->createCommand($qry)->execute();
-      $this->log("unlocked count: {$rowsCount}\n");
+      $this->log("unlocked count: {$rowsCount}");
 /**/
 
       //lock
@@ -144,7 +155,7 @@ SQL;
        LIMIT {$maxItemCount}
 SQL;
 
-      	// $this->log(lock query:\n{$qry}\n");
+      	// $this->log(lock query:\n{$qry}");
 
 	      $rowsCount = Yii::$app->db->createCommand($qry)->execute();
       	// $this->log("locked count: {$rowsCount}");
@@ -166,7 +177,7 @@ SQL;
 //     ORDER BY msgCreatedAt ASC
 // SQL;
 
-      // $this->log("fetch query:\n{$qry}\n");
+      // $this->log("fetch query:\n{$qry}");
 // $messagesModels = Yii::$app->db->createCommand($qry)->queryAll();
 
 			$query = MessageModel::find()
@@ -295,7 +306,7 @@ SQL;
           }
         } catch(\Throwable $exp) {
           if (empty($messageID))
-            $this->log("Error. " . $exp->getMessage());
+            $this->log($exp);
 
           ++$errorCount;
 
@@ -344,7 +355,7 @@ SQL;
 
 		} catch(\Throwable $e) {
       if (empty($messageID))
-        $this->log($e->getMessage());
+        $this->log($e);
 			Yii::error($e, __METHOD__);
 		}
 	}

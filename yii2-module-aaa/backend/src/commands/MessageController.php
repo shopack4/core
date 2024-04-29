@@ -17,6 +17,22 @@ cd /home2/iranhmus/domains/api.iranhmusic.ir/public_html; /usr/local/php-8.1/bin
 
 class MessageController extends Controller
 {
+  public function log($message, $type='INFO')
+  {
+		if (Yii::$app->isConsole == false)
+			return;
+
+    if ($message instanceof \Throwable) {
+			$message = $message->getMessage();
+      $type = 'ERROR';
+    }
+
+		if (empty($type))
+    	echo "[" . date('Y/m/d H:i:s') . "] {$message}\n";
+		else
+    	echo "[" . date('Y/m/d H:i:s') . "][{$type}] {$message}\n";
+  }
+
   public function actionTestSendEmail()
   {
     /*
@@ -24,7 +40,7 @@ class MessageController extends Controller
     */
 
     if (!YII_DEBUG) {
-      echo "NOT IN DEBUG MODE";
+      $this->log("NOT IN DEBUG MODE");
       return;
     }
 
@@ -52,7 +68,7 @@ class MessageController extends Controller
       Yii::$app->messageManager->processQueue($maxItemCount);
 
     } catch(\Exception $e) {
-      echo $e->getMessage();
+      $this->log($e);
       Yii::error($e, __METHOD__);
     }
 
@@ -66,10 +82,10 @@ class MessageController extends Controller
 
       $rowsCount = Yii::$app->messageManager->sendBirthdayGreetings();
       if ($rowsCount > 0)
-        echo "new messages: {$rowsCount}";
+        $this->log("new messages: {$rowsCount}");
 
     } catch(\Exception $e) {
-      echo $e->getMessage();
+      $this->log($e);
       Yii::error($e, __METHOD__);
     }
 

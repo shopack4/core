@@ -29,7 +29,8 @@ class OnlinePaymentController extends BaseRestController
 
 		$behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['except'] = [
 			'callback',
-			'devtestpaymentpage',
+			'pay',
+			// 'devtestpaymentpage',
 		];
 
 		return $behaviors;
@@ -205,7 +206,7 @@ class OnlinePaymentController extends BaseRestController
 
 		return $types;
 	}
-
+/*
 	public function actionDevtestpaymentpage($paymentkey, $callback)
 	{
 		if (!YII_ENV_DEV)
@@ -227,6 +228,12 @@ class OnlinePaymentController extends BaseRestController
 <p><a href='{$callback}?result=error'>[ERROR]</a></p>
 <p><a href='{$callback}?result=cancel'>[CANCEL]</a></p>
 HTML;
+	}
+*/
+	//middleware for redirect to pay page
+	public function actionPay($paymentkey)
+  {
+		return Yii::$app->paymentManager->pay($paymentkey);
 	}
 
 	//accepts all http methods
@@ -314,6 +321,5 @@ HTML;
 
 		// return $ret;
   }
-
 
 }

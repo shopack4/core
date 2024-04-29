@@ -152,9 +152,15 @@ class Module
 
 					'extraPatterns' => [
 						'get-allowed-types' => 'get-allowed-types',
+
+						'pay/{paymentkey}' => 'pay',
+						// 'pay' => 'pay',
+
 						'callback/{paymentkey}' => 'callback',
 						'callback' => 'callback',
-					] + (YII_ENV_DEV ? ['devtestpaymentpage' => 'devtestpaymentpage'] : []),
+					]
+						//+ (YII_ENV_DEV ? ['devtestpaymentpage' => 'devtestpaymentpage'] : [])
+					,
 				],
 				[
 					'class' => \shopack\base\common\rest\UrlRule::class,

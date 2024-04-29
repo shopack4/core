@@ -31,6 +31,22 @@ class PaymentManager extends Component
   //used for central payment callback. e.g: *www.x.com -> api.x.com -> ui.x.com
   public $topmostPayCallback = null;
 
+  public function log($message, $type='INFO')
+  {
+		if (Yii::$app->isConsole == false)
+			return;
+
+    if ($message instanceof \Throwable) {
+			$message = $message->getMessage();
+      $type = 'ERROR';
+    }
+
+		if (empty($type))
+    	echo "[" . date('Y/m/d H:i:s') . "] {$message}\n";
+		else
+    	echo "[" . date('Y/m/d H:i:s') . "][{$type}] {$message}\n";
+  }
+
   /**
    * return [onpkey, paymentUrl]
    * or $exp
@@ -56,12 +72,12 @@ class PaymentManager extends Component
     //2: create online payment
     $onlinePaymentModel = new OnlinePaymentModel;
     // $onlinePaymentModel->onpID
-    $onlinePaymentModel->onpUUID					= Uuid::uuid4()->toString();
-    $onlinePaymentModel->onpGatewayID			= $gatewayModel->gtwID;
-    $onlinePaymentModel->onpVoucherID			= $voucherModel->vchID;
-    $onlinePaymentModel->onpAmount				= $payAmount;
-    $onlinePaymentModel->onpCallbackUrl		= $callbackUrl;
-    $onlinePaymentModel->onpWalletID			= $walletID;
+    $onlinePaymentModel->onpUUID				= Uuid::uuid4()->toString();
+    $onlinePaymentModel->onpGatewayID		= $gatewayModel->gtwID;
+    $onlinePaymentModel->onpVoucherID		= $voucherModel->vchID;
+    $onlinePaymentModel->onpAmount			= $payAmount;
+    $onlinePaymentModel->onpCallbackUrl	= $callbackUrl;
+    $onlinePaymentModel->onpWalletID		= $walletID;
     if ($onlinePaymentModel->save() == false)
       throw new ServerErrorHttpException('It is not possible to create an online payment');
 
@@ -87,6 +103,12 @@ class PaymentManager extends Component
         $onlinePaymentModel,
         $backendCallback
       );
+
+      $paymentUrl = Url::to([
+        '/aaa/online-payment/pay',
+        'paymentkey' => $onlinePaymentModel->onpUUID,
+      ], true);
+
     } catch (\Throwable $exp) {
       $onlinePaymentModel->onpResult = [
         'error' => $exp->getMessage(),
@@ -220,6 +242,78 @@ SQL;
       ->one();
 
     return $gatewayModel;
+  }
+
+  //redirect to payment page
+  public function pay($paymentkey)
+  {
+    $onlinePaymentModel = OnlinePaymentModel::find()
+      ->with('gateway')
+      ->with('voucher')
+      ->andWhere(['onpUUID' => $paymentkey])
+      ->one();
+
+    if ($onlinePaymentModel == null) {
+      Yii::error('The requested online payment does not exist.', __METHOD__);
+      throw new NotFoundHttpException('The requested online payment does not exist.');
+    }
+
+    if ($onlinePaymentModel->onpStatus != enuOnlinePaymentStatus::Pending)
+      throw new UnprocessableEntityHttpException('This payment is not in pending state.');
+
+    $gatewayClass = $onlinePaymentModel->gateway->getGatewayClass();
+
+    $result = $gatewayClass->pay($onlinePaymentModel->gateway, $onlinePaymentModel);
+
+    if ($result['type'] == 'form') {
+      Yii::$app->controller->response->format = \yii\web\Response::FORMAT_HTML;
+      Yii::$app->controller->layout = false;
+
+      $params = [];
+      foreach ($result['params'] as $k => $v) {
+        $params[] = "<input type='hidden' name='{$k}' value='{$v}'>";
+      }
+      $params = implode("\n", $params);
+
+      $html = <<<HTML
+<html>
+  <head>
+  </head>
+  <body onload="document.redirectform.submit()">
+    <form method="{$result['method']}" action="{$result['url']}" name="redirectform">
+      {$params}
+    </form>
+  </body>
+</html>
+HTML;
+
+      return Yii::$app->controller->renderContent($html);
+
+    } else if ($result['type'] == 'html') {
+      Yii::$app->controller->response->format = \yii\web\Response::FORMAT_HTML;
+      Yii::$app->controller->layout = false;
+
+      $html = <<<HTML
+<html>
+  <head>
+  </head>
+  <body>
+    {$result['html']}
+  </body>
+</html>
+HTML;
+
+      return Yii::$app->controller->renderContent($html);
+
+    } else if ($result['type'] == 'link') {
+
+      //redirect in frontend
+      return [
+        'url' => $result['url'],
+      ];
+    }
+
+    throw new UnprocessableEntityHttpException("Unknown payment page type ({$result['type']})");
   }
 
   /**

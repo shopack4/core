@@ -49,14 +49,48 @@ class DevTestPaymentGateway
 			/* $response   */ 'ok',
 			/* $trackID    */ 'track-' . $onlinePaymentModel->onpUUID,
 			/* $paymentUrl */ //[
-				// 'post',
-				Url::to([
-					'/aaa/online-payment/devtestpaymentpage',
-					'paymentkey' => $onlinePaymentModel->onpUUID, //-> in url
-					'callback' => $callbackUrl, //-> in url
-				], true),
-				// 'aaa' => 'bbb', //-> in hidden field
+				'aaa',
+				// Url::to([
+				// 	'/aaa/online-payment/devtestpaymentpage',
+				// 	'paymentkey' => $onlinePaymentModel->onpUUID, //-> in url
+				// 	'callback' => $callbackUrl, //-> in url
+				// ], true),
 			// ],
+		];
+	}
+
+	public function pay(&$gatewayModel, $onlinePaymentModel)
+	{
+    $backendCallback = Url::to([
+      '/aaa/online-payment/callback',
+      'paymentkey' => $onlinePaymentModel->onpUUID,
+    ], true);
+
+    if (empty(Yii::$app->paymentManager->topmostPayCallback) == false) {
+      // if (str_ends_with($this->topmostPayCallback, '/') == false)
+      //   $this->topmostPayCallback .= '/';
+
+      $ch = (strpos(Yii::$app->paymentManager->topmostPayCallback, '?') === false ? '?' : '&');
+      $backendCallback = Yii::$app->paymentManager->topmostPayCallback
+				. $ch
+				. 'done='
+				. urlencode($backendCallback);
+    }
+
+		$html =<<<HTML
+<p>this is test payment page</p>
+<p>paymentkey: {$onlinePaymentModel->onpUUID}</p>
+<p>amount: {$onlinePaymentModel->onpAmount}</p>
+<p>callback: {$backendCallback}</p>
+<p>frontend callback: {$onlinePaymentModel->onpCallbackUrl}</p>
+<p><a href='{$backendCallback}?result=ok'>[OK]</a></p>
+<p><a href='{$backendCallback}?result=error'>[ERROR]</a></p>
+<p><a href='{$backendCallback}?result=cancel'>[CANCEL]</a></p>
+HTML;
+
+		return [
+			'type' => 'html',
+			'html' => $html,
 		];
 	}
 

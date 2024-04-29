@@ -20,7 +20,7 @@ class BankMellatPaymentGateway
 
 	public function getTitle()
 	{
-		return 'بانک ملت';
+		return 'بانک ملت - ناتمام';
 	}
 
 	public function getPaymentGatewayType()
@@ -54,6 +54,11 @@ class BankMellatPaymentGateway
 
 	public function prepare(&$gatewayModel, $onlinePaymentModel, $callbackUrl)
 	{
+	}
+
+	public function pay(&$gatewayModel, $onlinePaymentModel)
+	{
+		return 'aaaaa';
 	}
 
 	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse)

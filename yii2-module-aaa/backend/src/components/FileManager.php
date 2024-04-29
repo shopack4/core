@@ -20,12 +20,17 @@ class FileManager extends Component
 {
 	public $tempPath = '@app/tmp/upload';
 
-  public function log($message, $type='info')
+  public function log($message, $type='INFO')
   {
 		if (Yii::$app->isConsole == false)
 			return;
 
-		if (empty($tpe))
+    if ($message instanceof \Throwable) {
+			$message = $message->getMessage();
+      $type = 'ERROR';
+    }
+
+		if (empty($type))
     	echo "[" . date('Y/m/d H:i:s') . "] {$message}\n";
 		else
     	echo "[" . date('Y/m/d H:i:s') . "][{$type}] {$message}\n";
@@ -473,8 +478,7 @@ class FileManager extends Component
 SQL;
 				$lockedRowsCount = Yii::$app->db->createCommand($qry)->execute();
 
-				if (Yii::$app->isConsole)
-					$this->log("locked rows count: {$lockedRowsCount}");
+				$this->log("locked rows count: {$lockedRowsCount}");
 			}
 
 			//process
@@ -507,31 +511,27 @@ SQL;
 SQL;
 						Yii::$app->db->createCommand($qry)->execute();
 
-						if (Yii::$app->isConsole)
 						$this->log("stored queue " . $queueModel->uquID);
-						}
+					}
 				} catch (\Exception $exp) {
-					if (Yii::$app->isConsole)
-						$this->log("error in storing item (uquID:{$queueModel->uquID}): " . $exp->getMessage());
+					$this->log("error in storing item (uquID:{$queueModel->uquID}): " . $exp->getMessage());
 				}
 
 				if ($stored) {
 					try {
 						if ($queueModel->uploadFile->uflDeleteLocalFileAfterUpload) {
 							unlink($queueModel->uploadFile->uflLocalFullFileName);
-							if (Yii::$app->isConsole)
-								$this->log("file removed: ("
-									. $queueModel->uploadFile->uflLocalFullFileName
-									. ")"
-								);
+							$this->log("file removed: ("
+								. $queueModel->uploadFile->uflLocalFullFileName
+								. ")"
+							);
 						}
 					} catch (\Throwable $th) {
-						if (Yii::$app->isConsole)
-							$this->log("error in deleting local file ("
-								. $queueModel->uploadFile->uflLocalFullFileName
-								. "): "
-								. $exp->getMessage()
-							);
+						$this->log("error in deleting local file ("
+							. $queueModel->uploadFile->uflLocalFullFileName
+							. "): "
+							. $exp->getMessage()
+						);
 					}
 
 					$successQueueIDs[] = $queueModel->uquID;
@@ -591,9 +591,7 @@ SQL;
 			}
 
 		} catch(\Exception $exp) {
-			if (Yii::$app->isConsole)
-				$this->log($exp->getMessage());
-
+			$this->log($exp);
 			Yii::error($exp, __METHOD__);
 		}
 
