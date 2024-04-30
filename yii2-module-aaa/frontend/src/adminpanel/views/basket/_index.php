@@ -56,6 +56,10 @@ use shopack\base\frontend\common\widgets\grid\GridView;
         }
       ]*/
       'detail' => function ($model) {
+        $vchItems = $model->vchItems;
+        if (empty($vchItems))
+          return null;
+
         $result = [];
         $result[] = '<tr><td>' . implode('</td><td>', [
           '#',
@@ -67,19 +71,22 @@ use shopack\base\frontend\common\widgets\grid\GridView;
           Yii::t('aaa', 'VAT Amount'),
           Yii::t('aaa', 'Total Amount'),
         ]) . '</td></tr>';
-        $vchItems = $model->vchItems;
-        foreach ($vchItems as $k => $vchItem)
-        {
-          $result[] = '<tr><td>' . implode('</td><td>', [
-            $k + 1,
-            $vchItem['desc'],
-            Yii::$app->formatter->asDecimal($vchItem['qty']),
-            $vchItem['unit'],
-            Yii::$app->formatter->asToman($vchItem['unitPrice']),
-            Yii::$app->formatter->asToman($vchItem['discount'] ?? 0),
-            Yii::$app->formatter->asToman($vchItem['vat'] ?? 0),
-            Yii::$app->formatter->asToman($vchItem['totalPrice']),
-          ]) . '</td></tr>';
+
+        if (is_array($vchItems)) {
+          foreach ($vchItems as $k => $vchItem) {
+            $result[] = '<tr><td>' . implode('</td><td>', [
+              $k + 1,
+              $vchItem['desc'],
+              Yii::$app->formatter->asDecimal($vchItem['qty']),
+              $vchItem['unit'],
+              Yii::$app->formatter->asToman($vchItem['unitPrice']),
+              Yii::$app->formatter->asToman($vchItem['discount'] ?? 0),
+              Yii::$app->formatter->asToman($vchItem['vat'] ?? 0),
+              Yii::$app->formatter->asToman($vchItem['totalPrice']),
+            ]) . '</td></tr>';
+          }
+        } else {
+          $result[] = '<tr><td>' . $vchItems . '</td></tr>';
         }
         return '<table class="table table-bordered table-striped">' . implode('', $result) . '</table>';
       },
