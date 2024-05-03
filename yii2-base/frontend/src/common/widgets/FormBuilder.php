@@ -72,8 +72,10 @@ class FormBuilder extends \yii\base\Component
 
 	public function fieldsAfter($after, $fields)
 	{
-		if (empty($after) && empty($fields))
-			throw new \Exception('nothing provided!');
+		if (empty($after) && empty($fields)) {
+			return;
+			// throw new \Exception('nothing provided!');
+		}
 
 		if (is_string($fields))
 			$fields = [$fields];

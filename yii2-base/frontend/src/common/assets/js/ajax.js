@@ -82,7 +82,8 @@ function doShowModal(title, url, popupSize, popupTall, localdbs) {
 		// else if (exception === 'abort')
 			// msg = 'Ajax request aborted.';
 		// else
-			msg = 'Uncaught Error: ' + jqXHR.responseText;
+			// msg = 'Uncaught Error: ' + jqXHR.responseText;
+			msg = '<br><p class="text-center">' + jqXHR.responseText + '</p><br>';
 		modalContentObject.html(msg);
 	})
 	;

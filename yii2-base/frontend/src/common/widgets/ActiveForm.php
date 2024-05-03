@@ -128,6 +128,7 @@ if (result.redirect != false) {
 						{$donewait});
 					};
 				} else { //if (result.status == 'Error') {
+					// console.log(result);
 					$('#{$errorspan}').html(result.error);
 				}
 			"

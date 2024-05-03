@@ -5,9 +5,9 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\common\widgets\grid\GridView;
-use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
 use shopack\aaa\common\enums\enuOfflinePaymentStatus;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 ?>
@@ -38,10 +38,15 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
       'expandOneOnly' => true,
       'detailAnimationDuration' => 150,
       'detail' => function ($model) {
-        if (empty($model->ofpComment))
-          return '';
+        $rows = [];
 
-        return $model->ofpComment;
+        $rows[] = [$model->getAttributeLabel('ofpPayer'), $model->ofpPayer];
+        $rows[] = [$model->getAttributeLabel('ofpSourceCartNumber'), $model->ofpSourceCartNumber];
+
+        // if (empty($model->ofpComment) == false)
+          $rows[] = [$model->getAttributeLabel('ofpComment'), $model->ofpComment];
+
+        return Html::asTable($rows);
       },
     ],
     'ofpID',
@@ -50,14 +55,7 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
       // 'label' => '',
       'format' => 'raw',
       'value' => function ($model, $key, $index, $widget) {
-        if ($model->ofpImageFileID == null)
-          return '';
-        elseif (empty($model->imageFile->fullFileUrl))
-          return Yii::t('aaa', '...');
-        elseif ($model->imageFile->isImage())
-          return Html::img($model->imageFile->fullFileUrl, ['style' => ['width' => '50px']]);
-        else
-          return Html::a(Yii::t('app', 'Download'), $model->imageFile->fullFileUrl);
+        return Html::asUploadedImage($model->imageFile);
       },
     ],
   ];
@@ -80,31 +78,31 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
     'ofpBankOrCart',
     'ofpTrackNumber',
     'ofpReferenceNumber',
-    'ofpPayDate:jalaliWithTime',
     'ofpAmount:toman',
-    'ofpPayer',
-    'ofpSourceCartNumber',
-    [
-      'attribute' => 'ofpWalletID',
-      'format' => 'raw',
-      'value' => function ($model, $key, $index, $widget) {
-        return Html::a($model->wallet->walName, ['/aaa/wallet/view', 'id' => $model->ofpWalletID]);
-      },
-    ],
+    'ofpPayDate:jalaliWithTime',
+    // 'ofpPayer',
+    // 'ofpSourceCartNumber',
+    // [
+    //   'attribute' => 'ofpWalletID',
+    //   'format' => 'raw',
+    //   'value' => function ($model, $key, $index, $widget) {
+    //     return Html::a($model->wallet->walName, ['/aaa/wallet/view', 'id' => $model->ofpWalletID]);
+    //   },
+    // ],
     [
       'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
       'enumClass' => enuOfflinePaymentStatus::class,
       'attribute' => 'ofpStatus',
     ],
-    [
-      'attribute' => 'ofpComment',
-      'value' => function ($model, $key, $index, $widget) {
-        if (empty($model->ofpComment))
-          return '';
+    // [
+    //   'attribute' => 'ofpComment',
+    //   'value' => function ($model, $key, $index, $widget) {
+    //     if (empty($model->ofpComment))
+    //       return '';
 
-        return 'دارد';
-      },
-    ],
+    //     return 'دارد';
+    //   },
+    // ],
     [
       'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
       'header' => OfflinePaymentModel::canCreate() ? Html::createButton(null, [

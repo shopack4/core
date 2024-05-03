@@ -110,6 +110,9 @@ abstract class BaseCrudController extends BaseController
   public function actionCreate_afterCreateModel(&$model)
   {
   }
+  public function actionCreate_afterLoadModel(&$model)
+  {
+  }
 
   public function actionCreate()
   {
@@ -123,9 +126,11 @@ abstract class BaseCrudController extends BaseController
       $formName = '_form';
 
 		$formPosted = $model->load(Yii::$app->request->post());
-		$done = false;
-		if ($formPosted)
-			$done = $model->save();
+    $this->actionCreate_afterLoadModel($model);
+
+    $done = false;
+    if ($formPosted)
+      $done = $model->save();
 
     if (Yii::$app->request->isAjax) {
       if ($done) {
@@ -162,6 +167,9 @@ abstract class BaseCrudController extends BaseController
   public function actionUpdate_afterFindModel(&$model)
   {
   }
+  public function actionUpdate_afterLoadModel(&$model)
+  {
+  }
 
   public function actionUpdate($id)
   {
@@ -177,6 +185,7 @@ abstract class BaseCrudController extends BaseController
       throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
 		$formPosted = $model->load(Yii::$app->request->post());
+    $this->actionUpdate_afterLoadModel($model);
 		$done = false;
 		if ($formPosted)
 			$done = $model->save();

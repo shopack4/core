@@ -108,7 +108,7 @@ class AuthController extends BaseController
   // {
   //   return [
   //     'error' => [
-  //       'class' => 'yii\web\ErrorAction',
+  //       'class' => '\shopack\base\common\web\ErrorAction',
   //     ],
   //     'captcha' => [
   //       'class' => 'yii\captcha\CaptchaAction',
@@ -271,10 +271,11 @@ class AuthController extends BaseController
     else
       Yii::$app->controller->layout = '/' . $realm;
 
+    $timerInfo = null;
     $resultStatus = 200;
     $resultData = null;
     $messageText = '';
-    $challenge = null;
+    // $challenge = null;
     $showCreateNewUser = false;
 
     $model = new LoginByMobileForm();
@@ -283,35 +284,16 @@ class AuthController extends BaseController
     if ($model->load(Yii::$app->request->post())) {
       $result = $model->process();
 
-      if ($result === true)
+      if ($result === true) {
         return $this->redirect($donelink ?? Yii::$app->getHomeUrl());
-
-      if ($result === 'challenge') {
-        $challengeModel = new ChallengeForm();
-        $challengeModel->realm = $realm;
-        $challengeModel->type = $model->challenge;
-        $challengeModel->key = $model->mobile;
-        $challengeModel->login = true;
-        $challengeModel->rememberMe = $model->rememberMe;
-
-        return AuthHelper::redirectToChallenge($challengeModel, $donelink);
       }
 
       if (is_array($result)) {
-        list ($resultStatus, $resultData) = $result;
+        if (isset($result['resultStatus']))
+          $resultStatus = $result['resultStatus'];
 
-        // if (isset($resultData['challenge'])) {
-        //   $challenge = $resultData['challenge'];
-
-        //   $challengeModel = new ChallengeForm();
-        //   $challengeModel->realm = 'login-by-mobile';
-        //   $challengeModel->type = $challenge;
-        //   $challengeModel->key = $model->mobile;
-        //   $challengeModel->login = true;
-        //   $challengeModel->rememberMe = $model->rememberMe;
-
-        //   return AuthHelper::redirectToChallenge($challengeModel);
-        // }
+        if (isset($result['resultData']))
+          $resultData = $result['resultData'];
 
         if (isset($resultData['message'])) {
           $messageText = $resultData['message'];
@@ -324,15 +306,51 @@ class AuthController extends BaseController
           $messageText = Yii::t('aaa', $messageText, $resultData);
         }
       }
+
+      if ($messageText == 'code expired') {
+        $timerInfo = [
+          'ttl' => 0,
+          'remained' => 0,
+        ];
+      } else if (is_array($resultData) && key_exists('ttl', $resultData)) {
+        $timerInfo = [
+          'ttl' => $resultData['ttl'],
+          'remained' => $resultData['remained'],
+        ];
+      }
+
+      if (empty($result['next']) == false) {
+        $model->step = $result['next'];
+      } else {
+        if ($result === 'challenge') {
+          // $challengeModel = new ChallengeForm();
+          // $challengeModel->realm = $realm;
+          // $challengeModel->type = $model->challenge;
+          // $challengeModel->key = $model->mobile;
+          // $challengeModel->login = true;
+          // $challengeModel->rememberMe = $model->rememberMe;
+
+          // return AuthHelper::redirectToChallenge($challengeModel, $donelink);
+        }
+      }
+    }
+
+    if (($model->step == LoginByMobileForm::STEP_CODE) && ($timerInfo === null)) {
+      try {
+        $timerInfo = $model->getTimerInfo();
+      } catch (\Throwable $th) {
+        $a = 0;
+      }
     }
 
     return $this->render('loginByMobile', [
       'model' => $model,
-      'resultStatus' => $resultStatus,
-      'resultData' => $resultData,
+      // 'resultStatus' => $resultStatus,
       'message' => $messageText,
       'showCreateNewUser'=> $showCreateNewUser,
-      'realm' => $realm,
+      // 'resultData' => $resultData,
+      'timerInfo' => $timerInfo ?? null,
+      // 'realm' => $realm,
     ]);
   }
 

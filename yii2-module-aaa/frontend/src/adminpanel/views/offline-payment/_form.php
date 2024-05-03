@@ -19,6 +19,9 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 	<?php
 		$form = ActiveForm::begin([
 			'model' => $model,
+			'fieldConfig' => [
+				'labelSpan' => 3,
+			],
 		]);
 
 		$builder = $form->getBuilder();
@@ -110,8 +113,10 @@ JS;
 		$builder->fields([
 			// 'ofpVoucherID',
 			['ofpBankOrCart'],
-			['ofpTrackNumber'],
-			['ofpReferenceNumber'],
+			['ofpTrackNumber',
+			],
+			['ofpReferenceNumber',
+			],
 			['ofpPayDate',
 				'type' => FormBuilder::FIELD_WIDGET,
 				'widget' => DatePicker::class,
@@ -126,7 +131,15 @@ JS;
 				// 	'withTime' => true,
 				// ],
 			],
-			['ofpAmount'],
+			['ofpAmount',
+				'fieldOptions' => [
+					'addon' => [
+						'append' => [
+							'content' => 'تومان',
+						],
+					],
+				],
+			],
 			['ofpPayer'],
 			['ofpSourceCartNumber'],
 			// ['ofpWalletID'],

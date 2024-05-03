@@ -13,17 +13,37 @@ class LoginByMobileForm extends Model
 {
 	const ERROR_MOBILE_NOT_EXISTS = 'ERROR_MOBILE_NOT_EXISTS';
 
+  const STEP_MOBILE = 'Mobile';
+  const STEP_CODE = 'Code';
+
+  public $step = self::STEP_MOBILE;
+
   public $mobile;
-  // public $code;
+  public $code;
   public $rememberMe = true;
   public $challenge;
   public $signupIfNotExists;
+  // public $resend;
 
   public function rules()
   {
+		$formName = strtolower($this->formName());
+
     return [
+      ['step', 'required'],
       ['mobile', 'required'],
-      // ['code', 'safe'],
+
+      // ['resend', 'safe'],
+      ['code', 'string'],
+      ['code', 'required',
+        'when' => function ($model) {
+          return (($model->step == self::STEP_CODE) && (($_POST['resend'] ?? 0) == 0));
+        },
+        'whenClient' => "function (attribute, value) {
+          return (($('#{$formName}-step').val() == '" . self::STEP_CODE . "') && ($('#resend').val() == 0));
+        }"
+      ],
+
       ['rememberMe', 'boolean'],
       ['signupIfNotExists', 'boolean'],
     ];
@@ -33,7 +53,7 @@ class LoginByMobileForm extends Model
 	{
 		return [
 			'mobile' => Yii::t('aaa', 'Mobile'),
-			// 'code' => Yii::t('aaa', 'code'),
+			'code' => Yii::t('aaa', 'Code'),
 			'rememberMe' => Yii::t('aaa', 'Remember Me'),
 		];
 	}
@@ -43,16 +63,52 @@ class LoginByMobileForm extends Model
     if ($this->validate() == false)
       return false;
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/login-by-mobile',
-      HttpHelper::METHOD_POST,
-      [],
-      [
-        'mobile' => $this->mobile,
-        // 'code' => $this->code,
-        'rememberMe' => $this->rememberMe,
-        'signupIfNotExists' => $this->signupIfNotExists,
-      ]
-    );
+    if ($this->step == self::STEP_MOBILE) {
+      list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/login-by-mobile',
+        HttpHelper::METHOD_POST,
+        [],
+        [
+          'mobile' => $this->mobile,
+          // 'code' => $this->code,
+          'rememberMe' => $this->rememberMe,
+          'signupIfNotExists' => $this->signupIfNotExists,
+        ]
+      );
+
+      if ($resultStatus == 200) {
+        return [
+          'resultStatus' => $resultStatus,
+          'resultData' => $resultData,
+          'next' => self::STEP_CODE,
+        ];
+      }
+
+    } else if ($this->step == self::STEP_CODE) {
+      if ($_POST['resend'] == 1) {
+        list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-approval-code',
+          HttpHelper::METHOD_POST,
+          [],
+          [
+            'input' => $this->mobile,
+          ]
+        );
+        $resultData = $resultData['result'];
+      } else {
+        list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/challenge',
+          HttpHelper::METHOD_POST,
+          [],
+          [
+            'key' => $this->mobile,
+            'value' => $this->code,
+            'rememberMe' => $this->rememberMe,
+          ]
+        );
+      }
+    }
+    // $timerInfo = [
+    //   'ttl' => $resultData['ttl'],
+    //   'remained' => $resultData['remained'],
+    // ];
 
     if (isset($resultData['token'])) {
       $token = $resultData['token'];
@@ -68,7 +124,26 @@ class LoginByMobileForm extends Model
       return 'challenge';
     }
 
-    return [$resultStatus, $resultData];
+    return [
+      'resultStatus' => $resultStatus,
+      'resultData' => $resultData,
+    ];
+  }
+
+  public function getTimerInfo()
+  {
+    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/challenge-timer-info',
+      HttpHelper::METHOD_POST,
+      [],
+      [
+        'input' => $this->mobile,
+      ]
+    );
+
+    if ($resultStatus < 200 || $resultStatus >= 300)
+      throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+
+    return $resultData['result'];
   }
 
 }

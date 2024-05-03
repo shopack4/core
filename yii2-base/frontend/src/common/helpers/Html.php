@@ -259,4 +259,38 @@ class Html extends \yii\bootstrap5\Html
 		return self::ul(explode($delimiter, $value), $ulOptions);
 	}
 
+	public static function asUploadedImage($imageFileModel, $width = '50px')
+	{
+		if (empty($imageFileModel))
+			return '';
+
+		if (empty($imageFileModel->fullFileUrl))
+			return Yii::t('aaa', '...');
+
+		if ($imageFileModel->isImage())
+			return Html::img($imageFileModel->fullFileUrl, ['style' => ['width' => $width]]);
+
+		return Html::a(Yii::t('app', 'Download'), $imageFileModel->fullFileUrl);
+	}
+
+	public static function asTable($rows, $headers = null)
+	{
+		$content = [];
+
+		if (empty($headers) == false) {
+			foreach ($headers as $header) {
+				$content[] = '<th><td>' . implode('</td><td>', $header) . '</td></th>';
+			}
+		}
+
+		foreach ($rows as $row) {
+			$content[] = '<tr><td>' . implode('</td><td>', $row) . '</td></tr>';
+		}
+
+		return '<table class="table table-bordered table-striped">'
+			. implode('', $content)
+			. '</table>';
+
+	}
+
 }

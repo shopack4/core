@@ -6,16 +6,19 @@
 /** @var yii\web\View $this */
 /** @var yii\bootstrap5\ActiveForm $form */
 
+use shopack\aaa\frontend\common\models\LoginByMobileForm;
 use shopack\base\frontend\common\widgets\ActiveForm;
 use shopack\base\frontend\common\helpers\Html;
-// use yii\bootstrap5\Html;
 
 $this->title = Yii::t('aaa', 'Login By Mobile');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="site-login w-100">
-	<h1 class="mb-4"><?= Html::encode($this->title) ?></h1>
+	<h1 class="mb-4"><?= Html::encode($model->step == LoginByMobileForm::STEP_MOBILE
+		? Yii::t('aaa', 'Login By Mobile')
+		: 'ورود کد عبور یکبار مصرف')
+	?></h1>
 
 	<?php
 		$form = ActiveForm::begin([
@@ -40,77 +43,43 @@ $this->params['breadcrumbs'][] = $this->title;
 			// 	'data-turbo' => 'true',
 			// ],
 		]);
-		?>
-			<?= $form->field($model, 'mobile')->textInput([
-				'autofocus' => true,
-				'class' => ['form-control', 'latin-text', 'dir-ltr'],
-			]); ?>
 
-			<div class="form-group">
-				<div class='row'>
-					<div class="col">
-						<?= $form->field($model, 'rememberMe')->checkbox([], true) ?>
-					</div>
-					<div class="col text-end">
-						<?php
-							echo Html::submitButton(Yii::t('aaa', 'Login'), ['class' => 'btn btn-primary btn-sm', 'name' => 'login-button']);
-						?>
-					</div>
-				</div>
-				<div>
-					<?php
-						if (empty($message) == false)
-							echo $message;
-
-						if ($showCreateNewUser) {
-							$js =<<<JS
-function submitWithSignup(event) {
-	var form = $('form#login-form'); //.clone(true);
-	$('<input>').attr({
-		type : 'hidden',
-		id   : 'loginbymobileform-signupIfNotExists',
-		name : 'LoginByMobileForm[signupIfNotExists]',
-		value: 1
-	}).appendTo(form);
-	form.submit();
-}
-JS;
-							$this->registerJs($js, \yii\web\View::POS_END);
-
-							echo '<br>آیا می‌خواهید کاربر جدیدی با این شماره موبایل ایجاد شود؟';
-							echo ' ';
-							echo Html::button('بلی', [
-								'class' => 'btn btn-primary btn-sm',
-								'id' => 'btn-submit-with-signup',
-								'name' => 'btn-submit-with-signup',
-								'onclick' => 'submitWithSignup();',
-							]);
-							echo ' ';
-							echo Html::a('خیر', ['login-by-mobile'], [
-								'class' => 'btn btn-success btn-sm',
-							]);
-						}
-					?>
-				</div>
-				<?php if (str_starts_with($realm, 'login')): ?>
-					<hr>
-					<div class="col">
-						<?php
-							if (Yii::$app->controller->module->allowSignup) {
-								echo Html::a(Yii::t('aaa', 'Signup'), [
-									'signup',
-									'donelink' => $_GET['donelink'] ?? null,
-								], ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']);
-							}
-						?>
-						<?= Html::a(Yii::t('aaa', 'Login By Password'), [
-							'login',
-							'donelink' => $_GET['donelink'] ?? null,
-						], ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
-					</div>
-				<?php endif; ?>
-			</div>
-
-		<?php ActiveForm::end();
+		echo $form
+			->field($model, 'step')
+			->label(false)
+			->hiddenInput();
 	?>
+	<div class="form-group">
+		<?php
+			echo Yii::$app->controller->renderPartial('_loginByMobile_' . $model->step, [
+				'form' => $form,
+				'model' => $model,
+				'message' => $message ?? null,
+				'showCreateNewUser' => $showCreateNewUser ?? null,
+				// 'resultData' => $resultData,
+				'timerInfo' => $timerInfo,
+			]);
+
+			$form->endForm(); //ActiveForm::end();
+		?>
+		<hr>
+		<div class="row">
+			<div class="col">
+				<?php
+					if (Yii::$app->controller->module->allowSignup) {
+						echo Html::a(Yii::t('aaa', 'Signup'), [
+							'signup',
+							'donelink' => $_GET['donelink'] ?? null,
+						], ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']);
+					}
+				?>
+				<?= Html::a(Yii::t('aaa', 'Login By Password'), [
+					'login',
+					'donelink' => $_GET['donelink'] ?? null,
+				], ['class' => 'btn btn-outline-primary btn-sm', 'name' => 'login-button']) ?>
+			</div>
+		</div>
+
+	</div>
+
 </div>

@@ -25,7 +25,7 @@ class RequestForgotPasswordForm extends Model
   public function attributeLabels()
 	{
 		return [
-			'input' => Yii::t('aaa', 'Mobile / Email'),
+			'input' => Yii::t('aaa', 'SSID / Mobile / Email'),
 		];
 	}
 

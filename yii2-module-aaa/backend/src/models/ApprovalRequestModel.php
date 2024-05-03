@@ -579,9 +579,11 @@ SQL;
 
     } catch (\Exception $e) {
       $transaction->rollBack();
+      Yii::error($e, __METHOD__);
       throw $e;
     } catch (\Throwable $e) {
       $transaction->rollBack();
+      Yii::error($e, __METHOD__);
       throw $e;
     }
   }

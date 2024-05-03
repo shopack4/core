@@ -12,6 +12,7 @@ return [
 	'Login By Mobile' => 'ورود با موبایل',
 	'Login By Password' => 'ورود با رمز',
 	'Remember Me' => 'به یاد آوری',
+	'SSID / Mobile / Email' => 'کد ملی / موبایل / ایمیل',
 	'Mobile / Email' => 'موبایل / ایمیل',
 	'Logout' => 'خروج',
 	'Signup' => 'ثبت نام',

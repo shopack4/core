@@ -5,11 +5,13 @@
 
 namespace shopack\aaa\backend\models;
 
+use Yii;
 use yii\base\Model;
 use yii\web\UnprocessableEntityHttpException;
 use yii\web\UnauthorizedHttpException;
 use shopack\base\common\helpers\PhoneHelper;
 use shopack\aaa\common\enums\enuUserStatus;
+use shopack\aaa\backend\components\TwoFAManager;
 
 class LoginByMobileForm extends Model
 {
@@ -71,20 +73,29 @@ class LoginByMobileForm extends Model
 				$lastName  = $user->usrLastName;
 			// }
 
-			$result = ApprovalRequestModel::requestCode(
-				$normalizedMobile,
-				$userID,
-				$gender,
-				$firstName,
-				$lastName,
-				true
-			);
+			$result = Yii::$app->twoFAManager->generate(TwoFAManager::TYPE_SMSOTP, [
+				'emailOrMobile'	=> $normalizedMobile,
+				'userID'				=> $userID,
+				'gender'				=> $gender,
+				'firstName'			=> $firstName,
+				'lastName'			=> $lastName,
+				'forLogin'			=> true
+			]);
+
+			// $result = ApprovalRequestModel::requestCode(
+			// 	$normalizedMobile,
+			// 	$userID,
+			// 	$gender,
+			// 	$firstName,
+			// 	$lastName,
+			// 	true
+			// );
 
 			// list ($token, $mustApprove) = AuthHelper::doLogin($user, false, ['otp' => 'sms']);
 
 			return array_merge([
 				// 'token' => $token,
-				'challenge' => 'otp,type=sms',
+				'challenge' => TwoFAManager::TYPE_SMSOTP, //'otp,type=sms',
 			],
 			$result);
 		// } // if (empty($this->code))
