@@ -21,9 +21,7 @@ class LoginByMobileForm extends Model
   public $mobile;
   public $code;
   public $rememberMe = true;
-  public $challenge;
   public $signupIfNotExists;
-  // public $resend;
 
   public function rules()
   {
@@ -63,47 +61,44 @@ class LoginByMobileForm extends Model
     if ($this->validate() == false)
       return false;
 
-    if ($this->step == self::STEP_MOBILE) {
+    if (($this->step == self::STEP_CODE) && ($_POST['resend'] == 1)) {
+      list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-approval-code',
+        HttpHelper::METHOD_POST,
+        [],
+        [
+          'input' => $this->mobile,
+        ]
+      );
+      $resultData = $resultData['result'];
+    } else {
       list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/login-by-mobile',
         HttpHelper::METHOD_POST,
         [],
         [
           'mobile' => $this->mobile,
-          // 'code' => $this->code,
+          'code' => $this->code,
           'rememberMe' => $this->rememberMe,
           'signupIfNotExists' => $this->signupIfNotExists,
         ]
       );
 
-      if ($resultStatus == 200) {
-        return [
-          'resultStatus' => $resultStatus,
-          'resultData' => $resultData,
-          'next' => self::STEP_CODE,
-        ];
-      }
-
-    } else if ($this->step == self::STEP_CODE) {
-      if ($_POST['resend'] == 1) {
-        list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-approval-code',
-          HttpHelper::METHOD_POST,
-          [],
-          [
-            'input' => $this->mobile,
-          ]
-        );
-        $resultData = $resultData['result'];
-      } else {
-        list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/challenge',
-          HttpHelper::METHOD_POST,
-          [],
-          [
-            'key' => $this->mobile,
-            'value' => $this->code,
-            'rememberMe' => $this->rememberMe,
-          ]
-        );
-      }
+      // if ($resultStatus == 200) {
+      //   return [
+      //     'resultStatus' => $resultStatus,
+      //     'resultData' => $resultData,
+      //     // 'next' => self::STEP_CODE,
+      //   ];
+      // }
+    // } else {
+    //   list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/challenge',
+    //     HttpHelper::METHOD_POST,
+    //     [],
+    //     [
+    //       'key' => $this->mobile,
+    //       'value' => $this->code,
+    //       'rememberMe' => $this->rememberMe,
+    //     ]
+    //   );
     }
     // $timerInfo = [
     //   'ttl' => $resultData['ttl'],
@@ -120,14 +115,19 @@ class LoginByMobileForm extends Model
     }
 
     if (isset($resultData['challenge'])) {
-      $this->challenge = $resultData['challenge'];
-      return 'challenge';
+      return $resultData;
     }
 
-    return [
+    $res = [
       'resultStatus' => $resultStatus,
       'resultData' => $resultData,
     ];
+
+    if (($this->step == self::STEP_MOBILE) && ($resultStatus == 200)) {
+      $res['next'] = self::STEP_CODE;
+    }
+
+    return $res;
   }
 
   public function getTimerInfo()

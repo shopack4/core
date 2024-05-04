@@ -5,6 +5,7 @@
 
 namespace shopack\aaa\backend\controllers;
 
+use shopack\aaa\backend\models\Active2FAForm;
 use Yii;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -290,6 +291,39 @@ class UserController extends BaseRestController
 			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
 			throw new UnprocessableEntityHttpException($msg);
 		}
+	}
+
+	public function actionActive2fa()
+	{
+		$model = new Active2FAForm();
+
+		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
+			throw new NotFoundHttpException("parameters not provided");
+
+		try {
+			$result = $model->process();
+
+			if ($result == false)
+				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
+
+			return $result;
+
+		} catch(\Exception $exp) {
+			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
+			throw new UnprocessableEntityHttpException($msg);
+		}
+	}
+
+	public function actionInactive2fa()
+	{
+		$bodyParams = Yii::$app->request->getBodyParams();
+
+		if (empty($bodyParams['type']))
+			throw new NotFoundHttpException("parameters not provided");
+
+		return [
+			'result' => Active2FAForm::inactive2FA($bodyParams['type']),
+		];
 	}
 
 }

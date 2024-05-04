@@ -5,25 +5,20 @@
 
 namespace shopack\aaa\backend\components;
 
-use shopack\aaa\backend\classes\twoFA\BaseTwoFA;
 use Yii;
 use yii\base\Component;
+use shopack\aaa\common\enums\enuTwoFAType;
 use shopack\aaa\backend\classes\twoFA\ITwoFA;
 
 class TwoFAManager extends Component
 {
-	const TYPE_SMSOTP				= 'smsOtp';
-	const TYPE_SSID					= 'ssid';
-	const TYPE_BirthCertID	= 'birthCertID';
-	const TYPE_BirthDate		= 'birthDate';
-	const TYPE_GoogleAuth		= 'googleAuth';
-
 	public static $drivers = [
-		self::TYPE_SMSOTP				=> \shopack\aaa\backend\extensions\twoFA\SMSOTPTwoFA::class,
-		self::TYPE_SSID					=> \shopack\aaa\backend\extensions\twoFA\SSIDTwoFA::class,
-		self::TYPE_BirthCertID	=> \shopack\aaa\backend\extensions\twoFA\BirthCertIDTwoFA::class,
-		self::TYPE_BirthDate		=> \shopack\aaa\backend\extensions\twoFA\BirthDateTwoFA::class,
-		self::TYPE_GoogleAuth		=> \shopack\aaa\backend\extensions\twoFA\GoogleAuthTwoFA::class,
+		enuTwoFAType::SSID				=> \shopack\aaa\backend\extensions\twoFA\SSIDTwoFA::class,
+		enuTwoFAType::BirthCertID	=> \shopack\aaa\backend\extensions\twoFA\BirthCertIDTwoFA::class,
+		enuTwoFAType::BirthDate		=> \shopack\aaa\backend\extensions\twoFA\BirthDateTwoFA::class,
+		enuTwoFAType::SMSOTP			=> \shopack\aaa\backend\extensions\twoFA\SMSOTPTwoFA::class,
+		// enuTwoFAType::GoogleAuth	=> \shopack\aaa\backend\extensions\twoFA\GoogleAuthTwoFA::class,
+		// enuTwoFAType::MSAuth			=> \shopack\aaa\backend\extensions\twoFA\MicrosoftAuthTwoFA::class,
 	];
 
 	public static function getDriver($type) : ITwoFA
@@ -37,10 +32,16 @@ class TwoFAManager extends Component
 		return $driver;
 	}
 
-	public function generate($type, $args = [])
+	public function generate($type, ?array $args = [])
 	{
 		$driver = self::getDriver($type);
 		return $driver->generate($args);
+	}
+
+	public function validate($type, ?array $args = [])
+	{
+		$driver = self::getDriver($type);
+		return $driver->validate($args);
 	}
 
 }

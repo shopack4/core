@@ -13,11 +13,13 @@ use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\helpers\GeneralHelper;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\auth\BaseController;
+use shopack\aaa\frontend\common\models\Active2FAForm;
 use shopack\aaa\frontend\common\models\UserModel;
 use shopack\aaa\frontend\common\models\ImageChangeForm;
 use shopack\aaa\frontend\common\models\EmailChangeForm;
 use shopack\aaa\frontend\common\models\MobileChangeForm;
 use shopack\aaa\frontend\common\models\ApproveCodeForm;
+use yii\web\UnprocessableEntityHttpException;
 
 class ProfileController extends BaseController
 {
@@ -482,6 +484,95 @@ class ProfileController extends BaseController
     return $this->render('approveCode', [
       'params' => $params
     ]);
+  }
+
+  public function actionActive2fa($type)
+  {
+		if (Yii::$app->user->isGuest)
+			return $this->goHome();
+
+		$userModel = $this->findUserModel();
+    if ($userModel->isSoftDeleted()) {
+      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+    }
+
+    if (isset($userModel->usr2FA[$type])) {
+      throw new UnprocessableEntityHttpException(Yii::t('aaa', 'This authentication method already activated'));
+    }
+
+    $model = new Active2FAForm();
+    $model->type = $type;
+    $model->userModel = $userModel;
+
+    $formPosted = $model->load(Yii::$app->request->post());
+    $done = false;
+    if ($formPosted)
+      $done = $model->process();
+
+    if (Yii::$app->request->isAjax) {
+      if ($done) {
+        return $this->renderJson([
+          'message' => Yii::t('app', 'Success'),
+          // 'id' => $id,
+          // 'redirect' => $this->doneLink ? call_user_func($this->doneLink, $model) : null,
+          'modalDoneFragment' => 'login',
+        ]);
+      }
+
+      if ($formPosted) {
+        return $this->renderJson([
+          'status' => 'Error',
+          'message' => Yii::t('app', 'Error'),
+          // 'id' => $id,
+          'error' => Html::errorSummary($model),
+        ]);
+      }
+
+      return $this->renderAjaxModal('2fa' . DIRECTORY_SEPARATOR . '_form_' . $type, [
+        'model' => $model,
+      ]);
+    }
+
+    if ($done)
+      return $this->redirect(['index']);
+
+    return $this->render('2fa' . DIRECTORY_SEPARATOR . 'active', [
+      'model' => $model,
+    ]);
+  }
+
+  public function actionInactive2fa($type)
+  {
+    if (empty($_POST['confirmed']))
+      throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
+
+    if (Yii::$app->request->isAjax == false)
+			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');
+
+		if (Yii::$app->user->isGuest)
+			return $this->goHome();
+
+		$userModel = $this->findUserModel();
+
+    if ($userModel->isSoftDeleted())
+      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+
+    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/user/inactive-2fa',
+      HttpHelper::METHOD_POST,
+      [],
+      [
+        'type' => $type,
+      ]
+    );
+
+    if ($resultStatus < 200 || $resultStatus >= 300)
+      throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+
+		return $this->renderJson([
+			'status' => 'Ok',
+			'message' => Yii::t('app', 'Success'),
+			'modalDoneFragment' => 'login',
+		]);
   }
 
 }

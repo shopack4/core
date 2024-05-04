@@ -134,10 +134,17 @@ return [
 	'Deleted Accounts' => 'اکانت‌های حذف شده',
 	'Delete Account' => 'حذف اکانت',
 	'Privileges' => 'دسترسی‌ها',
-
 	'Privs' => 'دسترسی‌ها',
 	'Exclusive Privs' => 'دسترسی‌های اختصاصی',
 	'Password Created At' => 'تاریخ ایجاد رمز',
+	'Must Change Password' => 'نام رمز باید تغییر کند',
+	'Two Factor Authentication' => 'ورود دو عاملی',
+	'SMS OTP' => 'رمز پیامکی یکبار مصرف',
+	'Google Authenticator' => 'برنامه ایجاد کننده‌ی رمز Google',
+	'Microsoft Authenticator' => 'برنامه ایجاد کننده‌ی رمز Microsoft',
+
+	'Are you sure you want to disable authentication method "{method}"?' => 'آیا می‌خواهید متد احراز هویت "{method}" غیر فعال شود؟',
+	'This authentication method already activated' => 'این متد احراز هویت قبلا فعال شده است',
 
 	'Countries' => 'کشورها',
 	'Country' => 'کشور',
@@ -363,6 +370,7 @@ return [
 	'Next' => 'بعدی',
 	'Plugin Name' => 'راه‌انداز',
 	'Active' => 'فعال',
+	'Activate' => 'فعال کردن',
 	'Inactive' => 'غیر فعال',
 	'Send SMS To Not Approved Numbers' => 'ارسال پیامک به شماره‌ی تایید نشده',
 	'SMS: After Signup' => 'پیامک: ثبت نام کاربر جدید',

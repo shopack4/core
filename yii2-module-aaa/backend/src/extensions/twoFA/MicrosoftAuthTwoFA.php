@@ -7,26 +7,19 @@ namespace shopack\aaa\backend\extensions\twoFA;
 
 use shopack\aaa\backend\classes\twoFA\BaseTwoFA;
 use shopack\aaa\backend\classes\twoFA\ITwoFA;
-use shopack\aaa\backend\models\ApprovalRequestModel;
 
-class SMSOTPTwoFA
+class MicrosoftAuthTwoFA
 	extends BaseTwoFA
 	implements ITwoFA
 {
 	public function generate(?array $args = [])
 	{
-		return ApprovalRequestModel::requestCode(
-			$args['emailOrMobile'],
-			$args['userID'],
-			$args['gender'],
-			$args['firstName'],
-			$args['lastName'],
-			$args['forLogin']
-		);
+		return true;
 	}
 
 	public function validate(?array $args = [])
 	{
+		return false;
 	}
 
 }

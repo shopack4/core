@@ -10,22 +10,26 @@ use yii\base\Model;
 use yii\web\UnprocessableEntityHttpException;
 use yii\web\UnauthorizedHttpException;
 use shopack\base\common\helpers\PhoneHelper;
+use shopack\base\common\helpers\GeneralHelper;
+use shopack\base\backend\helpers\AuthHelper;
+use shopack\aaa\common\enums\enuTwoFAType;
 use shopack\aaa\common\enums\enuUserStatus;
-use shopack\aaa\backend\components\TwoFAManager;
 
 class LoginByMobileForm extends Model
 {
 	const ERROR_MOBILE_NOT_EXISTS = 'ERROR_MOBILE_NOT_EXISTS';
 
   public $mobile;
-  // public $code;
+  public $code;
+  public $rememberMe = true;
   public $signupIfNotExists;
 
   public function rules()
   {
     return [
       ['mobile', 'required'],
-      // ['code', 'string'],
+      ['code', 'string'],
+      ['rememberMe', 'boolean'],
       ['signupIfNotExists', 'boolean'],
     ];
   }
@@ -41,7 +45,7 @@ class LoginByMobileForm extends Model
 
 		//send code
 		//------------------------
-		// if (empty($this->code)) {
+		if (empty($this->code)) {
 			// $userID = null;
 			// $gender = null;
 			// $firstName = null;
@@ -53,9 +57,8 @@ class LoginByMobileForm extends Model
 				->one();
 
 			if (!$user) {
-				if (!$this->signupIfNotExists) {
+				if (!$this->signupIfNotExists)
 					throw new UnprocessableEntityHttpException(self::ERROR_MOBILE_NOT_EXISTS);
-				}
 
 				$user = new UserModel();
 				$user->usrMobile = $normalizedMobile;
@@ -73,7 +76,7 @@ class LoginByMobileForm extends Model
 				$lastName  = $user->usrLastName;
 			// }
 
-			$result = Yii::$app->twoFAManager->generate(TwoFAManager::TYPE_SMSOTP, [
+			$result = Yii::$app->twoFAManager->generate(enuTwoFAType::SMSOTP, [
 				'emailOrMobile'	=> $normalizedMobile,
 				'userID'				=> $userID,
 				'gender'				=> $gender,
@@ -91,29 +94,36 @@ class LoginByMobileForm extends Model
 			// 	true
 			// );
 
-			// list ($token, $mustApprove) = AuthHelper::doLogin($user, false, ['otp' => 'sms']);
+			// list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($user, false, GeneralHelper::PHRASETYPE_MOBILE, ['otp' => 'sms']);
 
-			return array_merge([
-				// 'token' => $token,
-				'challenge' => TwoFAManager::TYPE_SMSOTP, //'otp,type=sms',
-			],
-			$result);
-		// } // if (empty($this->code))
+			// return array_merge([
+			// 	// 'token' => $token,
+			// 	'challenge' => enuTwoFAType::SSID, //'otp,type=sms',
+			// ],
+			// $result);
+
+			return $result;
+		} // if (empty($this->code))
 
 		//login
 		//------------------------
-		// $result = ApprovalRequestModel::acceptCode($normalizedMobile, $this->code);
-		// $userModel = $result['userModel'];
-		// if ($userModel) {
-		// 	list ($token, $mustApprove) = AuthHelper::doLogin($userModel);
+		$result = ApprovalRequestModel::acceptCode($normalizedMobile, $this->code);
+		$userModel = $result['userModel'];
+		if ($userModel) {
+			list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin(
+				$userModel,
+				$this->rememberMe,
+				GeneralHelper::PHRASETYPE_MOBILE
+			);
 
-		// 	return [
-		// 		'token' => $token,
-		// 		'mustApprove' => $mustApprove,
-		// 	];
-		// }
+			return [
+				'token' => $token,
+				'mustApprove' => $mustApprove,
+				'challenge' => $challenge, //enuTwoFAType::SSID,
+			];
+		}
 
-		// throw new UnauthorizedHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
+		throw new UnauthorizedHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
 	}
 
 }

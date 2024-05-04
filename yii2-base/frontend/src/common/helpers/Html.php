@@ -11,7 +11,8 @@ use shopack\base\common\helpers\ArrayHelper;
 
 class Html extends \yii\bootstrap5\Html
 {
-	public static function createButton($text = null, $url = null, $options = []) {
+	public static function createButton($text = null, $url = null, $options = [])
+	{
 		if ($text == null)
 			$text = Yii::t('app', 'Create');
 
@@ -46,7 +47,8 @@ class Html extends \yii\bootstrap5\Html
 	 	], $options));
 	}
 
-	public static function confirmButton($text, $url, $message, $options = []) {
+	public static function confirmButton($text, $url, $message, $options = [])
+	{
 		$disabled = ArrayHelper::remove($options, 'disabled', false);
 		if ($disabled) {
 			$options['data'] = array_merge($options['data'] ?? [], [
@@ -76,7 +78,8 @@ class Html extends \yii\bootstrap5\Html
 	 	], $options));
 	}
 
-	public static function deleteButton($text = null, $url = null, $options = []) {
+	public static function deleteButton($text = null, $url = null, $options = [])
+	{
 		if ($text == null)
 			$text = Yii::t('app', 'Delete');
 
@@ -90,7 +93,8 @@ class Html extends \yii\bootstrap5\Html
 		return self::confirmButton($text, $url, Yii::t('app', 'Are you sure you want to delete this item?'), $options);
 	}
 
-	public static function undeleteButton($text = null, $url = null, $options = []) {
+	public static function undeleteButton($text = null, $url = null, $options = [])
+	{
 		if ($text == null)
 			$text = Yii::t('app', 'Undelete');
 
@@ -104,7 +108,8 @@ class Html extends \yii\bootstrap5\Html
 		return self::confirmButton($text, $url, Yii::t('app', 'Are you sure you want to un-delete this item?'), $options);
 	}
 
-	public static function a($text, $url = null, $options = []) {
+	public static function a($text, $url = null, $options = [])
+	{
 		$isModal = ArrayHelper::remove($options, 'modal', false);
 		$isAjax = ArrayHelper::remove($options, 'ajax', false);
 

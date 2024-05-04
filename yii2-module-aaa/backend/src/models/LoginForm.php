@@ -105,15 +105,15 @@ class LoginForm extends Model
     if ($this->validate('input') == false)
       throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
 
-    list ($normalizedInput, $type) = GeneralHelper::recognizeLoginPhrase($this->input);
+    list ($normalizedInput, $inputType) = GeneralHelper::recognizeLoginPhrase($this->input);
 
-    if ($type == GeneralHelper::PHRASETYPE_EMAIL) {
+    if ($inputType == GeneralHelper::PHRASETYPE_EMAIL) {
       $this->_inputName = 'email';
       $this->email = $normalizedInput;
-    } else if ($type == GeneralHelper::PHRASETYPE_MOBILE) {
+    } else if ($inputType == GeneralHelper::PHRASETYPE_MOBILE) {
       $this->_inputName = 'mobile';
       $this->mobile = $normalizedInput;
-    } else if ($type == GeneralHelper::PHRASETYPE_SSID) {
+    } else if ($inputType == GeneralHelper::PHRASETYPE_SSID) {
       $this->_inputName = 'ssid';
       $this->ssid = $normalizedInput;
     } else
@@ -134,11 +134,12 @@ class LoginForm extends Model
         throw new UnauthorizedHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
       }
 
-      list ($token, $mustApprove) = AuthHelper::doLogin($user, $this->rememberMe);
+      list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($user, $this->rememberMe, $inputType);
 
       return [
         'token' => $token,
         'mustApprove' => $mustApprove,
+				'challenge' => $challenge,
       ];
     }
 

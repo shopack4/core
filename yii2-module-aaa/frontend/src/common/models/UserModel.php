@@ -65,6 +65,7 @@ class UserModel extends RestClientActiveRecord
       'usrPasswordHash'       => Yii::t('aaa', 'Password Hash'),
       'usrPasswordCreatedAt'  => Yii::t('aaa', 'Password Created At'),
       'usrMustChangePassword' => Yii::t('aaa', 'Must Change Password'),
+			'usr2FA'								=> Yii::t('aaa', 'Two Factor Authentication'),
 			'usrBirthDate'          => Yii::t('aaa', 'Birth Date'),
       'usrBirthCityID'      	=> Yii::t('aaa', 'Birth Location'),
 			'usrCountryID'          => Yii::t('aaa', 'Country'),

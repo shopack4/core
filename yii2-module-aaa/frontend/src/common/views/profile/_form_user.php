@@ -49,6 +49,9 @@ use shopack\aaa\frontend\common\widgets\form\GeoTownChooseFormField;
 			['usrFatherName'],
 			['usrFatherName_en'],
 			['usrSSID'],
+			['usrBirthCertID'],
+
+			GeoCityOrVillageChooseFormField::field($this, $model, 'usrBirthCityID'),
 			[
 				'usrBirthDate',
 				'type' => FormBuilder::FIELD_WIDGET,

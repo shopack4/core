@@ -91,7 +91,7 @@ class AuthController extends BaseRestController
 
 		//login
 		//-----------------------
-		list ($token, $mustApprove, $sessionModel) = AuthHelper::doLogin($model->user, $model->rememberMe);
+		list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($model->user, $model->rememberMe, null);
 
 		return [
 			'token' => $token,
@@ -163,7 +163,7 @@ class AuthController extends BaseRestController
 
 		if ($userModel) {
 			if ($bodyParams['rememberMe'] ?? false) {
-				list ($token, $mustApprove) = AuthHelper::doLogin($userModel, $bodyParams['rememberMe'] ?? false);
+				list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($userModel, $bodyParams['rememberMe'] ?? false, null);
 
 				return [
 					'token' => $token,

@@ -48,6 +48,7 @@ new: must be add to the model lables, index and view
 'usrPasswordHash',
 'usrPasswordCreatedAt',
 'usrMustChangePassword',
+'usr2FA',
 'usrBirthDate',
 'usrBirthCityID',
 'usrCountryID',
@@ -247,6 +248,13 @@ trait UserModelTrait
       ],
       'usrMustChangePassword' => [
         enuColumnInfo::type       => 'boolean',
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+      ],
+      'usr2FA' => [
+        enuColumnInfo::type       => JsonValidator::class,
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,

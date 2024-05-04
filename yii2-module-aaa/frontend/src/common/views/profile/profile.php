@@ -4,6 +4,7 @@
  */
 
 use shopack\base\common\helpers\Json;
+use shopack\aaa\common\enums\enuTwoFAType;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\DetailView;
 use shopack\base\frontend\common\widgets\tabs\Tabs;
@@ -13,6 +14,8 @@ use shopack\base\common\helpers\GeneralHelper;
 use shopack\aaa\common\enums\enuUserEducationLevel;
 use shopack\aaa\common\enums\enuUserMaritalStatus;
 use shopack\aaa\common\enums\enuUserMilitaryStatus;
+use shopack\base\frontend\common\widgets\grid\GridView;
+use yii\data\ArrayDataProvider;
 
 $this->title = Yii::t('aaa', 'My Profile');
 $this->params['breadcrumbs'][] = $this->title;
@@ -57,8 +60,10 @@ $this->params['breadcrumbs'][] = $this->title;
 												'value' => enuGender::getLabel($model->usrGender),
 											],
 											[
-												'group' => 'true',
+												'group' => true,
 											],
+											'usrSSID',
+											'usrBirthCertID',
 											'usrFirstName',
 											'usrFirstName_en',
 											'usrLastName',
@@ -70,24 +75,6 @@ $this->params['breadcrumbs'][] = $this->title;
 												'value' => $model->birthCityOrVillage->ctvName ?? null,
 											],
 											'usrBirthDate:jalali',
-
-											[
-												'attribute' => 'usrEmail',
-												'valueColOptions' => ['class' => ['dir-ltr', 'text-start']],
-											],
-											// 'usrEmailApprovedAt:jalaliWithTime',
-											[
-												'attribute' => 'usrMobile',
-												'format' => 'phone',
-											],
-											// 'usrMobileApprovedAt:jalaliWithTime',
-											'usrSSID',
-											[
-												'attribute' => 'hasPassword',
-												'format' => 'boolean',
-												// 'value' => $model->hasPassword ? Yii::t('app', 'Has') : Yii::t('app', 'Has not'),
-											],
-											// 'usrPasswordCreatedAt:jalaliWithTime',
 
 											[
 												'attribute' => 'usrEducationLevel',
@@ -107,8 +94,40 @@ $this->params['breadcrumbs'][] = $this->title;
 
 											[
 												'group' => 'true',
-												'label' => 'محل سکونت',
-												'isVertical' => true,
+												'label' => 'اطلاعات ورود',
+												'isVertical' => false,
+												'groupOptions' => ['class' => 'info-row'],
+											],
+											[
+												'attribute' => 'usrEmail',
+												'valueColOptions' => ['class' => ['dir-ltr', 'text-start']],
+											],
+											'usrEmailApprovedAt:jalaliWithTime',
+											[
+												'attribute' => 'usrMobile',
+												'format' => 'phone',
+											],
+											'usrMobileApprovedAt:jalaliWithTime',
+											[
+												'attribute' => 'hasPassword',
+												'format' => 'boolean',
+											],
+											'usrPasswordCreatedAt:jalaliWithTime',
+											// [
+											// 	'attribute' => 'usrRoleID',
+											// 	'label' => 'جایگاه دسترسی',
+											// 	'value' => $model->role->rolName,
+											// ],
+											// [
+											// 	'attribute' => 'usrPrivs',
+											// 	'visible' => $model->canViewColumn('usrPrivs'),
+											// 	'value' => Json::encode($model->usrPrivs),
+											// ],
+
+											[
+												'group' => true,
+												'cols' => 1,
+												'label' => 'اطلاعات آدرس',
 												'groupOptions' => ['class' => 'info-row'],
 											],
 											[
@@ -127,12 +146,30 @@ $this->params['breadcrumbs'][] = $this->title;
 												'attribute' => 'usrTownID',
 												'value' => $model->town->twnName ?? null,
 											],
-											'usrZipCode',
 											[
-												'group' => 'true',
-												// 'label' => 'محل سکونت',
+												'attribute' => 'usrHomeAddress',
+												'value' => $model->usrHomeAddress,
 											],
-											'usrHomeAddress',
+											[
+												'attribute' => 'usrZipCode',
+												'value' => $model->usrZipCode,
+											],
+											[
+												'attribute' => 'usrPhones',
+												'value' => $model->usrPhones,
+											],
+											[
+												'attribute' => 'usrWorkAddress',
+												'value' => $model->usrWorkAddress,
+											],
+											[
+												'attribute' => 'usrWorkPhones',
+												'value' => $model->usrWorkPhones,
+											],
+											[
+												'attribute' => 'usrWebsite',
+												'value' => $model->usrWebsite,
+											],
 										],
 									]);
 								?>
@@ -183,6 +220,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 			<?php
 				$tabs->beginTabPage(Yii::t('aaa', 'Login Information'), 'login');
+
 				$columns = [
 					[
 						'attribute' => 'usrEmail',
@@ -328,6 +366,108 @@ $this->params['breadcrumbs'][] = $this->title;
 					'isVertical' => false,
 					'attributes' => $columns,
 				]);
+			?>
+
+			<div class='card border-default mb-3'>
+				<div class='card-header'>
+					<div class="float-end"></div>
+					<div class='card-title'><?= Yii::t('aaa', 'Two Factor Authentication') ?></div>
+					<div class="clearfix"></div>
+				</div>
+				<div class='card-body'>
+					<?php
+						$twoFaRows = [
+							[ 'key' => enuTwoFAType::SSID, ],
+							[ 'key' => enuTwoFAType::BirthCertID, ],
+							[ 'key' => enuTwoFAType::BirthDate, ],
+							// [ 'key' => enuTwoFAType::SMSOTP, ],
+							// [ 'key' => enuTwoFAType::GoogleAuth, ],
+							// [ 'key' => enuTwoFAType::MSAuth, ],
+						];
+
+						$config = [
+							'allModels' => $twoFaRows,
+						];
+						$dataProvider = new ArrayDataProvider($config);
+						$dataProvider->setModels($twoFaRows);
+
+						$columns = [
+							[
+								'attribute' => 'key',
+								'label' => 'نوع',
+								'value' => function($twofamodel) use ($model) {
+									return enuTwoFAType::getLabel($twofamodel['key']);
+								},
+							],
+							[
+								'attribute' => 'status',
+								'label' => 'وضعیت',
+								'value' => function($twofamodel) use ($model) {
+									return (isset($model->usr2FA[$twofamodel['key']]) ? 'فعال' : 'تنظیم نشده');
+								},
+							],
+							[
+								'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
+								'header' => Yii::t('app', 'Actions'),
+								'template' => '{active-2fa}{inactive-2fa}',
+								'updateOptions' => [
+									'modal' => true,
+								],
+								'buttons' => [
+									'active-2fa' => function ($url, $twofamodel) use ($model) {
+										return Html::createButton(Yii::t('aaa', 'Active'), [
+											'active-2fa',
+											'type' => $twofamodel['key'],
+										], [
+											'btn' => 'success',
+											'modal' => true,
+											'title' => Yii::t('aaa', 'Activate') . ' ' . enuTwoFAType::getLabel($twofamodel['key'])
+										]);
+									},
+									'inactive-2fa' => function ($url, $twofamodel) use ($model) {
+										return Html::confirmButton(Yii::t('aaa', 'Inactive'), [
+											'inactive-2fa',
+											'type' => $twofamodel['key'],
+										],
+										Yii::t('aaa', 'Are you sure you want to disable authentication method "{method}"?', ['method' => enuTwoFAType::getLabel($twofamodel['key'])]),
+										[
+											'btn' => 'danger',
+											'ajax' => 'post',
+										]);
+									},
+								],
+
+								'visibleButtons' => [
+									'active-2fa' => function ($twofamodel) use ($model) {
+										return (isset($model->usr2FA[$twofamodel['key']]) == false);
+									},
+									'inactive-2fa' => function ($twofamodel) use ($model) {
+										return isset($model->usr2FA[$twofamodel['key']]);
+									},
+								],
+							],
+						];
+
+						echo GridView::widget([
+							// 'id' => StringHelper::generateRandomId(),
+							'dataProvider' => $dataProvider,
+							// 'filterModel' => $searchModel,
+							'columns' => $columns,
+						]);
+					?>
+					</table>
+
+					<?php
+						if (empty($model->usr2FA)) {
+							// echo Html::div('تنظیم نشده است', ['class' => 'text-center']);
+						} else {
+
+						}
+					?>
+				</div>
+			</div>
+
+			<?php
 				$tabs->endTabPage();
 			?>
 

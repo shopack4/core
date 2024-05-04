@@ -22,11 +22,33 @@ use shopack\base\common\helpers\GeneralHelper;
 
 class AuthHelper
 {
-  static function doLogin($user, bool $rememberMe = false, ?Array $additionalInfo = [])
-  {
+  /**
+   * @return: [$token, $mustApprove, $sessionModel, $challenge]
+   */
+  static function doLogin(
+    $user,
+    bool $rememberMe = false,
+    $inputType = null, //-> GeneralHelper::PHRASETYPE_???, null: dont need challenge
+    ?Array $additionalInfo = []
+  ) {
     if ($user->usrStatus == enuUserStatus::NewForLoginByMobile) {
       $user->usrStatus = enuUserStatus::Active;
       $user->save();
+    }
+
+    $challenge = null;
+    if ($inputType !== null) {
+      $usr2FA = $user->usr2FA;
+      if (empty($usr2FA) == false) {
+        if (count($usr2FA) == 1)
+          $r = 0;
+        else
+          $r = rand(0, count($usr2FA)-1);
+
+        $challenge = array_keys($usr2FA)[$r];
+
+        return [null, false, null, '2fa:' . $challenge];
+      }
     }
 
     //create session
@@ -122,7 +144,7 @@ class AuthHelper
     $sessionModel->save();
 
     //-----------------------
-    return [$token, $mustApprove, $sessionModel];
+    return [$token, $mustApprove, $sessionModel, $challenge];
   }
 
   static function logout()

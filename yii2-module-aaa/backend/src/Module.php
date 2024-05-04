@@ -65,6 +65,8 @@ class Module
 						'POST update-image' => 'update-image',
 						'POST password-reset' => 'password-reset',
 						'POST send-message' => 'send-message',
+						'POST active-2fa' => 'active-2fa',
+						'POST inactive-2fa' => 'inactive-2fa',
 					],
 				],
 				// [

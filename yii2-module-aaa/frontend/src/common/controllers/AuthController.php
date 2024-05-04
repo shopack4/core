@@ -205,10 +205,10 @@ class AuthController extends BaseController
 
       if ($result === 'challenge') {
         $challengeModel = new ChallengeForm();
-        $challengeModel->realm = 'login-by-mobile';
-        $challengeModel->type = $model->challenge;
-        $challengeModel->key = $model->mobile;
-        $challengeModel->login = true;
+        $challengeModel->realm      = 'login';
+        $challengeModel->type       = $model->challenge;
+        $challengeModel->key        = $model->mobile;
+        $challengeModel->login      = true;
         $challengeModel->rememberMe = $model->rememberMe;
 
         return AuthHelper::redirectToChallenge($challengeModel, $donelink);
@@ -322,15 +322,15 @@ class AuthController extends BaseController
       if (empty($result['next']) == false) {
         $model->step = $result['next'];
       } else {
-        if ($result === 'challenge') {
-          // $challengeModel = new ChallengeForm();
-          // $challengeModel->realm = $realm;
-          // $challengeModel->type = $model->challenge;
-          // $challengeModel->key = $model->mobile;
-          // $challengeModel->login = true;
-          // $challengeModel->rememberMe = $model->rememberMe;
+        if (isset($result['challenge'])) {
+          $challengeModel = new ChallengeForm();
+          $challengeModel->realm = $realm;
+          $challengeModel->type = $result['challenge'];
+          $challengeModel->key = $model->mobile;
+          $challengeModel->login = true;
+          $challengeModel->rememberMe = $model->rememberMe;
 
-          // return AuthHelper::redirectToChallenge($challengeModel, $donelink);
+          return AuthHelper::redirectToChallenge($challengeModel, $donelink);
         }
       }
     }
