@@ -8,18 +8,9 @@ namespace shopack\aaa\backend\models;
 use Yii;
 use yii\base\Model;
 use yii\web\UnauthorizedHttpException;
-use yii\web\UnprocessableEntityHttpException;
-use Ramsey\Uuid\Uuid;
-use shopack\base\common\validators\GroupRequiredValidator;
-use shopack\base\backend\helpers\AuthHelper;
-use shopack\aaa\common\enums\enuUserStatus;
-use shopack\base\common\security\RsaPublic;
-use shopack\aaa\backend\models\VoucherModel;
-use shopack\aaa\common\enums\enuVoucherType;
-use shopack\aaa\common\enums\enuVoucherStatus;
-use shopack\base\backend\auth\Jwt;
 use yii\di\Instance;
 use Lcobucci\JWT\Token;
+use shopack\base\backend\auth\Jwt;
 
 class ChallengeForm extends Model
 {
@@ -40,7 +31,6 @@ class ChallengeForm extends Model
   public function getJwtComponent(): Jwt
   {
     if ($this->JWTComponent === null) {
-      /** @var Jwt $jwt */
       $jwt = Instance::ensure($this->jwtComponentKey, Jwt::class);
       $this->JWTComponent = $jwt;
     }
@@ -51,8 +41,9 @@ class ChallengeForm extends Model
   {
     $token = $this->getJwtComponent()->parse($data);
 
-    if ($this->getJwtComponent()->validate($token) == false)
-      throw new UnauthorizedHttpException('Invalid Token');
+    $this->getJwtComponent()->assert($token);
+    // if ($this->getJwtComponent()->validate($token) == false)
+    //   throw new UnauthorizedHttpException('Invalid Token');
 
     return $token;
   }
@@ -63,6 +54,20 @@ class ChallengeForm extends Model
       throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
 
     $token = $this->processToken($this->token);
+    /*
+      "iat": 1715021133.20162,
+      "exp": 1715107533.20162,
+      "uid": 20246,
+      "rmmbr": 1,
+      "2fa": 1,
+      "type": "ssid",
+      "email": "536@4797.dom"
+    */
+
+    $result = Yii::$app->twoFAManager->validate($token->claims()->get('type'), [
+      'userID' => $token->claims()->get('uid'),
+      'code' => $this->code,
+    ]);
 
 throw new UnauthorizedHttpException('AAAAAAAAAAAA');
 

@@ -23,19 +23,17 @@ class BirthDateTwoFA
 
 	public function validate(?array $args = [])
 	{
-    if (Yii::$app->user->isGuest)
-      throw new UnauthorizedHttpException("This process is not for guest.");
+    // if (Yii::$app->user->isGuest)
+    //   throw new UnauthorizedHttpException("This process is not for guest.");
 
-    $userModel = UserModel::findOne(Yii::$app->user->id);
-
+		$userID = $args['userID'];
+    $userModel = UserModel::findOne($userID);
 		if (empty($userModel->usrBirthDate))
 			throw new UnprocessableEntityHttpException("Birth Date not defined for user");
 
-		// $a = str_replace('-', '/', $userModel->usrBirthDate);
-		// $b = str_replace('-', '/', $args[0]);
-
-		$a = new \DateTime($userModel->usrBirthDate);
-		$b = new \DateTime($args[0]);
+		$code = $args['code'];
+		$a = new \DateTime($code);
+		$b = new \DateTime($userModel->usrBirthDate);
 
 		if ($a != $b)
 			throw new UnprocessableEntityHttpException("Mismatched Birth Date");
