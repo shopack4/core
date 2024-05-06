@@ -94,7 +94,7 @@ class LoginByMobileForm extends Model
 			// 	true
 			// );
 
-			// list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($user, false, GeneralHelper::PHRASETYPE_MOBILE, ['otp' => 'sms']);
+			// list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($user, false, $inputType, AuthHelper::CHALLENGE_ENABLE_WITHOUT_SMS, ['otp' => 'sms']);
 
 			// return array_merge([
 			// 	// 'token' => $token,
@@ -113,7 +113,8 @@ class LoginByMobileForm extends Model
 			list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin(
 				$userModel,
 				$this->rememberMe,
-				GeneralHelper::PHRASETYPE_MOBILE
+				GeneralHelper::PHRASETYPE_MOBILE,
+				AuthHelper::CHALLENGE_ENABLE_WITHOUT_SMS
 			);
 
 			return [

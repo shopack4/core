@@ -21,6 +21,7 @@ use shopack\aaa\backend\models\LoginForm;
 use shopack\aaa\backend\models\LoginByMobileForm;
 use shopack\aaa\backend\models\ApproveCodeForm;
 use shopack\aaa\backend\models\ApprovalRequestModel;
+use shopack\aaa\backend\models\ChallengeForm;
 use shopack\aaa\backend\models\ForgotPasswordRequestModel;
 use shopack\aaa\backend\models\PasswordResetByForgotCodeForm;
 // use shopack\aaa\backend\models\PasswordSetForm;
@@ -91,7 +92,7 @@ class AuthController extends BaseRestController
 
 		//login
 		//-----------------------
-		list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($model->user, $model->rememberMe, null);
+		list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($model->user, $model->rememberMe);
 
 		return [
 			'token' => $token,
@@ -148,38 +149,17 @@ class AuthController extends BaseRestController
 	}
 
 	/**
-	 * key
-	 * value
+	 * token
+	 * code
 	 */
 	public function actionChallenge()
 	{
-		$bodyParams = Yii::$app->request->getBodyParams();
+		$model = new ChallengeForm();
 
-		if (empty($bodyParams['key']) || empty($bodyParams['value']))
-			throw new NotFoundHttpException("parameters not provided");
+		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
+			throw new NotFoundHttpException("Parameters not provided");
 
-		$result = ApprovalRequestModel::acceptCode($bodyParams['key'], $bodyParams['value']);
-		$userModel = $result['userModel'];
-
-		if ($userModel) {
-			if ($bodyParams['rememberMe'] ?? false) {
-				list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($userModel, $bodyParams['rememberMe'] ?? false, null);
-
-				return [
-					'token' => $token,
-					'mustApprove' => $mustApprove,
-				];
-			}
-
-			return [
-				'result' => true,
-			];
-		}
-
-		throw new UnauthorizedHttpException("could not login.");
-		// return [
-		// 	'result' => ,
-		// ];
+		return $model->process();
 	}
 
 	public function actionLogout()

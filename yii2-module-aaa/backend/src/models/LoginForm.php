@@ -134,7 +134,12 @@ class LoginForm extends Model
         throw new UnauthorizedHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
       }
 
-      list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($user, $this->rememberMe, $inputType);
+      list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin(
+        $user,
+        $this->rememberMe,
+        $inputType,
+        AuthHelper::CHALLENGE_ENABLE
+      );
 
       return [
         'token' => $token,

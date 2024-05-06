@@ -61,9 +61,10 @@ $this->params['breadcrumbs'][] = $this->title;
 		]);
 
 		echo Html::hiddenInput(Html::getInputName($model, 'realm'), $model->realm);
-		echo Html::hiddenInput(Html::getInputName($model, 'type'), $model->type);
-		echo Html::hiddenInput(Html::getInputName($model, 'key'), $model->key);
-		echo Html::hiddenInput(Html::getInputName($model, 'rememberMe'), $model->rememberMe);
+		echo Html::hiddenInput(Html::getInputName($model, 'token'), $model->token);
+		// echo Html::hiddenInput(Html::getInputName($model, 'type'), $model->type);
+		// echo Html::hiddenInput(Html::getInputName($model, 'key'), $model->key);
+		// echo Html::hiddenInput(Html::getInputName($model, 'rememberMe'), $model->rememberMe);
 		echo Html::hiddenInput('resend', 0, [
 			'id' => 'resend'
 		]);

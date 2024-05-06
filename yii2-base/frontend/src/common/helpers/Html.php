@@ -221,7 +221,7 @@ class Html extends \yii\bootstrap5\Html
 		// if (isset($options['done']))
 			// shopack\base\widgets\ActiveForm::doneParam
 
-		$options = array_replace_recursive([
+		$options = array_merge_recursive([
 			'class' => ['btn', 'btn-' . (($model->isNewRecord ?? true) ? 'success' : 'primary')],
 		], $options);
 

@@ -14,7 +14,7 @@ class LoginForm extends Model
   public $username;
   public $password;
   public $rememberMe = true;
-  public $challenge;
+  // public $challenge;
 
   public function rules()
   {
@@ -57,10 +57,10 @@ class LoginForm extends Model
       return Yii::$app->user->login($user, 3600*24*30); //$this->rememberMe ? 3600*24*30 : 0);
     }
 
-    if (isset($resultData['challenge'])) {
-      $this->challenge = $resultData['challenge'];
-      return 'challenge';
-    }
+    // if (isset($resultData['challenge'])) {
+    //   $this->challenge = $resultData['challenge'];
+    //   return 'challenge';
+    // }
 
     return [$resultStatus, $resultData];
   }

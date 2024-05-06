@@ -18,17 +18,23 @@ use shopack\aaa\backend\models\RoleModel;
 use shopack\aaa\common\enums\enuRole;
 use shopack\aaa\common\enums\enuUserStatus;
 use shopack\aaa\common\enums\enuSessionStatus;
+use shopack\aaa\common\enums\enuTwoFAType;
 use shopack\base\common\helpers\GeneralHelper;
 
 class AuthHelper
 {
+  public const CHALLENGE_NONE               = 0;
+  public const CHALLENGE_ENABLE             = 1;
+  public const CHALLENGE_ENABLE_WITHOUT_SMS = 2;
+
   /**
    * @return: [$token, $mustApprove, $sessionModel, $challenge]
    */
   static function doLogin(
     $user,
     bool $rememberMe = false,
-    $inputType = null, //-> GeneralHelper::PHRASETYPE_???, null: dont need challenge
+    $inputType = null,
+    $challengeNeeded = self::CHALLENGE_NONE,
     ?Array $additionalInfo = []
   ) {
     if ($user->usrStatus == enuUserStatus::NewForLoginByMobile) {
@@ -36,9 +42,26 @@ class AuthHelper
       $user->save();
     }
 
+    $settings = Yii::$app->params['settings'];
+    $ttl = ArrayHelper::getValue($settings['AAA']['jwt'], 'ttl', 5 * 60);
+    $now = new \DateTimeImmutable();
+    $expire = $now->modify("+{$ttl} second");
+
     $challenge = null;
-    if ($inputType !== null) {
+    if ($challengeNeeded !== self::CHALLENGE_NONE) {
       $usr2FA = $user->usr2FA;
+
+      //remove sms based from array
+      if (empty($usr2FA) == false) {
+        if ($challengeNeeded === self::CHALLENGE_ENABLE_WITHOUT_SMS) {
+          foreach ($usr2FA as $k => $v) {
+            if ($k == enuTwoFAType::SMSOTP) {
+              unset($usr2FA[$k]);
+            }
+          }
+        }
+      }
+
       if (empty($usr2FA) == false) {
         if (count($usr2FA) == 1)
           $r = 0;
@@ -47,7 +70,60 @@ class AuthHelper
 
         $challenge = array_keys($usr2FA)[$r];
 
-        return [null, false, null, '2fa:' . $challenge];
+        $challengeToken = Yii::$app->jwt->getBuilder()
+          // ->identifiedBy($sessionModel->ssnID)
+          ->issuedAt($now)
+          ->expiresAt($expire)
+          // ->withClaim('privs', $privs)
+          ->withClaim('uid', $user->usrID)
+        ;
+
+        // if (empty($user->usrEmail) == false)
+        //   $challengeToken->withClaim('email', $user->usrEmail);
+        // if (empty($user->usrMobile) == false)
+        //   $challengeToken->withClaim('mobile', $user->usrMobile);
+        // if (empty($user->usrFirstName) == false)
+        //   $challengeToken->withClaim('firstName', $user->usrFirstName);
+        // if (empty($user->usrLastName) == false)
+        //   $challengeToken->withClaim('lastName', $user->usrLastName);
+
+        if ($rememberMe)
+          $challengeToken->withClaim('rmmbr', 1);
+
+        // if (empty($additionalInfo) == false) {
+        //   foreach ($additionalInfo as $k => $v) {
+        //     $challengeToken->withClaim($k, $v);
+        //   }
+        // }
+
+        // $mustApprove = [];
+        // if ($user->usrStatus != enuUserStatus::NewForLoginByMobile) {
+        //   if (empty($user->usrEmail) == false && empty($user->usrEmailApprovedAt))
+        //     $mustApprove[] = 'email';
+        //   if (empty($user->usrMobile) == false && empty($user->usrMobileApprovedAt))
+        //     $mustApprove[] = 'mobile';
+        //   if (empty($mustApprove) == false)
+        //     $challengeToken->withClaim('mustApprove', implode(',', $mustApprove));
+        // }
+
+        $challengeToken->withClaim('2fa', 1);
+        $challengeToken->withClaim('type', /*'2fa:' .*/ $challenge);
+
+        if ($inputType == GeneralHelper::PHRASETYPE_EMAIL) {
+          $challengeToken->withClaim('email', $user->usrEmail);
+        } else if ($inputType == GeneralHelper::PHRASETYPE_MOBILE) {
+          $challengeToken->withClaim('mobile', $user->usrMobile);
+        } else if ($inputType == GeneralHelper::PHRASETYPE_SSID) {
+          $challengeToken->withClaim('ssid', $user->usrSSID);
+        }
+
+        $challengeToken = $challengeToken->getToken(
+          Yii::$app->jwt->getConfiguration()->signer(),
+          Yii::$app->jwt->getConfiguration()->signingKey()
+        );
+        $challengeToken = $challengeToken->toString();
+
+        return [null, false, null, $challengeToken];
       }
     }
 
@@ -86,12 +162,6 @@ class AuthHelper
 
     //token
     //-----------------------
-    $settings = Yii::$app->params['settings'];
-    $ttl = ArrayHelper::getValue($settings['AAA']['jwt'], 'ttl', 5 * 60);
-
-    $now = new \DateTimeImmutable();
-    $expire = $now->modify("+{$ttl} second");
-
     $token = Yii::$app->jwt->getBuilder()
       ->identifiedBy($sessionModel->ssnID) //Yii::$app->session->id) // Configures the id (jti claim)
       ->issuedAt($now)

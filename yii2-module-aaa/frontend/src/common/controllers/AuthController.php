@@ -153,19 +153,6 @@ class AuthController extends BaseController
       if (is_array($result)) {
         list ($resultStatus, $resultData) = $result;
 
-        if (isset($resultData['challenge'])) {
-          $challenge = $resultData['challenge'];
-
-          $challengeModel = new ChallengeForm();
-          $challengeModel->realm = 'signup';
-          $challengeModel->type = $challenge;
-          $challengeModel->key = $model->mobile;
-          $challengeModel->login = true;
-          $challengeModel->rememberMe = $model->rememberMe;
-
-          return AuthHelper::redirectToChallenge($challengeModel);
-        }
-
         if (isset($resultData['message'])) {
           $messageText = $resultData['message'];
           unset($resultData['message']);
@@ -203,33 +190,22 @@ class AuthController extends BaseController
       if ($result === true)
         return $this->redirect($donelink ?? Yii::$app->getHomeUrl());
 
-      if ($result === 'challenge') {
-        $challengeModel = new ChallengeForm();
-        $challengeModel->realm      = 'login';
-        $challengeModel->type       = $model->challenge;
-        $challengeModel->key        = $model->mobile;
-        $challengeModel->login      = true;
-        $challengeModel->rememberMe = $model->rememberMe;
-
-        return AuthHelper::redirectToChallenge($challengeModel, $donelink);
-      }
-
       if (is_array($result)) {
         list ($resultStatus, $resultData) = $result;
 
-        // if (isset($resultData['challenge'])) {
-        //   $challenge = $resultData['challenge'];
+        //challenge
+        if (isset($resultData['challenge'])) {
+          $challengeModel = new ChallengeForm();
+          $challengeModel->realm      = 'login';
+          $challengeModel->token      = $resultData['challenge']; //$model->challenge;
+          // $challengeModel->key        = $model->username; //mobile;
+          // $challengeModel->login      = true;
+          // $challengeModel->rememberMe = $model->rememberMe;
 
-        //   $challengeModel = new ChallengeForm();
-        //   $challengeModel->realm = 'login-by-mobile';
-        //   $challengeModel->type = $challenge;
-        //   $challengeModel->key = $model->mobile;
-        //   $challengeModel->login = true;
-        //   $challengeModel->rememberMe = $model->rememberMe;
+          return $challengeModel->redirectToChallenge($donelink);
+        }
 
-        //   return AuthHelper::redirectToChallenge($challengeModel);
-        // }
-
+        //other
         if (isset($resultData['message'])) {
           $messageText = $resultData['message'];
           unset($resultData['message']);
@@ -321,17 +297,15 @@ class AuthController extends BaseController
 
       if (empty($result['next']) == false) {
         $model->step = $result['next'];
-      } else {
-        if (isset($result['challenge'])) {
-          $challengeModel = new ChallengeForm();
-          $challengeModel->realm = $realm;
-          $challengeModel->type = $result['challenge'];
-          $challengeModel->key = $model->mobile;
-          $challengeModel->login = true;
-          $challengeModel->rememberMe = $model->rememberMe;
+      } else if (isset($result['challenge'])) {
+        $challengeModel = new ChallengeForm();
+        $challengeModel->realm      = $realm;
+        $challengeModel->token      = $result['challenge'];
+        // $challengeModel->key        = $model->username; //mobile;
+        // $challengeModel->login      = true;
+        // $challengeModel->rememberMe = $model->rememberMe;
 
-          return AuthHelper::redirectToChallenge($challengeModel, $donelink);
-        }
+        return $challengeModel->redirectToChallenge($donelink);
       }
     }
 
@@ -356,29 +330,25 @@ class AuthController extends BaseController
 
   public function actionChallenge(
     $realm = null,
-    $type = null,
-    $key = null,
-    $value = null,
-    $rememberMe = false,
+    // $type = null,
+    // $key = null,
+    $token = null,
+    $code = null,
+    // $rememberMe = false,
     $donelink = null
   ) {
     $model = new ChallengeForm();
+
     $post = Yii::$app->request->post();
 
     if ($model->load($post) == false) {
       $model->realm = $realm;
-      $model->type = $type;
-      $model->key = $key;
-      $model->value = $value;
-      $model->login = str_starts_with($model->realm, 'login');
-      $model->rememberMe = $rememberMe;
-    }
-
-    if (empty($model->realm)
-      || empty($model->type)
-      || empty($model->key)
-    ) {
-      throw new \Exception('invalid data');
+      $model->token = $token;
+      // $model->type = $type;
+      // $model->key = $key;
+      $model->code = $code;
+      // $model->login = str_starts_with($model->realm, 'login');
+      // $model->rememberMe = $rememberMe;
     }
 
     if (str_starts_with($model->realm, 'login'))
@@ -405,7 +375,7 @@ class AuthController extends BaseController
         ];
       }
 
-    } else if (empty($model->value) == false) {
+    } else if (empty($model->code) == false) {
       $result = $model->process();
 
       if ($result === true)
@@ -420,9 +390,9 @@ class AuthController extends BaseController
 
           // $challengeModel = new ChallengeForm();
           $model->type = $challenge;
-          $model->value = null;
+          $model->code = null;
 
-          // return AuthHelper::redirectToChallenge($challengeModel);
+          // return $challengeModel->redirectToChallenge($challengeModel);
         }
 
         if (isset($resultData['message'])) {
@@ -459,12 +429,16 @@ class AuthController extends BaseController
       }
     }
 
-    return $this->render('challenge', [
+    $params = [
       'model' => $model,
       'timerInfo' => $timerInfo,
       'resultStatus' => $resultStatus,
       'resultData' => $resultData,
       'message' => $messageText,
+    ];
+
+    return $this->render('challenge' . DIRECTORY_SEPARATOR . 'challenge', [
+      'params' => $params
     ]);
   }
 
@@ -507,7 +481,7 @@ class AuthController extends BaseController
         $challengeModel->login = true;
         $challengeModel->rememberMe = $model->rememberMe;
 
-        return AuthHelper::redirectToChallenge($challengeModel);
+        return $challengeModel->redirectToChallenge($challengeModel);
       }
 
       if (is_array($result)) {
@@ -523,7 +497,7 @@ class AuthController extends BaseController
         //   $challengeModel->login = true;
         //   $challengeModel->rememberMe = $model->rememberMe;
 
-        //   return AuthHelper::redirectToChallenge($challengeModel);
+        //   return $challengeModel->redirectToChallenge($challengeModel);
         // }
 
         if (isset($resultData['message'])) {
