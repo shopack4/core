@@ -546,17 +546,21 @@ class ProfileController extends BaseController
       //   ]);
       // }
 
-      return $this->renderAjaxModal('2fa' . DIRECTORY_SEPARATOR . '_form_' . $type, [
-        'model' => $model,
-        'generateResult' => $generateResult ?? null,
-        'messageText' => $messageText ?? null,
-      ]);
+      return $this->renderAjaxModal('..' . DIRECTORY_SEPARATOR
+        . 'challenge' . DIRECTORY_SEPARATOR
+        . '_form_' . $type,
+        [
+          'model' => $model,
+          'generateResult' => $generateResult ?? null,
+          'messageText' => $messageText ?? null,
+        ]
+      );
     }
 
     if ($done)
       return $this->redirect(['index']);
 
-    return $this->render('2fa' . DIRECTORY_SEPARATOR . 'active', [
+    return $this->render('active', [
       'model' => $model,
       'generateResult' => $generateResult ?? null,
       'messageText' => $messageText ?? null,

@@ -103,7 +103,12 @@ $this->params['breadcrumbs'][] = $this->title;
 		// echo Html::tag('div', $model->type);
 
     $type = $challengeData['type'];
-		echo $this->render('_form_' . $type, $params);
+
+		echo $this->render('..' . DIRECTORY_SEPARATOR
+			. 'challenge' . DIRECTORY_SEPARATOR
+			. '_form_' . $type,
+			$params
+		);
 
 		$builder->render();
 		$form->endForm(); //ActiveForm::end();

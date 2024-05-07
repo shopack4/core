@@ -437,7 +437,7 @@ class AuthController extends BaseController
       'message' => $messageText,
     ];
 
-    return $this->render('challenge' . DIRECTORY_SEPARATOR . 'challenge', [
+    return $this->render('challenge', [
       'params' => $params
     ]);
   }

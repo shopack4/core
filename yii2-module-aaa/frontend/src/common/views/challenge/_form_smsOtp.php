@@ -9,18 +9,22 @@ use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\FormBuilder;
 ?>
 
-<div class='2fa-smsOtp-form'>
+<div class='challenge-smsOtp-form'>
 	<?php
-		$form = ActiveForm::begin([
-			'model' => $model,
-			'fieldConfig' => [
-				'labelSpan' => 3,
-			],
-			// 'donewait' => 10,
-			// 'modalDoneInternalScript_OK' => "setTimeout(function() { $('#mobile-approve-link').click(); }, 500);",
-		]);
+		$noForm = false;
+		if (isset($form) == false) {
+			$noForm = true;
+			$form = ActiveForm::begin([
+				'model' => $model,
+				'fieldConfig' => [
+					'labelSpan' => 3,
+				],
+				// 'donewait' => 10,
+				// 'modalDoneInternalScript_OK' => "setTimeout(function() { $('#mobile-approve-link').click(); }, 500);",
+			]);
 
-		$builder = $form->getBuilder();
+			$builder = $form->getBuilder();
+		}
 
 		$builder->fields([
 			[
@@ -94,7 +98,7 @@ JS;
 	<?php $builder->beginFooter(); ?>
 		<div class="card-footer">
 			<div class="float-end">
-				<?= Html::activeSubmitButton($model, Yii::t('aaa', 'Active')) ?>
+				<?= Html::activeSubmitButton($model, Yii::t('aaa', 'Approve'), ['class' => ['btn-sm']]) ?>
 			</div>
 			<div>
 				<?php
@@ -108,7 +112,9 @@ JS;
 	<?php $builder->endFooter(); ?>
 
 	<?php
-		$builder->render();
-		$form->endForm(); //ActiveForm::end();
+		if ($noForm) {
+			$builder->render();
+			$form->endForm(); //ActiveForm::end();
+		}
 	?>
 </div>
