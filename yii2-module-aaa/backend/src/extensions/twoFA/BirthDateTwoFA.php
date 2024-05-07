@@ -16,18 +16,28 @@ class BirthDateTwoFA
 	extends BaseTwoFA
 	implements ITwoFA
 {
-	public function generate(?array $args = [])
-	{
-		return true;
-	}
-
-	public function validate(?array $args = [])
+	public function generate($userID, ?array $args = [])
 	{
     // if (Yii::$app->user->isGuest)
     //   throw new UnauthorizedHttpException("This process is not for guest.");
+    // $userModel = UserModel::findOne(Yii::$app->user->id);
 
-		$userID = $args['userID'];
-    $userModel = UserModel::findOne($userID);
+		$userModel = UserModel::findOne($userID);
+
+		if (empty($userModel->usrBirthDate))
+			throw new UnprocessableEntityHttpException("Birth Date not defined for user");
+
+		return true;
+	}
+
+	public function validate($userID, ?array $args = [])
+	{
+    // if (Yii::$app->user->isGuest)
+    //   throw new UnauthorizedHttpException("This process is not for guest.");
+    // $userModel = UserModel::findOne(Yii::$app->user->id);
+
+		$userModel = UserModel::findOne($userID);
+
 		if (empty($userModel->usrBirthDate))
 			throw new UnprocessableEntityHttpException("Birth Date not defined for user");
 

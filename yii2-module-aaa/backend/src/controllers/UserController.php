@@ -293,6 +293,27 @@ class UserController extends BaseRestController
 		}
 	}
 
+	public function actionGenerate2faActivationCode()
+	{
+		$model = new Active2FAForm();
+
+		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
+			throw new NotFoundHttpException("parameters not provided");
+
+		try {
+			$result = $model->generate();
+
+			if ($result == false)
+				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
+
+			return $result;
+
+		} catch(\Exception $exp) {
+			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
+			throw new UnprocessableEntityHttpException($msg);
+		}
+	}
+
 	public function actionActive2fa()
 	{
 		$model = new Active2FAForm();

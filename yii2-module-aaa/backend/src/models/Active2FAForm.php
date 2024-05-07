@@ -26,6 +26,17 @@ class Active2FAForm extends Model
     ];
   }
 
+  public function generate()
+  {
+    if (Yii::$app->user->isGuest)
+      throw new UnauthorizedHttpException("This process is not for guest.");
+
+    if (empty($this->type))
+      throw new UnprocessableEntityHttpException("Type is empty");
+
+    return Yii::$app->twoFAManager->generate($this->type, Yii::$app->user->id);
+  }
+
   public function process()
   {
     if (Yii::$app->user->isGuest)
@@ -39,13 +50,19 @@ class Active2FAForm extends Model
     if (isset($userModel->usr2FA[$this->type]))
       throw new UnprocessableEntityHttpException('This authentication method already activated');
 
-    Yii::$app->twoFAManager->validate($this->type, [$this->code]);
+    Yii::$app->twoFAManager->validate($this->type, Yii::$app->user->id, [
+      'code' => $this->code
+    ]);
 
     $tfa = $userModel->usr2FA ?? [];
     $tfa[$this->type] = 1;
     $userModel->usr2FA = $tfa;
 
-    return $userModel->save();
+    if ($userModel->save() == false) {
+      throw new UnprocessableEntityHttpException("could not save user\n" . implode("\n", $userModel->getFirstErrors()));
+    }
+
+    return true;
   }
 
   public static function inactive2FA($type)
@@ -62,7 +79,11 @@ class Active2FAForm extends Model
     unset($tfa[$type]);
     $userModel->usr2FA = $tfa;
 
-    return $userModel->save();
+    if ($userModel->save() == false) {
+      throw new UnprocessableEntityHttpException("could not save user\n" . implode("\n", $userModel->getFirstErrors()));
+    }
+
+    return true;
   }
 
 }

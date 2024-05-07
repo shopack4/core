@@ -504,10 +504,28 @@ class ProfileController extends BaseController
     $model->type = $type;
     $model->userModel = $userModel;
 
-    $formPosted = $model->load(Yii::$app->request->post());
+    $messageText = null;
+
+    $post = Yii::$app->request->post();
+    $formPosted = $model->load($post);
     $done = false;
-    if ($formPosted)
-      $done = $model->process();
+
+    if ($formPosted) {
+      if (isset($post['resend']) && $post['resend'] == 1) {
+        $generateResult = $model->generate()[1];
+        $formPosted = false;
+      } else {
+        $done = $model->process();
+      }
+    } else {
+      $generateResult = $model->generate()[1];
+    }
+
+    if (isset($generateResult['message'])) {
+      $messageText = $generateResult['message'];
+      unset($generateResult['message']);
+      $messageText = Yii::t('aaa', $messageText, $generateResult);
+    }
 
     if (Yii::$app->request->isAjax) {
       if ($done) {
@@ -519,17 +537,19 @@ class ProfileController extends BaseController
         ]);
       }
 
-      if ($formPosted) {
-        return $this->renderJson([
-          'status' => 'Error',
-          'message' => Yii::t('app', 'Error'),
-          // 'id' => $id,
-          'error' => Html::errorSummary($model),
-        ]);
-      }
+      // if ($formPosted) {
+      //   return $this->renderJson([
+      //     'status' => 'Error',
+      //     'message' => Yii::t('app', 'Error'),
+      //     // 'id' => $id,
+      //     'error' => Html::errorSummary($model),
+      //   ]);
+      // }
 
       return $this->renderAjaxModal('2fa' . DIRECTORY_SEPARATOR . '_form_' . $type, [
         'model' => $model,
+        'generateResult' => $generateResult ?? null,
+        'messageText' => $messageText ?? null,
       ]);
     }
 
@@ -538,6 +558,8 @@ class ProfileController extends BaseController
 
     return $this->render('2fa' . DIRECTORY_SEPARATOR . 'active', [
       'model' => $model,
+      'generateResult' => $generateResult ?? null,
+      'messageText' => $messageText ?? null,
     ]);
   }
 

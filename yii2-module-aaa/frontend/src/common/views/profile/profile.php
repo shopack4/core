@@ -380,7 +380,7 @@ $this->params['breadcrumbs'][] = $this->title;
 							[ 'key' => enuTwoFAType::SSID, ],
 							[ 'key' => enuTwoFAType::BirthCertID, ],
 							[ 'key' => enuTwoFAType::BirthDate, ],
-							// [ 'key' => enuTwoFAType::SMSOTP, ],
+							[ 'key' => enuTwoFAType::SMSOTP, ],
 							// [ 'key' => enuTwoFAType::GoogleAuth, ],
 							// [ 'key' => enuTwoFAType::MSAuth, ],
 						];
@@ -402,8 +402,13 @@ $this->params['breadcrumbs'][] = $this->title;
 							[
 								'attribute' => 'status',
 								'label' => 'وضعیت',
+								'format' => 'raw',
 								'value' => function($twofamodel) use ($model) {
-									return (isset($model->usr2FA[$twofamodel['key']]) ? 'فعال' : 'تنظیم نشده');
+									if (isset($model->usr2FA[$twofamodel['key']])) {
+										return Yii::$app->formatter->asBoolean(true) . ' فعال';
+									} else {
+										return Yii::$app->formatter->asBoolean(false) . ' تنظیم نشده';
+									}
 								},
 							],
 							[

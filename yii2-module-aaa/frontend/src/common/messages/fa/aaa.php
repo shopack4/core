@@ -48,7 +48,8 @@ return [
 	'Verify' => 'بررسی کد',
 	'Please wait' => 'لطفا صبر کنید',
 	'Resend Code' => 'ارسال مجدد کد',
-	'For resend code, please wait {0}' => 'برای ارسال مجدد {0} صبر کنید',
+	'Resend Code {0}' => 'ارسال مجدد کد {0}',
+	// 'For resend code, please wait {0}' => 'برای ارسال مجدد {0} صبر کنید',
 
 	'CODE_SENT' => 'کد ارسال شد',
 	'CODE_RESENT' => 'کد مجددا ارسال شد',

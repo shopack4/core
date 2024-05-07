@@ -7,6 +7,6 @@ namespace shopack\aaa\backend\classes\twoFA;
 
 interface ITwoFA
 {
-	public function generate(?array $args = []);
-	public function validate(?array $args = []);
+	public function generate($userID, ?array $args = []);
+	public function validate($userID, ?array $args = []);
 }

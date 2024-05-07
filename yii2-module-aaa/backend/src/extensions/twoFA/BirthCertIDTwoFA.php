@@ -16,22 +16,33 @@ class BirthCertIDTwoFA
 	extends BaseTwoFA
 	implements ITwoFA
 {
-	public function generate(?array $args = [])
+	public function generate($userID, ?array $args = [])
 	{
-		return true;
-	}
+    // if (Yii::$app->user->isGuest)
+    //   throw new UnauthorizedHttpException("This process is not for guest.");
+    // $userModel = UserModel::findOne(Yii::$app->user->id);
 
-	public function validate(?array $args = [])
-	{
-    if (Yii::$app->user->isGuest)
-      throw new UnauthorizedHttpException("This process is not for guest.");
-
-    $userModel = UserModel::findOne(Yii::$app->user->id);
+		$userModel = UserModel::findOne($userID);
 
 		if (empty($userModel->usrBirthCertID))
 			throw new UnprocessableEntityHttpException("Birth Cert ID not defined for user");
 
-		if ($userModel->usrBirthCertID != $args[0])
+		return true;
+	}
+
+	public function validate($userID, ?array $args = [])
+	{
+    // if (Yii::$app->user->isGuest)
+    //   throw new UnauthorizedHttpException("This process is not for guest.");
+    // $userModel = UserModel::findOne(Yii::$app->user->id);
+
+    $userModel = UserModel::findOne($userID);
+
+		if (empty($userModel->usrBirthCertID))
+			throw new UnprocessableEntityHttpException("Birth Cert ID not defined for user");
+
+		$code = $args['code'];
+		if ($userModel->usrBirthCertID != $code)
 			throw new UnprocessableEntityHttpException("Mismatched Birth Cert ID");
 
 		return true;

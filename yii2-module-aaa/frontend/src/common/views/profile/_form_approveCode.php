@@ -63,7 +63,7 @@ use shopack\base\common\helpers\GeneralHelper;
 					}
 
 					//---------------------
-					$waitMessage = Yii::t('aaa', 'For resend code, please wait {0}');
+					$waitMessage = Yii::t('aaa', 'Resend Code {0}');
 					$resendMessage = Yii::t('aaa', 'Resend Code');
 					$ttl = $timerInfo['ttl'] ?? 0;
 					$js =<<<JS

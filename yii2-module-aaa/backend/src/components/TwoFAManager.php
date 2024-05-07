@@ -9,6 +9,7 @@ use Yii;
 use yii\base\Component;
 use shopack\aaa\common\enums\enuTwoFAType;
 use shopack\aaa\backend\classes\twoFA\ITwoFA;
+use yii\web\UnauthorizedHttpException;
 
 class TwoFAManager extends Component
 {
@@ -32,16 +33,21 @@ class TwoFAManager extends Component
 		return $driver;
 	}
 
-	public function generate($type, ?array $args = [])
+	public function generate($type, $userID, ?array $args = [])
 	{
 		$driver = self::getDriver($type);
-		return $driver->generate($args);
+		return $driver->generate($userID, $args);
 	}
 
-	public function validate($type, ?array $args = [])
+	public function validate($type, $userID, ?array $args = [])
 	{
 		$driver = self::getDriver($type);
-		return $driver->validate($args);
+
+		$result = $driver->validate($userID, $args);
+		if ($result === false)
+	    throw new UnauthorizedHttpException("Code not approved");
+
+		return $result;
 	}
 
 }

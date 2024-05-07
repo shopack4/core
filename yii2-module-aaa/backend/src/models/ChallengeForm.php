@@ -11,6 +11,7 @@ use yii\web\UnauthorizedHttpException;
 use yii\di\Instance;
 use Lcobucci\JWT\Token;
 use shopack\base\backend\auth\Jwt;
+use shopack\base\backend\helpers\AuthHelper;
 
 class ChallengeForm extends Model
 {
@@ -37,7 +38,7 @@ class ChallengeForm extends Model
     return $this->JWTComponent;
   }
 
-  public function processToken(string $data): ?Token
+  public function getTokenClaims(string $data): array
   {
     $token = $this->getJwtComponent()->parse($data);
 
@@ -45,7 +46,7 @@ class ChallengeForm extends Model
     // if ($this->getJwtComponent()->validate($token) == false)
     //   throw new UnauthorizedHttpException('Invalid Token');
 
-    return $token;
+    return $token->claims()->all();
   }
 
 	public function process()
@@ -53,48 +54,51 @@ class ChallengeForm extends Model
     if ($this->validate() == false)
       throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
 
-    $token = $this->processToken($this->token);
+    $challengeToken = $this->getTokenClaims($this->token);
     /*
-      "iat": 1715021133.20162,
-      "exp": 1715107533.20162,
-      "uid": 20246,
-      "rmmbr": 1,
-      "2fa": 1,
-      "type": "ssid",
-      "email": "536@4797.dom"
+      "iat"   : 1715021133.20162,
+      "exp"   : 1715107533.20162,
+      "uid"   : 20246,
+      "rmmbr" : 1,
+      "2fa"   : 1,
+      "type"  : "ssid",
+      "email" : "536@4797.dom"
     */
 
-    $result = Yii::$app->twoFAManager->validate($token->claims()->get('type'), [
-      'userID' => $token->claims()->get('uid'),
-      'code' => $this->code,
-    ]);
+    $userID = $challengeToken['uid'];
 
-throw new UnauthorizedHttpException('AAAAAAAAAAAA');
+    $result = Yii::$app->twoFAManager->validate($challengeToken['type'],
+      $userID,
+      [
+        'code' => $this->code,
+      ]
+    );
 
-/*
+    /*
     $result = ApprovalRequestModel::acceptCode($bodyParams['key'], $bodyParams['value']);
     $userModel = $result['userModel'];
+    */
 
-    if ($userModel) {
-      if ($bodyParams['rememberMe'] ?? false) {
-        list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($userModel, $bodyParams['rememberMe'] ?? false);
+    //login?
+    if (array_key_exists('rmmbr', $challengeToken)) {
+      $userModel = UserModel::findOne($userID);
 
-        return [
-          'token' => $token,
-          'mustApprove' => $mustApprove,
-        ];
-      }
+      list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin(
+        $userModel,
+        $challengeToken['rmmbr']
+      );
 
       return [
-        'result' => true,
+        'token' => $token,
+        'mustApprove' => $mustApprove,
       ];
     }
 
-    throw new UnauthorizedHttpException("could not login.");
-    // return [
-    // 	'result' => ,
-    // ];
-*/
+    return [
+      'result' => true,
+    ];
+
+    // throw new UnauthorizedHttpException("could not login.");
   }
 
 }

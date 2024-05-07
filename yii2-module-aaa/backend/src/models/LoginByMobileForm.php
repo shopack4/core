@@ -76,14 +76,17 @@ class LoginByMobileForm extends Model
 				$lastName  = $user->usrLastName;
 			// }
 
-			$result = Yii::$app->twoFAManager->generate(enuTwoFAType::SMSOTP, [
-				'emailOrMobile'	=> $normalizedMobile,
-				'userID'				=> $userID,
-				'gender'				=> $gender,
-				'firstName'			=> $firstName,
-				'lastName'			=> $lastName,
-				'forLogin'			=> true
-			]);
+			$result = Yii::$app->twoFAManager->generate(enuTwoFAType::SMSOTP,
+				$userID,
+				[
+					'emailOrMobile'	=> $normalizedMobile,
+					'userID'				=> $userID,
+					'gender'				=> $gender,
+					'firstName'			=> $firstName,
+					'lastName'			=> $lastName,
+					'forLogin'			=> true
+				]
+			);
 
 			// $result = ApprovalRequestModel::requestCode(
 			// 	$normalizedMobile,

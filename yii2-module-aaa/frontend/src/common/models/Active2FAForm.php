@@ -55,4 +55,20 @@ class Active2FAForm extends Model
     return true; //[$resultStatus, $resultData['result']];
   }
 
+  public function generate()
+  {
+    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/user/generate-2fa-activation-code',
+      HttpHelper::METHOD_POST,
+      [],
+      [
+        'type' => $this->type,
+      ]
+    );
+
+    if ($resultStatus < 200 || $resultStatus >= 300)
+      throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+
+    return [$resultStatus, $resultData];
+  }
+
 }

@@ -42,7 +42,7 @@ use shopack\base\frontend\common\helpers\Html;
 			echo " ";
 
 			//---------------------
-			$waitMessage = Yii::t('aaa', 'For resend code, please wait {0}');
+			$waitMessage = Yii::t('aaa', 'Resend Code {0}');
 			$resendMessage = Yii::t('aaa', 'Resend Code');
 			$ttl = $timerInfo['ttl'] ?? 0;
 			$js =<<<JS
@@ -54,8 +54,8 @@ function resendCode(event) {
 	$('#{$form->id}').submit();
 }
 
-let remainedSecs = {$ttl};
-let timerInterval = null;
+remainedSecs = {$ttl};
+timerInterval = null;
 function countdownResendButton(event) {
 	if (remainedSecs > 0) {
 		m = Math.floor(remainedSecs / 60);
