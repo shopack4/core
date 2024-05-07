@@ -3,7 +3,7 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-namespace shopack\aaa\backend\extensions\twoFA;
+namespace shopack\aaa\backend\classes\twoFA;
 
 use yii\web\UnprocessableEntityHttpException;
 use shopack\aaa\backend\classes\twoFA\BaseTwoFA;

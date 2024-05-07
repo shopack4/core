@@ -3,15 +3,16 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-namespace shopack\aaa\backend\extensions\twoFA;
+namespace shopack\aaa\backend\classes\twoFA;
 
+use Yii;
+use yii\web\UnauthorizedHttpException;
 use shopack\aaa\backend\classes\twoFA\BaseTwoFA;
 use shopack\aaa\backend\classes\twoFA\ITwoFA;
-use shopack\aaa\backend\models\ApprovalRequestModel;
 use shopack\aaa\backend\models\UserModel;
 use yii\web\UnprocessableEntityHttpException;
 
-class SMSOTPTwoFA
+class BirthCertIDTwoFA
 	extends BaseTwoFA
 	implements ITwoFA
 {
@@ -23,19 +24,10 @@ class SMSOTPTwoFA
 
 		$userModel = UserModel::findOne($userID);
 
-		if (empty($userModel->usrMobile))
-			throw new UnprocessableEntityHttpException("Mobile not defined for user");
+		if (empty($userModel->usrBirthCertID))
+			throw new UnprocessableEntityHttpException("Birth Cert ID not defined for user");
 
-		$result = ApprovalRequestModel::requestCode(
-			$userModel->usrMobile,
-			$userID
-			// $args['gender'],
-			// $args['firstName'],
-			// $args['lastName'],
-			// $args['forLogin']
-		);
-
-		return $result;
+		return true;
 	}
 
 	public function validate($userID, ?array $args = [])
@@ -44,16 +36,16 @@ class SMSOTPTwoFA
     //   throw new UnauthorizedHttpException("This process is not for guest.");
     // $userModel = UserModel::findOne(Yii::$app->user->id);
 
-		$userModel = UserModel::findOne($userID);
+    $userModel = UserModel::findOne($userID);
+
+		if (empty($userModel->usrBirthCertID))
+			throw new UnprocessableEntityHttpException("Birth Cert ID not defined for user");
 
 		$code = $args['code'];
+		if ($userModel->usrBirthCertID != $code)
+			throw new UnprocessableEntityHttpException("Mismatched Birth Cert ID");
 
-		$result = ApprovalRequestModel::acceptCode(
-			$userModel->usrMobile,
-			$code
-		);
-
-		return $result;
+		return true;
 	}
 
 }

@@ -3,7 +3,7 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-namespace shopack\aaa\backend\extensions\twoFA;
+namespace shopack\aaa\backend\classes\twoFA;
 
 use Yii;
 use yii\web\UnauthorizedHttpException;
@@ -12,7 +12,7 @@ use shopack\aaa\backend\classes\twoFA\ITwoFA;
 use shopack\aaa\backend\models\UserModel;
 use yii\web\UnprocessableEntityHttpException;
 
-class BirthCertIDTwoFA
+class BirthDateTwoFA
 	extends BaseTwoFA
 	implements ITwoFA
 {
@@ -24,8 +24,8 @@ class BirthCertIDTwoFA
 
 		$userModel = UserModel::findOne($userID);
 
-		if (empty($userModel->usrBirthCertID))
-			throw new UnprocessableEntityHttpException("Birth Cert ID not defined for user");
+		if (empty($userModel->usrBirthDate))
+			throw new UnprocessableEntityHttpException("Birth Date not defined for user");
 
 		return true;
 	}
@@ -36,14 +36,17 @@ class BirthCertIDTwoFA
     //   throw new UnauthorizedHttpException("This process is not for guest.");
     // $userModel = UserModel::findOne(Yii::$app->user->id);
 
-    $userModel = UserModel::findOne($userID);
+		$userModel = UserModel::findOne($userID);
 
-		if (empty($userModel->usrBirthCertID))
-			throw new UnprocessableEntityHttpException("Birth Cert ID not defined for user");
+		if (empty($userModel->usrBirthDate))
+			throw new UnprocessableEntityHttpException("Birth Date not defined for user");
 
 		$code = $args['code'];
-		if ($userModel->usrBirthCertID != $code)
-			throw new UnprocessableEntityHttpException("Mismatched Birth Cert ID");
+		$a = new \DateTime($code);
+		$b = new \DateTime($userModel->usrBirthDate);
+
+		if ($a != $b)
+			throw new UnprocessableEntityHttpException("Mismatched Birth Date");
 
 		return true;
 	}

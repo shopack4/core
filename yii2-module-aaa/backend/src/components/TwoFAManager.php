@@ -14,12 +14,12 @@ use yii\web\UnauthorizedHttpException;
 class TwoFAManager extends Component
 {
 	public static $drivers = [
-		enuTwoFAType::SSID				=> \shopack\aaa\backend\extensions\twoFA\SSIDTwoFA::class,
-		enuTwoFAType::BirthCertID	=> \shopack\aaa\backend\extensions\twoFA\BirthCertIDTwoFA::class,
-		enuTwoFAType::BirthDate		=> \shopack\aaa\backend\extensions\twoFA\BirthDateTwoFA::class,
-		enuTwoFAType::SMSOTP			=> \shopack\aaa\backend\extensions\twoFA\SMSOTPTwoFA::class,
-		// enuTwoFAType::GoogleAuth	=> \shopack\aaa\backend\extensions\twoFA\GoogleAuthTwoFA::class,
-		// enuTwoFAType::MSAuth			=> \shopack\aaa\backend\extensions\twoFA\MicrosoftAuthTwoFA::class,
+		enuTwoFAType::SSID				=> \shopack\aaa\backend\classes\twoFA\SSIDTwoFA::class,
+		enuTwoFAType::BirthCertID	=> \shopack\aaa\backend\classes\twoFA\BirthCertIDTwoFA::class,
+		enuTwoFAType::BirthDate		=> \shopack\aaa\backend\classes\twoFA\BirthDateTwoFA::class,
+		enuTwoFAType::SMSOTP			=> \shopack\aaa\backend\classes\twoFA\SMSOTPTwoFA::class,
+		// enuTwoFAType::GoogleAuth	=> \shopack\aaa\backend\classes\twoFA\GoogleAuthTwoFA::class,
+		// enuTwoFAType::MSAuth			=> \shopack\aaa\backend\classes\twoFA\MicrosoftAuthTwoFA::class,
 	];
 
 	public static function getDriver($type) : ITwoFA

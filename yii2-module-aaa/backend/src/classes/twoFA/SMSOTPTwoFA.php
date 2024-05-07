@@ -3,16 +3,15 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-namespace shopack\aaa\backend\extensions\twoFA;
+namespace shopack\aaa\backend\classes\twoFA;
 
-use Yii;
-use yii\web\UnauthorizedHttpException;
 use shopack\aaa\backend\classes\twoFA\BaseTwoFA;
 use shopack\aaa\backend\classes\twoFA\ITwoFA;
+use shopack\aaa\backend\models\ApprovalRequestModel;
 use shopack\aaa\backend\models\UserModel;
 use yii\web\UnprocessableEntityHttpException;
 
-class SSIDTwoFA
+class SMSOTPTwoFA
 	extends BaseTwoFA
 	implements ITwoFA
 {
@@ -24,10 +23,19 @@ class SSIDTwoFA
 
 		$userModel = UserModel::findOne($userID);
 
-		if (empty($userModel->usrSSID))
-			throw new UnprocessableEntityHttpException("SSID not defined for user");
+		if (empty($userModel->usrMobile))
+			throw new UnprocessableEntityHttpException("Mobile not defined for user");
 
-		return true;
+		$result = ApprovalRequestModel::requestCode(
+			$userModel->usrMobile,
+			$userID
+			// $args['gender'],
+			// $args['firstName'],
+			// $args['lastName'],
+			// $args['forLogin']
+		);
+
+		return $result;
 	}
 
 	public function validate($userID, ?array $args = [])
@@ -38,14 +46,14 @@ class SSIDTwoFA
 
 		$userModel = UserModel::findOne($userID);
 
-		if (empty($userModel->usrSSID))
-			throw new UnprocessableEntityHttpException("SSID not defined for user");
-
 		$code = $args['code'];
-		if ($userModel->usrSSID != $code)
-			throw new UnprocessableEntityHttpException("Mismatched SSID");
 
-		return true;
+		$result = ApprovalRequestModel::acceptCode(
+			$userModel->usrMobile,
+			$code
+		);
+
+		return $result;
 	}
 
 }

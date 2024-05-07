@@ -3,7 +3,7 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-namespace shopack\aaa\backend\extensions\twoFA;
+namespace shopack\aaa\backend\classes\twoFA;
 
 use Yii;
 use yii\web\UnauthorizedHttpException;
@@ -12,7 +12,7 @@ use shopack\aaa\backend\classes\twoFA\ITwoFA;
 use shopack\aaa\backend\models\UserModel;
 use yii\web\UnprocessableEntityHttpException;
 
-class BirthDateTwoFA
+class SSIDTwoFA
 	extends BaseTwoFA
 	implements ITwoFA
 {
@@ -24,8 +24,8 @@ class BirthDateTwoFA
 
 		$userModel = UserModel::findOne($userID);
 
-		if (empty($userModel->usrBirthDate))
-			throw new UnprocessableEntityHttpException("Birth Date not defined for user");
+		if (empty($userModel->usrSSID))
+			throw new UnprocessableEntityHttpException("SSID not defined for user");
 
 		return true;
 	}
@@ -38,15 +38,12 @@ class BirthDateTwoFA
 
 		$userModel = UserModel::findOne($userID);
 
-		if (empty($userModel->usrBirthDate))
-			throw new UnprocessableEntityHttpException("Birth Date not defined for user");
+		if (empty($userModel->usrSSID))
+			throw new UnprocessableEntityHttpException("SSID not defined for user");
 
 		$code = $args['code'];
-		$a = new \DateTime($code);
-		$b = new \DateTime($userModel->usrBirthDate);
-
-		if ($a != $b)
-			throw new UnprocessableEntityHttpException("Mismatched Birth Date");
+		if ($userModel->usrSSID != $code)
+			throw new UnprocessableEntityHttpException("Mismatched SSID");
 
 		return true;
 	}
