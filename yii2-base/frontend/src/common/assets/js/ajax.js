@@ -1,4 +1,12 @@
 function doShowModal(title, url, popupSize, popupTall, localdbs) {
+	// console.log({
+	// 	'title'     : title,
+	// 	'url'       : url,
+	// 	'popupSize' : popupSize,
+	// 	'popupTall' : popupTall,
+	// 	'localdbs'  : localdbs
+	// });
+
 	// var popupSize = $(this).data('popup-size');
 	if (popupSize === undefined)
 		popupSize = 'sm';
@@ -49,7 +57,7 @@ function doShowModal(title, url, popupSize, popupTall, localdbs) {
 		});
 	}
 
-// console.log('v2.5');
+// console.log('v3.1');
 	$.ajax({
 		url: url,
 		type: "POST", //error in csrf checking, remove '{{action}}' => ['post'] at models controller in behaviors.verb actions

@@ -63,7 +63,19 @@ class ActiveForm extends \kartik\form\ActiveForm
 
 		$defaultModalDoneInternalScript_OK =<<<JS
 // console.log(result);
-if (result.redirect != false) {
+if (result.next) {
+	// console.log(result.next);
+	if (result.next.type == 'modal') {
+		doShowModal(result.next.title,
+			result.next.url,
+			result.next.modalPopupSize || undefined,
+			result.next.modalPopupTall || undefined
+		);
+	} else if (result.next.type == 'content') {
+		\$form.parent().html(result.next.content);
+	}
+
+} else if (result.redirect != false) {
 	if (result.redirect !== null && result.redirect !== undefined && result.redirect === Object(result.redirect)) {
 
 		var urlobject = result.redirect;
@@ -120,20 +132,15 @@ if ((result.status == undefined) || (result.status == 'OK')) {
 	if (result.message)
 		\$form.parent().html("<div class='alert alert-success'>" + result.message + "</div>");
 
-	if (result.nextContent) {
-		console.log(result.nextContent);
-		\$form.parent().html(result.nextContent);
-	} else {
-		if (result.timer != false) {
-			timerid = setInterval(function() {
-				\$modalDiv.modal('hide');
-				clearInterval(timerid);
-				timerid = null;
-				{$modalDoneScript_OK}
-				{$modalDoneInternalScript_OK}
-			},
-			{$donewait});
-		}
+	if (result.timer != false) {
+		timerid = setInterval(function() {
+			\$modalDiv.modal('hide');
+			clearInterval(timerid);
+			timerid = null;
+			{$modalDoneScript_OK}
+			{$modalDoneInternalScript_OK}
+		},
+		{$donewait});
 	}
 } else { //if (result.status == 'Error') {
 	// console.log(result);

@@ -75,10 +75,8 @@ class Module
 			return;
 
 		return [
-			'url' => $this->offlinePaymentAfterAcceptLink['url'],
-			'params' => [
-				$this->offlinePaymentAfterAcceptLink['idField'] => $id,
-			],
+			/* 0 => */ $this->offlinePaymentAfterAcceptLink['url'],
+			$this->offlinePaymentAfterAcceptLink['idField'] => $id,
 		];
 	}
 	//------------

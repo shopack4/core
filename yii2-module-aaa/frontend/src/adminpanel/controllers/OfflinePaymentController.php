@@ -52,11 +52,15 @@ class OfflinePaymentController extends BaseCrudController
 					return $this->renderJson([
 						// 'message' => Yii::t('app', 'Success'),
 						// 'id' => $id,
-						'nextContent' => Yii::$app->runAction($nextUrl['url'], array_merge(['isPartial' => true],
-							$nextUrl['params'])),
-						'modalDoneFragment' => $this->modalDoneFragment,
+						// 'nextContent' => Yii::$app->runAction($nextUrl['url'], array_merge(['isPartial' => true],
+						'next' => [
+							'type' => 'modal',
+							'modalPopupSize' => 'sm2',
+							'url' => Url::to($nextUrl),
+							'title' => 'تمدید عضویت بر اساس پرداخت آفلاین',
+						],
+						// 'modalDoneFragment' => $this->modalDoneFragment,
 					]);
-
 				}
 
         return $this->renderJson([
