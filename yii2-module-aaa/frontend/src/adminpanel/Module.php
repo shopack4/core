@@ -68,6 +68,19 @@ class Module
 		return Url::to([$this->globalSearchUserForSelect2ListUrl]);
 	}
 
+	public $offlinePaymentAfterAcceptLink = null;
+	public function createOfflinePaymentAfterAcceptUrl($id)
+	{
+		if (empty($this->offlinePaymentAfterAcceptLink))
+			return;
+
+		return [
+			'url' => $this->offlinePaymentAfterAcceptLink['url'],
+			'params' => [
+				$this->offlinePaymentAfterAcceptLink['idField'] => $id,
+			],
+		];
+	}
 	//------------
 	public function init()
 	{

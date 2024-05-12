@@ -13,6 +13,7 @@ use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\auth\BaseCrudController;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 use shopack\aaa\frontend\common\models\OfflinePaymentSearchModel;
+use shopack\base\frontend\common\models\GeneralAcceptForm;
 
 class OfflinePaymentController extends BaseCrudController
 {
@@ -25,7 +26,60 @@ class OfflinePaymentController extends BaseCrudController
 		$model->ofpOwnerUserID = $_GET['ofpOwnerUserID'] ?? null;
   }
 
-	public function actionApprove($id)
+	public function actionAccept($id)
+	{
+		$model = new GeneralAcceptForm();
+		$model->message = Yii::t('aaa', 'Are you sure you want to APPROVE this item?');
+
+		$formPosted = $model->load(Yii::$app->request->post());
+		$done = false;
+		if ($formPosted) {
+			try {
+				$done = true; //OfflinePaymentModel::doAccept($id);
+			} catch (\Throwable $th) {
+				$model->addError(null, $th->getMessage());
+			}
+		}
+
+    if (Yii::$app->request->isAjax) {
+      if ($done) {
+				$nextUrl = Yii::$app->getModule('aaa')->createOfflinePaymentAfterAcceptUrl($id);
+				if (empty($nextUrl) == false) {
+					$result = Yii::$app->runAction($nextUrl['url'], $nextUrl['params']);
+					return $this->renderContent($result);
+				}
+
+        return $this->renderJson([
+          'message' => Yii::t('app', 'Success'),
+          // 'id' => $id,
+          // 'redirect' => $this->doneLink ? call_user_func($this->doneLink, $model) : null,
+          'modalDoneFragment' => $this->modalDoneFragment,
+        ]);
+      }
+
+      if ($formPosted) {
+        return $this->renderJson([
+          'status' => 'Error',
+          'message' => Yii::t('app', 'Error'),
+          // 'id' => $id,
+          'error' => Html::errorSummary($model),
+        ]);
+      }
+
+      return $this->renderAjaxModal('_accept_form', [
+        'model' => $model,
+      ]);
+    }
+
+    if ($done)
+      return $this->redirect(['view', 'id' => $model->primaryKeyValue()]);
+
+    return $this->render('accept', [
+      'model' => $model
+    ]);
+	}
+
+	public function old_actionApprove($id)
 	{
     if (empty($_POST['confirmed']))
       throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
@@ -33,7 +87,20 @@ class OfflinePaymentController extends BaseCrudController
 		if (Yii::$app->request->isAjax == false)
 			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');
 
-		$done = OfflinePaymentModel::doAccept($id);
+		// $done = OfflinePaymentModel::doAccept($id);
+
+		$nextUrl = Yii::$app->getModule('aaa')->createOfflinePaymentAfterAcceptUrl($id);
+		if (empty($nextUrl) == false) {
+			$result = Yii::$app->runAction($nextUrl['url'], $nextUrl['params']);
+			return $this->renderContent($result);
+
+			// '/mha/member-master-ins-doc/index', ArrayHelper::merge($_GET, [
+			// 	'isPartial' => true,
+			// 	'params' => [
+			// 		'mbrminsdocMemberID' => $model->mbrUserID,
+			// 	],
+			// ]));
+		}
 
 		return $this->renderJson([
 			'status' => 'Ok',

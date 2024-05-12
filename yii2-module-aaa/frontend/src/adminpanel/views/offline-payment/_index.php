@@ -114,13 +114,21 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 
       'buttons' => [
         'accept' => function ($url, $model, $key) {
-          return Html::confirmButton(Yii::t('aaa', 'Approve'), [
-            'approve',
+          return Html::a(Yii::t('aaa', 'Approve'), [
+            'accept',
             'id' => $model->ofpID,
-          ], Yii::t('aaa', 'Are you sure you want to APPROVE this item?'), [
+          ], [
             'class' => 'btn btn-sm btn-success',
-            'ajax' => 'post',
+            'modal' => true,
+            'title' => Yii::t('aaa', 'Approve'),
           ]);
+          // return Html::confirmButton(Yii::t('aaa', 'Approve'), [
+          //   'approve',
+          //   'id' => $model->ofpID,
+          // ], Yii::t('aaa', 'Are you sure you want to APPROVE this item?'), [
+          //   'class' => 'btn btn-sm btn-success',
+          //   'ajax' => 'post',
+          // ]);
         },
         'reject' => function ($url, $model, $key) {
           return Html::confirmButton(Yii::t('aaa', 'Reject'), [
