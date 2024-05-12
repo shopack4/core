@@ -35,16 +35,17 @@ class ActiveForm extends \kartik\form\ActiveForm
 	{
 		if (isset($this->formConfig['labelSpan']))
 			return $this->formConfig['labelSpan'];
+
 		if (isset($this->fieldConfig['labelSpan']))
 			return $this->fieldConfig['labelSpan'];
+
 		return self::DEFAULT_LABEL_SPAN;
 	}
 
 	public static function begin($config = [])
 	{
 		$action = ArrayHelper::remove($config, 'action', null);
-		if (!empty($action))
-		{
+		if (!empty($action)) {
 			// if (!Yii::$app->user->canUrl($action))
 			// 	$action = null;
 
@@ -59,7 +60,8 @@ class ActiveForm extends \kartik\form\ActiveForm
 		$errorspan = ArrayHelper::remove($config, 'errorspan', 'errorspan');
 		$waitPanel = ArrayHelper::remove($config, 'waitPanel', 'waitpanel');
 		$noAjax = ArrayHelper::remove($config, 'noAjax', false);
-		$modalDoneInternalScript_OK = ArrayHelper::remove($config, 'modalDoneInternalScript_OK', "
+
+		$defaultModalDoneInternalScript_OK =<<<JS
 // console.log(result);
 if (result.redirect != false) {
 	if (result.redirect !== null && result.redirect !== undefined && result.redirect === Object(result.redirect)) {
@@ -107,31 +109,40 @@ if (result.redirect != false) {
 			window.location.reload();
 		}
 	}
-};
-");
+}
+JS;
+		$modalDoneInternalScript_OK = ArrayHelper::remove($config, 'modalDoneInternalScript_OK', $defaultModalDoneInternalScript_OK);
+
 		$modalDoneScript_OK = ArrayHelper::remove($config, 'modalDoneScript_OK', "");
+
+		$modalDoneScript =<<<JS
+if ((result.status == undefined) || (result.status == 'OK')) {
+	if (result.message)
+		\$form.parent().html("<div class='alert alert-success'>" + result.message + "</div>");
+
+	if (result.nextContent) {
+		console.log(result.nextContent);
+		\$form.parent().html(result.nextContent);
+	} else {
+		if (result.timer != false) {
+			timerid = setInterval(function() {
+				\$modalDiv.modal('hide');
+				clearInterval(timerid);
+				timerid = null;
+				{$modalDoneScript_OK}
+				{$modalDoneInternalScript_OK}
+			},
+			{$donewait});
+		}
+	}
+} else { //if (result.status == 'Error') {
+	// console.log(result);
+	$('#{$errorspan}').html(result.error);
+}
+JS;
+
 		$scripts = ArrayHelper::remove($config, 'scripts', [
-			'modalDone' => "
-				if ((result.status == undefined) || (result.status == 'OK')) {
-
-					if (result.message)
-						\$form.parent().html(\"<div class='alert alert-success'>\" + result.message + \"</div>\");
-
-					if (result.timer != false) {
-						timerid = setInterval(function() {
-							\$modalDiv.modal('hide');
-							clearInterval(timerid);
-							timerid = null;
-							{$modalDoneScript_OK}
-							{$modalDoneInternalScript_OK}
-						},
-						{$donewait});
-					};
-				} else { //if (result.status == 'Error') {
-					// console.log(result);
-					$('#{$errorspan}').html(result.error);
-				}
-			"
+			'modalDone' => $modalDoneScript
 		]);
 
 		$type = ArrayHelper::remove($config, 'type', static::TYPE_HORIZONTAL);

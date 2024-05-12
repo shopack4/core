@@ -13,6 +13,7 @@ use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\auth\BaseCrudController;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 use shopack\aaa\frontend\common\models\OfflinePaymentSearchModel;
+use shopack\base\common\helpers\Url;
 use shopack\base\frontend\common\models\GeneralAcceptForm;
 
 class OfflinePaymentController extends BaseCrudController
@@ -45,8 +46,17 @@ class OfflinePaymentController extends BaseCrudController
       if ($done) {
 				$nextUrl = Yii::$app->getModule('aaa')->createOfflinePaymentAfterAcceptUrl($id);
 				if (empty($nextUrl) == false) {
-					$result = Yii::$app->runAction($nextUrl['url'], $nextUrl['params']);
-					return $this->renderContent($result);
+					// $result = Yii::$app->runAction($nextUrl['url'], $nextUrl['params']);
+					// return $this->renderContent($result);
+
+					return $this->renderJson([
+						// 'message' => Yii::t('app', 'Success'),
+						// 'id' => $id,
+						'nextContent' => Yii::$app->runAction($nextUrl['url'], array_merge(['isPartial' => true],
+							$nextUrl['params'])),
+						'modalDoneFragment' => $this->modalDoneFragment,
+					]);
+
 				}
 
         return $this->renderJson([
