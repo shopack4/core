@@ -342,13 +342,14 @@ HTML;
       $this->verifyOnlinePayment($onlinePaymentModel, $pgwResponse);
 
     } catch (\Throwable $th) {
-      if ($onlinePaymentModel->voucher->vchType != enuVoucherType::Basket) {
-        $fnGetConst = function($value) { return $value; };
+      // if ($onlinePaymentModel->voucher->vchType != enuVoucherType::Basket) {
+      if ($onlinePaymentModel->voucher->vchType == enuVoucherType::Credit) {
+        $fnGetConstQouted = function($value) { return "'{$value}'"; };
         $voucherTableName = VoucherModel::tableName();
 
         $qry =<<<SQL
   UPDATE {$voucherTableName}
-     SET vchStatus = '{$fnGetConst(enuVoucherStatus::Error)}'
+     SET vchStatus = {$fnGetConstQouted(enuVoucherStatus::Error)}
    WHERE vchID = {$onlinePaymentModel->onpVoucherID}
 SQL;
         $rowsCount = Yii::$app->db->createCommand($qry)->execute();
@@ -411,9 +412,12 @@ SQL;
       $rowsCount = Yii::$app->db->createCommand($qry)->execute();
       $onlinePaymentModel->voucher->refresh();
 
-      if ($onlinePaymentModel->voucher->vchType == enuVoucherType::Basket
-        && $onlinePaymentModel->voucher->vchTotalAmount == $onlinePaymentModel->voucher->vchTotalPaid ?? 0
+      if (in_array($onlinePaymentModel->voucher->vchType, [
+          enuVoucherType::Basket, enuVoucherType::Invoice,
+        ])
+      && ($onlinePaymentModel->voucher->vchTotalAmount == $onlinePaymentModel->voucher->vchTotalPaid ?? 0)
       ) {
+        $onlinePaymentModel->voucher->vchType = enuVoucherType::Invoice;
         $onlinePaymentModel->voucher->vchStatus = enuVoucherStatus::Settled;
         $onlinePaymentModel->voucher->save();
       }
@@ -459,6 +463,7 @@ SQL;
       // if USAGE_LAST_TRANSACTION_DATE = CURDATE()
 
       $fnGetConst = function($value) { return $value; };
+
       $gatewayTableName = GatewayModel::tableName();
 
       $qry =<<<SQL

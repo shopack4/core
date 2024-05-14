@@ -56,7 +56,7 @@ class ActiveForm extends \kartik\form\ActiveForm
 		}
 
 		$model = ArrayHelper::remove($config, 'model', null);
-		$donewait = ArrayHelper::remove($config, 'donewait', '500');
+		$donewait = ArrayHelper::remove($config, 'donewait', '250');
 		$errorspan = ArrayHelper::remove($config, 'errorspan', 'errorspan');
 		$waitPanel = ArrayHelper::remove($config, 'waitPanel', 'waitpanel');
 		$noAjax = ArrayHelper::remove($config, 'noAjax', false);

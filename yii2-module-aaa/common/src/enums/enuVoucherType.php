@@ -9,9 +9,17 @@ use shopack\base\common\base\BaseEnum;
 
 abstract class enuVoucherType extends BaseEnum
 {
-  const Basket				= 'B';
+	// -----------------------------------------------------
+	// |A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|
+	// | |x|x| | |x| | |x| | | |x| | | | | | |x| | |x| | |x|
+	// -----------------------------------------------------
+
+	const Basket				= 'B'; //proforma. convert to Invoice after checkout
+
+	const Invoice				= 'I';
+
   const Withdrawal		= 'W';
-  const Income				= 'I';
+  const Income				= 'M';
   const Credit				= 'C';
   const TransferTo		= 'T';
   const TransferFrom	= 'F';
@@ -23,6 +31,7 @@ abstract class enuVoucherType extends BaseEnum
 
 	public static $list = [
 		self::Basket				=> 'Basket',
+		self::Invoice				=> 'Invoice',
 		self::Withdrawal		=> 'Withdrawal',
 		self::Income				=> 'Income',
 		self::Credit				=> 'Credit',
