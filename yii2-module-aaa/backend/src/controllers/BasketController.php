@@ -79,13 +79,16 @@ class BasketController extends BaseRestController
 
 		if ($model == null) {
 			$model = new VoucherModel();
+
 			$model->vchOwnerUserID = Yii::$app->user->id;
 			$model->vchType        = enuVoucherType::Basket;
 			$model->vchAmount      = 0;
 			$model->vchTotalAmount = 0;
+
 			if ($model->save() == false) {
 				throw new UnprocessableEntityHttpException('could not create new basket');
 			}
+
 			return $model;
 		}
 

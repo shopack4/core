@@ -86,7 +86,13 @@ use shopack\aaa\frontend\common\models\VoucherModel;
         return '<table class="table table-bordered table-striped">' . implode('', $result) . '</table>';
       },
     ],
-    'vchID',
+    [
+      'attribute' => 'vchID',
+      'format' => 'raw',
+      'value' => function ($model, $key, $index, $widget) {
+        return Html::a($model->vchID, ['view', 'id' => $model->vchID]);
+      },
+    ],
   ];
 
   if (empty($vchOwnerUserID)) {
@@ -139,15 +145,59 @@ use shopack\aaa\frontend\common\models\VoucherModel;
       ],
     ],
     [
-      'class' => \shopack\base\frontend\common\widgets\grid\LookupDataColumn::class,
-      'lookupData' => enuVoucherStatus::getForBasketList(),
+      'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
+      'enumClass' => enuVoucherStatus::class,
       'attribute' => 'vchStatus',
     ],
-    // [
-    //   'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
-    //   'header' => Yii::t('app', 'Actions'),
-    //   'template' => false,
-    // ],
+    //todo: complete buttons behaviors
+    [
+      'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
+      'header' => VoucherModel::canCreate() ? Html::createButton(null, [
+        'create',
+        'vchOwnerUserID' => $vchOwnerUserID ?? $_GET['vchOwnerUserID'] ?? null,
+      ]) : Yii::t('app', 'Actions'),
+      // 'template' => '{pay} {cancel} {reprocess}',
+      'template' => '{cancel} {reprocess}',
+      'buttons' => [
+        // 'pay' => function ($url, $model, $key) {
+        //   return Html::a(Yii::t('aaa', 'Payment'), [
+        //     'pay',
+        //     'id' => $model->vchID,
+        //   ], [
+        //     'class' => 'btn btn-sm btn-success',
+        //     'modal' => true,
+        //   ]);
+        // },
+        'cancel' => function ($url, $model, $key) {
+          return Html::confirmButton(Yii::t('aaa', 'Cancel Order'), [
+            'cancel',
+            'id' => $model->vchID,
+          ], Yii::t('aaa', 'Are you sure you want to cancel this order?'), [
+            'class' => 'btn btn-sm btn-danger',
+          ]);
+        },
+        'reprocess' => function ($url, $model, $key) {
+          return Html::a(Yii::t('aaa', 'Reprocess'), [
+            'reprocess',
+            'id' => $model->vchID,
+          ], [
+            'class' => 'btn btn-sm btn-primary',
+            'modal' => true,
+          ]);
+        },
+      ],
+      'visibleButtons' => [
+        // 'pay' => function ($model, $key, $index) {
+        //   return $model->canPay();
+        // },
+        'cancel' => function ($model, $key, $index) {
+          return $model->canCancel();
+        },
+        'reprocess' => function ($model, $key, $index) {
+          return $model->canReprocess();
+        },
+      ],
+    ],
     [
       'attribute' => 'rowDate',
       'noWrap' => true,

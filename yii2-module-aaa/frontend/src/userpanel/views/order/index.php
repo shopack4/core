@@ -6,8 +6,6 @@
 /** @var yii\web\View $this */
 
 use shopack\base\frontend\common\helpers\Html;
-use shopack\base\common\helpers\StringHelper;
-use shopack\aaa\frontend\common\models\WalletModel;
 
 $this->title = Yii::t('aaa', 'Orders');
 $this->params['breadcrumbs'][] = $this->title;

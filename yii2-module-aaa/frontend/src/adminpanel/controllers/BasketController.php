@@ -19,7 +19,7 @@ class BasketController extends BaseController
 		$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
     $dataProvider->query
       ->andWhere(['vchType' => enuVoucherType::Basket])
-      ->andWhere(['vchStatus' => enuVoucherStatus::New])
+      // ->andWhere(['vchStatus' => enuVoucherStatus::New])
     ;
 
     $viewParams = [

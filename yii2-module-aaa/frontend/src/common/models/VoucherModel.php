@@ -64,4 +64,37 @@ class VoucherModel extends RestClientActiveRecord
 		return ($this->vchStatus == enuVoucherStatus::Removed);
 	}
 
+	public function canPay() {
+		return in_array($this->vchStatus, [
+			// enuVoucherStatus::New,
+			enuVoucherStatus::WaitForPayment,
+			// enuVoucherStatus::Settled,
+			// enuVoucherStatus::Finished,
+			// enuVoucherStatus::Error,
+			// enuVoucherStatus::Removed,
+		]);
+	}
+
+	public function canCancel() {
+		return in_array($this->vchStatus, [
+			enuVoucherStatus::New,
+			enuVoucherStatus::WaitForPayment,
+			// enuVoucherStatus::Settled,
+			// enuVoucherStatus::Finished,
+			// enuVoucherStatus::Error,
+			// enuVoucherStatus::Removed,
+		]);
+	}
+
+	public function canReprocess() {
+	  return in_array($this->vchStatus, [
+	    // enuVoucherStatus::New,
+	    // enuVoucherStatus::WaitForPayment,
+	    enuVoucherStatus::Settled,
+	    // enuVoucherStatus::Finished,
+	    enuVoucherStatus::Error,
+	    // enuVoucherStatus::Removed,
+	  ]);
+	}
+
 }

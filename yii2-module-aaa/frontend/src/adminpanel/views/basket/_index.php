@@ -5,6 +5,7 @@
 
 /** @var yii\web\View $this */
 
+use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\base\common\helpers\StringHelper;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\grid\GridView;
@@ -143,6 +144,13 @@ use shopack\base\frontend\common\widgets\grid\GridView;
         'class' => ['text-nowrap', 'tabular-nums'],
       ],
     ],
+    // [
+    //   'class' => \shopack\base\frontend\common\widgets\grid\LookupDataColumn::class,
+    //   'lookupData' => enuVoucherStatus::getForBasketList(),
+    //   // 'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
+    //   // 'enumClass' => enuVoucherStatus::class,
+    //   'attribute' => 'vchStatus',
+    // ],
     [
       'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
       'header' => Yii::t('app', 'Actions'),

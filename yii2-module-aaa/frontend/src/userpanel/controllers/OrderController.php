@@ -18,6 +18,7 @@ use shopack\aaa\frontend\common\models\WalletModel;
 use shopack\aaa\frontend\common\models\WalletSearchModel;
 use shopack\aaa\frontend\common\models\WalletIncreaseForm;
 use shopack\aaa\frontend\common\models\OnlinePaymentModel;
+use shopack\aaa\frontend\common\models\VoucherModel;
 use shopack\aaa\frontend\common\models\VoucherSearchModel;
 
 class OrderController extends BaseController
@@ -35,13 +36,28 @@ class OrderController extends BaseController
   //   $this->setViewPath($viewPath);
   // }
 
+	protected function findModel($id)
+	{
+		$modelClass = new VoucherModel();
+
+    $model = $modelClass::find()
+      // ->where(['vchID' => $id])
+      ->andWhere(['vchType' => enuVoucherType::Invoice])
+      ->one($id);
+
+		if ($model === null)
+      throw new NotFoundHttpException('The requested item not exist.');
+
+    return $model;
+	}
+
   public function actionIndex()
   {
     $searchModel = new VoucherSearchModel();
 		$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
     $dataProvider->query
-      ->andWhere(['vchType' => enuVoucherType::Basket])
-      ->andWhere(['!=', 'vchStatus', enuVoucherStatus::New])
+      ->andWhere(['vchType' => enuVoucherType::Invoice])
+      // ->andWhere(['!=', 'vchStatus', enuVoucherStatus::New])
     ;
 
     $viewParams = [
@@ -55,6 +71,15 @@ class OrderController extends BaseController
 			return $this->renderJson($this->renderAjax('_index', $viewParams));
 
     return $this->render('index', $viewParams);
+  }
+
+  public function actionView($id)
+  {
+		$model = $this->findModel($id);
+
+    return $this->render('view', [
+      'model' => $model,
+		]);
   }
 
 }

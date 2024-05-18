@@ -50,18 +50,33 @@ class VoucherModel extends AAAActiveRecord
 
 	public function processVoucher()
 	{
-		if ($this->vchType == enuVoucherType::Basket)
-      throw new UnprocessableEntityHttpException('The Basket cannot be processed');
+		switch ($this->vchType)
+		{
+			case enuVoucherType::Basket				: return $this->processVoucher_Basket();
+			case enuVoucherType::Invoice			: return $this->processVoucher_Invoice();
+			case enuVoucherType::Withdrawal		: return $this->processVoucher_Withdrawal();
+			case enuVoucherType::Income				: return $this->processVoucher_Income();
+			case enuVoucherType::Credit				: return $this->processVoucher_Credit();
+			case enuVoucherType::TransferTo		: return $this->processVoucher_TransferTo();
+			case enuVoucherType::TransferFrom	: return $this->processVoucher_TransferFrom();
+			case enuVoucherType::Prize				: return $this->processVoucher_Prize();
+		}
+	}
 
-		if ($this->vchType != enuVoucherType::Invoice)
-			return true;
+	protected function processVoucher_Basket()
+	{
+		throw new UnprocessableEntityHttpException('The Basket cannot be processed');
+	}
 
+	protected function processVoucher_Invoice()
+	{
 		if ($this->vchStatus == enuVoucherStatus::Finished)
 			return true;
 
 		if (in_array($this->vchStatus, [enuVoucherStatus::Settled, enuVoucherStatus::Error]) == false)
       throw new UnprocessableEntityHttpException('The voucher status is not settled or error');
 
+		//double check: is settled?
 		if ($this->vchTotalAmount != ($this->vchTotalPaid ?? 0))
       throw new UnprocessableEntityHttpException('This voucher not paid totaly');
 
@@ -171,6 +186,14 @@ class VoucherModel extends AAAActiveRecord
 		*/
 	}
 
+	protected function processVoucher_Withdrawal() { return true; }
+	protected function processVoucher_Income() { return true; }
+	protected function processVoucher_Credit() { return true; }
+	protected function processVoucher_TransferTo() { return true; }
+	protected function processVoucher_TransferFrom() { return true; }
+	protected function processVoucher_Prize() { return true; }
+
+/*
 	public function processVoucherItem($voucherItem)
 	{
 		$service = $voucherItem['service'];
@@ -209,5 +232,6 @@ class VoucherModel extends AAAActiveRecord
 		if ($resultStatus < 200 || $resultStatus >= 300)
 			throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
 	}
+*/
 
 }

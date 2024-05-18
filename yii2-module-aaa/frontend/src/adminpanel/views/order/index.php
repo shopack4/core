@@ -6,8 +6,7 @@
 /** @var yii\web\View $this */
 
 use shopack\base\frontend\common\helpers\Html;
-use shopack\base\common\helpers\StringHelper;
-use shopack\aaa\frontend\common\models\WalletModel;
+use shopack\aaa\frontend\common\models\VoucherModel;
 
 $this->title = Yii::t('aaa', 'Orders');
 $this->params['breadcrumbs'][] = $this->title;
@@ -17,9 +16,10 @@ $this->params['breadcrumbs'][] = $this->title;
   <div class='card'>
 		<div class='card-header'>
 			<div class="float-end">
-        <?php /*echo WalletModel::canCreate() ? Html::createButton(null, [
-          'justForMe' => $justForMe ?? $_GET['justForMe'] ?? null
-        ]) : '';*/ ?>
+			<?= VoucherModel::canCreate() ? Html::createButton(null, [
+					'create',
+					'vchOwnerUserID' => $vchOwnerUserID ?? $_GET['vchOwnerUserID'] ?? null,
+				]) : '' ?>
 			</div>
       <div class='card-title'><?= Html::encode($this->title) ?></div>
 			<div class="clearfix"></div>

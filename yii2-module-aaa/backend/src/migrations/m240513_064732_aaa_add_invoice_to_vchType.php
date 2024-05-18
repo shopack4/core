@@ -13,7 +13,8 @@ class m240513_064732_aaa_add_invoice_to_vchType extends Migration
 	{
     $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Voucher`
-	CHANGE COLUMN `vchType` `vchType` CHAR(1) NOT NULL COMMENT 'B:Basket, I:Invoice, W:Withdrawal, M:Income, C:Credit, T:TransferTo, F:TransferFrom, Z:Prize' COLLATE 'utf8mb4_unicode_ci' AFTER `vchOwnerUserID`;
+	CHANGE COLUMN `vchType` `vchType` CHAR(1) NOT NULL COMMENT 'B:Basket, I:Invoice, W:Withdrawal, M:Income, C:Credit, T:TransferTo, F:TransferFrom, Z:Prize' COLLATE 'utf8mb4_unicode_ci' AFTER `vchOwnerUserID`,
+	CHANGE COLUMN `vchStatus` `vchStatus` CHAR(1) NOT NULL DEFAULT 'N' COMMENT 'N:New, C:Canceled, W:WaitForPayment, S:Settled, F:Finshed, E:Error, R:Removed' COLLATE 'utf8mb4_unicode_ci' AFTER `vchItems`;
 SQL
     );
 

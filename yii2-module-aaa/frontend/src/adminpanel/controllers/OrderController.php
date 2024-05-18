@@ -40,8 +40,8 @@ class OrderController extends BaseController
     $searchModel = new VoucherSearchModel();
 		$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
     $dataProvider->query
-      ->andWhere(['vchType' => enuVoucherType::Basket])
-      ->andWhere(['!=', 'vchStatus', enuVoucherStatus::New])
+      ->andWhere(['vchType' => enuVoucherType::Invoice]) //enuVoucherType::Basket])
+      // ->andWhere(['!=', 'vchStatus', enuVoucherStatus::New])
     ;
 
     $viewParams = [

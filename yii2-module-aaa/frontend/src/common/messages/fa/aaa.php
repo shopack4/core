@@ -122,6 +122,7 @@ return [
 
 	'sms' => 'پیامک',
 	'payment' => 'پرداخت',
+	'Payment' => 'پرداخت',
 	'objectstorage' => 'ذخیره ساز فایل',
 
 	'Line Number' => 'شماره خط',
@@ -208,6 +209,8 @@ return [
 	'Delivery Amount' => 'هزینه ارسال',
 	'Total Amount' => 'مبلغ کل',
 	'Remained Amount' => 'موجودی',
+	'Total Paid' => 'پرداخت شده',
+	'Order Items' => 'اقلام سفارش',
 
 	'Increase Balance' => 'افزایش موجودی',
 	'Wallet Increase' => 'افزایش موجودی کیف پول',
@@ -227,19 +230,6 @@ return [
 	'Unit Info' => 'مشخصات واحد شمارش',
 	'Create Unit' => 'ایجاد واحد شمارش',
 	'Update Unit' => 'ویرایش واحد شمارش',
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	'Verification Code' => 'کد تصویری',
@@ -423,7 +413,7 @@ return [
 	'Update Staff' => 'ویرایش پرسنل',
 	'Allow Send Notify' => 'ارسال  پیامک اطلاع رسانی',
 
-	'Order' => 'ترتیب',
+	// 'Order' => 'ترتیب',
 	'Display Order' => 'ترتیب نمایش',
 	'Action Order' => 'ترتیب عملیات',
 	'Subject' => 'موضوع',
@@ -547,6 +537,14 @@ return [
 	'Shopping card is empty' => 'سبد خرید خالی است',
 	'Payment Method' => 'روش پرداخت',
 
+	'Invoice' => 'صورتحساب',
+	'Withdrawal' => 'خروجی',
+	'Income' => 'ورودی',
+	'Credit' => 'اعتبار',
+	'Transfer To' => 'انتقال به',
+	'Transfer From' => 'انتقال از',
+	'Prize' => 'جایزه',
+
 	'Delivery Methods' => 'روش‌های ارسال',
 	'Delivery Method' => 'روش ارسال',
 	'Delivery Method Info' => 'مشخصات روش ارسال',
@@ -604,6 +602,7 @@ return [
 
 	'New' => 'جدید',
 	'Pending' => 'در انتظار',
+	'Wait For Payment' => 'در انتظار پرداخت',
 	'Paid' => 'پرداخت شده',
 	'Error' => 'خطا',
 	'Removed' => 'حذف شده',
@@ -616,6 +615,11 @@ return [
 
 	'Order' => 'سفارش',
 	'Orders' => 'سفارشات',
+
+	'Reprocess' => 'پردازش مجدد',
+
+	'Cancel Order' => 'لغو سفارش',
+	'Are you sure you want to cancel this order?' => 'آیا از لغو کردن این سفارش اطمینان دارید؟',
 
 	'Message Templates' => 'قالب‌های پیام',
 	'Message Template' => 'قالب پیام',

@@ -217,8 +217,9 @@ class BasketController extends BaseController
 		if (empty($voucher))
 			throw new NotFoundHttpException('Voucher not found');
 
-    if ($voucher->vchType != enuVoucherType::Basket)
-      throw new UnprocessableEntityHttpException('Incorrect Voucher type (not basket)');
+		//todo: vchType changed to Invoice
+    // if ($voucher->vchType != enuVoucherType::Basket)
+    //   throw new UnprocessableEntityHttpException('Incorrect Voucher type (not basket)');
 
     return $this->render('checkout-done', [
       'voucher' => $voucher,

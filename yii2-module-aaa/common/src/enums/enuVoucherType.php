@@ -15,9 +15,7 @@ abstract class enuVoucherType extends BaseEnum
 	// -----------------------------------------------------
 
 	const Basket				= 'B'; //proforma. convert to Invoice after checkout
-
 	const Invoice				= 'I';
-
   const Withdrawal		= 'W';
   const Income				= 'M';
   const Credit				= 'C';

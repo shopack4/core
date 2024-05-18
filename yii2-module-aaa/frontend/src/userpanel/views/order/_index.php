@@ -9,7 +9,6 @@ use shopack\base\common\helpers\StringHelper;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\grid\GridView;
 use shopack\aaa\common\enums\enuVoucherStatus;
-use shopack\aaa\frontend\common\models\VoucherModel;
 ?>
 
 <?php
@@ -87,7 +86,13 @@ use shopack\aaa\frontend\common\models\VoucherModel;
           return '<table class="table table-bordered table-striped">' . implode('', $result) . '</table>';
         },
       ],
-      'vchID',
+      [
+        'attribute' => 'vchID',
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $widget) {
+          return Html::a($model->vchID, ['view', 'id' => $model->vchID]);
+        },
+      ],
       [
         'attribute' => 'vchAmount',
         'format' => 'toman',
@@ -124,29 +129,84 @@ use shopack\aaa\frontend\common\models\VoucherModel;
         ],
       ],
       [
-        'class' => \shopack\base\frontend\common\widgets\grid\LookupDataColumn::class,
-        'lookupData' => enuVoucherStatus::getForBasketList(),
+        'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
+        'enumClass' => enuVoucherStatus::class,
         'attribute' => 'vchStatus',
-      ],
-      [
-        'attribute' => 'vchCreatedAt',
-        'format' => 'jalaliWithTime',
-        'contentOptions' => [
-          'class' => ['text-nowrap', 'small'],
-        ],
-      ],
-      [
-        'attribute' => 'vchUpdatedAt',
-        'format' => 'jalaliWithTime',
-        'contentOptions' => [
-          'class' => ['text-nowrap', 'small'],
-        ],
       ],
       [
         'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
         'header' => Yii::t('app', 'Actions'),
-        'template' => false,
+        'template' => '{pay} {cancel}', // {reprocess}',
+        'buttons' => [
+          'pay' => function ($url, $model, $key) {
+            return Html::a(Yii::t('aaa', 'Payment'), [
+              'pay',
+              'id' => $model->vchID,
+            ], [
+              'class' => 'btn btn-sm btn-success',
+              'modal' => true,
+            ]);
+          },
+          'cancel' => function ($url, $model, $key) {
+            return Html::confirmButton(Yii::t('aaa', 'Cancel Order'), [
+              'cancel',
+              'id' => $model->vchID,
+            ], Yii::t('aaa', 'Are you sure you want to cancel this order?'), [
+              'class' => 'btn btn-sm btn-danger',
+            ]);
+          },
+          // 'reprocess' => function ($url, $model, $key) {
+          //   return Html::a(Yii::t('aaa', 'Reprocess'), [
+          //     'reprocess',
+          //     'id' => $model->vchID,
+          //   ], [
+          //     'class' => 'btn btn-sm btn-primary',
+          //     'modal' => true,
+          //   ]);
+          // },
+        ],
+        'visibleButtons' => [
+          'pay' => function ($model, $key, $index) {
+            return $model->canPay();
+          },
+          'cancel' => function ($model, $key, $index) {
+            return $model->canCancel();
+          },
+          // 'reprocess' => function ($model, $key, $index) {
+            // return $model->canReprocess();
+          // },
+        ],
       ],
+      [
+        'attribute' => 'rowDate',
+        'noWrap' => true,
+        'format' => 'raw',
+        'label' => 'ایجاد / ویرایش',
+        'value' => function($model) {
+          return Html::formatRowDates(
+            $model->vchCreatedAt,
+            null, //$model->createdByUser,
+            $model->vchUpdatedAt,
+            null, //$model->updatedByUser,
+            $model->vchRemovedAt,
+            null, //$model->removedByUser,
+          );
+        },
+      ],
+      // [
+      //   'attribute' => 'vchCreatedAt',
+      //   'format' => 'jalaliWithTime',
+      //   'contentOptions' => [
+      //     'class' => ['text-nowrap', 'small'],
+      //   ],
+      // ],
+      // [
+      //   'attribute' => 'vchUpdatedAt',
+      //   'format' => 'jalaliWithTime',
+      //   'contentOptions' => [
+      //     'class' => ['text-nowrap', 'small'],
+      //   ],
+      // ],
     ],
   ]);
 

@@ -12,32 +12,38 @@ abstract class enuVoucherStatus extends BaseEnum
 {
 	// -----------------------------------------------------
 	// |A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|
-	// | | | | |x|x| | | | | | | |x| | | |x|x| | | | | | | |
+	// | | | | |x|x| | | | | | | |x| | | |x|x| | | |x| | | |
 	// -----------------------------------------------------
 
-  const New				= 'N';
-  const Error			= 'E';
-  const Settled		= 'S';
-  const Finished	= 'F';
-  const Removed		= 'R';
+  const New							= 'N';
+	//Canceled / CanceledBySystem
+	const WaitForPayment	= 'W';
+  const Settled					= 'S';
+  const Finished				= 'F';
+  const Error						= 'E';
+  const Removed					= 'R';
+
+	//Accepted : for proforma
 
 	public static $messageCategory = 'aaa';
 
 	public static $list = [
-		self::New				=> 'New',
-		self::Error			=> 'Error',
-		self::Settled		=> 'Settled',
-		self::Finished	=> 'Finished',
-		self::Removed		=> 'Removed',
+		self::New							=> 'New',
+		self::WaitForPayment	=> 'Wait For Payment',
+		self::Settled					=> 'Settled',
+		self::Finished				=> 'Finished',
+		self::Error						=> 'Error',
+		self::Removed					=> 'Removed',
 	];
 
-	public static function getForBasketList()
-	{
-		return [
-			self::Error			=> Yii::t('aaa', 'Error'),
-			self::Settled		=> Yii::t('aaa', 'Settled'),
-			self::Finished	=> Yii::t('aaa', 'Finished'),
-		];
-	}
+	// public static function getForBasketList()
+	// {
+	// 	return [
+	// 		self::New				=> Yii::t('aaa', 'New'),
+	// 		// self::Settled		=> Yii::t('aaa', 'Settled'),
+	// 		self::Error			=> Yii::t('aaa', 'Error'),
+	// 		// self::Finished	=> Yii::t('aaa', 'Finished'),
+	// 	];
+	// }
 
 };

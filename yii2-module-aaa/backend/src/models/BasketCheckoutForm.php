@@ -16,6 +16,7 @@ use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuWalletStatus;
 use shopack\aaa\backend\models\WalletTransactionModel;
 use shopack\aaa\backend\models\DeliveryMethodModel;
+use shopack\aaa\common\enums\enuVoucherType;
 
 class BasketCheckoutForm extends Model
 {
@@ -124,6 +125,8 @@ class BasketCheckoutForm extends Model
 		$walletTableName = WalletModel::tableName();
 		$voucherTableName = VoucherModel::tableName();
 
+		$fnGetConstQouted = function($value) { return "'{$value}'"; };
+
 		try {
 			if ($walletAmount > 0) {
 				//2.1: create wallet transaction
@@ -146,58 +149,27 @@ SQL;
 	UPDATE	{$voucherTableName}
 		 SET	vchPaidByWallet = IFNULL(vchPaidByWallet, 0) + {$walletAmount}
 		 	 ,	vchTotalPaid = IFNULL(vchTotalPaid, 0) + {$walletAmount}
+			 ,	vchType = {$fnGetConstQouted(enuVoucherType::Invoice)}
+			 ,	vchStatus = IF(vchTotalAmount = IFNULL(vchTotalPaid, 0) + {$walletAmount},
+			 			{$fnGetConstQouted(enuVoucherStatus::Settled)},
+						{$fnGetConstQouted(enuVoucherStatus::WaitForPayment)}
+			 		)
 	 WHERE	vchID = {$voucherModel->vchID}
 SQL;
 				$rowsCount = Yii::$app->db->createCommand($qry)->execute();
+				// , vchStatus = {$fnGetConstQouted(enuVoucherStatus::Settled)}
 
 				$voucherModel->refresh();
 			}
 
-			// if ($remainedAmount > 0) {
-			// 	//create online payment
-			// 	$onpResult = Yii::$app->paymentManager->createOnlinePayment(
-			// 		$voucherModel,
-			// 		$this->gatewayType,
-			// 		$this->callbackUrl,
-			// 		null, //$this->walletID
-			// 	);
-
-			// 	//
-			// 	if ($onpResult instanceof \Throwable) {
-			// 		throw $onpResult;
-			// 	}
-
-			// 	//commit
-			// 	if (isset($transaction))
-			// 		$transaction->commit();
-
-			// 	list ($onpUUID, $paymentUrl) = $onpResult;
-			// 	return [
-			// 		'onpkey' => $onpUUID,
-			// 		'paymentUrl' => $paymentUrl,
-			// 	];
-			// }
-
 			//------------------------
 			if ($remainedAmount == 0) {
-				//------------------------
-				$voucherModel->vchStatus = enuVoucherStatus::Settled;
+				// $voucherModel->vchStatus = enuVoucherStatus::Settled;
+				// $voucherModel->save();
 
-				// if (isset($deliveryMethodModel)) {
-				// 	$voucherModel->vchDeliveryMethodID = $deliveryMethodModel->dlvID;
-				// 	if ($deliveryMethodModel->dlvAmount > 0) {
-				// 		$voucherModel->vchAmount = $voucherModel->vchAmount + $deliveryMethodModel->dlvAmount;
-				// 		$voucherModel->vchDeliveryAmount = $deliveryMethodModel->dlvAmount;
-				// 	}
-				// }
-
-				$voucherModel->save();
-
-				//commit
 				if (isset($transaction))
 					$transaction->commit();
 
-				//
 				return $voucherModel->processVoucher();
 			}
 			// else : create online payment out of transaction
@@ -225,10 +197,8 @@ SQL;
 				null, //$this->walletID
 			);
 
-			//
-			if ($onpResult instanceof \Throwable) {
+			if ($onpResult instanceof \Throwable)
 				throw $onpResult;
-			}
 
 			list ($onpUUID, $paymentUrl) = $onpResult;
 			return [
