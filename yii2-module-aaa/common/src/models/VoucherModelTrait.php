@@ -223,4 +223,15 @@ trait VoucherModelTrait
 		return $this->hasOne($className, ['usrID' => 'vchOwnerUserID']);
 	}
 
+	public function getDeliveryMethod() {
+		$className = get_called_class();
+
+		if (str_contains($className, '\\backend\\'))
+			$className = '\shopack\aaa\backend\models\DeliveryMethodModel';
+		else
+			$className = '\shopack\aaa\frontend\common\models\DeliveryMethodModel';
+
+		return $this->hasOne($className, ['dlvID' => 'vchDeliveryMethodID']);
+	}
+
 }

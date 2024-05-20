@@ -616,6 +616,10 @@ return [
 	'Order' => 'سفارش',
 	'Orders' => 'سفارشات',
 
+	'Order Number' => 'شماره سفارش',
+	'Order Date' => 'تاریخ سفارش',
+	'Order Status' => 'وضعیت سفارش',
+
 	'Reprocess' => 'پردازش مجدد',
 
 	'Cancel Order' => 'لغو سفارش',

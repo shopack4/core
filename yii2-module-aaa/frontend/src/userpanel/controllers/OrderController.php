@@ -40,15 +40,15 @@ class OrderController extends BaseController
 	{
 		$modelClass = new VoucherModel();
 
-    $model = $modelClass::find()
-      // ->where(['vchID' => $id])
+    $models = $modelClass::find()
+      ->where(['vchID' => $id])
       ->andWhere(['vchType' => enuVoucherType::Invoice])
-      ->one($id);
+      ->all(); //one($id);
 
-		if ($model === null)
+		if (empty($models))
       throw new NotFoundHttpException('The requested item not exist.');
 
-    return $model;
+    return $models[0];
 	}
 
   public function actionIndex()
