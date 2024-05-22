@@ -41,7 +41,7 @@ class OnlinePaymentController extends BaseRestController
 		if (($model = OnlinePaymentModel::findOne($id)) !== null)
 			return $model;
 
-		throw new NotFoundHttpException('The requested item not exist.');
+		throw new NotFoundHttpException('The requested item does not exist.');
 	}
 
 	public function actionIndex()

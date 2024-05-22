@@ -551,6 +551,8 @@ return [
 	'Create Delivery Method' => 'ایجاد روش ارسال',
 	'Update Delivery Method' => 'ویرایش روش ارسال',
 
+	'Change Delivery Method' => 'تغیر روش ارسال',
+
 	'Product' => 'کالا',
 	'Products' => 'کالاها',
 

@@ -20,6 +20,7 @@ use shopack\aaa\frontend\common\models\WalletIncreaseForm;
 use shopack\aaa\frontend\common\models\OnlinePaymentModel;
 use shopack\aaa\frontend\common\models\VoucherModel;
 use shopack\aaa\frontend\common\models\VoucherSearchModel;
+use shopack\aaa\frontend\userpanel\models\ChangeOrderDeliveryMethodForm;
 
 class OrderController extends BaseController
 {
@@ -46,7 +47,7 @@ class OrderController extends BaseController
       ->all(); //one($id);
 
 		if (empty($models))
-      throw new NotFoundHttpException('The requested item not exist.');
+      throw new NotFoundHttpException('The requested item does not exist.');
 
     return $models[0];
 	}
@@ -80,6 +81,53 @@ class OrderController extends BaseController
     return $this->render('view', [
       'model' => $model,
 		]);
+  }
+
+  public function actionChangeDeliveryMethod($id)
+  {
+    $model = new ChangeOrderDeliveryMethodForm();
+    $model->vchID = $id;
+
+		$formPosted = $model->load(Yii::$app->request->post());
+		$done = false;
+
+		if ($formPosted) {
+			$done = $model->process();
+    } else {
+      $voucherModel = $this->findModel($id);
+      $model->deliveryMethod = $voucherModel->vchDeliveryMethodID;
+    }
+
+    if (Yii::$app->request->isAjax) {
+      if ($done) {
+        return $this->renderJson([
+          'message' => Yii::t('app', 'Success'),
+          // 'id' => $id,
+          // 'redirect' => $this->doneLink ? call_user_func($this->doneLink, $model) : null,
+          // 'modalDoneFragment' => $this->modalDoneFragment,
+        ]);
+      }
+
+      if ($formPosted) {
+        return $this->renderJson([
+          'status' => 'Error',
+          'message' => Yii::t('app', 'Error'),
+          // 'id' => $id,
+          'error' => Html::errorSummary($model),
+        ]);
+      }
+
+      return $this->renderAjaxModal('_deliveryMethod_form', [
+        'model' => $model,
+      ]);
+    }
+
+    if ($done)
+      return $this->redirect(['view', 'id' => $id]);
+
+    return $this->render('deliveryMethod', [
+      'model' => $model
+    ]);
   }
 
 }

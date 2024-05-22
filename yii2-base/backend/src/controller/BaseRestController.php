@@ -64,7 +64,7 @@ class BaseRestController extends BaseController
   public function modelToResponse($model)
   {
 		if ($model == null)
-			throw new NotFoundHttpException('The requested item not exist.');
+			throw new NotFoundHttpException('The requested item does not exist.');
 
 		return $model;
   }

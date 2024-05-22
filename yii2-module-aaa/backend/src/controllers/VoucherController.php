@@ -5,6 +5,7 @@
 
 namespace shopack\aaa\backend\controllers;
 
+use shopack\aaa\backend\models\ChangeOrderDeliveryMethodForm;
 use Yii;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
@@ -33,7 +34,7 @@ class VoucherController extends BaseRestController
 		if (($model = VoucherModel::findOne($id)) !== null)
 			return $model;
 
-		throw new NotFoundHttpException('The requested item not exist.');
+		throw new NotFoundHttpException('The requested item does not exist.');
 	}
 
 	public function actionOptions()
@@ -93,6 +94,28 @@ class VoucherController extends BaseRestController
 		return [
 			'result' => $res ? 'ok' : 'error',
 		];
+	}
+
+	public function actionChangeOrderDeliveryMethod()
+	{
+		$model = new ChangeOrderDeliveryMethodForm();
+
+		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
+			throw new NotFoundHttpException("parameters not provided");
+
+		try {
+			$result = $model->process();
+
+			//convert errors to 422
+			if ($result !== true)
+				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
+
+			return $result;
+
+		} catch(\Exception $exp) {
+			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
+			throw new UnprocessableEntityHttpException($msg);
+		}
 	}
 
 }

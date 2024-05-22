@@ -35,7 +35,7 @@ class OfflinePaymentController extends BaseRestController
 		if (($model = OfflinePaymentModel::findOne($id)) !== null)
 			return $model;
 
-		throw new NotFoundHttpException('The requested item not exist.');
+		throw new NotFoundHttpException('The requested item does not exist.');
 	}
 
 	public function actionIndex()
@@ -91,7 +91,7 @@ class OfflinePaymentController extends BaseRestController
 			return $model;
 		}
 
-		throw new NotFoundHttpException('The requested item not exist.');
+		throw new NotFoundHttpException('The requested item does not exist.');
 
 		// return $this->modelToResponse($model);
 	}

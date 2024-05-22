@@ -3,7 +3,7 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
- namespace shopack\aaa\backend\models;
+namespace shopack\aaa\backend\models;
 
 use Yii;
 use yii\base\Model;

@@ -29,7 +29,7 @@ class UpdateImageForm extends Model
 
     $user = UserModel::findOne($this->userID);
     if ($user === null)
-  		throw new NotFoundHttpException('The requested item not exist.');
+  		throw new NotFoundHttpException('The requested item does not exist.');
 
     $uploadResult = Yii::$app->fileManager->saveUploadedFiles($this->userID, 'user');
 

@@ -43,7 +43,7 @@ abstract class BaseCrudController extends BaseController
 	{
 		$modelClass = $this->modelClass;
 		if (($model = $modelClass::findOne($id)) === null)
-      throw new NotFoundHttpException('The requested item not exist.');
+      throw new NotFoundHttpException('The requested item does not exist.');
 
     return $model;
 	}

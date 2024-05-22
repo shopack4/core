@@ -532,7 +532,7 @@ console.log('server error');
 	}
 
 	private $_builder;
-	public function getBuilder($options=[])
+	public function getBuilder($options=[]) : FormBuilder
 	{
 		if ($this->_builder == null)
 		{

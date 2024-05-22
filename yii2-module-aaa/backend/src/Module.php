@@ -218,6 +218,7 @@ class Module
 
 					'extraPatterns' => [
 						'process-voucher/{id}' => 'process-voucher',
+						'POST change-order-delivery-method' => 'change-order-delivery-method',
 					],
 				],
 				[

@@ -44,7 +44,7 @@ class WalletController extends BaseRestController
 		if (($model = WalletModel::findOne($id)) !== null)
 			return $model;
 
-		throw new NotFoundHttpException('The requested item not exist.');
+		throw new NotFoundHttpException('The requested item does not exist.');
 	}
 
 	public function actionIndex()

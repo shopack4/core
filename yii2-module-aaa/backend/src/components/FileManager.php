@@ -216,7 +216,7 @@ class FileManager extends Component
 
 		$user = UserModel::findOne($userID);
 		if ($user === null)
-			throw new NotFoundHttpException('The requested item not exist.');
+			throw new NotFoundHttpException('The requested item does not exist.');
 
 		$functionResult = [];
 
@@ -282,7 +282,7 @@ class FileManager extends Component
 
 		$user = UserModel::findOne($userID);
 		if ($user === null)
-			throw new NotFoundHttpException('The requested item not exist.');
+			throw new NotFoundHttpException('The requested item does not exist.');
 
 		$targetFullPath = [
 			'user',

@@ -15,8 +15,8 @@ use shopack\aaa\common\enums\enuOnlinePaymentStatus;
 use shopack\aaa\frontend\common\models\OnlinePaymentSearchModel;
 use shopack\aaa\frontend\common\models\WalletTransactionSearchModel;
 
-$this->params['breadcrumbs'][] = ['label' => Yii::t('aaa', 'Orders'), 'url' => ['/aaa/fin', 'fragment' => 'orders']];
 $this->title = Yii::t('aaa', 'Order') . ': ' . $model->vchID;
+$this->params['breadcrumbs'][] = ['label' => Yii::t('aaa', 'Orders'), 'url' => ['/aaa/fin', 'fragment' => 'orders']];
 $this->params['breadcrumbs'][] = $this->title;
 
 $physicalCount = 0;
@@ -26,7 +26,8 @@ foreach ($model->vchItems ?? [] as $item) {
   }
 }
 $hasPhysical = ($physicalCount > 0);
-
+$hasDiscount = (empty($model->vchItemsDiscounts) == false);
+$hasVAT = (empty($model->vchItemsVATs) == false);
 ?>
 
 <div class="order-view w-100">
@@ -113,256 +114,179 @@ $hasPhysical = ($physicalCount > 0);
       ?></div>
 			<div class="clearfix"></div>
 		</div>
+  </div>
 
-    <div class='card-body'>
-      <div class='row'>
-        <div class='col-8'>
-          <?php
-            $dataProvider = new ArrayDataProvider([
-              'allModels' => $model->vchItems,
-              'key' => 'key',
-              'pagination' => false,
-            ]);
+  <div style='margin-top: 25px;'>
+      <?php
+        $vchItems = $model->vchItems;
 
-            echo GridView::widget([
-              // 'id' => 'aaaaaaaaaaaaaa',
-              'dataProvider' => $dataProvider,
-              'columns' => [
-                [
-                  'class' => 'kartik\grid\SerialColumn',
-                ],
-                // 'key',
-                // 'service',
-                // 'slbkey',
-                // 'slbid',
-                [
-                  'attribute' => 'desc',
-                  'label' => Yii::t('app', 'Description'),
-                ],
-                [
-                  'attribute' => 'qty',
-                  'label' => Yii::t('aaa', 'Qty'),
-                  'format' => 'raw',
-                  'value' => function ($model, $key, $index, $widget) {
-                    if (empty($model['qtyStep'])) {
-                      return Yii::$app->formatter->asDecimal($model['qty']);
-                    }
+        // if (empty($model->vchDeliveryAmount) == false) {
+        //   $vchItems[] = [
+        //     'key' => 'dlv',
+        //     'desc'       => 'هزینه ارسال',
+        //     'qty'        => 1,
+        //     'unit'       => null,
+        //     'unitPrice'  => $model->vchDeliveryAmount,
+        //     'discount'   => 0,
+        //     'vat'        => 0,
+        //     'totalPrice' => $model->vchDeliveryAmount,
+        //   ];
+        // }
 
-                    $items = [];
+        $dataProvider = new ArrayDataProvider([
+          'allModels' => $vchItems,
+          'key' => 'key',
+          'pagination' => false,
+        ]);
 
-                    $items[] = "<div class='input-group input-group-sm'>";
+        $panelAfterItems = [];
 
-                    $items[] = "<div class='input-group-prepend'>";
-                    $items[] = "<button id='plus-button' type='button' class='btn btn-sm btn-outline-success' title='بیشتر' onclick='plusQty()'><i class='indicator fas fa-plus'></i></button>";
-                    $items[] = "</div>";
+        if ($hasPhysical && empty($model->vchDeliveryAmount) == false) {
+          $panelAfterItems += [
+            'هزینه ارسال' => Yii::$app->formatter->asToman($model->vchDeliveryAmount)
+          ];
+        }
 
-                    $items[] = "<input type='text' class='form-control text-center' style='max-width:50px' data-key='{$model['key']}' value='{$model['qty']}'></input>";
+        if ($hasDiscount || $hasVAT || $hasPhysical) {
+          $panelAfterItems += [
+            'جمع کل' => Yii::$app->formatter->asToman($model->vchTotalAmount)
+          ];
+        }
 
-                    $items[] = "<div class='input-group-append'>";
-                    $items[] = "<button id='minus-button' type='button' class='btn btn-sm btn-outline-success' title='کمتر' onclick='minusQty()'><i class='indicator fas fa-minus'></i></button>";
-                    $items[] = "</div>";
+        if (empty($model->vchTotalPaid) == false) {
+          $panelAfterItems += [
+            'پرداخت شده' => Yii::$app->formatter->asToman($model->vchTotalPaid)
+          ];
+        }
 
-                    $items[] = "</div>";
+        $panelAfterItems += [
+          'مانده قابل پرداخت' => [
+            Yii::$app->formatter->asToman($model->vchTotalAmount - ($model->vchTotalPaid ?? 0)),
+            'class' => 'bg-light ms-1 me-1',
+          ],
+        ];
 
-                    return implode('', $items);
-                  },
-                ],
-                [
-                  'attribute' => 'unit',
-                  'label' => 'واحد', //Yii::t('aaa', 'Unit'),
-                ],
-                [
-                  'attribute' => 'unitPrice',
-                  'label' => Yii::t('aaa', 'Unit Price'),
-                  'format' => 'toman',
-                ],
-                [
-                  'attribute' => 'discount',
-                  'label' => Yii::t('aaa', 'Discount Amount'),
-                  'format' => 'toman',
-                ],
-                [
-                  'attribute' => 'vat',
-                  'label' => Yii::t('aaa', 'VAT Amount'),
-                  'format' => 'toman',
-                ],
-                [
-                  'attribute' => 'totalPrice',
-                  'label' => Yii::t('aaa', 'Total Amount'),
-                  'format' => 'toman',
-                ],
-                // [
-                //   'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
-                //   'template' => '{delete}',
-                //   'buttons' => [
-                //     'delete' => function ($url, $model, $key) {
-                //       return Html::deleteButton("<i class='indicator fas fa-trash'></i>", [
-                //         // '/' . $model['service'] . '/basket/remove-item',
-                //         'remove-item',
-                //         'key' => $model['service'] . '/' . $model['key'],
-                //       ], [
-                //         'class' => 'btn btn-sm btn-outline-danger',
-                //         'title' => Yii::t('app', 'Delete'),
-                //       ]);
-                //     },
-                //   ],
-                // ],
-              ],
-            ]);
-          ?>
-        </div>
+        $panelAfter = [];
+        foreach ($panelAfterItems as $k => $v) {
+          $class = '';
+          if (isset($v['class']))
+            $class = $v['class'];
 
-        <div class='col-4'>
-          <!-- <div> -->
-            <?php
-              /*
-              echo DetailView::widget([
-                'model' => $model,
-                'enableEditMode' => false,
-                // 'cols' => 2,
-                // 'isVertical' => false,
-                'striped' => false,
-                'labelColOptions' => ['class' => ['w-50', 'text-nowrap']],
-                'valueColOptions' => ['class' => ['w-50', 'text-nowrap']],
+          if (is_array($v))
+            $v = $v[0];
 
-                'attributes' => [
-                  [
-                    'attribute' => 'vchID',
-                    'label' => 'شماره سفارش',
-                  ],
-                  [
-                    'attribute' => 'vchCreatedAt',
-                    'format' => 'jalaliWithTime',
-                    'label' => 'تاریخ سفارش',
-                  ],
-                  [
-                    'attribute' => 'vchStatus',
-                    'value' => enuVoucherStatus::getLabel($model->vchStatus),
-                  ],
-                  // vchType,
-                  // vchAmount,
-                  // vchItemsDiscounts,
-                  // vchItemsVATs,
-                  // vchDeliveryMethodID,
-                  // vchDeliveryAmount,
-                  // vchTotalAmount,
-                  // vchPaidByWallet,
-                  // vchOnlinePaid,
-                  // vchOfflinePaid,
-                  // vchTotalPaid,
-                  // vchItems,
-                  // vchStatus,
-                ],
-              ]);
-              */
-            ?>
-          <!-- </div> -->
+          $panelAfter[] =<<<HTML
+<div class='row ms-1 me-1 {$class}'>
+  <div class='col-8 text-end'>{$k}:</div>
+  <div class='col-4 text-nowrap'>{$v}</div>
+</div>
+HTML;
+        }
+        $panelAfter = implode('', $panelAfter);
 
-          <!-- <p>&nbsp;</p> -->
+        echo GridView::widget([
+          // 'id' => 'aaaaaaaaaaaaaa',
+          'dataProvider' => $dataProvider,
 
-          <?php
-            $hasDiscount = (empty($model->vchItemsDiscounts) == false);
-            $hasVAT = (empty($model->vchItemsVATs) == false);
+          'showPageSummary' => true,
+          // 'showFooter' => true,
+          // 'placeFooterAfterBody' => true,
+          'panel' => [
+            'before' => false,
+            'after' => $panelAfter,
+            // 'heading' => false,
+            'footer' => false,
+          ],
 
-            $attributes = [];
+          'columns' => [
+            [
+              'class' => 'kartik\grid\SerialColumn',
+              'pageSummary' => 'جمع:',
+              'pageSummaryOptions' => ['colspan' => 4],
+            ],
+            // 'key',
+            // 'service',
+            // 'slbkey',
+            // 'slbid',
+            [
+              'attribute' => 'desc',
+              'label' => Yii::t('app', 'Description'),
+            ],
+            [
+              'attribute' => 'qty',
+              'label' => Yii::t('aaa', 'Qty'),
+              'format' => 'raw',
+              'value' => function ($model, $key, $index, $widget) {
+                if (empty($model['qtyStep'])) {
+                  return Yii::$app->formatter->asDecimal($model['qty']);
+                }
 
-            if ($hasDiscount || $hasVAT) {
-              $attributes = array_merge($attributes, [
-                [
-                  'attribute' => 'vchAmount',
-                  'format' => 'toman',
-                  // 'value' => $model->vchAmount,
-                ]
-              ]);
-            }
+                $items = [];
 
-            if ($hasDiscount) {
-              $attributes = array_merge($attributes, [
-                [
-                  'attribute' => 'vchItemsDiscounts',
-                  'format' => 'toman',
-                  // 'value' => $model->vchItemsDiscounts,
-                ]
-              ]);
-            }
+                $items[] = "<div class='input-group input-group-sm'>";
 
-            if ($hasVAT) {
-              $attributes = array_merge($attributes, [
-                [
-                  'attribute' => 'vchItemsVATs',
-                  'format' => 'toman',
-                  // 'value' => $model->vchItemsVATs,
-                ]
-              ]);
-            }
+                $items[] = "<div class='input-group-prepend'>";
+                $items[] = "<button id='plus-button' type='button' class='btn btn-sm btn-outline-success' title='بیشتر' onclick='plusQty()'><i class='indicator fas fa-plus'></i></button>";
+                $items[] = "</div>";
 
-            if ($hasPhysical) {
-              $attributes = array_merge($attributes, [
-                [
-                  'attribute' => 'vchDeliveryAmount',
-                  'format' => 'toman',
-                  // 'value' => $model['deliveryAmount'],
-                ],
-              ]);
-            }
+                $items[] = "<input type='text' class='form-control text-center' style='max-width:50px' data-key='{$model['key']}' value='{$model['qty']}'></input>";
 
-            if ($hasDiscount || $hasVAT || $hasPhysical) {
-              $attributes = array_merge($attributes, [
-                [
-                  'attribute' => 'vchTotalAmount',
-                  'format' => 'toman',
-                  // 'value' => $model->vchTotalAmount,
-                ]
-              ]);
-            }
+                $items[] = "<div class='input-group-append'>";
+                $items[] = "<button id='minus-button' type='button' class='btn btn-sm btn-outline-success' title='کمتر' onclick='minusQty()'><i class='indicator fas fa-minus'></i></button>";
+                $items[] = "</div>";
 
-            // if (empty($model->vchPaidByWallet) == false) {
-            //   $attributes = array_merge($attributes, [
-            //     [
-            //       'attribute' => 'vchPaidByWallet',
-            //       'format' => 'toman',
-            //       // 'value' => $model->vchTotalPaid,
-            //     ],
-            //   ]);
-            // }
+                $items[] = "</div>";
 
-            if (empty($model->vchTotalPaid) == false) {
-              $attributes = array_merge($attributes, [
-                [
-                  'attribute' => 'vchTotalPaid',
-                  'format' => 'toman',
-                  // 'value' => $model->vchTotalPaid,
-                ],
-              ]);
-            }
-
-            $attributes = array_merge($attributes, [
-              [
-                'attribute' => 'remained',
-                'label' => 'مانده قابل پرداخت',
-                'format' => 'toman',
-                'value' => $model->vchTotalAmount - ($model->vchTotalPaid ?? 0),
-                'rowOptions' => [
-                  'class' => 'table-active',
-                ],
-              ],
-            ]);
-
-            echo DetailView::widget([
-              'model' => $model,
-              'enableEditMode' => false,
-              // 'cols' => 2,
-              // 'isVertical' => false,
-              'striped' => false,
-              'labelColOptions' => ['class' => ['w-50', 'text-nowrap']],
-              'valueColOptions' => ['class' => ['w-50', 'text-nowrap']],
-              'attributes' => $attributes,
-            ]);
-          ?>
-        </div>
-
-      </div>
-    </div>
+                return implode('', $items);
+              },
+            ],
+            [
+              'attribute' => 'unit',
+              'label' => 'واحد', //Yii::t('aaa', 'Unit'),
+            ],
+            [
+              'attribute' => 'unitPrice',
+              'label' => Yii::t('aaa', 'Unit Price'),
+              'format' => 'toman',
+              'pageSummary' => true,
+            ],
+            [
+              'attribute' => 'discount',
+              'label' => Yii::t('aaa', 'Discount Amount'),
+              'format' => 'toman',
+              'pageSummary' => true,
+            ],
+            [
+              'attribute' => 'vat',
+              'label' => Yii::t('aaa', 'VAT Amount'),
+              'format' => 'toman',
+              'pageSummary' => true,
+            ],
+            [
+              'attribute' => 'totalPrice',
+              'label' => Yii::t('aaa', 'Total Amount'),
+              'format' => 'toman',
+              'pageSummary' => true,
+            ],
+            // [
+            //   'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
+            //   'template' => '{delete}',
+            //   'buttons' => [
+            //     'delete' => function ($url, $model, $key) {
+            //       return Html::deleteButton("<i class='indicator fas fa-trash'></i>", [
+            //         // '/' . $model['service'] . '/basket/remove-item',
+            //         'remove-item',
+            //         'key' => $model['service'] . '/' . $model['key'],
+            //       ], [
+            //         'class' => 'btn btn-sm btn-outline-danger',
+            //         'title' => Yii::t('app', 'Delete'),
+            //       ]);
+            //     },
+            //   ],
+            // ],
+          ],
+        ]);
+      ?>
   </div>
 
   <?php
@@ -370,29 +294,27 @@ $hasPhysical = ($physicalCount > 0);
   ?>
     <div class='card'>
       <div class='card-header'>
+        <div class="float-end">
+          <?php
+            if ($model->canPay()) {
+              echo Html::a(Yii::t('aaa', 'Change Delivery Method'), [
+                'change-delivery-method',
+                'id' => $model->vchID,
+              ], [
+                'class' => 'btn btn-sm btn-success',
+                'modal' => true,
+              ]);
+            }
+          ?>
+        </div>
         <div class='card-title'><?= Yii::t('aaa', 'Delivery Method') ?></div>
+        <div class="clearfix"></div>
       </div>
       <div class='card-body'>
-        <div class='row'>
-          <div class='col'>
-            <?php
-              echo $model->deliveryMethod->dlvName;
-            ?>
-          </div>
-          <div class='col'>
-            <?php
-              if ($model->canPay()) {
-                echo Html::a(Yii::t('aaa', 'Change Delivery Method'), [
-                  'pay',
-                  'id' => $model->vchID,
-                ], [
-                  'class' => 'btn btn-sm btn-success',
-                  'modal' => true,
-                ]);
-              }
-            ?>
-          </div>
-        </div>
+        <?php
+          echo $model->deliveryMethod->dlvName . ' : '
+            . (empty($model->vchDeliveryAmount) ? 'بدون هزینه' : Yii::$app->formatter->asToman($model->vchDeliveryAmount));
+        ?>
       </div>
     </div>
   <?php

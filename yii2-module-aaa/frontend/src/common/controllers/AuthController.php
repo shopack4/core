@@ -120,7 +120,7 @@ class AuthController extends BaseController
   protected function findUserModel()
 	{
 		if (($model = UserModel::findOne(Yii::$app->user->id)) === null)
-      throw new NotFoundHttpException('The requested item not exist.');
+      throw new NotFoundHttpException('The requested item does not exist.');
 
     return $model;
 	}

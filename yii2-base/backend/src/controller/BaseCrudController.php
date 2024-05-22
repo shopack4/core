@@ -31,7 +31,7 @@ abstract class BaseCrudController extends BaseRestController
 	{
 		$modelClass = $this->modelClass;
 		if (($model = $modelClass::findOne($id)) === null)
-			throw new NotFoundHttpException('The requested item not exist.');
+			throw new NotFoundHttpException('The requested item does not exist.');
 
 		return $model;
 	}
@@ -133,7 +133,7 @@ abstract class BaseCrudController extends BaseRestController
 		if ($model !== null)
 			return $model;
 
-		throw new NotFoundHttpException('The requested item not exist.');
+		throw new NotFoundHttpException('The requested item does not exist.');
 
 		// return RESTfulHelper::modelToResponse($this->findModel($id));
 	}

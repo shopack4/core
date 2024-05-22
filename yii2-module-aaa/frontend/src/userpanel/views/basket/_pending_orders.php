@@ -10,7 +10,6 @@ use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\frontend\common\models\VoucherSearchModel;
 use shopack\base\frontend\common\helpers\Html;
-
 ?>
 
 <?php
@@ -28,7 +27,7 @@ use shopack\base\frontend\common\helpers\Html;
       <div class='card'>
         <div class='card-header'>
           <div class="float-end"></div>
-          <div class='card-title'>شما <?= $totalCount ?> سفارش منتظر پرداخت دارید</div>
+          <div class='card-title'>شما <?= $totalCount ?> صورتحساب منتظر پرداخت دارید</div>
           <div class="clearfix"></div>
         </div>
 
