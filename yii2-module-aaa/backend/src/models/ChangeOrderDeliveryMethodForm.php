@@ -53,29 +53,30 @@ class ChangeOrderDeliveryMethodForm extends Model
 			throw new NotFoundHttpException('Selected delivery method not found.');
 
 		/*
-			 case | deliveryAmount | deltaAmount | totalAmount | totalPaid | remained | action
-			------|----------------|-------------|-------------|-----------|----------|----------------
-			1.old |             10 |             |         100 |        80 |          |
-			1.new |             20 |         +10 |         110 |        80 |          |
-			------|----------------|-------------|-------------|-----------|----------|----------------
-			2.old |             10 |             |         100 |        80 |          |
-			2.new |             10 |           0 |         100 |        80 |          |
-			------|----------------|-------------|-------------|-----------|----------|----------------
-			3.old |             10 |             |         100 |        80 |          |
-			3.new |              0 |         -10 |          90 |        80 |       10 |
-			------|----------------|-------------|-------------|-----------|----------|----------------
-			4.old |             10 |             |         100 |        90 |          |
-			4.new |              0 |         -10 |          90 |        90 |        0 | finalize
-			------|----------------|-------------|-------------|-----------|----------|----------------
-			5.old |             40 |             |         100 |         0 |          |
-			5.new |              0 |         -40 |          60 |         0 |      100 |
-			------|----------------|-------------|-------------|-----------|----------|----------------
-			6.old |             40 |             |         100 |        10 |          |
-			6.new |              0 |         -40 |          60 |        10 |       50 |
-			------|----------------|-------------|-------------|-----------|----------|----------------
-			7.old |             40 |             |         100 |        90 |          |   returnToWallet (30)
-			7.new |              0 |         -40 |          60 |        60 |      -30 | & finalize
-			------|----------------|-------------|-------------|-----------|----------|----------------
+			      | delivery |  delta |  total | total | remained |
+			 case |   Amount | Amount | Amount |  Paid |   Amount | action
+			------|----------|--------|--------|-------|----------|----------------
+			1.old |       10 |        |    100 |    80 |          |
+			1.new |       20 |    +10 |    110 |    80 |          |
+			------|----------|--------|--------|-------|----------|----------------
+			2.old |       10 |        |    100 |    80 |          |
+			2.new |       10 |      0 |    100 |    80 |          |
+			------|----------|--------|--------|-------|----------|----------------
+			3.old |       10 |        |    100 |    80 |          |
+			3.new |        0 |    -10 |     90 |    80 |       10 |
+			------|----------|--------|--------|-------|----------|----------------
+			4.old |       10 |        |    100 |    90 |          |
+			4.new |        0 |    -10 |     90 |    90 |        0 | finalize
+			------|----------|--------|--------|-------|----------|----------------
+			5.old |       40 |        |    100 |     0 |          |
+			5.new |        0 |    -40 |     60 |     0 |      100 |
+			------|----------|--------|--------|-------|----------|----------------
+			6.old |       40 |        |    100 |    10 |          |
+			6.new |        0 |    -40 |     60 |    10 |       50 |
+			------|----------|--------|--------|-------|----------|----------------
+			7.old |       40 |        |    100 |    90 |          |   returnToTheWallet (30)
+			7.new |        0 |    -40 |     60 |    60 |      -30 | & finalize
+			------|----------|--------|--------|-------|----------|----------------
 		*/
 
 		//new dlv amount - current dlv amount
@@ -127,9 +128,6 @@ class ChangeOrderDeliveryMethodForm extends Model
 		$transaction = Yii::$app->db->beginTransaction();
 
 		try {
-			if ($voucherModel->save() == false)
-				throw new UnprocessableEntityHttpException(implode("\n", $voucherModel->getFirstErrors()));
-
 			//return to the wallet
 			WalletModel::returnToTheWallet(
 				abs($voucherRemainedAmount),
@@ -138,8 +136,12 @@ class ChangeOrderDeliveryMethodForm extends Model
 			);
 
 			//vchPaidByWallet
+			// $voucherModel->vchPaidByWallet = $vchTotalPaid + $voucherRemainedAmount;
 
 			//vchReturnAmount ??
+
+			if ($voucherModel->save() == false)
+				throw new UnprocessableEntityHttpException(implode("\n", $voucherModel->getFirstErrors()));
 
 			//finalize
 
