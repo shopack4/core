@@ -7,7 +7,7 @@ use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuVoucherType;
 use shopack\base\common\db\Migration;
 
-class m240513_064732_aaa_add_invoice_to_vchType extends Migration
+class m240513_064732_aaa_some_changes_to_voucher extends Migration
 {
 	public function safeUp()
 	{
@@ -31,20 +31,29 @@ UPDATE tbl_AAA_Voucher
 SQL
     );
 
+    $this->execute(<<<SQL
+ALTER TABLE `tbl_AAA_Voucher`
+	ADD COLUMN `vchOriginVoucherID` BIGINT(20) UNSIGNED NULL AFTER `vchOwnerUserID`;
+SQL
+    );
+
+    $this->execute(<<<SQL
+ALTER TABLE `tbl_AAA_Voucher`
+	ADD CONSTRAINT `FK_tbl_AAA_Voucher_tbl_AAA_Voucher` FOREIGN KEY (`vchOriginVoucherID`) REFERENCES `tbl_AAA_Voucher` (`vchID`) ON UPDATE NO ACTION ON DELETE NO ACTION;
+SQL
+		);
 
 
 
 
-
-
-
+		//sys log trigger
 
 
 	}
 
 	public function safeDown()
 	{
-		echo "m240513_064732_aaa_add_invoice_to_vchType cannot be reverted.\n";
+		echo "m240513_064732_aaa_some_changes_to_voucher cannot be reverted.\n";
 		return false;
 	}
 

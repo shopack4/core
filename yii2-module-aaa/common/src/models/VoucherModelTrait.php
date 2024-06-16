@@ -16,6 +16,7 @@ use shopack\aaa\common\enums\enuVoucherType;
 'vchID',
 'vchUUID',
 'vchOwnerUserID',
+'vchOriginVoucherID',
 'vchType',
 'vchAmount',
 'vchItemsDiscounts',
@@ -61,6 +62,14 @@ trait VoucherModelTrait
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
+				enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
+			],
+			'vchOriginVoucherID' => [
+				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => null,
+				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
@@ -221,6 +230,17 @@ trait VoucherModelTrait
 			$className = '\shopack\aaa\frontend\common\models\UserModel';
 
 		return $this->hasOne($className, ['usrID' => 'vchOwnerUserID']);
+	}
+
+	public function getOriginVoucher() {
+		$className = get_called_class();
+
+		if (str_contains($className, '\\backend\\'))
+			$className = '\shopack\aaa\backend\models\VoucherModel';
+		else
+			$className = '\shopack\aaa\frontend\common\models\VoucherModel';
+
+		return $this->hasOne($className, ['vchID' => 'vchOriginVoucherID']);
 	}
 
 	public function getDeliveryMethod() {

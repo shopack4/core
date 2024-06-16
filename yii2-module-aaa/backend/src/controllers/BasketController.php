@@ -269,23 +269,11 @@ class BasketController extends BaseRestController
 
 				$walletReturnAmount = $voucherModel->vchPaidByWallet - $voucherModel->vchTotalAmount;
 
-				$walletModel = WalletModel::ensureIHaveDefaultWallet();
-
-				//2.1: create wallet transaction
-				$walletTransactionModel = new WalletTransactionModel();
-				$walletTransactionModel->wtrWalletID	= $walletModel->walID;
-				$walletTransactionModel->wtrVoucherID	= $voucherModel->vchID;
-				$walletTransactionModel->wtrAmount		= $walletReturnAmount;
-				$walletTransactionModel->save();
-
-				//2.2: increase wallet amount
-				$walletTableName = WalletModel::tableName();
-				$qry =<<<SQL
-  UPDATE {$walletTableName}
-     SET walRemainedAmount = walRemainedAmount + {$walletReturnAmount}
-   WHERE walID = {$walletModel->walID}
-SQL;
-				$rowsCount = Yii::$app->db->createCommand($qry)->execute();
+				WalletModel::returnToTheWallet(
+					$walletReturnAmount,
+					$voucherModel,
+					// $walletModel->walID
+				);
 
 				//3: save to the voucher
 				$voucherModel->vchPaidByWallet = $voucherModel->vchTotalAmount;

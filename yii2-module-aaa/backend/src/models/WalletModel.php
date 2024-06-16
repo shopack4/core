@@ -8,7 +8,9 @@ namespace shopack\aaa\backend\models;
 use Yii;
 use yii\db\Expression;
 use shopack\aaa\backend\classes\AAAActiveRecord;
+use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\common\enums\enuWalletStatus;
+use yii\web\ServerErrorHttpException;
 
 class WalletModel extends AAAActiveRecord
 {
@@ -71,6 +73,65 @@ class WalletModel extends AAAActiveRecord
 		}
 
 		return $model;
+	}
+
+	public static function returnToTheWallet(
+		$returnAmount,
+		VoucherModel $originVoucherModel,
+		$walID = null
+	) {
+		if (empty($walID)) {
+			$walletModel = WalletModel::ensureIHaveDefaultWallet();
+			$walID = $walletModel->walID;
+		}
+
+		if (Yii::$app->db->getTransaction() === null) {
+			$transaction = Yii::$app->db->beginTransaction();
+		}
+
+		try {
+			//create return voucher
+			$voucherModel = new VoucherModel();
+			$voucherModel->vchOriginVoucherID	= $originVoucherModel->vchID;
+			$voucherModel->vchOwnerUserID			= $originVoucherModel->vchOwnerUserID;
+			$voucherModel->vchType						= enuVoucherType::Credit;
+			$voucherModel->vchAmount					=
+				$voucherModel->vchTotalAmount		= $returnAmount;
+      $voucherModel->vchItems       = [
+        'inc-wallet-id' => $walID,
+      ];
+      if ($voucherModel->save() == false)
+        throw new ServerErrorHttpException('It is not possible to create a return voucher');
+
+			//create wallet transaction
+			$walletTransactionModel = new WalletTransactionModel();
+			$walletTransactionModel->wtrWalletID	= $walID;
+			$walletTransactionModel->wtrVoucherID	= $voucherModel->vchID;
+			$walletTransactionModel->wtrAmount		= $returnAmount;
+			if ($walletTransactionModel->save() == false)
+				throw new ServerErrorHttpException('It is not possible to create wallet transaction');
+
+			//increase wallet amount
+			$walletTableName = WalletModel::tableName();
+			$qry =<<<SQL
+  UPDATE {$walletTableName}
+     SET walRemainedAmount = walRemainedAmount + {$returnAmount}
+   WHERE walID = {$walID}
+SQL;
+			$rowsCount = Yii::$app->db->createCommand($qry)->execute();
+
+			if ($rowsCount == 0)
+				throw new ServerErrorHttpException('It is not possible to update wallet amount');
+
+			if (isset($transaction))
+				$transaction->commit();
+
+    } catch (\Throwable $exp) {
+			if (isset($transaction))
+	      $transaction->rollBack();
+
+      throw $exp;
+    }
 	}
 
 }

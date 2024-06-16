@@ -162,7 +162,7 @@ $hasVAT = (empty($model->vchItemsVATs) == false);
         $panelAfterItems += [
           'مانده قابل پرداخت' => [
             Yii::$app->formatter->asToman($model->vchTotalAmount - ($model->vchTotalPaid ?? 0)),
-            'class' => 'bg-light ms-1 me-1',
+            'class' => 'bg-light',
           ],
         ];
 
@@ -175,14 +175,21 @@ $hasVAT = (empty($model->vchItemsVATs) == false);
           if (is_array($v))
             $v = $v[0];
 
+//           $panelAfter[] =<<<HTML
+// <div class='row ms-1 me-1 {$class}'>
+//   <div class='col-8 text-end'>{$k}:</div>
+//   <div class='col-4 text-nowrap'>{$v}</div>
+// </div>
+// HTML;
+
           $panelAfter[] =<<<HTML
-<div class='row ms-1 me-1 {$class}'>
-  <div class='col-8 text-end'>{$k}:</div>
-  <div class='col-4 text-nowrap'>{$v}</div>
-</div>
+<tr class='{$class}'>
+  <td class='w-md-100 text-end'>{$k}:</td>
+  <td class='text-nowrap'>{$v}</td>
+</tr>
 HTML;
         }
-        $panelAfter = implode('', $panelAfter);
+        $panelAfter = "<table class='w-100' cellpadding='2px'>" . implode('', $panelAfter) . '</table>';
 
         echo GridView::widget([
           // 'id' => 'aaaaaaaaaaaaaa',
