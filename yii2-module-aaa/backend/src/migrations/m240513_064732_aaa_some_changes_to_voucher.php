@@ -33,7 +33,8 @@ SQL
 
     $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Voucher`
-	ADD COLUMN `vchOriginVoucherID` BIGINT(20) UNSIGNED NULL AFTER `vchOwnerUserID`;
+	ADD COLUMN `vchOriginVoucherID` BIGINT(20) UNSIGNED NULL AFTER `vchOwnerUserID`,
+	ADD COLUMN `vchReturnToWallet` DOUBLE UNSIGNED NULL DEFAULT NULL AFTER `vchTotalPaid`;
 SQL
     );
 

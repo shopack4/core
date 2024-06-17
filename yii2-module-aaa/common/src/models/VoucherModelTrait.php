@@ -28,6 +28,7 @@ use shopack\aaa\common\enums\enuVoucherType;
 'vchOnlinePaid',
 'vchOfflinePaid',
 'vchTotalPaid',
+'vchReturnToWallet',
 'vchItems',
 'vchStatus',
 'vchCreatedAt',
@@ -154,6 +155,14 @@ trait VoucherModelTrait
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'vchTotalPaid' => [
+				enuColumnInfo::type       => 'double',
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => null,
+				enuColumnInfo::required   => false,
+				enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
+			],
+			'vchReturnToWallet' => [
 				enuColumnInfo::type       => 'double',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,

@@ -110,47 +110,54 @@ class ChangeOrderDeliveryMethodForm extends Model
 
 		//c3,4,5,6
 		if ($voucherRemainedAmount >= 0) {
+
+			//c4 : change status for for finalize
+			if ($voucherRemainedAmount == 0)
+				$voucherModel->vchStatus = enuVoucherStatus::Settled;
+
 			if ($voucherModel->save() == false)
 				throw new UnprocessableEntityHttpException(implode("\n", $voucherModel->getFirstErrors()));
 
-			//c4
-			if ($voucherRemainedAmount == 0) {
-				//finalize
-			}
+			//c4 : finalize
+			if ($voucherRemainedAmount == 0)
+				$voucherModel->processVoucher();
 
 			return true;
 		}
 
 		//c7
 		// $voucherRemainedAmount < 0 :
-		$voucherModel->vchTotalPaid = $vchTotalPaid + $voucherRemainedAmount;
+		$voucherRemainedAmount = abs($voucherRemainedAmount);
+
+		$voucherModel->vchTotalPaid = $vchTotalPaid - $voucherRemainedAmount;
 
 		$transaction = Yii::$app->db->beginTransaction();
 
 		try {
 			//return to the wallet
 			WalletModel::returnToTheWallet(
-				abs($voucherRemainedAmount),
+				$voucherRemainedAmount,
 				$voucherModel,
 				// $walletModel->walID
 			);
 
-			//vchPaidByWallet
-			// $voucherModel->vchPaidByWallet = $vchTotalPaid + $voucherRemainedAmount;
+			//vchReturnToWallet
+			$voucherModel->vchReturnToWallet = ($voucherModel->vchReturnToWallet ?? 0) + $voucherRemainedAmount;
 
-			//vchReturnAmount ??
+			//settle
+			$voucherModel->vchStatus = enuVoucherStatus::Settled;
 
 			if ($voucherModel->save() == false)
 				throw new UnprocessableEntityHttpException(implode("\n", $voucherModel->getFirstErrors()));
 
-			//finalize
-
 			$transaction->commit();
-
     } catch (\Throwable $exp) {
       $transaction->rollBack();
       throw $exp;
     }
+
+		//finalize
+		$voucherModel->processVoucher();
 
     return true;
 	}
