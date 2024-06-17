@@ -23,7 +23,7 @@ class OfflinePaymentModel extends RestClientActiveRecord
 		return [
 			'ofpID'               => Yii::t('app', 'ID'),
 			'ofpUUID'             => Yii::t('app', 'Key'),
-			'ofpOwnerUserID'      => Yii::$app->getModule('aaa')->getGlobalOwnerUserLabel(),
+			'ofpOwnerUserID'      => Yii::$app->getModule('aaa')->getOwnerUserLabel(),
 			'ofpVoucherID'        => Yii::t('aaa', 'Voucher'),
 			'ofpBankOrCart'       => Yii::t('aaa', 'Bank or Cart'),
 			'ofpTrackNumber'      => Yii::t('aaa', 'Track Number'),

@@ -96,7 +96,7 @@ JS;
 							'allowClear' => false,
 							'minimumInputLength' => 2, //qom, rey
 							'ajax' => [
-								'url' => Yii::$app->getModule('aaa')->searchUserForSelect2ListUrl(),
+								'url' => Yii::$app->getModule('aaa')->getSearchUserForSelect2ListUrl(),
 								'dataType' => 'json',
 								'delay' => 50,
 								'data' => new JsExpression('function(params) { return {q:params.term, page:params.page}; }'),

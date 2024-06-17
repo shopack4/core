@@ -20,7 +20,7 @@ class WalletModel extends RestClientActiveRecord
 	{
 		return [
 			'walID'               => Yii::t('app', 'ID'),
-			'walOwnerUserID'      => Yii::$app->getModule('aaa')->getGlobalOwnerUserLabel(),
+			'walOwnerUserID'      => Yii::$app->getModule('aaa')->getOwnerUserLabel(),
 			'walName'      				=> Yii::t('aaa', 'Name'),
 			'walIsDefault' 				=> Yii::t('app', 'Default'),
 			'walRemainedAmount'   => Yii::t('aaa', 'Remained Amount'),

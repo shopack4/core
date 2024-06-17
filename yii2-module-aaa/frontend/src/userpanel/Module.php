@@ -21,16 +21,16 @@ class Module
 {
 	public $allowSignup = true;
 
-	public $globalOwnerUserLabel = null;
-	public function getGlobalOwnerUserLabel()
+	public $ownerUserLabel = null;
+	public function getOwnerUserLabel()
 	{
-		if (empty($this->globalOwnerUserLabel))
+		if (empty($this->ownerUserLabel))
 			return Yii::t('aaa', 'Owner');
 
-		if (is_array($this->globalOwnerUserLabel))
-			return Yii::t($this->globalOwnerUserLabel[0], $this->globalOwnerUserLabel[1]);
+		if (is_array($this->ownerUserLabel))
+			return Yii::t($this->ownerUserLabel[0], $this->ownerUserLabel[1]);
 
-		return $this->globalOwnerUserLabel;
+		return $this->ownerUserLabel;
 	}
 
 	public function init()

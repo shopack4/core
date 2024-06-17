@@ -20,63 +20,63 @@ class Module
 {
 	public $allowSignup = true;
 
+	public $ownerUserLabel = null;
+	public function getOwnerUserLabel()
+	{
+		if (empty($this->ownerUserLabel))
+			return Yii::t('aaa', 'Owner');
+
+		if (is_array($this->ownerUserLabel))
+			return Yii::t($this->ownerUserLabel[0], $this->ownerUserLabel[1]);
+
+		return $this->ownerUserLabel;
+	}
+
 	/*
 		default:
-			'globalUserViewLink' => [
+			'userViewUrl' => [
 				'url' => '/aaa/user/view',
 				'idField' => 'id',
 			],
 	*/
-	public $globalUserViewLink = null;
+	public $userViewUrl = null;
 	public function createUserViewUrl($id)
 	{
-		if (empty($this->globalUserViewLink)) {
-			$this->globalUserViewLink = [
+		if (empty($this->userViewUrl)) {
+			$this->userViewUrl = [
 				'url' => '/aaa/user/view',
 				'idField' => 'id',
 			];
 		}
 
 		return Url::to([
-			$this->globalUserViewLink['url'],
-			$this->globalUserViewLink['idField'] => $id,
+			$this->userViewUrl['url'],
+			$this->userViewUrl['idField'] => $id,
 		]);
-	}
-
-	public $globalOwnerUserLabel = null;
-	public function getGlobalOwnerUserLabel()
-	{
-		if (empty($this->globalOwnerUserLabel))
-			return Yii::t('aaa', 'Owner');
-
-		if (is_array($this->globalOwnerUserLabel))
-			return Yii::t($this->globalOwnerUserLabel[0], $this->globalOwnerUserLabel[1]);
-
-		return $this->globalOwnerUserLabel;
 	}
 
 	/*
 		default:
 			'/aaa/user/select2-list'
 	*/
-	public $globalSearchUserForSelect2ListUrl = null;
-	public function searchUserForSelect2ListUrl()
+	public $searchUserForSelect2ListUrl = null;
+	public function getSearchUserForSelect2ListUrl()
 	{
-		if (empty($this->globalSearchUserForSelect2ListUrl))
+		if (empty($this->searchUserForSelect2ListUrl))
 			return Url::to(['/aaa/user/select2-list']);
 
-		return Url::to([$this->globalSearchUserForSelect2ListUrl]);
+		return Url::to([$this->searchUserForSelect2ListUrl]);
 	}
 
-	public $offlinePaymentAfterAcceptLink = null;
+	public $offlinePaymentAfterAcceptUrl = null;
 	public function createOfflinePaymentAfterAcceptUrl($id)
 	{
-		if (empty($this->offlinePaymentAfterAcceptLink))
+		if (empty($this->offlinePaymentAfterAcceptUrl))
 			return;
 
 		return [
-			/* 0 => */ $this->offlinePaymentAfterAcceptLink['url'],
-			$this->offlinePaymentAfterAcceptLink['idField'] => $id,
+			/* 0 => */ $this->offlinePaymentAfterAcceptUrl['url'],
+			$this->offlinePaymentAfterAcceptUrl['idField'] => $id,
 		];
 	}
 	//------------
