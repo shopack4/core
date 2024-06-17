@@ -63,18 +63,27 @@ use shopack\aaa\common\enums\enuVoucherType;
       ],
       [
         'attribute' => 'wtrVoucherID',
+        'format' => 'raw',
         'value' => function($model) {
           if (empty($model->wtrVoucherID))
             return null;
+
+          if ($model->voucher->vchType == enuVoucherType::Invoice)
+            return Html::a($model->wtrVoucherID . ' - ' . enuVoucherType::getLabel($model->voucher->vchType), ['/aaa/order/view', 'id' => $model->wtrVoucherID]);
+
           return $model->wtrVoucherID . ' - ' . enuVoucherType::getLabel($model->voucher->vchType);
         },
       ],
       [
         'attribute' => 'vchOriginVoucherID',
+        'format' => 'raw',
         'value' => function($model) {
           if (empty($model->voucher->vchOriginVoucherID))
             return null;
-          return $model->voucher->originVoucher->vchID . ' - ' . enuVoucherType::getLabel($model->voucher->originVoucher->vchType);
+
+          $link = ($model->voucher->originVoucher->vchType == enuVoucherType::Invoice ? '/aaa/order/view' : '/aaa/voucher/view');
+
+          return Html::a($model->voucher->originVoucher->vchID . ' - ' . enuVoucherType::getLabel($model->voucher->originVoucher->vchType), [$link, 'id' => $model->voucher->originVoucher->vchID]);
         },
       ],
       'wtrOnlinePaymentID',

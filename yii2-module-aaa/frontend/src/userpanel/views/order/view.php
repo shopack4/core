@@ -12,6 +12,7 @@ use shopack\base\frontend\common\widgets\DetailView;
 use shopack\base\frontend\common\widgets\grid\GridView;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuOnlinePaymentStatus;
+use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\frontend\common\models\OnlinePaymentSearchModel;
 use shopack\aaa\frontend\common\models\WalletTransactionSearchModel;
 
@@ -393,7 +394,12 @@ HTML;
   <?php
     if (empty($model->vchPaidByWallet) == false) {
       $walletTransactionDataProvider = (new WalletTransactionSearchModel())->search([]);
-      $walletTransactionDataProvider->query->andWhere(['wtrVoucherID' => $model->vchID]);
+      $walletTransactionDataProvider->query
+        ->andWhere(['OR',
+          ['wtrVoucherID' => $model->vchID],
+          ['vchOriginVoucherID' => $model->vchID],
+        ])
+      ;
   ?>
     <div class='card'>
       <div class='card-header'>
@@ -439,6 +445,31 @@ HTML;
                   if ($model->wtrAmount < 0)
                     return Yii::$app->formatter->asToman(abs($model->wtrAmount));
                   return '';
+                },
+              ],
+              [
+                'attribute' => 'wtrVoucherID',
+                'format' => 'raw',
+                'value' => function($model) {
+                  if (empty($model->wtrVoucherID))
+                    return null;
+
+                  if ($model->voucher->vchType == enuVoucherType::Invoice)
+                    return Html::a($model->wtrVoucherID . ' - ' . enuVoucherType::getLabel($model->voucher->vchType), ['/aaa/order/view', 'id' => $model->wtrVoucherID]);
+
+                  return $model->wtrVoucherID . ' - ' . enuVoucherType::getLabel($model->voucher->vchType);
+                },
+              ],
+              [
+                'attribute' => 'vchOriginVoucherID',
+                'format' => 'raw',
+                'value' => function($model) {
+                  if (empty($model->voucher->vchOriginVoucherID))
+                    return null;
+
+                  $link = ($model->voucher->originVoucher->vchType == enuVoucherType::Invoice ? '/aaa/order/view' : '/aaa/voucher/view');
+
+                  return Html::a($model->voucher->originVoucher->vchID . ' - ' . enuVoucherType::getLabel($model->voucher->originVoucher->vchType), [$link, 'id' => $model->voucher->originVoucher->vchID]);
                 },
               ],
               'wtrOnlinePaymentID',

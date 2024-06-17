@@ -263,21 +263,23 @@ class BasketController extends BaseRestController
 
 		try {
 			//2: check paid by wallet return amount
-			if (($voucherModel->vchPaidByWallet ?? 0) > $voucherModel->vchTotalAmount) {
-				//start transaction
-				$transaction = Yii::$app->db->beginTransaction();
+			if (empty($voucherModel->vchPaidByWallet) == false) {
+				$walletReturnAmount = $voucherModel->vchPaidByWallet - ($voucherModel->vchReturnToWallet ?? 0) - $voucherModel->vchTotalAmount;
 
-				$walletReturnAmount = $voucherModel->vchPaidByWallet - $voucherModel->vchTotalAmount;
+				if ($walletReturnAmount > 0) {
+					//start transaction
+					$transaction = Yii::$app->db->beginTransaction();
 
-				WalletModel::returnToTheWallet(
-					$walletReturnAmount,
-					$voucherModel,
-					// $walletModel->walID
-				);
+					WalletModel::returnToTheWallet(
+						$walletReturnAmount,
+						$voucherModel,
+						// $walletModel->walID
+					);
 
-				//3: save to the voucher
-				$voucherModel->vchPaidByWallet = $voucherModel->vchTotalAmount;
-				$voucherModel->vchTotalPaid = $voucherModel->vchTotalPaid - $walletReturnAmount;
+					//3: save to the voucher
+					$voucherModel->vchReturnToWallet = ($voucherModel->vchReturnToWallet ?? 0) + $walletReturnAmount;
+					$voucherModel->vchTotalPaid = $voucherModel->vchTotalPaid - $walletReturnAmount;
+				}
 			}
 
 			//---------------------------------
