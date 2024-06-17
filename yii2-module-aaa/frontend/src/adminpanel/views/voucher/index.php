@@ -9,6 +9,7 @@ use shopack\base\frontend\common\widgets\grid\GridView;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
 use shopack\aaa\common\enums\enuVoucherStatus;
+use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\frontend\common\models\VoucherModel;
 
 $this->title = Yii::t('aaa', 'Vouchers');
@@ -44,11 +45,20 @@ $this->params['breadcrumbs'][] = $this->title;
               return $model->owner->displayName();
             },
           ],
+          [
+            'attribute' => 'vchOriginVoucherID',
+            'value' => function($model) {
+              if (empty($model->vchOriginVoucherID))
+                return null;
+              return $model->originVoucher->vchID . ' - ' . enuVoucherType::getLabel($model->originVoucher->vchType);
+            },
+          ],
           'vchAmount',
           'vchItemsDiscounts',
           'vchItemsVATs',
           'vchDeliveryAmount',
           'vchTotalAmount',
+          'vchReturnToWallet',
           [
             'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
             'header' => VoucherModel::canCreate() ? Html::createButton() : Yii::t('app', 'Actions'),

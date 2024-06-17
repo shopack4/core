@@ -35,6 +35,8 @@ class WalletTransactionModel extends RestClientActiveRecord
 			'wtrRemovedAt'        => Yii::t('app', 'Removed At'),
 			'wtrRemovedBy'        => Yii::t('app', 'Removed By'),
 			'wtrRemovedBy_User'   => Yii::t('app', 'Removed By'),
+
+			'vchOriginVoucherID'  => Yii::t('aaa', 'Origin Voucher'),
 		];
 	}
 

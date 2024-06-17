@@ -47,6 +47,8 @@ SQL
 
 
 
+
+
 		//sys log trigger
 
 

@@ -19,6 +19,7 @@ class VoucherModel extends RestClientActiveRecord
 	{
 		return [
 			'vchID'               => Yii::t('app', 'ID'),
+			'vchOriginVoucherID'  => Yii::t('aaa', 'Origin Voucher'),
 			'vchOwnerUserID'      => Yii::$app->getModule('aaa')->getGlobalOwnerUserLabel(),
 			'vchType'      				=> Yii::t('aaa', 'Type'),
 			'vchAmount'           => Yii::t('aaa', 'Amount'),
@@ -30,6 +31,7 @@ class VoucherModel extends RestClientActiveRecord
 			'vchOnlinePaid'       => Yii::t('aaa', 'Online Paid'),
 			'vchOfflinePaid'      => Yii::t('aaa', 'Offline Paid'),
 			'vchTotalPaid'        => Yii::t('aaa', 'Total Paid'),
+			'vchReturnToWallet'   => Yii::t('aaa', 'Returned Amount'),
 			'vchStatus'           => Yii::t('app', 'Status'),
 			'vchCreatedAt'        => Yii::t('app', 'Created At'),
 			'vchCreatedBy'        => Yii::t('app', 'Created By'),

@@ -69,6 +69,14 @@ use shopack\aaa\common\enums\enuVoucherType;
           return $model->wtrVoucherID . ' - ' . enuVoucherType::getLabel($model->voucher->vchType);
         },
       ],
+      [
+        'attribute' => 'vchOriginVoucherID',
+        'value' => function($model) {
+          if (empty($model->voucher->vchOriginVoucherID))
+            return null;
+          return $model->voucher->originVoucher->vchID . ' - ' . enuVoucherType::getLabel($model->voucher->originVoucher->vchType);
+        },
+      ],
       'wtrOnlinePaymentID',
       'wtrOfflinePaymentID',
       // [

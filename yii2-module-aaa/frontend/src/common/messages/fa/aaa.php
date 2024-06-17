@@ -224,6 +224,8 @@ return [
 	'Voucher Info' => 'مشخصات سند مالی',
 	// 'Create Voucher' => 'ایجاد کیف پول',
 	// 'Update Voucher' => 'ویرایش کیف پول',
+	'Origin Voucher' => 'سند مالی مرجع',
+	'Returned Amount' => 'مبلغ بازگشتی',
 
 	'Units' => 'واحدهای شمارش',
 	'Unit' => 'واحد شمارش',
