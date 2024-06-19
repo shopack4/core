@@ -299,10 +299,28 @@ class BaseBasketModel extends Model
 		return [$infoAsArray, $model];
 	}
 
+	public function addToBasket()
+	{
+		$lastPreVoucher = self::getCurrentBasket();
+
+		return $this->addToPrevoucher($lastPreVoucher);
+	}
+
+	public function addToInvoice($memberID, $invoiceID = null)
+	{
+		if (empty($invoiceID)) {
+			$invoiceVoucher = self::createInvoice($memberID);
+		} else {
+			$invoiceVoucher = self::getInvoice($invoiceID);
+		}
+
+		return $this->addToPrevoucher($invoiceVoucher);
+	}
+
 	/**
 	 * return (itemKey, lastPreVoucher)
 	 */
-	public function addToBasket()
+	protected function addToPrevoucher($prevoucher)
 	{
 		/*
 			1: validate preVoucher and owner
