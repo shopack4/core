@@ -15,6 +15,8 @@ use shopack\base\common\helpers\ExceptionHelper;
 use shopack\base\backend\controller\BaseRestController;
 use shopack\base\backend\helpers\PrivHelper;
 use shopack\aaa\backend\models\VoucherModel;
+use shopack\aaa\common\enums\enuVoucherStatus;
+use shopack\aaa\common\enums\enuVoucherType;
 
 class VoucherController extends BaseRestController
 {
@@ -116,6 +118,45 @@ class VoucherController extends BaseRestController
 			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
 			throw new UnprocessableEntityHttpException($msg);
 		}
+	}
+
+	//todo: control more calling
+	public function actionGetOrCreateOpenInvoice()
+	{
+		$memberID		= $_POST['memberID'] ?? Yii::$app->user->id;
+		$invoiceID	= $_POST['invoiceID'] ?? null;
+
+		if (($memberID != Yii::$app->user->id)
+				&& (PrivHelper::hasPriv('aaa/voucher/crud', '1000') == false))
+			throw new ForbiddenHttpException('access denied');
+
+		if (empty($invoiceID)) {
+			$model = new VoucherModel();
+
+			$model->vchOwnerUserID = $memberID;
+			$model->vchType        = enuVoucherType::Invoice;
+			$model->vchAmount      = 0;
+			$model->vchTotalAmount = 0;
+
+			if ($model->save() == false)
+				throw new UnprocessableEntityHttpException('Could not create new invoice');
+
+			return $model;
+		}
+
+		$model = VoucherModel::find()
+			->select(VoucherModel::selectableColumns())
+			->andWhere(['vchOwnerUserID' => $memberID])
+			->andWhere(['vchType' => enuVoucherType::Invoice])
+			->andWhere(['IN', 'vchStatus', implode(',', [enuVoucherStatus::New, enuVoucherStatus::WaitForPayment])])
+			->andWhere(['vchRemovedAt' => 0])
+			->asArray()
+			->one();
+
+		if ($model == null)
+			throw new NotFoundHttpException('Invoice not found');
+
+		return $model;
 	}
 
 }

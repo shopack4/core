@@ -302,25 +302,46 @@ class BaseBasketModel extends Model
 	public function addToBasket()
 	{
 		$lastPreVoucher = self::getCurrentBasket();
+		return $this->addToVoucher($lastPreVoucher);
+	}
 
-		return $this->addToPrevoucher($lastPreVoucher);
+	private static ?array $_openInvoiceVoucher = null;
+	public static function getOrCreateOpenInvoice($memberID, $invoiceID = null)
+	{
+		if (self::$_openInvoiceVoucher == null) {
+			list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/voucher/get-or-create-open-invoice',
+				HttpHelper::METHOD_POST,
+				[],
+				[
+					'memberID'	=> $memberID,
+					'invoiceID'	=> $invoiceID,
+				]
+			);
+
+			if ($resultStatus < 200 || $resultStatus >= 300) {
+				throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+			}
+
+			if ((empty($resultData['vchItems']) == false) && (is_array($resultData['vchItems']) == false)) {
+				$resultData['vchItems'] = Json::decode($resultData['vchItems'], true);
+			}
+
+			self::$_openInvoiceVoucher = $resultData;
+		}
+
+		return self::$_openInvoiceVoucher;
 	}
 
 	public function addToInvoice($memberID, $invoiceID = null)
 	{
-		if (empty($invoiceID)) {
-			$invoiceVoucher = self::createInvoice($memberID);
-		} else {
-			$invoiceVoucher = self::getInvoice($invoiceID);
-		}
-
-		return $this->addToPrevoucher($invoiceVoucher);
+		$invoiceVoucher = self::getOrCreateOpenInvoice($memberID, $invoiceID);
+		return $this->addToVoucher($invoiceVoucher);
 	}
 
 	/**
 	 * return (itemKey, lastPreVoucher)
 	 */
-	protected function addToPrevoucher($prevoucher)
+	protected function addToVoucher($prevoucher)
 	{
 		/*
 			1: validate preVoucher and owner
@@ -342,13 +363,14 @@ class BaseBasketModel extends Model
 		$parentModule = Yii::$app->topModule;
 		$serviceName = $parentModule->id;
 
-		$lastPreVoucher = self::getCurrentBasket();
+		// $lastPreVoucher = self::getCurrentBasket();
 
 		//-- validate preVoucher and owner --------------------------------
 		// checkPreVoucherSanity($lastPreVoucher);
 
 		// quint64 $currentUserID = _apiCallContext.getActorID();
-		$currentUserID = Yii::$app->user->id;
+		// $currentUserID = Yii::$app->user->id;
+		$currentUserID = $prevoucher['vchOwnerUserID'];
 
 		$basketItem = new stuBasketItem;
 

@@ -219,6 +219,7 @@ class Module
 					'extraPatterns' => [
 						'process-voucher/{id}' => 'process-voucher',
 						'POST change-order-delivery-method' => 'change-order-delivery-method',
+						'POST get-or-create-open-invoice' => 'get-or-create-open-invoice',
 					],
 				],
 				[
