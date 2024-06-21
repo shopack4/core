@@ -16,6 +16,8 @@ use shopack\aaa\common\enums\enuVoucherItemStatus;
 use shopack\base\common\accounting\enums\enuUserAssetStatus;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\security\RsaPublic;
+use yii\web\ForbiddenHttpException;
+use yii\web\NotFoundHttpException;
 
 class VoucherModel extends AAAActiveRecord
 {
@@ -233,5 +235,167 @@ class VoucherModel extends AAAActiveRecord
 			throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
 	}
 */
+
+	public static function updateBasketOrOpenInvoice($service, $voucher)
+	{
+		$vchType = $voucher['vchType'];
+		if (($vchType != enuVoucherType::Basket) && ($vchType != enuVoucherType::Invoice))
+			throw new UnprocessableEntityHttpException('Invalid voucher type');
+
+		$vchStatus = $voucher['vchStatus'];
+		if (($vchType == enuVoucherType::Invoice)
+				&& ($vchStatus == enuVoucherStatus::New) && ($vchStatus == enuVoucherStatus::WaitForPayment))
+			throw new UnprocessableEntityHttpException('Invalid voucher status');
+
+		$userid = $voucher['vchOwnerUserID'];
+		if (($vchType == enuVoucherType::Basket)
+				&& ($userid != Yii::$app->user->id))
+			throw new ForbiddenHttpException('Access denied');
+
+		if (empty($voucher['vchID']))
+			throw new UnprocessableEntityHttpException('Invalid voucher id');
+
+		$voucherModel = VoucherModel::findOne(['vchID' => $voucher['vchID']]);
+
+		if ($voucherModel == null)
+			throw new NotFoundHttpException('Voucher not found');
+
+		// if ($voucherModel->vchType != enuVoucherType::Basket)
+		// 	throw new UnprocessableEntityHttpException('Voucher is not basket');
+
+		// if ($voucherModel->vchStatus != enuVoucherStatus::New)
+		// 	throw new UnprocessableEntityHttpException('Basket is not open');
+
+		//---------------------------------
+		$orgVchAmount         = $voucherModel->vchAmount ?? 0;
+		$orgVchItemsDiscounts = $voucherModel->vchItemsDiscounts ?? 0;
+		$orgVchItemsVATs			= $voucherModel->vchItemsVATs ?? 0;
+		$orgVchTotalAmount    = $voucherModel->vchTotalAmount ?? 0;
+
+		//---------------------------------
+		// $allData = $_POST;
+		// $service = $allData['service'];
+
+		$newServiceItems = [];
+		foreach ($voucher['vchItems'] as $newItem) {
+			if ($newItem['service'] != $service)
+				continue;
+
+			$newServiceItems[] = $newItem;
+		}
+
+		$vchItems = $voucherModel->vchItems ?? [];
+		foreach ($vchItems as $oldKey => $oldItem) {
+			if ($oldItem['service'] != $service)
+				continue;
+
+			$found = false;
+			foreach ($newServiceItems as $newIndex => $newItem) {
+				//found in both: update
+				if ($oldItem['key'] == $newItem['key']) {
+					// if (Json::encode($oldItem) != Json::encode($newItem)) {
+						$orgVchAmount         -= $oldItem['subTotal'] ?? 0;
+						$orgVchItemsDiscounts -= $oldItem['discount'] ?? 0;
+						$orgVchItemsVATs			-= $oldItem['vat'] ?? 0;
+						$orgVchTotalAmount    -= $oldItem['totalPrice'] ?? 0;
+
+						$orgVchAmount         += $newItem['subTotal'] ?? 0;
+						$orgVchItemsDiscounts += $newItem['discount'] ?? 0;
+						$orgVchItemsVATs			+= $newItem['vat'] ?? 0;
+						$orgVchTotalAmount    += $newItem['totalPrice'] ?? 0;
+
+						$vchItems[$oldKey] = $newItem;
+					// }
+
+					$found = true;
+					unset($newServiceItems[$newIndex]);
+					break;
+				}
+			}
+
+			//not found in new data: remove
+			if ($found == false) {
+				$orgVchAmount         -= $oldItem['subTotal'] ?? 0;
+				$orgVchItemsDiscounts -= $oldItem['discount'] ?? 0;
+				$orgVchItemsVATs			-= $oldItem['vat'] ?? 0;
+				$orgVchTotalAmount    -= $oldItem['totalPrice'] ?? 0;
+
+				unset($vchItems[$oldKey]);
+			}
+		}
+
+		//not exists in old data: add
+		foreach ($newServiceItems as $newItem) {
+			$orgVchAmount         += $newItem['subTotal'] ?? 0;
+			$orgVchItemsDiscounts += $newItem['discount'] ?? 0;
+			$orgVchItemsVATs			+= $newItem['vat'] ?? 0;
+			$orgVchTotalAmount    += $newItem['totalPrice'] ?? 0;
+
+			$vchItems[] = $newItem;
+		}
+
+		//---------------------------------
+		$voucherModel->vchItems = $vchItems ?? null;
+
+		$voucherModel->vchAmount					= $orgVchAmount;
+		$voucherModel->vchItemsDiscounts	= $orgVchItemsDiscounts;
+		$voucherModel->vchItemsVATs				= $orgVchItemsVATs;
+		$voucherModel->vchTotalAmount			= $orgVchTotalAmount;
+		// $voucherModel->vchDeliveryMethodID = $voucher['vchDeliveryMethodID'] ?? null;
+		// $voucherModel->vchDeliveryAmount   = $voucher['vchDeliveryAmount'] ?? null;
+
+		try {
+			//2: check paid by wallet return amount
+			if (empty($voucherModel->vchPaidByWallet) == false) {
+				$walletReturnAmount = $voucherModel->vchPaidByWallet - ($voucherModel->vchReturnToWallet ?? 0) - $voucherModel->vchTotalAmount;
+
+				if ($walletReturnAmount > 0) {
+					//start transaction
+					$transaction = Yii::$app->db->beginTransaction();
+
+					WalletModel::returnToTheWallet(
+						$walletReturnAmount,
+						$voucherModel,
+						// $walletModel->walID
+					);
+
+					//3: save to the voucher
+					$voucherModel->vchReturnToWallet = ($voucherModel->vchReturnToWallet ?? 0) + $walletReturnAmount;
+					$voucherModel->vchTotalPaid = $voucherModel->vchTotalPaid - $walletReturnAmount;
+				}
+			}
+
+			//---------------------------------
+			if ($voucherModel->save() == false)
+				throw new UnprocessableEntityHttpException(implode("\n", $voucherModel->getFirstErrors()));
+
+			//commit
+			if (isset($transaction))
+				$transaction->commit();
+
+		} catch (\Throwable $exp) {
+			if (isset($transaction))
+				$transaction->rollBack();
+
+			throw $exp;
+		}
+	}
+
+	public static function setInvoiceAsWaitForPayment($service, $voucherID)
+	{
+		$fnGetConstQouted = function($value) { return "'{$value}'"; };
+
+		$voucherTableName = VoucherModel::tableName();
+
+		$qry =<<<SQL
+UPDATE {$voucherTableName}
+   SET vchStatus = {$fnGetConstQouted(enuVoucherStatus::WaitForPayment)}
+ WHERE vchID = {$voucherID}
+   AND vchType = {$fnGetConstQouted(enuVoucherType::Invoice)}
+   AND vchStatus = {$fnGetConstQouted(enuVoucherStatus::New)}
+SQL;
+
+		$rowsCount = Yii::$app->db->createCommand($qry)->execute();
+	}
 
 }

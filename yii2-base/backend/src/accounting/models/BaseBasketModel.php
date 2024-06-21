@@ -13,6 +13,7 @@ use yii\web\ForbiddenHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use yii\web\NotFoundHttpException;
 use Ramsey\Uuid\Uuid;
+use shopack\aaa\common\enums\enuVoucherType;
 use shopack\base\common\helpers\Json;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\enums\enuModelScenario;
@@ -284,6 +285,46 @@ class BaseBasketModel extends Model
 		return $resultData;
 	}
 
+	public static function updateOpenInvoice(array $invoiceVoucher)
+	{
+		self::$_openInvoiceVoucher = $invoiceVoucher;
+
+		$parentModule = Yii::$app->topModule;
+		$serviceName = $parentModule->id;
+
+		if (empty($parentModule->servicePrivateKey))
+			throw new ServerErrorHttpException('INVALID.SERVICE.PRIVATE.KEY');
+
+		$data = Json::encode([
+			'service' => $serviceName,
+			'voucher' => $invoiceVoucher,
+		]);
+		$data = RsaPrivate::model($parentModule->servicePrivateKey)->encrypt($data);
+
+		list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/voucher/update-open-invoice',
+			HttpHelper::METHOD_POST,
+			[],
+			[
+				'service' => $serviceName,
+				'data' => $data,
+			]
+		);
+
+		if ($resultStatus < 200 || $resultStatus >= 300)
+			throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+
+		return $resultData;
+	}
+
+	public static function updatePrevoucher(array $prevoucher)
+	{
+		if ($prevoucher['vchType'] == enuVoucherType::Basket)
+			return self::updateCurrentBasket($prevoucher);
+
+		if ($prevoucher['vchType'] == enuVoucherType::Invoice)
+			return self::updateOpenInvoice($prevoucher);
+	}
+
 	//[$infoAsArray, $model]
 	public static function loadModelFromQuery($query)
 	{
@@ -335,13 +376,18 @@ class BaseBasketModel extends Model
 	public function addToInvoice($memberID, $invoiceID = null)
 	{
 		$invoiceVoucher = self::getOrCreateOpenInvoice($memberID, $invoiceID);
-		return $this->addToVoucher($invoiceVoucher);
+		try {
+			return $this->addToVoucher($invoiceVoucher);
+		} catch (\Throwable $exp) {
+      Yii::error($exp, __METHOD__);
+			return [false, $invoiceVoucher];
+		}
 	}
 
 	/**
 	 * return (itemKey, lastPreVoucher)
 	 */
-	protected function addToVoucher($prevoucher)
+	protected function addToVoucher($lastPreVoucher)
 	{
 		/*
 			1: validate preVoucher and owner
@@ -355,7 +401,8 @@ class BaseBasketModel extends Model
 
 		$this->scenario = enuModelScenario::CREATE;
 		if ($this->validate() == false)
-			return false;
+			throw new UnprocessableEntityHttpException("validation failed");
+			// return false;
 
 		if ($this->qty <= 0)
 			throw new UnprocessableEntityHttpException("invalid qty");
@@ -370,7 +417,7 @@ class BaseBasketModel extends Model
 
 		// quint64 $currentUserID = _apiCallContext.getActorID();
 		// $currentUserID = Yii::$app->user->id;
-		$currentUserID = $prevoucher['vchOwnerUserID'];
+		$currentUserID = $lastPreVoucher['vchOwnerUserID'];
 
 		$basketItem = new stuBasketItem;
 
@@ -477,13 +524,21 @@ class BaseBasketModel extends Model
 			->innerJoinWith('product.unit')
 			->addSelect($unitModelClass::selectableColumns())
 
-			->andWhere(['slbCode' => $this->saleableCode])
 			->andWhere(['<=', 'slbAvailableFromDate', new Expression('NOW()')])
 			->andWhere(['OR',
 				'slbAvailableToDate IS NULL',
 				['>=', 'slbAvailableToDate', new Expression('DATE_ADD(NOW(), INTERVAL 15 MINUTE)')],
 			])
 		;
+
+		//convert to array and remove 'ID:' if saleableCode is slbID
+		if (str_starts_with($this->saleableCode, 'ID:'))
+			$this->saleableCode = [substr($this->saleableCode, 3)];
+
+		if (is_array($this->saleableCode))
+			$query->andWhere(['slbID' => $this->saleableCode[0]]);
+		else
+			$query->andWhere(['slbCode' => $this->saleableCode]);
 
 		[$saleableInfo, $basketItem->saleable] = self::loadModelFromQuery($query);
 		if ($basketItem->saleable == null)
@@ -655,7 +710,7 @@ SQL;
 			$lastPreVoucher['vchTotalAmount'] = $finalPrice /*- $lastPreVoucher['vchRound']*/;
 			// $lastPreVoucher->sign
 
-			self::updateCurrentBasket($lastPreVoucher);
+			self::updatePrevoucher($lastPreVoucher);
 
 			//commit
 			if (isset($transaction))
@@ -940,7 +995,7 @@ SQL;
 			$_lastPreVoucher['vchTotalAmount'] = $finalPrice; // - $_lastPreVoucher['vchRound'];
 			// sign
 
-			self::updateCurrentBasket($_lastPreVoucher);
+			self::updatePrevoucher($_lastPreVoucher);
 
 			//commit
 			if (isset($transaction))

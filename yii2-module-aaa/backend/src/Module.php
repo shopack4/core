@@ -220,6 +220,9 @@ class Module
 						'process-voucher/{id}' => 'process-voucher',
 						'POST change-order-delivery-method' => 'change-order-delivery-method',
 						'POST get-or-create-open-invoice' => 'get-or-create-open-invoice',
+						'POST update-open-invoice' => 'update-open-invoice',
+						'POST update-open-invoice' => 'update-open-invoice',
+						'POST set-invoice-as-wait-for-payment' => 'set-invoice-as-wait-for-payment',
 					],
 				],
 				[

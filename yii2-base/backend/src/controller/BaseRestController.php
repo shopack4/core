@@ -8,6 +8,10 @@ namespace shopack\base\backend\controller;
 use Yii;
 use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
+use yii\web\UnprocessableEntityHttpException;
+use yii\web\ForbiddenHttpException;
+use shopack\base\common\helpers\Json;
+use shopack\base\common\security\RsaPublic;
 use shopack\base\backend\controller\BaseController;
 use shopack\base\backend\auth\JwtHttpBearerAuth;
 
@@ -68,5 +72,32 @@ class BaseRestController extends BaseController
 
 		return $model;
   }
+
+	public function getSecureData()
+	{
+		// $allData = array_merge($_GET, $_POST);
+		$allData = $_POST;
+
+		$service = $allData['service'];
+		if (empty($service))
+			throw new UnprocessableEntityHttpException('NOT_PROVIDED:Service');
+
+		$data = $allData['data'];
+		if (empty($data))
+			throw new UnprocessableEntityHttpException('NOT_PROVIDED:Data');
+
+		$module = Yii::$app->controller->module;
+
+		$key = $module->servicesPublicKeys[$service];
+		$rsaModel = RsaPublic::model($key);
+		$data = $rsaModel->decrypt($data);
+
+		$data = Json::decode($data);
+
+		if ($service != $data['service']) //todo: change to sanity check
+			throw new ForbiddenHttpException('INVALID:Service');
+
+		return $data;
+	}
 
 }

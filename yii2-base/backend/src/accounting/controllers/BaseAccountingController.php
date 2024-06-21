@@ -125,6 +125,7 @@ abstract class BaseAccountingController extends BaseRestController
 		}
 	}
 
+	/*
 	public function getSecureData()
 	{
 		$allData = $_POST;
@@ -150,6 +151,7 @@ abstract class BaseAccountingController extends BaseRestController
 
 		return $data;
 	}
+	*/
 
 	/**
 	 * recheck basket item(s) before check out

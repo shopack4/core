@@ -120,7 +120,6 @@ class VoucherController extends BaseRestController
 		}
 	}
 
-	//todo: control more calling
 	public function actionGetOrCreateOpenInvoice()
 	{
 		$memberID		= $_POST['memberID'] ?? Yii::$app->user->id;
@@ -146,9 +145,13 @@ class VoucherController extends BaseRestController
 
 		$model = VoucherModel::find()
 			->select(VoucherModel::selectableColumns())
-			->andWhere(['vchOwnerUserID' => $memberID])
+			->andWhere(['vchID' => $invoiceID])
+			// ->andWhere(['vchOwnerUserID' => $memberID])
 			->andWhere(['vchType' => enuVoucherType::Invoice])
-			->andWhere(['IN', 'vchStatus', implode(',', [enuVoucherStatus::New, enuVoucherStatus::WaitForPayment])])
+			->andWhere(['IN', 'vchStatus', [
+				enuVoucherStatus::New,
+				enuVoucherStatus::WaitForPayment,
+			]])
 			->andWhere(['vchRemovedAt' => 0])
 			->asArray()
 			->one();
@@ -156,7 +159,32 @@ class VoucherController extends BaseRestController
 		if ($model == null)
 			throw new NotFoundHttpException('Invoice not found');
 
+		if ($memberID != $model['vchOwnerUserID'])
+			throw new ForbiddenHttpException('invoice is not yours');
+
 		return $model;
+	}
+
+	public function actionUpdateOpenInvoice()
+	{
+		$data = $this->getSecureData();
+
+		VoucherModel::updateBasketOrOpenInvoice($data['service'], $data['voucher']);
+
+		return [
+			'ok'
+		];
+	}
+
+	public function actionSetInvoiceAsWaitForPayment()
+	{
+		$data = $this->getSecureData();
+
+		VoucherModel::setInvoiceAsWaitForPayment($data['service'], $data['voucherID']);
+
+		return [
+			'ok'
+		];
 	}
 
 }

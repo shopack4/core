@@ -39,7 +39,9 @@ $hasVAT = (empty($model->vchItemsVATs) == false);
 				<?php
           $buttons = [];
 
-          if ($model->canPay()) {
+          if ($model->canPay()
+            && (($hasPhysical == false) || (empty($model->vchDeliveryMethodID) == false))
+          ) {
             $buttons[] = Html::a(Yii::t('aaa', 'Payment'), [
               'pay',
               'id' => $model->vchID,
@@ -320,8 +322,12 @@ HTML;
       </div>
       <div class='card-body'>
         <?php
-          echo $model->deliveryMethod->dlvName . ' : '
-            . (empty($model->vchDeliveryAmount) ? 'بدون هزینه' : Yii::$app->formatter->asToman($model->vchDeliveryAmount));
+          if (empty($model->vchDeliveryMethodID)) {
+            echo "<div class='text-center'>روش ارسال تعیین نشده. برای پرداخت ابتدا روش ارسال را انتخاب کنید.</div>";
+          } else {
+            echo $model->deliveryMethod->dlvName . ' : '
+              . (empty($model->vchDeliveryAmount) ? 'بدون هزینه' : Yii::$app->formatter->asToman($model->vchDeliveryAmount));
+          }
         ?>
       </div>
     </div>
