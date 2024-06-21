@@ -69,20 +69,23 @@ use shopack\aaa\frontend\common\models\VoucherModel;
           Yii::t('aaa', 'VAT Amount'),
           Yii::t('aaa', 'Total Amount'),
         ]) . '</td></tr>';
-        $vchItems = $model->vchItems;
-        foreach ($vchItems as $k => $vchItem)
-        {
-          $result[] = '<tr><td>' . implode('</td><td>', [
-            $k + 1,
-            $vchItem['desc'],
-            Yii::$app->formatter->asDecimal($vchItem['qty']),
-            $vchItem['unit'],
-            Yii::$app->formatter->asToman($vchItem['unitPrice']),
-            Yii::$app->formatter->asToman($vchItem['discount'] ?? 0),
-            Yii::$app->formatter->asToman($vchItem['vat'] ?? 0),
-            Yii::$app->formatter->asToman($vchItem['totalPrice']),
-          ]) . '</td></tr>';
+
+        if (empty($model->vchItems) == false) {
+          $vchItems = $model->vchItems;
+          foreach ($vchItems as $k => $vchItem) {
+            $result[] = '<tr><td>' . implode('</td><td>', [
+              $k + 1,
+              $vchItem['desc'],
+              Yii::$app->formatter->asDecimal($vchItem['qty']),
+              $vchItem['unit'],
+              Yii::$app->formatter->asToman($vchItem['unitPrice']),
+              Yii::$app->formatter->asToman($vchItem['discount'] ?? 0),
+              Yii::$app->formatter->asToman($vchItem['vat'] ?? 0),
+              Yii::$app->formatter->asToman($vchItem['totalPrice']),
+            ]) . '</td></tr>';
+          }
         }
+
         return '<table class="table table-bordered table-striped">' . implode('', $result) . '</table>';
       },
     ],

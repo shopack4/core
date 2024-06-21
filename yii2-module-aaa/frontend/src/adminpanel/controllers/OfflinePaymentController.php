@@ -36,7 +36,7 @@ class OfflinePaymentController extends BaseCrudController
 		$done = false;
 		if ($formPosted) {
 			try {
-				$done = true; //OfflinePaymentModel::doAccept($id);
+				$done = OfflinePaymentModel::doAccept($id);
 			} catch (\Throwable $th) {
 				$model->addError(null, $th->getMessage());
 			}
