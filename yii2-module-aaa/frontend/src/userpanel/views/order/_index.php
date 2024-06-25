@@ -156,6 +156,7 @@ use shopack\aaa\common\enums\enuVoucherStatus;
               'id' => $model->vchID,
             ], Yii::t('aaa', 'Are you sure you want to cancel this order?'), [
               'class' => 'btn btn-sm btn-danger',
+              'ajax' => 'post',
             ]);
           },
           // 'reprocess' => function ($url, $model, $key) {

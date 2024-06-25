@@ -398,4 +398,10 @@ SQL;
 		$rowsCount = Yii::$app->db->createCommand($qry)->execute();
 	}
 
+	public function doCancel()
+	{
+		//todo: voucher::doCancel()
+		throw new UnprocessableEntityHttpException('not implemented yet');
+	}
+
 }

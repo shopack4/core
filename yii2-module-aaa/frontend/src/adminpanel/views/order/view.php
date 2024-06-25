@@ -57,6 +57,17 @@ $hasVAT = (empty($model->vchItemsVATs) == false);
               'id' => $model->vchID,
             ], Yii::t('aaa', 'Are you sure you want to cancel this order?'), [
               'class' => 'btn btn-sm btn-danger',
+              'ajax' => 'post',
+            ]);
+          }
+
+          if ($model->canReprocess()) {
+            $buttons[] = Html::a(Yii::t('aaa', 'Reprocess'), [
+              'reprocess',
+              'id' => $model->vchID,
+            ], [
+              'class' => 'btn btn-sm btn-primary',
+              'modal' => true,
             ]);
           }
 
@@ -212,7 +223,7 @@ HTML;
             [
               'class' => 'kartik\grid\SerialColumn',
               'pageSummary' => 'جمع:',
-              'pageSummaryOptions' => ['colspan' => 4],
+              'pageSummaryOptions' => ['colspan' => 5],
             ],
             // 'key',
             // 'service',
@@ -225,30 +236,7 @@ HTML;
             [
               'attribute' => 'qty',
               'label' => Yii::t('aaa', 'Qty'),
-              'format' => 'raw',
-              'value' => function ($model, $key, $index, $widget) {
-                if (empty($model['qtyStep'])) {
-                  return Yii::$app->formatter->asDecimal($model['qty']);
-                }
-
-                $items = [];
-
-                $items[] = "<div class='input-group input-group-sm'>";
-
-                $items[] = "<div class='input-group-prepend'>";
-                $items[] = "<button id='plus-button' type='button' class='btn btn-sm btn-outline-success' title='بیشتر' onclick='plusQty()'><i class='indicator fas fa-plus'></i></button>";
-                $items[] = "</div>";
-
-                $items[] = "<input type='text' class='form-control text-center' style='max-width:50px' data-key='{$model['key']}' value='{$model['qty']}'></input>";
-
-                $items[] = "<div class='input-group-append'>";
-                $items[] = "<button id='minus-button' type='button' class='btn btn-sm btn-outline-success' title='کمتر' onclick='minusQty()'><i class='indicator fas fa-minus'></i></button>";
-                $items[] = "</div>";
-
-                $items[] = "</div>";
-
-                return implode('', $items);
-              },
+              'format' => 'decimal',
             ],
             [
               'attribute' => 'unit',
@@ -257,6 +245,11 @@ HTML;
             [
               'attribute' => 'unitPrice',
               'label' => Yii::t('aaa', 'Unit Price'),
+              'format' => 'toman',
+            ],
+            [
+              'attribute' => 'subTotal',
+              'label' => Yii::t('aaa', 'Sub Total'),
               'format' => 'toman',
               'pageSummary' => true,
             ],
@@ -274,7 +267,7 @@ HTML;
             ],
             [
               'attribute' => 'totalPrice',
-              'label' => Yii::t('aaa', 'Total Amount'),
+              'label' => Yii::t('aaa', 'Total Price'),
               'format' => 'toman',
               'pageSummary' => true,
             ],
@@ -306,15 +299,15 @@ HTML;
       <div class='card-header'>
         <div class="float-end">
           <?php
-            if ($model->canPay()) {
-              echo Html::a(Yii::t('aaa', 'Change Delivery Method'), [
-                'change-delivery-method',
-                'id' => $model->vchID,
-              ], [
-                'class' => 'btn btn-sm btn-success',
-                'modal' => true,
-              ]);
-            }
+            // if ($model->canPay()) {
+            //   echo Html::a(Yii::t('aaa', 'Change Delivery Method'), [
+            //     'change-delivery-method',
+            //     'id' => $model->vchID,
+            //   ], [
+            //     'class' => 'btn btn-sm btn-success',
+            //     'modal' => true,
+            //   ]);
+            // }
           ?>
         </div>
         <div class='card-title'><?= Yii::t('aaa', 'Delivery Method') ?></div>
@@ -323,7 +316,7 @@ HTML;
       <div class='card-body'>
         <?php
           if (empty($model->vchDeliveryMethodID)) {
-            echo "<div class='text-center'>روش ارسال تعیین نشده. برای پرداخت ابتدا روش ارسال را انتخاب کنید.</div>";
+            echo "<div class='text-center'>روش ارسال تعیین نشده</div>";
           } else {
             echo $model->deliveryMethod->dlvName . ' : '
               . (empty($model->vchDeliveryAmount) ? 'بدون هزینه' : Yii::$app->formatter->asToman($model->vchDeliveryAmount));

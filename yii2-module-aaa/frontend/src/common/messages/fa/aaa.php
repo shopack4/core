@@ -596,8 +596,11 @@ return [
 	'Percent' => 'درصد',
 	'Price' => 'قیمت',
 	'Toman' => 'تومان',
-	'Unit Price' => 'قیمت واحد',
-	'Total Price' => 'قیمت کل',
+
+	'Unit Price' => 'مبلغ واحد',
+	'Sub Total' => 'مبلغ کل',
+	'Total Price' => 'جمع کل',
+
 	'Checkout' => 'ثبت سفارش',
 	'Basket checked out' => 'سبد خرید شما تسویه و ثبت شد',
 	'Error in checkout' => 'خطا در ثبت سفارش',

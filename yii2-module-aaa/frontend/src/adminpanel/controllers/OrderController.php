@@ -58,4 +58,23 @@ class OrderController extends BaseController
     ]);
   }
 
+	public function actionCancel($id)
+	{
+    if (empty($_POST['confirmed']))
+      throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
+
+		if (Yii::$app->request->isAjax == false)
+			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');
+
+		$done = VoucherModel::doCancel($id);
+
+		return $this->renderJson([
+			'status' => 'Ok',
+			'message' => Yii::t('app', 'Success'),
+			// 'modalDoneFragment' => $this->modalDoneFragment,
+		]);
+	}
+
+  //todo:actionReprocess
+
 }

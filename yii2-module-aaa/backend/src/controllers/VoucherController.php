@@ -187,4 +187,16 @@ class VoucherController extends BaseRestController
 		];
 	}
 
+	public function actionCancel($id)
+	{
+		PrivHelper::checkPriv('aaa/voucher/cancel');
+
+		$model = $this->findModel($id);
+		$model->doCancel();
+
+		return [
+			'result' => true,
+		];
+	}
+
 }

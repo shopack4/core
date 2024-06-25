@@ -94,7 +94,8 @@ class OfflinePaymentModel extends RestClientActiveRecord
     return true; //[$resultStatus, $resultData['result']];
 	}
 
-	public static function doReject($id) {
+	public static function doReject($id)
+	{
 		if (empty($id))
 			throw new NotFoundHttpException('Invalid id');
 

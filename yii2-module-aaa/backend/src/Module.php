@@ -223,6 +223,7 @@ class Module
 						'POST update-open-invoice' => 'update-open-invoice',
 						'POST update-open-invoice' => 'update-open-invoice',
 						'POST set-invoice-as-wait-for-payment' => 'set-invoice-as-wait-for-payment',
+						'POST cancel' => 'cancel',
 					],
 				],
 				[
