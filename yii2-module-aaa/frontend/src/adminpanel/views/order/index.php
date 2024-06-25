@@ -17,10 +17,14 @@ $this->params['breadcrumbs'][] = $this->title;
   <div class='card'>
 		<div class='card-header'>
 			<div class="float-end">
-			<?= VoucherModel::canCreate() ? Html::createButton(null, [
-					'create',
-					'vchOwnerUserID' => $vchOwnerUserID ?? $_GET['vchOwnerUserID'] ?? null,
-				]) : '' ?>
+				<?php
+					// if (VoucherModel::canCreate()) {
+					// 	echo Html::createButton(null, [
+					// 		'create',
+					// 		'vchOwnerUserID' => $vchOwnerUserID ?? $_GET['vchOwnerUserID'] ?? null,
+					// 	]);
+					// }
+				?>
 			</div>
       <div class='card-title'><?= Html::encode($this->title) ?></div>
 			<div class="clearfix"></div>

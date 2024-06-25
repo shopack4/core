@@ -65,9 +65,10 @@ use shopack\aaa\frontend\common\models\VoucherModel;
           Yii::t('aaa', 'Qty'),
           Yii::t('aaa', 'Unit'),
           Yii::t('aaa', 'Unit Price'),
+          Yii::t('aaa', 'Sub Total'),
           Yii::t('aaa', 'Discount Amount'),
           Yii::t('aaa', 'VAT Amount'),
-          Yii::t('aaa', 'Total Amount'),
+          Yii::t('aaa', 'Total Price'),
         ]) . '</td></tr>';
 
         if (empty($model->vchItems) == false) {
@@ -79,6 +80,7 @@ use shopack\aaa\frontend\common\models\VoucherModel;
               Yii::$app->formatter->asDecimal($vchItem['qty']),
               $vchItem['unit'],
               Yii::$app->formatter->asToman($vchItem['unitPrice']),
+              Yii::$app->formatter->asToman($vchItem['subTotal']),
               Yii::$app->formatter->asToman($vchItem['discount'] ?? 0),
               Yii::$app->formatter->asToman($vchItem['vat'] ?? 0),
               Yii::$app->formatter->asToman($vchItem['totalPrice']),
@@ -155,10 +157,10 @@ use shopack\aaa\frontend\common\models\VoucherModel;
     //todo: complete buttons behaviors
     [
       'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
-      'header' => VoucherModel::canCreate() ? Html::createButton(null, [
-        'create',
-        'vchOwnerUserID' => $vchOwnerUserID ?? $_GET['vchOwnerUserID'] ?? null,
-      ]) : Yii::t('app', 'Actions'),
+      // 'header' => VoucherModel::canCreate() ? Html::createButton(null, [
+      //   'create',
+      //   'vchOwnerUserID' => $vchOwnerUserID ?? $_GET['vchOwnerUserID'] ?? null,
+      // ]) : Yii::t('app', 'Actions'),
       // 'template' => '{pay} {cancel} {reprocess}',
       'template' => '{cancel} {reprocess}',
       'buttons' => [

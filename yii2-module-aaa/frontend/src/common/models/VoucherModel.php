@@ -28,7 +28,7 @@ class VoucherModel extends RestClientActiveRecord
 			'vchItemsDiscounts'   => Yii::t('aaa', 'Discount Amount'),
 			'vchItemsVATs'   			=> Yii::t('aaa', 'VAT Amount'),
 			'vchDeliveryAmount'   => Yii::t('aaa', 'Delivery Amount'),
-			'vchTotalAmount'      => Yii::t('aaa', 'Total Amount'),
+			'vchTotalAmount'      => Yii::t('aaa', 'Total Price'),
 			'vchPaidByWallet'     => Yii::t('aaa', 'Paid By Wallet'),
 			'vchOnlinePaid'       => Yii::t('aaa', 'Online Paid'),
 			'vchOfflinePaid'      => Yii::t('aaa', 'Offline Paid'),

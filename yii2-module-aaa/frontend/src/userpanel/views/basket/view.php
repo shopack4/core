@@ -104,6 +104,11 @@ JS;
                   'format' => 'toman',
                 ],
                 [
+                  'attribute' => 'subTotal',
+                  'label' => Yii::t('aaa', 'Sub Total'),
+                  'format' => 'toman',
+                ],
+                [
                   'attribute' => 'discount',
                   'label' => Yii::t('aaa', 'Discount Amount'),
                   'format' => 'toman',
@@ -115,7 +120,7 @@ JS;
                 ],
                 [
                   'attribute' => 'totalPrice',
-                  'label' => Yii::t('aaa', 'Total Amount'),
+                  'label' => Yii::t('aaa', 'Total Price'),
                   'format' => 'toman',
                 ],
                 [
