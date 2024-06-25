@@ -17,6 +17,7 @@ use shopack\aaa\frontend\common\models\OnlinePaymentSearchModel;
 use shopack\aaa\frontend\common\models\WalletTransactionSearchModel;
 
 $this->title = Yii::t('aaa', 'Order') . ': ' . $model->vchID;
+$this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
 $this->params['breadcrumbs'][] = ['label' => Yii::t('aaa', 'Orders'), 'url' => ['/aaa/order']];
 $this->params['breadcrumbs'][] = $this->title;
 
@@ -32,24 +33,23 @@ $hasVAT = (empty($model->vchItemsVATs) == false);
 ?>
 
 <div class="order-view w-100">
-
   <div class='card'>
 		<div class='card-body'>
 			<div class="float-end">
 				<?php
           $buttons = [];
 
-          if ($model->canPay()
-            && (($hasPhysical == false) || (empty($model->vchDeliveryMethodID) == false))
-          ) {
-            $buttons[] = Html::a(Yii::t('aaa', 'Payment'), [
-              'pay',
-              'id' => $model->vchID,
-            ], [
-              'class' => 'btn btn-sm btn-success',
-              'modal' => true,
-            ]);
-          }
+          // if ($model->canPay()
+          //   && (($hasPhysical == false) || (empty($model->vchDeliveryMethodID) == false))
+          // ) {
+          //   $buttons[] = Html::a(Yii::t('aaa', 'Payment'), [
+          //     'pay',
+          //     'id' => $model->vchID,
+          //   ], [
+          //     'class' => 'btn btn-sm btn-success',
+          //     'modal' => true,
+          //   ]);
+          // }
 
           if ($model->canCancel()) {
             $buttons[] = Html::confirmButton(Yii::t('aaa', 'Cancel Order'), [

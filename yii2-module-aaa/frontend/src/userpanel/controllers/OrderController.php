@@ -7,36 +7,15 @@ namespace shopack\aaa\frontend\userpanel\controllers;
 
 use Yii;
 use yii\web\NotFoundHttpException;
-use yii\web\BadRequestHttpException;
-use yii\web\UnprocessableEntityHttpException;
 use shopack\base\frontend\common\helpers\Html;
-use shopack\aaa\common\enums\enuOnlinePaymentStatus;
-use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\frontend\common\auth\BaseController;
-use shopack\aaa\frontend\common\models\WalletModel;
-use shopack\aaa\frontend\common\models\WalletSearchModel;
-use shopack\aaa\frontend\common\models\WalletIncreaseForm;
-use shopack\aaa\frontend\common\models\OnlinePaymentModel;
 use shopack\aaa\frontend\common\models\VoucherModel;
 use shopack\aaa\frontend\common\models\VoucherSearchModel;
 use shopack\aaa\frontend\userpanel\models\ChangeOrderDeliveryMethodForm;
 
 class OrderController extends BaseController
 {
-  // public function init()
-  // {
-  //   parent::init();
-
-  //   $viewPath = dirname(dirname(__FILE__))
-  //     . DIRECTORY_SEPARATOR
-  //     . 'views'
-  //     . DIRECTORY_SEPARATOR
-  //     . $this->id;
-
-  //   $this->setViewPath($viewPath);
-  // }
-
 	protected function findModel($id)
 	{
 		$modelClass = new VoucherModel();

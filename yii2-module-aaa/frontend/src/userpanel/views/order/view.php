@@ -32,7 +32,6 @@ $hasVAT = (empty($model->vchItemsVATs) == false);
 ?>
 
 <div class="order-view w-100">
-
   <div class='card'>
 		<div class='card-body'>
 			<div class="float-end">

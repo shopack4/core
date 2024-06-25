@@ -10,6 +10,7 @@ use shopack\base\common\helpers\StringHelper;
 use shopack\aaa\frontend\common\models\WalletModel;
 
 $this->title = Yii::t('aaa', 'Baskets');
+$this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
