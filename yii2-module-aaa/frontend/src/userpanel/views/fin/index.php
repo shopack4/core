@@ -18,20 +18,6 @@ $this->params['breadcrumbs'][] = $this->title;
 		<div class='card-tabs'>
 			<?php $tabs = Tabs::begin($this); ?>
 
-			<?php $tabs->newAjaxTabPage(Yii::t('aaa', 'Wallets'), [
-          '/aaa/wallet',
-					// 'justForMe' => true,
-        ],
-        'wallets'
-			); ?>
-
-			<?php $tabs->newAjaxTabPage(Yii::t('aaa', 'Wallet Transactions'), [
-          '/aaa/wallet-transaction',
-					// 'justForMe' => true,
-        ],
-        'wallet-transactions'
-			); ?>
-
 			<?php $tabs->newAjaxTabPage(Yii::t('aaa', 'Orders'), [
 					'/aaa/order',
 					// 'justForMe' => true,
@@ -58,6 +44,20 @@ $this->params['breadcrumbs'][] = $this->title;
 					// 'justForMe' => true,
         ],
         'offline-payments'
+			); ?>
+
+			<?php $tabs->newAjaxTabPage(Yii::t('aaa', 'Wallets'), [
+          '/aaa/wallet',
+					// 'justForMe' => true,
+        ],
+        'wallets'
+			); ?>
+
+			<?php $tabs->newAjaxTabPage(Yii::t('aaa', 'Wallet Transactions'), [
+          '/aaa/wallet-transaction',
+					// 'justForMe' => true,
+        ],
+        'wallet-transactions'
 			); ?>
 
       <?php $tabs->end(); ?>

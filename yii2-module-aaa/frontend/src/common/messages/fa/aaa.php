@@ -189,6 +189,7 @@ return [
 	'Paid at' => 'تاریخ پرداخت',
 	'Payer' => 'پرداخت کننده',
 	'Source Cart Number' => 'شماره کارت مبدا',
+	'Destination Wallet' => 'کیف پول مقصد',
 	'Image' => 'تصویر',
 	'Owner' => 'مالک',
 

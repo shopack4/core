@@ -26,7 +26,7 @@ class OnlinePaymentModel extends RestClientActiveRecord
 			'onpVoucherID'        => Yii::t('aaa', 'Voucher'),
 			'onpAmount'           => Yii::t('aaa', 'Amount'),
 			'onpCallbackUrl'      => Yii::t('aaa', 'Callback Url'),
-			'onpWalletID'         => Yii::t('aaa', 'Wallet'),
+			'onpWalletID'         => Yii::t('aaa', 'Destination Wallet'),
 			'onpPaymentToken'     => Yii::t('aaa', 'Payment Token'),
 			'onpTrackNumber' 			=> Yii::t('aaa', 'Track Number'),
 			'onpRRN'      				=> Yii::t('aaa', 'RRN'),

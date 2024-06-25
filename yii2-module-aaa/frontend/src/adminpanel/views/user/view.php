@@ -294,20 +294,6 @@ $this->params['breadcrumbs'][] = $this->title;
           ],
         ]);
 
-        $tabs2->newAjaxTabPage(Yii::t('aaa', 'Wallets'), [
-            '/aaa/wallet/index',
-            'walOwnerUserID' => $model->usrID,
-          ],
-          'wallets'
-        );
-
-        $tabs2->newAjaxTabPage(Yii::t('aaa', 'Wallet Transactions'), [
-            '/aaa/wallet-transaction/index',
-            'walOwnerUserID' => $model->usrID,
-          ],
-          'wallet-transactions'
-        );
-
         $tabs2->newAjaxTabPage(Yii::t('aaa', 'Orders'), [
             '/aaa/order/index',
             'vchOwnerUserID' => $model->usrID,
@@ -327,6 +313,20 @@ $this->params['breadcrumbs'][] = $this->title;
             'ofpOwnerUserID' => $model->usrID,
           ],
           'offline-payments'
+        );
+
+        $tabs2->newAjaxTabPage(Yii::t('aaa', 'Wallets'), [
+            '/aaa/wallet/index',
+            'walOwnerUserID' => $model->usrID,
+          ],
+          'wallets'
+        );
+
+        $tabs2->newAjaxTabPage(Yii::t('aaa', 'Wallet Transactions'), [
+            '/aaa/wallet-transaction/index',
+            'walOwnerUserID' => $model->usrID,
+          ],
+          'wallet-transactions'
         );
 
         $tabs2->end();

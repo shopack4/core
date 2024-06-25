@@ -33,32 +33,12 @@ use shopack\aaa\common\enums\enuVoucherType;
       'wtrID',
       [
         'attribute' => 'wtrWalletID',
+        'format' => 'raw',
         'value' => function($model) {
-          return Yii::t('app', $model->wallet->walName);
-        },
-      ],
-      [
-        'attribute' => 'credit',
-        'label' => 'واریز',
-        'contentOptions' => [
-          'class' => ['text-nowrap', 'tabular-nums'],
-        ],
-        'value' => function($model) {
-          if ($model->wtrAmount > 0)
-            return Yii::$app->formatter->asToman($model->wtrAmount);
-          return '';
-        },
-      ],
-      [
-        'attribute' => 'debit',
-        'label' => 'برداشت',
-        'contentOptions' => [
-          'class' => ['text-nowrap', 'tabular-nums'],
-        ],
-        'value' => function($model) {
-          if ($model->wtrAmount < 0)
-            return Yii::$app->formatter->asToman(abs($model->wtrAmount));
-          return '';
+          return Html::a(Yii::t('app', $model->wallet->walID . ' - ' . $model->wallet->walName), [
+            '/aaa/wallet/view',
+            'id' => $model->wallet->walID,
+          ]);
         },
       ],
       [
@@ -86,8 +66,51 @@ use shopack\aaa\common\enums\enuVoucherType;
           return Html::a($model->voucher->originVoucher->vchID . ' - ' . enuVoucherType::getLabel($model->voucher->originVoucher->vchType), [$link, 'id' => $model->voucher->originVoucher->vchID]);
         },
       ],
-      'wtrOnlinePaymentID',
-      'wtrOfflinePaymentID',
+      [
+        'attribute' => 'wtrOnlinePaymentID',
+        'format' => 'raw',
+        'value' => function($model) {
+          if (empty($model->wtrOnlinePaymentID))
+            return null;
+
+          return Html::a($model->wtrOnlinePaymentID, ['/aaa/online-payment/view', 'id' => $model->wtrOnlinePaymentID]);
+        },
+      ],
+      [
+        'attribute' => 'wtrOfflinePaymentID',
+        'format' => 'raw',
+        'value' => function($model) {
+          if (empty($model->wtrOfflinePaymentID))
+            return null;
+
+          return Html::a($model->wtrOfflinePaymentID, ['/aaa/offline-payment/view', 'id' => $model->wtrOfflinePaymentID]);
+        },
+      ],
+      [
+        'attribute' => 'credit',
+        'label' => 'واریز',
+        'contentOptions' => [
+          'class' => ['text-nowrap', 'tabular-nums'],
+        ],
+        'value' => function($model) {
+          if ($model->wtrAmount > 0)
+            return Yii::$app->formatter->asToman($model->wtrAmount);
+          return '';
+        },
+      ],
+      [
+        'attribute' => 'debit',
+        'label' => 'برداشت',
+        'contentOptions' => [
+          'class' => ['text-nowrap', 'tabular-nums'],
+        ],
+        'value' => function($model) {
+          if ($model->wtrAmount < 0)
+            return Yii::$app->formatter->asToman(abs($model->wtrAmount));
+          return '';
+        },
+      ],
+
       // [
       //   'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
       //   'enumClass' => enuWalletTransactionStatus::class,

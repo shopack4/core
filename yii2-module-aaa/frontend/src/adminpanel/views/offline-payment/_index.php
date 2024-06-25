@@ -78,17 +78,17 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
     'ofpBankOrCart',
     'ofpTrackNumber',
     'ofpReferenceNumber',
-    'ofpAmount:toman',
     'ofpPayDate:jalaliWithTime',
+    [
+      'attribute' => 'ofpWalletID',
+      'format' => 'raw',
+      'value' => function ($model, $key, $index, $widget) {
+        return Html::a($model->wallet->walID . ' - ' . $model->wallet->walName, ['/aaa/wallet/view', 'id' => $model->ofpWalletID]);
+      },
+    ],
+    'ofpAmount:toman',
     // 'ofpPayer',
     // 'ofpSourceCartNumber',
-    // [
-    //   'attribute' => 'ofpWalletID',
-    //   'format' => 'raw',
-    //   'value' => function ($model, $key, $index, $widget) {
-    //     return Html::a($model->wallet->walName, ['/aaa/wallet/view', 'id' => $model->ofpWalletID]);
-    //   },
-    // ],
     [
       'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
       'enumClass' => enuOfflinePaymentStatus::class,

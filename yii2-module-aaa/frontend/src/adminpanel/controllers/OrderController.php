@@ -18,6 +18,7 @@ use shopack\aaa\frontend\common\models\WalletModel;
 use shopack\aaa\frontend\common\models\WalletSearchModel;
 use shopack\aaa\frontend\common\models\WalletIncreaseForm;
 use shopack\aaa\frontend\common\models\OnlinePaymentModel;
+use shopack\aaa\frontend\common\models\VoucherModel;
 use shopack\aaa\frontend\common\models\VoucherSearchModel;
 
 class OrderController extends BaseController
@@ -35,6 +36,14 @@ class OrderController extends BaseController
   //   $this->setViewPath($viewPath);
   // }
 
+	protected function findModel($id)
+	{
+		if (($model = VoucherModel::findOne($id)) === null)
+      throw new NotFoundHttpException('The requested item does not exist.');
+
+    return $model;
+	}
+
   public function actionIndex()
   {
     $searchModel = new VoucherSearchModel();
@@ -48,6 +57,7 @@ class OrderController extends BaseController
 			'searchModel' => $searchModel,
 			'dataProvider' => $dataProvider,
 		];
+
     if (isset($params))
       $viewParams = array_merge($viewParams, $params);
 
@@ -55,6 +65,18 @@ class OrderController extends BaseController
 			return $this->renderJson($this->renderAjax('_index', $viewParams));
 
     return $this->render('index', $viewParams);
+  }
+
+  public function actionView($id)
+  {
+    $model = $this->findModel($id);
+
+    if ($model->vchType != enuVoucherType::Invoice)
+      throw new BadRequestHttpException('Item is not invoice');
+
+    return $this->render('view', [
+      'model' => $model,
+    ]);
   }
 
 }

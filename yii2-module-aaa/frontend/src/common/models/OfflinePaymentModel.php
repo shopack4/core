@@ -33,7 +33,7 @@ class OfflinePaymentModel extends RestClientActiveRecord
 			'ofpPayer'        	  => Yii::t('aaa', 'Payer'),
 			'ofpSourceCartNumber' => Yii::t('aaa', 'Source Cart Number'),
 			'ofpImageFileID'      => Yii::t('aaa', 'Image'),
-			'ofpWalletID'         => Yii::t('aaa', 'Wallet'),
+			'ofpWalletID'         => Yii::t('aaa', 'Destination Wallet'),
 			'ofpComment'          => Yii::t('aaa', 'Comment'),
 			'ofpStatus'           => Yii::t('app', 'Status'),
 			'ofpCreatedAt'        => Yii::t('app', 'Created At'),

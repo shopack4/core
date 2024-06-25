@@ -61,7 +61,6 @@ use shopack\aaa\frontend\common\models\OnlinePaymentModel;
 
   $columns = array_merge($columns, [
     'onpID',
-    'onpAmount:toman',
     [
       'attribute' => 'onpGatewayID',
       'value' => function($model) {
@@ -86,6 +85,15 @@ use shopack\aaa\frontend\common\models\OnlinePaymentModel;
         'class' => ['small'],
       ],
     ],
+    [
+      'attribute' => 'onpWalletID',
+      'format' => 'raw',
+      'value' => function ($model, $key, $index, $widget) {
+        return Html::a($model->wallet->walID . ' - ' . $model->wallet->walName, ['/aaa/wallet/view', 'id' => $model->onpWalletID]);
+      },
+    ],
+    'onpAmount:toman',
+
     [
       'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
       'enumClass' => enuOnlinePaymentStatus::class,
