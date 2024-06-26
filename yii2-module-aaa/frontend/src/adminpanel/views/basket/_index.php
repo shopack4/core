@@ -68,10 +68,10 @@ use shopack\base\frontend\common\widgets\grid\GridView;
           Yii::t('aaa', 'Qty'),
           Yii::t('aaa', 'Unit'),
           Yii::t('aaa', 'Unit Price'),
-          Yii::t('aaa', 'SUb Total'),
+          Yii::t('aaa', 'Sub Total'),
           Yii::t('aaa', 'Discount Amount'),
           Yii::t('aaa', 'VAT Amount'),
-          Yii::t('aaa', 'Total Amount'),
+          Yii::t('aaa', 'Total Price'),
         ]) . '</td></tr>';
 
         if (is_array($vchItems)) {
