@@ -9,82 +9,54 @@ use Yii;
 use yii\base\Model;
 use yii\web\NotFoundHttpException;
 use yii\web\UnauthorizedHttpException;
-use yii\web\ServerErrorHttpException;
-use yii\web\ForbiddenHttpException;
 use yii\web\UnprocessableEntityHttpException;
+use shopack\base\common\helpers\HttpHelper;
 use shopack\aaa\common\enums\enuVoucherStatus;
-use shopack\aaa\common\enums\enuWalletStatus;
-use shopack\aaa\backend\models\WalletTransactionModel;
-use shopack\aaa\backend\models\DeliveryMethodModel;
 use shopack\aaa\common\enums\enuVoucherType;
+use shopack\aaa\common\enums\enuWalletStatus;
+use yii\web\ForbiddenHttpException;
 
-class BasketCheckoutForm extends Model
+class OrderPaymentForm extends Model
 {
-	public $deliveryMethod;
+	public $vchID;
 	public $walletID;
-	public $gatewayType;
+  public $gatewayType;
   public $callbackUrl;
 
 	public function rules()
 	{
 		return [
-			[[
-				'deliveryMethod',
-				'walletID',
-				'gatewayType',
-        'callbackUrl',
-			], 'string'],
-
-			[[
-				// 'gatewayType',
-        'callbackUrl',
-			], 'required'],
+			['vchID', 'required'],
+			['walletID', 'safe'],
+      ['gatewayType', 'safe'],
+			['callbackUrl', 'safe'],
 		];
-
 	}
 
-	public function checkout()
+	public function process()
 	{
-		$voucherModel = BasketForm::getCurrentBasket();
-		if ($voucherModel == null)
-			throw new NotFoundHttpException('Basket not found');
+		//validation
+		if (Yii::$app->user->isGuest)
+			throw new UnauthorizedHttpException("This process is not for guest.");
 
-		if (empty($voucherModel->vchItems))
-			throw new UnprocessableEntityHttpException('Basket is empty');
+		if ($this->validate() == false)
+			throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+
+		$voucherModel = VoucherModel::find()
+			->andWhere(['vchID' => $this->vchID])
+			->andWhere(['vchType' => enuVoucherType::Invoice])
+			->one();
+
+		if ($voucherModel == null)
+			throw new NotFoundHttpException('The requested item does not exist.');
+
+		if ($voucherModel->vchStatus != enuVoucherStatus::WaitForPayment)
+			throw new UnauthorizedHttpException('وضعیت سفارش باید منتظر پرداخت باشد.');
 
 		if ($voucherModel->vchOwnerUserID != Yii::$app->user->id)
 			throw new ForbiddenHttpException('Basket is not yours');
 
-		// $totalAmount = 0;
-		// $vchItems = $voucherModel->vchItems;
-
-		// foreach ($vchItems as $item) {
-		// 	//todo: use ['totalprice'] that computed by discount and tax in own micro service
-		// 	$totalAmount += $item['unitprice'] * $item['qty'];
-		// }
-
-		//--
-    if ($this->validate() == false)
-      throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
-
-		if (empty($this->deliveryMethod) == false) {
-			$deliveryMethodModel = DeliveryMethodModel::find()->andWhere([
-				'dlvID' => $this->deliveryMethod,
-			])->one();
-
-			$voucherModel->vchDeliveryMethodID = $deliveryMethodModel->dlvID;
-
-			if ($deliveryMethodModel->dlvAmount > 0) {
-				$voucherModel->vchDeliveryAmount = $deliveryMethodModel->dlvAmount;
-
-				$voucherModel->vchTotalAmount =
-						$voucherModel->vchTotalAmount
-					+ $voucherModel->vchDeliveryAmount;
-			}
-
-			$voucherModel->save();
-		}
-
+		//process
 		$remainedAmount = $voucherModel->vchTotalAmount - $voucherModel->vchTotalPaid;
 
 		if (($this->walletID === null) && empty($this->gatewayType) && ($remainedAmount > 0))
@@ -149,7 +121,6 @@ SQL;
 	UPDATE	{$voucherTableName}
 		 SET	vchPaidByWallet = IFNULL(vchPaidByWallet, 0) + {$walletAmount}
 		 	 ,	vchTotalPaid = IFNULL(vchTotalPaid, 0) + {$walletAmount}
-			 ,	vchType = {$fnGetConstQouted(enuVoucherType::Invoice)}
 			 ,	vchStatus = IF(vchTotalAmount = IFNULL(vchTotalPaid, 0) + {$walletAmount},
 			 			{$fnGetConstQouted(enuVoucherStatus::Settled)},
 						{$fnGetConstQouted(enuVoucherStatus::WaitForPayment)}
@@ -207,6 +178,6 @@ SQL;
 			];
 		}
 
-  }
+	}
 
 }

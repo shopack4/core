@@ -218,12 +218,14 @@ class Module
 
 					'extraPatterns' => [
 						'process-voucher/{id}' => 'process-voucher',
-						'POST change-order-delivery-method' => 'change-order-delivery-method',
+
 						'POST get-or-create-open-invoice' => 'get-or-create-open-invoice',
 						'POST update-open-invoice' => 'update-open-invoice',
-						'POST update-open-invoice' => 'update-open-invoice',
 						'POST set-invoice-as-wait-for-payment' => 'set-invoice-as-wait-for-payment',
-						'POST cancel' => 'cancel',
+
+						'POST order-change-delivery-method/{id}' => 'order-change-delivery-method',
+						'POST order-payment/{id}' => 'order-change-delivery-method',
+						'POST cancel/{id}' => 'cancel',
 					],
 				],
 				[

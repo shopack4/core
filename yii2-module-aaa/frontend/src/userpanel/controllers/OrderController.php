@@ -12,7 +12,8 @@ use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\frontend\common\auth\BaseController;
 use shopack\aaa\frontend\common\models\VoucherModel;
 use shopack\aaa\frontend\common\models\VoucherSearchModel;
-use shopack\aaa\frontend\userpanel\models\ChangeOrderDeliveryMethodForm;
+use shopack\aaa\frontend\userpanel\models\OrderChangeDeliveryMethodForm;
+use shopack\aaa\frontend\userpanel\models\OrderPaymentForm;
 
 class OrderController extends BaseController
 {
@@ -64,18 +65,13 @@ class OrderController extends BaseController
 
   public function actionChangeDeliveryMethod($id)
   {
-    $model = new ChangeOrderDeliveryMethodForm();
+    $model = new OrderChangeDeliveryMethodForm();
     $model->vchID = $id;
 
 		$formPosted = $model->load(Yii::$app->request->post());
 		$done = false;
-
-		if ($formPosted) {
+		if ($formPosted)
 			$done = $model->process();
-    } else {
-      $voucherModel = $this->findModel($id);
-      $model->deliveryMethod = $voucherModel->vchDeliveryMethodID;
-    }
 
     if (Yii::$app->request->isAjax) {
       if ($done) {
@@ -109,7 +105,48 @@ class OrderController extends BaseController
     ]);
   }
 
-  //todo:actionPay
+  public function actionPay($id)
+  {
+    $model = new OrderPaymentForm();
+    $model->vchID = $id;
+
+		$formPosted = $model->load(Yii::$app->request->post());
+		$done = false;
+		if ($formPosted)
+			$done = $model->process();
+
+    if (Yii::$app->request->isAjax) {
+      if ($done != false) {
+        return $this->renderJson([
+          'message' => Yii::t('app', 'Success'),
+          // 'id' => $id,
+          'redirect' => $done['paymentUrl'],
+          // 'modalDoneFragment' => $this->modalDoneFragment,
+        ]);
+      }
+
+      if ($formPosted) {
+        return $this->renderJson([
+          'status' => 'Error',
+          'message' => Yii::t('app', 'Error'),
+          // 'id' => $id,
+          'error' => Html::errorSummary($model),
+        ]);
+      }
+
+      return $this->renderAjaxModal('_payment_form', [
+        'model' => $model,
+      ]);
+    }
+
+    if ($done != false)
+      return $this->redirect($done['paymentUrl']);
+
+    return $this->render('payment', [
+      'model' => $model,
+    ]);
+  }
+
   //todo:actionCancel
 
 }

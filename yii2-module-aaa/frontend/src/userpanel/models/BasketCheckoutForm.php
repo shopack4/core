@@ -172,20 +172,28 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 		$this->total = $this->voucher['vchTotalAmount'] - ($this->voucher['vchTotalPaid'] ?? 0);
 	}
 
+	private $_deliveryMethodModel = null;
 	public function deliveryMethodModel()
 	{
-		if ($this->deliveryMethod == null)
-			return null;
+		if ($this->deliveryMethod == null) {
+			$this->_deliveryMethodModel = null;
+		} else if ($this->_deliveryMethodModel == null) {
+			$this->_deliveryMethodModel = DeliveryMethodModel::find()->andWhere(['dlvID' => $this->deliveryMethod])->one();
+		}
 
-		return DeliveryMethodModel::find()->andWhere(['dlvID' => $this->deliveryMethod])->one();
+		return $this->_deliveryMethodModel;
 	}
 
+	private $_walletModel = null;
 	public function walletModel()
 	{
-		if ($this->walletID == null)
-			return null;
+		if ($this->walletID == null) {
+			$this->_walletModel = null;
+		} else if ($this->_walletModel == null) {
+			$this->_walletModel = WalletModel::find()->andWhere(['walID' => $this->walletID])->one();
+		}
 
-		return WalletModel::find()->andWhere(['walID' => $this->walletID])->one();
+		return $this->_walletModel;
 	}
 
 	public function load($data, $formName = null)
@@ -206,8 +214,10 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 
 		//-------------------------
 		$this->steps = [];
+
 		if ($this->physicalCount > 0)
 			$this->steps[] = BasketCheckoutForm::STEP_DELIVERY;
+
 		if (($this->total > 0) || ($this->walletAmount > 0))
 			$this->steps[] = BasketCheckoutForm::STEP_PAYMENT;
 

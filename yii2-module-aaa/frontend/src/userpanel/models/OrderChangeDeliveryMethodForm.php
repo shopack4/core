@@ -9,8 +9,9 @@ use Yii;
 use yii\base\Model;
 use yii\web\HttpException;
 use shopack\base\common\helpers\HttpHelper;
+use shopack\aaa\frontend\common\models\VoucherModel;
 
-class ChangeOrderDeliveryMethodForm extends Model
+class OrderChangeDeliveryMethodForm extends Model
 {
 	public $vchID;
 	public $deliveryMethod;
@@ -32,12 +33,32 @@ class ChangeOrderDeliveryMethodForm extends Model
 		];
 	}
 
+	private $_voucherModel = null;
+	public function voucher()
+	{
+		if ($this->_voucherModel == null)
+			$this->_voucherModel = VoucherModel::find()->andWhere(['vchID' => $this->vchID])->one();
+
+		return $this->_voucherModel;
+	}
+
+	public function load($data, $formName = null)
+	{
+		if (parent::load($data, $formName) == false) {
+      $this->deliveryMethod = $this->voucher->vchDeliveryMethodID;
+
+			return false;
+		}
+
+		return true;
+	}
+
 	public function process()
 	{
     if ($this->validate() == false)
       throw new HttpException(400, implode("\n", $this->getFirstErrors()));
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/voucher/change-order-delivery-method',
+    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/voucher/order-change-delivery-method',
       HttpHelper::METHOD_POST,
       [],
       [

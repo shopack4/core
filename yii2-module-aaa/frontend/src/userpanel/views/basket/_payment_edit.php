@@ -6,11 +6,9 @@
 /** @var yii\web\View $this */
 
 // use NumberFormatter;
-use shopack\base\frontend\common\widgets\ActiveForm;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\models\WalletModel;
 use shopack\aaa\frontend\common\models\OnlinePaymentModel;
-use shopack\aaa\frontend\userpanel\models\BasketCheckoutForm;
 ?>
 
 <div class='card border-success'>
@@ -25,6 +23,7 @@ use shopack\aaa\frontend\userpanel\models\BasketCheckoutForm;
       $currencyFormatter = Yii::$app->formatter->getCurrencyFormatter();
       $thousandSeparator = $currencyFormatter->getSymbol(\NumberFormatter::GROUPING_SEPARATOR_SYMBOL);
 
+      $modelWalletID_id = Html::getInputId($model, 'walletID');
       $modelGatewayType_id = Html::getInputId($model, 'gatewayType');
 
       $js =<<<JS
@@ -153,14 +152,12 @@ JS;
           echo "<p>برداشت از کیف پول:</p>";
           echo "<p>" . implode("</p><p>", $walletItems) . "</p>";
 
-          $modelWalletID_id = Html::getInputId($model, 'walletID');
-          $modelPatewayType_id = Html::getInputId($model, 'gatewayType');
-
           $js =<<<JS
 $('[id^="walletid-"]').each(function() { $(this).on('change', function(e) {
-nullableRadioCheckChanged('walletid', '{$modelWalletID_id}', e);
-checkWalletSelection();
+  nullableRadioCheckChanged('walletid', '{$modelWalletID_id}', e);
+  checkWalletSelection();
 }); });
+
 checkWalletSelection();
 JS;
           $this->registerJs($js, \yii\web\View::POS_READY);

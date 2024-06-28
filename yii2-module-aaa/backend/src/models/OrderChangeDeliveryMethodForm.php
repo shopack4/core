@@ -5,16 +5,16 @@
 
 namespace shopack\aaa\backend\models;
 
-use shopack\aaa\common\enums\enuVoucherStatus;
-use shopack\aaa\common\enums\enuVoucherType;
 use Yii;
 use yii\base\Model;
-use shopack\base\common\helpers\HttpHelper;
 use yii\web\NotFoundHttpException;
 use yii\web\UnauthorizedHttpException;
 use yii\web\UnprocessableEntityHttpException;
+use shopack\base\common\helpers\HttpHelper;
+use shopack\aaa\common\enums\enuVoucherStatus;
+use shopack\aaa\common\enums\enuVoucherType;
 
-class ChangeOrderDeliveryMethodForm extends Model
+class OrderChangeDeliveryMethodForm extends Model
 {
 	public $vchID;
 	public $deliveryMethod;

@@ -6,16 +6,11 @@
 /** @var yii\web\View $this */
 
 // use NumberFormatter;
-use shopack\base\frontend\common\widgets\ActiveForm;
 use shopack\base\frontend\common\helpers\Html;
-use shopack\aaa\frontend\common\models\WalletModel;
-use shopack\aaa\frontend\common\models\OnlinePaymentModel;
-use shopack\aaa\frontend\userpanel\models\BasketCheckoutForm;
-use shopack\aaa\frontend\common\models\DeliveryMethodModel;
-use shopack\aaa\common\enums\enuDeliveryMethodStatus;
-use shopack\aaa\common\enums\enuDeliveryMethodType;
+use shopack\base\frontend\common\widgets\ActiveForm;
 use shopack\base\frontend\common\widgets\FormBuilder;
-
+use shopack\aaa\common\enums\enuDeliveryMethodStatus;
+use shopack\aaa\frontend\common\models\DeliveryMethodModel;
 ?>
 
 <div class='delivery-method-form'>
