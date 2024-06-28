@@ -27,11 +27,16 @@ class Formatter extends \yii\i18n\Formatter
 		/* true  */ "<i class='fa fa-check text-success'></i>"
 	];
 
+	public function init()
+	{
+		// $this->locale = Yii::$app->language . '@numbers=decimal';
+		parent::init();
+	}
+
 	public function getCurrencyFormatter()
 	{
 		return $this->createNumberFormatter(NumberFormatter::CURRENCY);
 	}
-
 
 	private static $en2fa_map = [
 		',' => '٬'

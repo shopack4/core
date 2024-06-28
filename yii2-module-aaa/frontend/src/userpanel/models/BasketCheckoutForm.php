@@ -8,15 +8,12 @@ namespace shopack\aaa\frontend\userpanel\models;
 use Yii;
 use yii\base\Model;
 use shopack\base\common\helpers\Url;
+use shopack\base\common\helpers\Json;
 use shopack\base\common\helpers\HttpHelper;
-use shopack\base\frontend\common\helpers\Html;
-use shopack\aaa\frontend\common\models\VoucherModel;
-use shopack\aaa\common\enums\enuVoucherType;
-use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\base\common\accounting\enums\enuProductType;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\models\DeliveryMethodModel;
 use shopack\aaa\frontend\common\models\WalletModel;
-use shopack\base\common\helpers\Json;
 
 class BasketCheckoutForm extends Model //RestClientActiveRecord
 {
@@ -38,12 +35,14 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 	public $deliveryMethod = null;
 	public $deliveryAmount = 0;
 
-	// public $paid = 0;
-	public $total = 0;
-
 	public $currentStep;
 	public $walletID = null;
 	public $gatewayType;
+
+	// public $subTotal = 0; //=$this->voucher['vchTotalAmount']
+	// public $paid = 0; //=vchTotalPaid
+	public $walletAmount = 0;
+	public $total = 0;
 
 	public $steps;
 
@@ -94,13 +93,13 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 			'vchItemsDiscounts'   => Yii::t('aaa', 'Discount Amount'),
 			'vchItemsVATs'   			=> Yii::t('aaa', 'VAT Amount'),
 			'vchDeliveryAmount'   => Yii::t('aaa', 'Delivery Amount'),
-			'vchTotalAmount'      => Yii::t('aaa', 'Total Amount'),
+			'vchTotalAmount'      => Yii::t('aaa', 'Total Price'),
 			'vchPaidByWallet'     => Yii::t('aaa', 'Paid By Wallet'),
 			'vchOnlinePaid'       => Yii::t('aaa', 'Online Paid'),
 			'vchOfflinePaid'      => Yii::t('aaa', 'Offline Paid'),
 			'vchTotalPaid'        => Yii::t('aaa', 'Total Paid'),
 
-      'walletamount' => 'برداشت از کیف پول',
+      'walletAmount' => 'برداشت از کیف پول',
 			'total'        => 'قابل پرداخت',
 
 			'deliveryMethod'			=> Yii::t('aaa', 'Delivery Method'),
@@ -170,22 +169,7 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 			}
 		}
 
-		$this->total =
-			$this->voucher['vchTotalAmount']
-			- ($this->voucher['vchTotalPaid'] ?? 0);
-
-		//-------------------------
-		$this->steps = [];
-		if ($this->physicalCount > 0)
-			$this->steps[] = BasketCheckoutForm::STEP_DELIVERY;
-		if ($this->total > 0)
-			$this->steps[] = BasketCheckoutForm::STEP_PAYMENT;
-
-		// if (empty($steps))
-			$this->steps[] = BasketCheckoutForm::STEP_FIN;
-
-		if (empty($this->currentStep))
-			$this->currentStep = $this->steps[0];
+		$this->total = $this->voucher['vchTotalAmount'] - ($this->voucher['vchTotalPaid'] ?? 0);
 	}
 
 	public function deliveryMethodModel()
@@ -209,14 +193,29 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 		$ret = parent::load($data, $formName);
 
 		$deliveryMethodModel = $this->deliveryMethodModel();
-
-		if ($deliveryMethodModel == null) {
-			$this->deliveryAmount = 0;
-		} else {
+		if (empty($deliveryMethodModel->dlvAmount) == false) {
 			$this->deliveryAmount = $deliveryMethodModel->dlvAmount;
+			$this->total += $this->deliveryAmount;
 		}
 
-		$this->total += $this->deliveryAmount;
+		$walletModel = $this->walletModel();
+		if (empty($walletModel->walRemainedAmount) == false) {
+			$this->walletAmount = min($walletModel->walRemainedAmount, $this->total);
+			$this->total -= $this->walletAmount;
+		}
+
+		//-------------------------
+		$this->steps = [];
+		if ($this->physicalCount > 0)
+			$this->steps[] = BasketCheckoutForm::STEP_DELIVERY;
+		if (($this->total > 0) || ($this->walletAmount > 0))
+			$this->steps[] = BasketCheckoutForm::STEP_PAYMENT;
+
+		// if (empty($steps))
+			$this->steps[] = BasketCheckoutForm::STEP_FIN;
+
+		if (empty($this->currentStep))
+			$this->currentStep = $this->steps[0];
 
 		return $ret;
 	}

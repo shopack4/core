@@ -264,7 +264,7 @@ HTML;
                 ],
                 [
                   'attribute' => 'totalPrice',
-                  'label' => Yii::t('aaa', 'Total Amount'),
+                  'label' => Yii::t('aaa', 'Total Price'),
                   'format' => 'toman',
                   'pageSummary' => true,
                 ],

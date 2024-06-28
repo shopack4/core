@@ -208,7 +208,7 @@ return [
 	'Discount Amount' => 'تخفیف',
 	'VAT Amount' => 'مالیات',
 	'Delivery Amount' => 'هزینه ارسال',
-	'Total Amount' => 'مبلغ کل',
+	// 'Total Amount' => 'مبلغ کل',
 	'Remained Amount' => 'موجودی',
 	'Total Paid' => 'پرداخت شده',
 	'Order Items' => 'اقلام سفارش',

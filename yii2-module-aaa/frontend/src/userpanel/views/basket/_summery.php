@@ -78,21 +78,26 @@ use shopack\base\frontend\common\helpers\Html;
 
   $attributes = array_merge($attributes, [
     [
-      'attribute' => 'walletamount',
+      'attribute' => 'walletAmount',
       'format' => 'raw',
-      'value' => Html::span('', ['id' => 'spn-walletamount']),
+      'value' => Html::span(Yii::$app->formatter->asToman($model['walletAmount']), [
+        'id' => 'spn-walletamount',
+      ]),
       'rowOptions' => [
         'id' => 'row-walletamount',
-        'class' => 'table-active',
-        'style' => 'display:none',
+        'class' => ['table-active'],
+        'style' => (empty($model['walletAmount']) ? 'display:none' : null),
       ],
     ],
     [
       'attribute' => 'total',
       'format' => 'raw',
-      'value' => Html::span(Yii::$app->formatter->asToman($model['total']), ['id' => 'spn-total']),
+      'value' => Html::span(Yii::$app->formatter->asToman($model['total']), [
+        'id' => 'spn-total',
+        'class' => ['fw-bold'],
+      ]),
       'rowOptions' => [
-        'class' => 'table-active',
+        'class' => ['table-active'],
       ],
     ],
   ]);
