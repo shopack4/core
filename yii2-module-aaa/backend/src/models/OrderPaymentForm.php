@@ -35,6 +35,11 @@ class OrderPaymentForm extends Model
 
 	public function process()
 	{
+		if ($this->vchID == '')				$this->vchID = null;
+		if ($this->walletID == '')		$this->walletID = null;
+		if ($this->gatewayType == '')	$this->gatewayType = null;
+		if ($this->callbackUrl == '')	$this->callbackUrl = null;
+
 		//validation
 		if (Yii::$app->user->isGuest)
 			throw new UnauthorizedHttpException("This process is not for guest.");
@@ -63,7 +68,7 @@ class OrderPaymentForm extends Model
 			throw new UnprocessableEntityHttpException('One of the wallet or payment type must be selected');
 
 		$walletAmount = 0;
-		if (($remainedAmount > 0) && ($this->walletID >= 0)) {
+		if (($remainedAmount > 0) && ($this->walletID !== null) && ($this->walletID >= 0)) {
 			$walletModel = WalletModel::find()
 				->andWhere(['walOwnerUserID' => Yii::$app->user->id])
 				->andWhere(['!=', 'walStatus', enuWalletStatus::Removed]);
@@ -121,22 +126,29 @@ SQL;
 	UPDATE	{$voucherTableName}
 		 SET	vchPaidByWallet = IFNULL(vchPaidByWallet, 0) + {$walletAmount}
 		 	 ,	vchTotalPaid = IFNULL(vchTotalPaid, 0) + {$walletAmount}
-			 ,	vchStatus = IF(vchTotalAmount = IFNULL(vchTotalPaid, 0) + {$walletAmount},
+	 WHERE	vchID = {$voucherModel->vchID}
+SQL;
+				$rowsCount = Yii::$app->db->createCommand($qry)->execute();
+
+				$qry =<<<SQL
+	UPDATE	{$voucherTableName}
+		 SET	vchStatus = IF(vchTotalAmount = IFNULL(vchTotalPaid, 0),
 			 			{$fnGetConstQouted(enuVoucherStatus::Settled)},
 						{$fnGetConstQouted(enuVoucherStatus::WaitForPayment)}
 			 		)
 	 WHERE	vchID = {$voucherModel->vchID}
 SQL;
 				$rowsCount = Yii::$app->db->createCommand($qry)->execute();
-				// , vchStatus = {$fnGetConstQouted(enuVoucherStatus::Settled)}
 
 				$voucherModel->refresh();
 			}
 
 			//------------------------
 			if ($remainedAmount == 0) {
-				// $voucherModel->vchStatus = enuVoucherStatus::Settled;
-				// $voucherModel->save();
+				if ($voucherModel->vchStatus != enuVoucherStatus::Settled) {
+					$voucherModel->vchStatus = enuVoucherStatus::Settled;
+					$voucherModel->save();
+				}
 
 				if (isset($transaction))
 					$transaction->commit();

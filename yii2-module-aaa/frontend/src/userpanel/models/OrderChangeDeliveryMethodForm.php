@@ -34,7 +34,7 @@ class OrderChangeDeliveryMethodForm extends Model
 	}
 
 	private $_voucherModel = null;
-	public function voucher()
+	public function getVoucher()
 	{
 		if ($this->_voucherModel == null)
 			$this->_voucherModel = VoucherModel::find()->andWhere(['vchID' => $this->vchID])->one();
@@ -60,9 +60,10 @@ class OrderChangeDeliveryMethodForm extends Model
 
     list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/voucher/order-change-delivery-method',
       HttpHelper::METHOD_POST,
-      [],
       [
-				'vchID'						=> $this->vchID,
+				'id' => $this->vchID,
+			],
+      [
 				'deliveryMethod'	=> $this->deliveryMethod,
 			]
     );

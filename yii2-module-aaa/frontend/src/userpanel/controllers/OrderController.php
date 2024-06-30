@@ -14,6 +14,8 @@ use shopack\aaa\frontend\common\models\VoucherModel;
 use shopack\aaa\frontend\common\models\VoucherSearchModel;
 use shopack\aaa\frontend\userpanel\models\OrderChangeDeliveryMethodForm;
 use shopack\aaa\frontend\userpanel\models\OrderPaymentForm;
+use shopack\base\common\helpers\HttpHelper;
+use yii\web\BadRequestHttpException;
 
 class OrderController extends BaseController
 {
@@ -117,11 +119,15 @@ class OrderController extends BaseController
 
     if (Yii::$app->request->isAjax) {
       if ($done != false) {
+        if ($done === true) {
+          return $this->renderJson([
+            'message' => Yii::t('app', 'Success'),
+          ]);
+        }
+
         return $this->renderJson([
           'message' => Yii::t('app', 'Success'),
-          // 'id' => $id,
           'redirect' => $done['paymentUrl'],
-          // 'modalDoneFragment' => $this->modalDoneFragment,
         ]);
       }
 
@@ -147,6 +153,21 @@ class OrderController extends BaseController
     ]);
   }
 
-  //todo:actionCancel
+	public function actionCancel($id)
+	{
+    if (empty($_POST['confirmed']))
+      throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
+
+		if (Yii::$app->request->isAjax == false)
+			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');
+
+		$done = VoucherModel::doCancel($id);
+
+		return $this->renderJson([
+			'status' => 'Ok',
+			'message' => Yii::t('app', 'Success'),
+			'modalDoneFragment' => $this->modalDoneFragment,
+		]);
+	}
 
 }

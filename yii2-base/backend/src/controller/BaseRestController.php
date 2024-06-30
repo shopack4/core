@@ -14,6 +14,7 @@ use shopack\base\common\helpers\Json;
 use shopack\base\common\security\RsaPublic;
 use shopack\base\backend\controller\BaseController;
 use shopack\base\backend\auth\JwtHttpBearerAuth;
+use shopack\base\common\security\RsaPrivate;
 
 class BaseRestController extends BaseController
 {
@@ -88,10 +89,17 @@ class BaseRestController extends BaseController
 
 		$module = Yii::$app->controller->module;
 
-		$key = $module->servicesPublicKeys[$service];
-		$rsaModel = RsaPublic::model($key);
-		$data = $rsaModel->decrypt($data);
+		//public or private?
+		if (isset($module->servicesPublicKeys)) {
+			$key = $module->servicesPublicKeys[$service];
+			$rsaModel = RsaPublic::model($key);
+		} else {
+			$parentModule = Yii::$app->topModule;
+			$key = $parentModule->servicePrivateKey;
+			$rsaModel = RsaPrivate::model($key);
+		}
 
+		$data = $rsaModel->decrypt($data);
 		$data = Json::decode($data);
 
 		if ($service != $data['service']) //todo: change to sanity check

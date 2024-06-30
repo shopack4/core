@@ -32,7 +32,7 @@ use shopack\base\frontend\common\widgets\FormBuilder;
     $currencyFormatter = Yii::$app->formatter->getCurrencyFormatter();
     $thousandSeparator = $currencyFormatter->getSymbol(\NumberFormatter::GROUPING_SEPARATOR_SYMBOL);
 
-    $modelWalletID_id = Html::getInputId($model, 'walletID');
+    // $modelWalletID_id = Html::getInputId($model, 'walletID');
     $modelGatewayType_id = Html::getInputId($model, 'gatewayType');
 
 		$builder = $form->getBuilder();
@@ -60,6 +60,8 @@ use shopack\base\frontend\common\widgets\FormBuilder;
         ];
       }
 
+      // $form->registerActiveHiddenInput($model, 'walletID');
+
       $builder->fields([
         "<p>برداشت از کیف پول:</p>",
         [
@@ -79,7 +81,7 @@ use shopack\base\frontend\common\widgets\FormBuilder;
       $js =<<<JS
 var walletItemsByIndex = {$walletItemsByIndex};
 var _lock_nullableRadioCheckChanged = false;
-function nullableRadioCheckChanged(prefix, hiddenid, e) {
+function nullableRadioCheckChanged(e, prefix/*, hiddenid*/) {
   if (_lock_nullableRadioCheckChanged)
     return;
 
@@ -101,11 +103,13 @@ function nullableRadioCheckChanged(prefix, hiddenid, e) {
     var el = $(this);
 
     if (el.attr('id') == sender.id) {
-      if (el.is(':checked')) {
-        checkid = el.attr('id').substr(prefix.length + 1);
-        $('#' + hiddenid).val(checkid);
-      } else
-        $('#' + hiddenid).val('');
+      // if (el.is(':checked')) {
+      //   checkidx = el.attr('id').substr(prefix.length + 1);
+      //   walId = walletItemsByIndex[checkidx].walId;
+      //   $('#' + hiddenid).val(walId);
+      // } else {
+      //   $('#' + hiddenid).val('');
+      // }
     } else if (el.is(':checked')) {
       el.prop('checked', false);
     }
@@ -171,7 +175,7 @@ JS;
 
       $js =<<<JS
 $('[id^="{$formNameLower}-walletid--"]').each(function() { $(this).on('change', function(e) {
-  nullableRadioCheckChanged('{$formNameLower}-walletid-', '{$modelWalletID_id}', e);
+  nullableRadioCheckChanged(e, '{$formNameLower}-walletid-'); //, '{ modelWalletID_id}');
   checkWalletSelection();
 }); });
 checkWalletSelection();

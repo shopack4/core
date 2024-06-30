@@ -111,7 +111,7 @@ class OrderChangeDeliveryMethodForm extends Model
 		//c3,4,5,6
 		if ($voucherRemainedAmount >= 0) {
 
-			//c4 : change status for for finalize
+			//c4 : change status for finalize
 			if ($voucherRemainedAmount == 0)
 				$voucherModel->vchStatus = enuVoucherStatus::Settled;
 

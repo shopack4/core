@@ -401,6 +401,14 @@ SQL;
 	public function doCancel()
 	{
 		//todo: voucher::doCancel()
+
+
+
+
+
+
+
+
 		throw new UnprocessableEntityHttpException('not implemented yet');
 	}
 

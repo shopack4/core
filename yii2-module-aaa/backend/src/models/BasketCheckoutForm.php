@@ -150,14 +150,19 @@ SQL;
 		 SET	vchPaidByWallet = IFNULL(vchPaidByWallet, 0) + {$walletAmount}
 		 	 ,	vchTotalPaid = IFNULL(vchTotalPaid, 0) + {$walletAmount}
 			 ,	vchType = {$fnGetConstQouted(enuVoucherType::Invoice)}
-			 ,	vchStatus = IF(vchTotalAmount = IFNULL(vchTotalPaid, 0) + {$walletAmount},
+	 WHERE	vchID = {$voucherModel->vchID}
+SQL;
+				$rowsCount = Yii::$app->db->createCommand($qry)->execute();
+
+				$qry =<<<SQL
+	UPDATE	{$voucherTableName}
+		 SET	vchStatus = IF(vchTotalAmount = IFNULL(vchTotalPaid, 0),
 			 			{$fnGetConstQouted(enuVoucherStatus::Settled)},
 						{$fnGetConstQouted(enuVoucherStatus::WaitForPayment)}
 			 		)
 	 WHERE	vchID = {$voucherModel->vchID}
 SQL;
 				$rowsCount = Yii::$app->db->createCommand($qry)->execute();
-				// , vchStatus = {$fnGetConstQouted(enuVoucherStatus::Settled)}
 
 				$voucherModel->refresh();
 			}

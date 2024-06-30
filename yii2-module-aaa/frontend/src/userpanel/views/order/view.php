@@ -119,6 +119,10 @@ $hasVAT = (empty($model->vchItemsVATs) == false);
 		</div>
   </div>
 
+  <?php
+    //todo: checkpaid
+  ?>
+
   <div style='margin-top: 25px;'>
       <?php
         $vchItems = $model->vchItems;

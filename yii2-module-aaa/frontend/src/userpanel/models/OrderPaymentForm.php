@@ -59,7 +59,7 @@ class OrderPaymentForm extends Model
     if ($this->validate() == false)
       throw new HttpException(400, implode("\n", $this->getFirstErrors()));
 
-		$callbackUrl = Url::to(['/aaa/order/view', 'id' => $this->vchID, 'paid' => 1], true);
+		$callbackUrl = Url::to(['/aaa/order/view', 'id' => $this->vchID, 'checkpaid' => 1], true);
 
     list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/voucher/order-payment',
       HttpHelper::METHOD_POST,
@@ -67,7 +67,7 @@ class OrderPaymentForm extends Model
 				'id' => $this->vchID,
 			],
       [
-				'walletID'		=> $this->walletID,
+				'walletID'		=> $this->walletID[0] ?? null,
 				'gatewayType'	=> $this->gatewayType,
 				'callbackUrl'	=> $callbackUrl,
 			]

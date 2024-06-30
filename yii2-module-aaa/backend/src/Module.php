@@ -224,8 +224,13 @@ class Module
 						'POST set-invoice-as-wait-for-payment' => 'set-invoice-as-wait-for-payment',
 
 						'POST order-change-delivery-method/{id}' => 'order-change-delivery-method',
-						'POST order-payment/{id}' => 'order-change-delivery-method',
+						'POST order-change-delivery-method' => 'order-change-delivery-method',
+
+						'POST order-payment/{id}' => 'order-payment',
+						'POST order-payment' => 'order-payment',
+
 						'POST cancel/{id}' => 'cancel',
+						'POST cancel' => 'cancel',
 					],
 				],
 				[

@@ -414,7 +414,13 @@ SQL;
      SET  {$field} = IFNULL({$field}, 0) + {$onlinePaymentModel->onpAmount}
        ,  vchTotalPaid = IFNULL(vchTotalPaid, 0) + {$onlinePaymentModel->onpAmount}
 			 ,	vchType = IF(vchType = {$fnGetConstQouted(enuVoucherType::Basket)}, {$fnGetConstQouted(enuVoucherType::Invoice)}, vchType)
-			 ,	vchStatus = IF(vchTotalAmount = IFNULL(vchTotalPaid, 0) + {$onlinePaymentModel->onpAmount},
+   WHERE  vchID = {$onlinePaymentModel->onpVoucherID}
+SQL;
+      $rowsCount = Yii::$app->db->createCommand($qry)->execute();
+
+      $qry =<<<SQL
+  UPDATE  {$voucherTableName}
+     SET  vchStatus = IF(vchTotalAmount = IFNULL(vchTotalPaid, 0),
 			 			{$fnGetConstQouted(enuVoucherStatus::Settled)},
 						{$fnGetConstQouted(enuVoucherStatus::WaitForPayment)}
 			 		)

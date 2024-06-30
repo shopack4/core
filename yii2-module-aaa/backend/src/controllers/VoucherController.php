@@ -201,7 +201,7 @@ class VoucherController extends BaseRestController
 			$result = $model->process();
 
 			//convert errors to 422
-			if ($result !== true)
+			if ($result == false)
 				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
 
 			return $result;
@@ -214,9 +214,12 @@ class VoucherController extends BaseRestController
 
 	public function actionCancel($id)
 	{
-		PrivHelper::checkPriv('aaa/voucher/cancel');
-
 		$model = $this->findModel($id);
+
+		if (($model->vchOwnerUserID != Yii::$app->user->id)
+				&& (PrivHelper::hasPriv('aaa/voucher/cancel') == false))
+			throw new ForbiddenHttpException('access denied');
+
 		$model->doCancel();
 
 		return [
