@@ -611,6 +611,7 @@ return [
 	'New' => 'جدید',
 	'Pending' => 'در انتظار',
 	'Wait For Payment' => 'در انتظار پرداخت',
+	'Canceled' => 'لغو شده',
 	'Paid' => 'پرداخت شده',
 	'Error' => 'خطا',
 	'Removed' => 'حذف شده',

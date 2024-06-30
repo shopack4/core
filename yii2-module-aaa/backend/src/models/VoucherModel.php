@@ -18,6 +18,7 @@ use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\security\RsaPublic;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
+use yii\web\UnauthorizedHttpException;
 
 class VoucherModel extends AAAActiveRecord
 {
@@ -355,7 +356,7 @@ class VoucherModel extends AAAActiveRecord
 
 					WalletModel::returnToTheWallet(
 						$walletReturnAmount,
-						$voucherModel,
+						$voucherModel
 						// $walletModel->walID
 					);
 
@@ -400,16 +401,45 @@ SQL;
 
 	public function doCancel()
 	{
-		//todo: voucher::doCancel()
+		if ($this->vchType != enuVoucherType::Invoice)
+			throw new UnauthorizedHttpException('نوع سند باید صورتحساب باشد.');
 
+		if (($this->vchStatus != enuVoucherStatus::New)
+				&& ($this->vchStatus != enuVoucherStatus::WaitForPayment))
+			throw new UnauthorizedHttpException('وضعیت سفارش / صورتحساب باید جدید یا منتظر پرداخت باشد.');
 
+		try {
+			if (empty($this->vchTotalPaid) == false) {
+				//start transaction
+				$transaction = Yii::$app->db->beginTransaction();
 
+				WalletModel::returnToTheWallet(
+					$this->vchTotalPaid,
+					$this
+					// $walletModel->walID
+				);
 
+				$this->vchReturnToWallet = ($this->vchReturnToWallet ?? 0) + $this->vchTotalPaid;
+				$this->vchTotalPaid = 0;
+			}
 
+			$this->vchStatus = enuVoucherStatus::Canceled;
 
+			if ($this->save() == false)
+				throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
+			//commit
+			if (isset($transaction))
+				$transaction->commit();
 
-		throw new UnprocessableEntityHttpException('not implemented yet');
+		} catch (\Throwable $exp) {
+			if (isset($transaction))
+				$transaction->rollBack();
+
+			throw $exp;
+		}
+
+		return true;
 	}
 
 }

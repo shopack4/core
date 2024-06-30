@@ -12,24 +12,25 @@ abstract class enuVoucherStatus extends BaseEnum
 {
 	// -----------------------------------------------------
 	// |A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|
-	// | | | | |x|x| | | | | | | |x| | | |x|x| | | |x| | | |
+	// | | |x| |x|x| | | | | | | |x| | | |x|x| | | |x| | | |
 	// -----------------------------------------------------
 
   const New							= 'N';
-	//Canceled / CanceledBySystem
 	const WaitForPayment	= 'W';
+	const Canceled				= 'C';
+	//const Accepted				= 'A'; //for proforma
   const Settled					= 'S';
   const Finished				= 'F';
   const Error						= 'E';
   const Removed					= 'R';
 
-	//Accepted : for proforma
 
 	public static $messageCategory = 'aaa';
 
 	public static $list = [
 		self::New							=> 'New',
 		self::WaitForPayment	=> 'Wait For Payment',
+		self::Canceled				=> 'Canceled',
 		self::Settled					=> 'Settled',
 		self::Finished				=> 'Finished',
 		self::Error						=> 'Error',

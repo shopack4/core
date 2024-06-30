@@ -166,7 +166,7 @@ class OrderController extends BaseController
 		return $this->renderJson([
 			'status' => 'Ok',
 			'message' => Yii::t('app', 'Success'),
-			'modalDoneFragment' => $this->modalDoneFragment,
+			// 'modalDoneFragment' => $this->modalDoneFragment,
 		]);
 	}
 
