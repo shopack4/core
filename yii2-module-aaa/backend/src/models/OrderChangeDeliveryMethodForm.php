@@ -129,20 +129,19 @@ class OrderChangeDeliveryMethodForm extends Model
 		// $voucherRemainedAmount < 0 :
 		$voucherRemainedAmount = abs($voucherRemainedAmount);
 
-		$voucherModel->vchTotalPaid = $vchTotalPaid - $voucherRemainedAmount;
-
 		$transaction = Yii::$app->db->beginTransaction();
 
 		try {
 			//return to the wallet
 			WalletModel::returnToTheWallet(
 				$voucherRemainedAmount,
-				$voucherModel,
+				$voucherModel
 				// $walletModel->walID
 			);
 
 			//vchReturnToWallet
 			$voucherModel->vchReturnToWallet = ($voucherModel->vchReturnToWallet ?? 0) + $voucherRemainedAmount;
+			$voucherModel->vchTotalPaid = $vchTotalPaid - $voucherRemainedAmount;
 
 			//settle
 			$voucherModel->vchStatus = enuVoucherStatus::Settled;
