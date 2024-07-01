@@ -119,4 +119,22 @@ class VoucherModel extends RestClientActiveRecord
     return true; //[$resultStatus, $resultData['result']];
 	}
 
+	public static function doReprocess($id)
+	{
+		if (empty($id))
+			throw new NotFoundHttpException('Invalid id');
+
+    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/voucher/reprocess',
+      HttpHelper::METHOD_POST,
+      [
+        'id' => $id,
+      ]
+    );
+
+    if ($resultStatus < 200 || $resultStatus >= 300)
+      throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+
+    return true; //[$resultStatus, $resultData['result']];
+	}
+
 }

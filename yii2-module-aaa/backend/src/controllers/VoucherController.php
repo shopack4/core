@@ -227,4 +227,19 @@ class VoucherController extends BaseRestController
 		];
 	}
 
+	public function actionReprocess($id)
+	{
+		$model = $this->findModel($id);
+
+		if (($model->vchOwnerUserID != Yii::$app->user->id)
+				&& (PrivHelper::hasPriv('aaa/voucher/reprocess') == false))
+			throw new ForbiddenHttpException('access denied');
+
+		$model->doReprocess();
+
+		return [
+			'result' => true,
+		];
+	}
+
 }

@@ -231,6 +231,9 @@ class Module
 
 						'POST cancel/{id}' => 'cancel',
 						'POST cancel' => 'cancel',
+
+						'POST reprocess/{id}' => 'reprocess',
+						'POST reprocess' => 'reprocess',
 					],
 				],
 				[

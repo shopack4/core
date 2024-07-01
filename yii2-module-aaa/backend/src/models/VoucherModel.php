@@ -6,19 +6,17 @@
 namespace shopack\aaa\backend\models;
 
 use Yii;
-use yii\db\Expression;
-use yii\web\UnprocessableEntityHttpException;
-use shopack\base\common\helpers\Json;
-use shopack\aaa\backend\classes\AAAActiveRecord;
-use shopack\aaa\common\enums\enuVoucherType;
-use shopack\aaa\common\enums\enuVoucherStatus;
-use shopack\aaa\common\enums\enuVoucherItemStatus;
-use shopack\base\common\accounting\enums\enuUserAssetStatus;
-use shopack\base\common\helpers\HttpHelper;
-use shopack\base\common\security\RsaPublic;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\UnauthorizedHttpException;
+use yii\web\UnprocessableEntityHttpException;
+use shopack\base\common\helpers\Json;
+use shopack\base\common\helpers\HttpHelper;
+use shopack\base\common\security\RsaPublic;
+use shopack\aaa\common\enums\enuVoucherType;
+use shopack\aaa\common\enums\enuVoucherStatus;
+use shopack\aaa\common\enums\enuVoucherItemStatus;
+use shopack\aaa\backend\classes\AAAActiveRecord;
 
 class VoucherModel extends AAAActiveRecord
 {
@@ -189,12 +187,12 @@ class VoucherModel extends AAAActiveRecord
 		*/
 	}
 
-	protected function processVoucher_Withdrawal() { return true; }
-	protected function processVoucher_Income() { return true; }
-	protected function processVoucher_Credit() { return true; }
-	protected function processVoucher_TransferTo() { return true; }
-	protected function processVoucher_TransferFrom() { return true; }
-	protected function processVoucher_Prize() { return true; }
+	protected function processVoucher_Withdrawal()		{ return true; }
+	protected function processVoucher_Income()				{ return true; }
+	protected function processVoucher_Credit()				{ return true; }
+	protected function processVoucher_TransferTo()		{ return true; }
+	protected function processVoucher_TransferFrom()	{ return true; }
+	protected function processVoucher_Prize()					{ return true; }
 
 /*
 	public function processVoucherItem($voucherItem)
@@ -404,8 +402,7 @@ SQL;
 		if ($this->vchType != enuVoucherType::Invoice)
 			throw new UnauthorizedHttpException('نوع سند باید صورتحساب باشد.');
 
-		if (($this->vchStatus != enuVoucherStatus::New)
-				&& ($this->vchStatus != enuVoucherStatus::WaitForPayment))
+		if (in_array($this->vchStatus, [enuVoucherStatus::New, enuVoucherStatus::WaitForPayment]) == false)
 			throw new UnauthorizedHttpException('وضعیت سفارش / صورتحساب باید جدید یا منتظر پرداخت باشد.');
 
 		try {
@@ -440,6 +437,14 @@ SQL;
 		}
 
 		return true;
+	}
+
+	public function doReprocess()
+	{
+		if ($this->vchType != enuVoucherType::Invoice)
+			throw new UnauthorizedHttpException('نوع سند باید صورتحساب باشد.');
+
+		return $this->processVoucher();
 	}
 
 }

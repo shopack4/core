@@ -68,7 +68,7 @@ use shopack\base\frontend\common\helpers\Html;
                       return Html::confirmButton(Yii::t('aaa', 'Cancel Order'), [
                         '/aaa/order/cancel',
                         'id' => $model->vchID,
-                      ], Yii::t('aaa', 'Are you sure you want to cancel this order?'), [
+                      ], Yii::t('aaa', 'Are you sure you want to Cancel this order?'), [
                         'class' => 'btn btn-sm btn-danger',
                         'ajax' => 'post',
                       ]);

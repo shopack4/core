@@ -52,7 +52,7 @@ $hasVAT = (empty($model->vchItemsVATs) == false);
             $buttons[] = Html::confirmButton(Yii::t('aaa', 'Cancel Order'), [
               'cancel',
               'id' => $model->vchID,
-            ], Yii::t('aaa', 'Are you sure you want to cancel this order?'), [
+            ], Yii::t('aaa', 'Are you sure you want to Cancel this order?'), [
               'class' => 'btn btn-sm btn-danger',
             ]);
           }

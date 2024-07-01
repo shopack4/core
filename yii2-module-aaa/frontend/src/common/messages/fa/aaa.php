@@ -632,7 +632,8 @@ return [
 	'Reprocess' => 'پردازش مجدد',
 
 	'Cancel Order' => 'لغو سفارش',
-	'Are you sure you want to cancel this order?' => 'آیا از لغو کردن این سفارش اطمینان دارید؟',
+	'Are you sure you want to Cancel this order?' => 'آیا از لغو کردن این سفارش اطمینان دارید؟',
+	'Are you sure you want to Reprocess this order?' => 'آیا از پردازش مجدد این سفارش اطمینان دارید؟',
 
 	'Message Templates' => 'قالب‌های پیام',
 	'Message Template' => 'قالب پیام',
