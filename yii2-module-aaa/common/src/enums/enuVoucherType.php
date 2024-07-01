@@ -19,8 +19,8 @@ abstract class enuVoucherType extends BaseEnum
   const Withdrawal		= 'W';
   const Income				= 'M';
   const Credit				= 'C';
-  const TransferTo		= 'T';
-  const TransferFrom	= 'F';
+  const TransferTo		= 'T'; //to another user (email / mobile)
+  const TransferFrom	= 'F'; //from another user (email / mobile)
   const Prize					= 'Z';
 	//Freeze
 	//Unfreeze

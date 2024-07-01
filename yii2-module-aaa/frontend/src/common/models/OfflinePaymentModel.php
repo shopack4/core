@@ -62,7 +62,7 @@ class OfflinePaymentModel extends RestClientActiveRecord
 	}
 
 	public function canDelete() {
-		return ($this->ofpStatus != enuOfflinePaymentStatus::Removed);
+		return ($this->ofpStatus == enuOfflinePaymentStatus::WaitForApprove);
 	}
 
 	public function canUndelete() {
