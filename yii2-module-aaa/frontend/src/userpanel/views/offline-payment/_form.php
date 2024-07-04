@@ -43,7 +43,15 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 				// ],
 			],
 			['@col-break'],
-			['ofpAmount'],
+			['ofpAmount',
+				'fieldOptions' => [
+					'addon' => [
+						'append' => [
+							'content' => 'تومان',
+						],
+					],
+				],
+			],
 			['ofpPayer'],
 			['ofpSourceCartNumber'],
 			// ['ofpWalletID'],

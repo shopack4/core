@@ -32,13 +32,29 @@ class UserModel extends RestClientActiveRecord
 
   public function extraRules()
   {
-    return [
+    $rules = [
       ['usrRetypePassword', 'string'],
       ['usrRetypePassword', 'compare',
         'compareAttribute' => 'usrPassword',
         'message' => Yii::t('aaa', "Passwords don't match"),
       ],
     ];
+
+    if (($this->isNewRecord == false) && (Yii::$app->id == 'userpanel')) {
+      $rules = array_merge($rules, [
+        [[
+          'usrGender',
+          'usrFirstName',
+          'usrFirstName_en',
+          'usrLastName',
+          'usrLastName_en',
+          'usrFatherName',
+          'usrFatherName_en',
+        ], 'required']
+      ]);
+    }
+
+    return $rules;
   }
 
   public function attributeLabels()

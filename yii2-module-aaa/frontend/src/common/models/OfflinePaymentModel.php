@@ -18,6 +18,28 @@ class OfflinePaymentModel extends RestClientActiveRecord
 
 	public static $resourceName = 'aaa/offline-payment';
 
+  public function extraRules()
+  {
+    $rules = [];
+
+    if (Yii::$app->id == 'userpanel') {
+      $rules = array_merge($rules, [
+        [[
+					'ofpBankOrCart',
+					'ofpTrackNumber',
+					'ofpReferenceNumber',
+					// 'ofpAmount',
+					// 'ofpPayDate',
+					'ofpPayer',
+					// 'ofpSourceCartNumber',
+					'ofpImageFileID',
+        ], 'required']
+      ]);
+    }
+
+    return $rules;
+  }
+
 	public function attributeLabels()
 	{
 		return [
