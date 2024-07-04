@@ -20,9 +20,6 @@ use shopack\base\common\helpers\ArrayHelper;
 	// initialValue: false
 // }
 
-
-
-
 class DatePicker extends InputWidget
 {
 	public $clientOptions = [];
@@ -42,6 +39,7 @@ class DatePicker extends InputWidget
 		// 'initialValue' => false,
 		'autoClose' => true,
 		'observer' => true,
+		'readonly' => 'readonly', //preventing date typing
 	];
 
 	public $inline = false;

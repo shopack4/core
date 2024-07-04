@@ -163,7 +163,7 @@ class UserModel extends RestClientActiveRecord
    * @param string $username
    * @return static|null
    */
-  public static function findByUsername($username)
+  /*public static function findByUsername($username)
   {
     foreach (self::$users as $user) {
       if (strcasecmp($user['username'], $username) === 0) {
@@ -172,7 +172,7 @@ class UserModel extends RestClientActiveRecord
     }
 
     return null;
-  }
+  }*/
 
   /**
    * {@inheritdoc}
@@ -234,7 +234,29 @@ class UserModel extends RestClientActiveRecord
 		return ($this->usrStatus == enuUserStatus::Removed);
 	}
 
-  public static function toString($ids)
+  //moved from trait
+  public function displayName($format = null)
+  {
+    if (empty($format))
+      $format = '[' . Yii::t('app', 'ID') . ': {id}] {fn} {ln} {em} {mob}';
+
+    if ($this->usrEmail)
+      $email = "<span class='d-inline-block dir-ltr'>" . $this->usrEmail . "</span>";
+
+    if ($this->usrMobile)
+      $mobile = Yii::$app->formatter->asPhone($this->usrMobile);
+      // $mobile = "<span class='d-inline-block dir-ltr'>" . $this->usrMobile . "</span>";
+
+    return str_replace('  ', ' ', strtr($format, [
+      '{id}' => $this->usrID,
+      '{fn}' => $this->usrFirstName ?? '',
+      '{ln}' => $this->usrLastName ?? '',
+      '{em}' => $email ?? '',
+      '{mob}' => $mobile ?? '',
+    ]));
+	}
+
+  public static function toString(?array $ids)
 	{
 		if (empty($ids))
 			return null;

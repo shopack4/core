@@ -3,16 +3,12 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-use shopack\base\common\helpers\Url;
-use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\ActiveForm;
 use shopack\base\frontend\common\widgets\FormBuilder;
 use shopack\base\frontend\common\widgets\Select2;
-use shopack\base\frontend\common\widgets\DepDrop;
 use shopack\base\frontend\common\widgets\datetime\DatePicker;
 use shopack\aaa\common\enums\enuGender;
-use shopack\aaa\frontend\common\models\GeoCountryModel;
 use shopack\aaa\common\enums\enuUserEducationLevel;
 use shopack\aaa\common\enums\enuUserMaritalStatus;
 use shopack\aaa\common\enums\enuUserMilitaryStatus;
@@ -20,7 +16,6 @@ use shopack\aaa\frontend\common\widgets\form\GeoCityOrVillageChooseFormField;
 use shopack\aaa\frontend\common\widgets\form\GeoCountryChooseFormField;
 use shopack\aaa\frontend\common\widgets\form\GeoStateChooseFormField;
 use shopack\aaa\frontend\common\widgets\form\GeoTownChooseFormField;
-
 ?>
 
 <div class='user-form'>
@@ -34,8 +29,9 @@ use shopack\aaa\frontend\common\widgets\form\GeoTownChooseFormField;
 		$builder = $form->getBuilder();
 
 		$builder->fields([
-			['usrGender',
-			'type' => FormBuilder::FIELD_RADIOLIST,
+			[
+				'usrGender',
+				'type' => FormBuilder::FIELD_RADIOLIST,
 				'data' => enuGender::listData(),
 				'widgetOptions' => [
 					'inline' => true,
@@ -43,12 +39,28 @@ use shopack\aaa\frontend\common\widgets\form\GeoTownChooseFormField;
 			],
 			['@col' => 2],
 			['usrFirstName'],
-			['usrFirstName_en'],
+			['usrFirstName_en',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
+			],
 			['usrLastName'],
-			['usrLastName_en'],
+			['usrLastName_en',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
+			],
 			['usrFatherName'],
-			['usrFatherName_en'],
-			['usrSSID'],
+			['usrFatherName_en',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
+			],
+			['usrSSID',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
+			],
 			['usrBirthCertID'],
 
 			GeoCityOrVillageChooseFormField::field($this, $model, 'usrBirthCityID'),
@@ -120,11 +132,30 @@ use shopack\aaa\frontend\common\widgets\form\GeoTownChooseFormField;
 		]);
 
 		$builder->fields([
-			['usrZipCode'],
+			[
+				'usrZipCode',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
+			],
 			['@col' => 1],
 			[
 				'usrHomeAddress',
 				'type' => FormBuilder::FIELD_TEXTAREA,
+			],
+			['usrPhones'],
+
+			[
+				'usrWorkAddress',
+				'type' => FormBuilder::FIELD_TEXTAREA,
+			],
+			['usrWorkPhones'],
+
+			[
+				'usrWebsite',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
 			],
 		]);
 	?>

@@ -15,18 +15,6 @@ use shopack\aaa\common\enums\enuRole;
 use shopack\base\common\helpers\GeneralHelper;
 
 /*
-new: must be add to the model lables, index and view
-      'usrFatherName',
-      'usrFatherName_en',
-      'usrBirthCertID',
-      'usrBirthCityID',
-      'usrPhones',
-      'usrWorkAddress',
-      'usrWorkPhones',
-      'usrWebsite',
-*/
-
-/*
 'usrID',
 'usrUUID',
 'usrGender',
@@ -62,14 +50,12 @@ new: must be add to the model lables, index and view
 'usrWorkPhones',
 'usrWebsite',
 'usrImageFileID',
-
 'usrEducationLevel',
 'usrFieldOfStudy',
 'usrYearOfGraduation',
 'usrEducationPlace',
 'usrMaritalStatus',
 'usrMilitaryStatus',
-
 'usrStatus',
 'usrCreatedAt',
 'usrCreatedBy',
@@ -105,14 +91,14 @@ trait UserModelTrait
         enuColumnInfo::type       => ['string', 'max' => 1],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
+        enuColumnInfo::required   => true, //false,
         enuColumnInfo::selectable => true,
       ],
       'usrFirstName' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
+        enuColumnInfo::required   => true, //false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
       ],
@@ -120,7 +106,7 @@ trait UserModelTrait
         enuColumnInfo::type       => ['string', 'max' => 128],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
+        enuColumnInfo::required   => true, //false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
       ],
@@ -128,7 +114,7 @@ trait UserModelTrait
         enuColumnInfo::type       => ['string', 'max' => 128],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
+        enuColumnInfo::required   => true, //false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
       ],
@@ -136,7 +122,7 @@ trait UserModelTrait
         enuColumnInfo::type       => ['string', 'max' => 128],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
+        enuColumnInfo::required   => true, //false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
       ],
@@ -144,7 +130,7 @@ trait UserModelTrait
         enuColumnInfo::type       => ['string', 'max' => 128],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
+        enuColumnInfo::required   => true, //false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
       ],
@@ -152,7 +138,7 @@ trait UserModelTrait
         enuColumnInfo::type       => ['string', 'max' => 128],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
+        enuColumnInfo::required   => true, //false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
       ],
@@ -561,6 +547,8 @@ trait UserModelTrait
     return $this->hasOne($className, ['uflID' => 'usrImageFileID']);
   }
 
+  //moved to frontend
+  /*
   public function displayName($format = null)
   {
     if (empty($format))
@@ -581,6 +569,7 @@ trait UserModelTrait
       '{mob}' => $mobile ?? '',
     ]));
 	}
+  */
 
   public function getActorName() {
     return $this->displayName('{id}- {em}');

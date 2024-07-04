@@ -3,19 +3,16 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-use shopack\base\common\helpers\Url;
+use borales\extensions\phoneInput\PhoneInput;
 use shopack\base\frontend\common\widgets\ActiveForm;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\frontend\common\widgets\FormBuilder;
-use borales\extensions\phoneInput\PhoneInput;
 use shopack\aaa\common\enums\enuGender;
 use shopack\aaa\common\enums\enuUserEducationLevel;
 use shopack\aaa\common\enums\enuUserMaritalStatus;
 use shopack\aaa\common\enums\enuUserMilitaryStatus;
 use shopack\base\frontend\common\widgets\Select2;
-use shopack\base\frontend\common\widgets\DepDrop;
-use shopack\aaa\frontend\common\models\GeoCountryModel;
 use shopack\aaa\frontend\common\models\RoleModel;
 use shopack\aaa\frontend\common\widgets\form\GeoCityOrVillageChooseFormField;
 use shopack\aaa\frontend\common\widgets\form\GeoCountryChooseFormField;
@@ -23,6 +20,7 @@ use shopack\aaa\frontend\common\widgets\form\GeoStateChooseFormField;
 use shopack\aaa\frontend\common\widgets\form\GeoTownChooseFormField;
 use shopack\base\frontend\common\widgets\datetime\DatePicker;
 
+// 'usrBirthCertID',
 ?>
 
 <div class='user-form'>
@@ -45,7 +43,12 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 				],
 			],
 			['@col' => 2],
-			['usrEmail'],
+			[
+				'usrEmail',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
+			],
 			['usrMobile',
 				'type' => FormBuilder::FIELD_WIDGET,
 				'widget' => PhoneInput::class,
@@ -60,7 +63,12 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 					],
 				],
 			],
-			['usrSSID'],
+			[
+				'usrSSID',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
+			],
 			['usrRoleID',
 				'type' => FormBuilder::FIELD_WIDGET,
 				'widget' => Select2::class,
@@ -83,11 +91,26 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 		$builder->fields([
 			['@static' => '<hr>'],
 			['usrFirstName'],
-			['usrFirstName_en'],
+			[
+				'usrFirstName_en',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
+			],
 			['usrLastName'],
-			['usrLastName_en'],
+			[
+				'usrLastName_en',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
+			],
 			['usrFatherName'],
-			['usrFatherName_en'],
+			[
+				'usrFatherName_en',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
+			],
 
 			GeoCityOrVillageChooseFormField::field($this, $model, 'usrBirthCityID'),
 			['usrBirthDate',
@@ -169,11 +192,31 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 		]);
 
 		$builder->fields([
-			['usrZipCode'],
+			[
+				'usrZipCode',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
+			],
+			['usrBirthCertID'],
 			['@col' => 1],
 			[
 				'usrHomeAddress',
 				'type' => FormBuilder::FIELD_TEXTAREA,
+			],
+			['usrPhones'],
+
+			[
+				'usrWorkAddress',
+				'type' => FormBuilder::FIELD_TEXTAREA,
+			],
+			['usrWorkPhones'],
+
+			[
+				'usrWebsite',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
 			],
 		]);
 	?>
