@@ -154,7 +154,6 @@ use shopack\aaa\frontend\common\models\VoucherModel;
       'enumClass' => enuVoucherStatus::class,
       'attribute' => 'vchStatus',
     ],
-    //todo: complete buttons behaviors
     [
       'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
       // 'header' => VoucherModel::canCreate() ? Html::createButton(null, [
