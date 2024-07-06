@@ -230,7 +230,7 @@ class FileManager extends Component
 				/* subdir                */ 'user',
 				/* overwrite             */ false,
 				/* doStore               */ true,
-				/* deleteLocalFileAfterUpload */ false
+				/* deleteLocalFileAfterUpload */ true //false
 			);
 
 			if (is_numeric($res) && ($res > 0)) {
