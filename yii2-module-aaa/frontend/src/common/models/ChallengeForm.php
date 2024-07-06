@@ -107,8 +107,7 @@ HTML;
       ]
     );
 
-    // if ($resultStatus < 200 || $resultStatus >= 300)
-    //   throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+    // HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
 
     if (isset($resultData['token'])) {
       $token = $resultData['token'];
@@ -135,8 +134,7 @@ HTML;
       ]
     );
 
-    if ($resultStatus < 200 || $resultStatus >= 300)
-      throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
 
     return $resultData['result'];
   }
@@ -155,8 +153,7 @@ HTML;
       ]
     );
 
-    if ($resultStatus < 200 || $resultStatus >= 300)
-      throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
 
     return [$resultStatus, $resultData['result']];
   }

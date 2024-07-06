@@ -190,7 +190,6 @@ return [
 	'Payer' => 'پرداخت کننده',
 	'Source Cart Number' => 'شماره کارت مبدا',
 	'Destination Wallet' => 'کیف پول مقصد',
-	'Image' => 'تصویر',
 	'Owner' => 'مالک',
 
 	'Wallets' => 'کیف‌های پول',
@@ -292,6 +291,7 @@ return [
 	'Config Value' => 'مقدار',
 	'{count,number} Configuration Items Saved' => '{count,number} آیتم پیکربندی ذخیره شد',
 	'Image' => 'تصویر',
+	'Official Personal Photo' => 'عکس پرسنلی',
 	'Save Image' => 'ذخیره تصویر',
 	'Update Image' => 'تغییر تصویر',
 	'Addresses' => 'آدرس‌ها',
@@ -685,4 +685,9 @@ return [
 
 	'Conditions' => 'شرایط',
 
+	'INVALID_FILE_TYPE'			=> 'پسوند فایل مجاز نیست. فایل: ({name}) پسوند: ({fileType})',
+	'INVALID_FILE_MIN_SIZE'	=> 'حداقل حجم فایل مجاز نیست. فایل: ({name}) حجم: ({fileSize})',
+	'INVALID_FILE_MAX_SIZE'	=> 'حداکثر حجم فایل مجاز نیست. فایل: ({name}) حجم: ({fileSize})',
+	'UNKNOWN_MIME_TYPE'			=> 'نوع فایل مشخص نیست. فایل: ({name})',
+	'INVALID_MIME_TYPE'			=> 'نوع فایل مجاز نیست. فایل: ({name}) نوع: ({mimeType})',
 ];

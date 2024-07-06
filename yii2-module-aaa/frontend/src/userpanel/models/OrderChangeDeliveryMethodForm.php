@@ -68,8 +68,7 @@ class OrderChangeDeliveryMethodForm extends Model
 			]
     );
 
-    if ($resultStatus < 200 || $resultStatus >= 300)
-      throw new HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
 
     return true; //[$resultStatus, $resultData['result']];
 	}

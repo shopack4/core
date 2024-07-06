@@ -12,6 +12,9 @@ use shopack\base\frontend\common\widgets\FormBuilder;
 	<?php
 		$form = ActiveForm::begin([
 			'model' => $model,
+			'formConfig' => [
+				'labelSpan' => 3,
+			],
 		]);
 
 		$model->postback = 123;
@@ -23,7 +26,12 @@ use shopack\base\frontend\common\widgets\FormBuilder;
 			[
 				'image',
 				'type' => FormBuilder::FIELD_FILE,
+				'widgetOptions' => [
+					'accept' => 'image/png, image/gif, image/jpeg',
+				],
 			],
+			'توجه: برای تایید، عکس شما باید یک عکس پرسنلی استاندارد باشد.',
+			'همچنین فقط فرمت jpeg با حداکثر حجم 2 مگابایت پذیرفته خواهد بود.',
 		]);
 	?>
 

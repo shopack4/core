@@ -156,6 +156,43 @@ class HttpHelper
     return [$resultStatus, $resultData];
   }
 
+  public static function formatResultIfFailed(
+    $messageCategory,
+    $resultStatus,
+    $resultData
+  ) {
+    if ($resultStatus < 200 || $resultStatus >= 300) {
+      $message = $resultData['message'];
+
+      if (is_array($message)) {
+        $msg = array_shift($message);
+        $message = Yii::t($messageCategory, $msg, $message);
+      } else {
+        $message = Yii::t($messageCategory, $message, $resultData);
+      }
+
+      return $message;
+    }
+
+    return null;
+  }
+
+  public static function throwResultIfFailed(
+    $messageCategory,
+    $resultStatus,
+    $resultData
+  ) {
+    $message = self::formatResultIfFailed(
+      $messageCategory,
+      $resultStatus,
+      $resultData
+    );
+
+    if (empty($message) == false) {
+      throw new \yii\web\HttpException($resultStatus, $message);
+    }
+  }
+
 }
 
   // public static function formatResultMessage($message)

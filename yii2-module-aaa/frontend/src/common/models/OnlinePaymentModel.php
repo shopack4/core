@@ -74,8 +74,7 @@ class OnlinePaymentModel extends RestClientActiveRecord
 			]
 		);
 
-		if ($resultStatus < 200 || $resultStatus >= 300)
-			throw new \yii\web\HttpException($resultStatus, Yii::t('mha', $resultData['message'], $resultData));
+		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
 
 		$types = [];
 

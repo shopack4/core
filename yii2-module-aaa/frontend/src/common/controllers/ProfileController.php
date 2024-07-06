@@ -239,8 +239,8 @@ class ProfileController extends BaseController
         'input' => $userModel->usrEmail,
       ]
     );
-    if ($resultStatus < 200 || $resultStatus >= 300)
-      throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+
+    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
 
 		return $this->renderJson([
 			'status' => 'Ok',
@@ -340,8 +340,8 @@ class ProfileController extends BaseController
         'input' => $userModel->usrMobile,
       ]
     );
-    if ($resultStatus < 200 || $resultStatus >= 300)
-      throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+
+    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
 
 		return $this->renderJson([
 			'status' => 'Ok',
@@ -591,8 +591,7 @@ class ProfileController extends BaseController
       ]
     );
 
-    if ($resultStatus < 200 || $resultStatus >= 300)
-      throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
 
 		return $this->renderJson([
 			'status' => 'Ok',

@@ -15,6 +15,7 @@ use shopack\aaa\backend\models\GatewayModel;
 use shopack\aaa\common\enums\enuGatewayStatus;
 use shopack\aaa\common\enums\enuUploadQueueStatus;
 use shopack\aaa\backend\models\UploadQueueModel;
+use yii\web\UnprocessableEntityHttpException;
 
 class FileManager extends Component
 {
@@ -178,12 +179,76 @@ class FileManager extends Component
 	/**
 	 * return $fileID
 	 */
-	public function saveUploadedFiles($userID, $targetPath = null)
-	{
+	public function saveUploadedFiles(
+		$userID,
+		$targetPath = null,
+		?array $allowedFileTypes = null,
+		?array $allowedMimeTypes = null,
+		?int $allowedMinFileSize = null,
+		?int $allowedMaxFileSize = null
+	) {
 		if (empty($_FILES))
 			throw new NotFoundHttpException('nothing to do');
 
 		$files = [];
+
+		$fnCheckFile = function($tmp_name, $name) use (
+			$allowedFileTypes,
+			$allowedMimeTypes,
+			$allowedMinFileSize,
+			$allowedMaxFileSize
+		) {
+			$namePart = explode('.', basename($name));
+			$extPart = array_pop($namePart);
+
+			if ((empty($allowedFileTypes) == false)
+					&& (in_array($extPart, $allowedFileTypes) == false)
+			) {
+				throw new UnprocessableEntityHttpException(json_encode([
+					/* 0 */ 'INVALID_FILE_TYPE',
+					'name' => $name,
+					'fileType' => $extPart,
+				]));
+			}
+
+			if (($allowedMinFileSize !== null) || ($allowedMaxFileSize !== null)) {
+				$fileSize = filesize($tmp_name);
+
+				if (($allowedMinFileSize !== null) && ($fileSize < $allowedMinFileSize)) {
+					throw new UnprocessableEntityHttpException(json_encode([
+						/* 0 */ 'INVALID_FILE_MIN_SIZE',
+						'name' => $name,
+						'fileSize' => $fileSize,
+					]));
+				}
+
+				if (($allowedMaxFileSize !== null) && ($fileSize > $allowedMaxFileSize)) {
+					throw new UnprocessableEntityHttpException(json_encode([
+						/* 0 */ 'INVALID_FILE_MAX_SIZE',
+						'name' => $name,
+						'fileSize' => $fileSize,
+					]));
+				}
+			}
+
+			if (empty($allowedMimeTypes) == false) {
+				$mimeType = mime_content_type($tmp_name);
+				if (empty($mimeType)) {
+					throw new UnprocessableEntityHttpException(json_encode([
+						/* 0 */ 'UNKNOWN_MIME_TYPE',
+						'name' => $name,
+					]));
+				}
+
+				if (in_array($extPart, $allowedMimeTypes) == false) {
+					throw new UnprocessableEntityHttpException(json_encode([
+						/* 0 */ 'INVALID_MIME_TYPE',
+						'name' => $name,
+						'mimeType' => $mimeType,
+					]));
+				}
+			}
+		};
 
 		foreach ($_FILES as $imageSetKey => $imageSet) {
 			if (is_array($imageSet['name'])) {
@@ -193,6 +258,8 @@ class FileManager extends Component
 					$tmp_name  = $imageSet['tmp_name'][$fieldName];
 					$error     = $imageSet['error'][$fieldName];
 					$size      = $imageSet['size'][$fieldName];
+
+					$fnCheckFile($tmp_name, $name);
 
 					$files[$fieldName] = [
 						'tempFileName' => $tmp_name,
@@ -206,6 +273,8 @@ class FileManager extends Component
 				$tmp_name  = $imageSet['tmp_name'];
 				$error     = $imageSet['error'];
 				$size      = $imageSet['size'];
+
+				$fnCheckFile($tmp_name, $name);
 
 				$files[$imageSetKey] = [
 					'tempFileName' => $tmp_name,
@@ -227,7 +296,7 @@ class FileManager extends Component
 				/* originalFileName      */ $uploadedFile['fileName'],
 				/* usrUUID               */ $user->usrUUID,
 				/* usrID                 */ $userID,
-				/* subdir                */ 'user',
+				/* targetPath            */ $targetPath, //'user',
 				/* overwrite             */ false,
 				/* doStore               */ true,
 				/* deleteLocalFileAfterUpload */ true //false

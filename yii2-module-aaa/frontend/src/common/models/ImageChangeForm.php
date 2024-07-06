@@ -31,7 +31,7 @@ class ImageChangeForm extends Model
 	{
 		return [
 			'postback' => Yii::t('aaa', 'postback'),
-			'image' => Yii::t('aaa', 'Image'),
+			'image' => Yii::t('aaa', 'Official Personal Photo'),
 		];
 	}
 
@@ -57,8 +57,7 @@ class ImageChangeForm extends Model
       $files,
     );
 
-    if ($resultStatus < 200 || $resultStatus >= 300)
-      throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
+    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
 
     return true; //[$resultStatus, $resultData['result']];
   }

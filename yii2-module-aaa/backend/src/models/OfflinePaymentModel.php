@@ -54,7 +54,14 @@ class OfflinePaymentModel extends AAAActiveRecord
 	public function save($runValidation = true, $attributeNames = null)
 	{
 		if (empty($_FILES) == false) {
-			$uploadResult = Yii::$app->fileManager->saveUploadedFiles($this->ofpOwnerUserID, 'offline-payment');
+			$uploadResult = Yii::$app->fileManager->saveUploadedFiles(
+				/* userID             */ $this->ofpOwnerUserID,
+				/* targetPath         */ 'offline-payment',
+				/* allowedFileTypes   */ null,
+				/* allowedMimeTypes   */ ['image/png', 'image/gif', 'image/jpeg'],
+				/* allowedMinFileSize */ 0,
+				/* allowedMaxFileSize */ 2 * 1024 * 1024
+			);
 
 			if (empty($uploadResult))
 				return false;

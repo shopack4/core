@@ -197,7 +197,7 @@ $this->params['breadcrumbs'][] = $this->title;
 										// 'modal' => false,
 									]) ?>
 								</div>
-								<div class='card-title'><?= Yii::t('aaa', 'Image') ?></div>
+								<div class='card-title'><?= Yii::t('aaa', 'Official Personal Photo') ?></div>
 								<div class="clearfix"></div>
 							</div>
 							<div class='card-body text-center'>

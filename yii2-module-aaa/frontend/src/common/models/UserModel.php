@@ -94,8 +94,8 @@ class UserModel extends RestClientActiveRecord
       'usrWorkAddress'        => Yii::t('aaa', 'Work Address'),
       'usrWorkPhones'         => Yii::t('aaa', 'Work Phones'),
       'usrWebsite'            => Yii::t('aaa', 'Website'),
-			'usrImage'              => Yii::t('aaa', 'Image'),
-			'usrImageFileID'        => Yii::t('aaa', 'Image'),
+			'usrImage'              => Yii::t('aaa', 'Official Personal Photo'),
+			'usrImageFileID'        => Yii::t('aaa', 'Official Personal Photo'),
 
       'usrEducationLevel'     => Yii::t('aaa', 'Education Level'),
       'usrFieldOfStudy'       => Yii::t('aaa', 'Field Of Study'),

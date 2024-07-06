@@ -140,9 +140,7 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 				]
 			);
 
-			if ($resultStatus < 200 || $resultStatus >= 300) {
-				throw new \yii\web\HttpException($resultStatus, Yii::t('aaa', $resultData['message'], $resultData));
-			}
+			HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
 
 			if ((empty($resultData['vchItems']) == false) && (is_array($resultData['vchItems']) == false)) {
 				$resultData['vchItems'] = Json::decode($resultData['vchItems'], true);
@@ -258,8 +256,7 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 			]
 		);
 
-		if ($resultStatus < 200 || $resultStatus >= 300)
-			throw new \yii\web\HttpException($resultStatus, Yii::t('mha', $resultData['message'], $resultData));
+		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
 
 		return $resultData;
 	}

@@ -685,16 +685,31 @@ class RestClientQuery
     // } else
     //   $dataAsArray = (array)$data;
 
+    $messageCategory = 'aaa';
+    $fnFormatMessage = function($message) use($messageCategory) {
+
+      $message = json_decode($message, true);
+      // if (json_validate($data->message)) {
+      if (empty($message) == false) {
+        $msg = array_shift($message);
+        $message = Yii::t($messageCategory, $msg, $message);
+      } else {
+        $message = $message;
+      }
+
+      return $message;
+    };
+
     // errors
     if ($statusCode >= 400) {
       if (($model !== null) && ($statusCode === 422)) { // && count($data) === 1 && isset($data[0])) {
-        $model->addError($data->field ?? null, $data->message);
+        $model->addError($data->field ?? null, $fnFormatMessage($data->message));
         return $model;
       }
 
       throw new HttpException(
         $statusCode,
-        is_string($data) ? $data : $data->message,
+        is_string($data) ? $data : $fnFormatMessage($data->message),
         $statusCode
       );
     }
