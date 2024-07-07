@@ -587,7 +587,7 @@ class FormBuilder extends \yii\base\Component
 		echo $this->footer;
 
 		//on-change handlers
-		if (!empty($visFormFields)) {
+		if (empty($visFormFields) == false) {
 			$checkingFields = [];
 			$setCommands = [];
 			foreach ($visFormFields as $fieldName) {
@@ -600,18 +600,24 @@ class FormBuilder extends \yii\base\Component
 						return "'" . $value . "'";
 					return $value;
 				};
+
 				foreach ($formFields[$fieldName]['visibleConditions'] as $k => $v) {
 					$jsCompCondFieldName = StringHelper::convertToJsVarName($k);
 
 					if (is_array($v)) {
-						if (($v[0] == '<') || ($v[0] == '<=') || ($v[0] == '>') || ($v[0] == '>=') || ($v[0] == '!=') || ($v[0] == '!=='))
+						if (in_array($v[0], ['js', 'JS'])) {
+							$jsFormula[] = str_replace('{{conditionFieldValue}}', $jsCompCondFieldName, "{$v[1]}");
+						} else if (in_array($v[0], ['<', '<=', '>', '>=', '!=', '!=='])) {
 							$jsFormula[] = "{$jsCompCondFieldName} {$v[0]} " . $fnEncloseString($v[1]);
-						else
+						} else {
 							$jsFormula[] = "({$jsCompCondFieldName} == " . implode(") || ({$jsCompCondFieldName} == ", $fnEncloseString($v)) . ')';
-					} else if (($k == 'js') || ($k == 'JS'))
+						}
+					} else if (($k == 'js') || ($k == 'JS')) {
+						//deprecated
 						$jsFormula[] = "{$v}";
-					else
+					} else {
 						$jsFormula[] = "{$jsCompCondFieldName} == " . $fnEncloseString($v);
+					}
 				}
 				$jsFormula = '(' . implode(') && (', $jsFormula) . ')';
 				$setCommands[] = "if ({$jsFormula}) \$('#panel_{$formFields[$fieldName]['id']}').fadeIn(150); else \$('#panel_{$formFields[$fieldName]['id']}').fadeOut(50);";
@@ -629,7 +635,8 @@ class FormBuilder extends \yii\base\Component
 					continue;
 
 				$jsCompFieldName = StringHelper::convertToJsVarName($fieldName);
-				$id = $formFields[$fieldName]['id'];
+				$id = str_replace('_', '-', $formFields[$fieldName]['id']);
+
 				switch ($formFields[$fieldName]['type']) {
 					case static::FIELD_TEXT:
 					case static::FIELD_TEXT_MULTILANGUAGE:
@@ -658,9 +665,13 @@ class FormBuilder extends \yii\base\Component
 						break;
 
 					case static::FIELD_CHECKBOX:
-					case static::FIELD_CHECKBOXLIST: //todo: check
 						$events[] = "\$('#{$id}').on('change', function(e) { checkPanelsVisibility(); })";
 						$getCommands[] = "var {$jsCompFieldName} = \$('#{$id}').is(':checked');";
+						break;
+
+					case static::FIELD_CHECKBOXLIST: //todo: check
+						$events[] = "\$('[id^={$id}--]').on('change', function(e) { checkPanelsVisibility(); })";
+						$getCommands[] = "var {$jsCompFieldName} = \$('[id^={$id}--]').is(':checked');";
 						break;
 
 					case static::FIELD_RADIOLIST:
