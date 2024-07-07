@@ -240,7 +240,7 @@ class FileManager extends Component
 					]));
 				}
 
-				if (in_array($extPart, $allowedMimeTypes) == false) {
+				if (in_array($mimeType, $allowedMimeTypes) == false) {
 					throw new UnprocessableEntityHttpException(json_encode([
 						/* 0 */ 'INVALID_MIME_TYPE',
 						'name' => $name,

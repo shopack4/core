@@ -245,6 +245,7 @@ $this->params['breadcrumbs'][] = $this->title;
               <div class='card'>
                 <div class='card-header'>
                   <div class="float-end">
+                    <?= Html::updateButton(Yii::t('aaa', 'Update Image'), ['update-image', 'id' => $model->usrID]) ?>
                   </div>
                   <div class='card-title'><?= Yii::t('aaa', 'Official Personal Photo') ?></div>
                   <div class="clearfix"></div>

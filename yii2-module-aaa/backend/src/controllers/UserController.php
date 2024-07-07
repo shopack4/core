@@ -227,9 +227,10 @@ class UserController extends BaseRestController
 
 	public function actionUpdateImage($id)
 	{
-		if (PrivHelper::hasPriv('aaa/user/crud', '0010') == false) {
-			if (Yii::$app->user->id != $id)
-				throw new ForbiddenHttpException('access denied');
+		if ((Yii::$app->user->id != $id)
+			&& (PrivHelper::hasPriv('aaa/user/crud', '0010') == false)
+		) {
+			throw new ForbiddenHttpException('access denied');
 		}
 
 		$model = new UpdateImageForm();

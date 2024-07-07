@@ -1,0 +1,54 @@
+<?php
+/**
+ * @author Kambiz Zandi <kambizzandi@gmail.com>
+ */
+
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\ActiveForm;
+use shopack\base\frontend\common\widgets\FormBuilder;
+?>
+
+<div class='image-form'>
+	<?php
+		$form = ActiveForm::begin([
+			'model' => $model,
+			'formConfig' => [
+				'labelSpan' => 3,
+			],
+		]);
+
+		$model->postback = 123;
+		echo Html::activeHiddenInput($model, 'postback');
+
+		$builder = $form->getBuilder();
+
+		$builder->fields([
+			[
+				'image',
+				'type' => FormBuilder::FIELD_FILE,
+				'widgetOptions' => [
+					'accept' => 'image/png, image/gif, image/jpeg',
+				],
+			],
+			'توجه: برای تایید، عکس شما باید یک عکس پرسنلی استاندارد باشد.',
+			'همچنین فقط فرمت jpeg با حداکثر حجم 2 مگابایت پذیرفته خواهد بود.',
+		]);
+	?>
+
+	<?php $builder->beginFooter(); ?>
+		<div class="card-footer">
+			<div>
+				<?= Html::formErrorSummary($model); ?>
+			</div>
+			<div class="float-end">
+				<?= Html::activeSubmitButton($model) ?>
+			</div>
+			<div class="clearfix"></div>
+		</div>
+	<?php $builder->endFooter(); ?>
+
+	<?php
+		$builder->render();
+		$form->endForm(); //ActiveForm::end();
+	?>
+</div>

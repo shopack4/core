@@ -5,6 +5,7 @@
 
 namespace shopack\aaa\frontend\adminpanel\controllers;
 
+use shopack\aaa\frontend\adminpanel\models\UserChangeImageForm;
 use Yii;
 use yii\web\BadRequestHttpException;
 use shopack\base\frontend\common\helpers\Html;
@@ -178,6 +179,48 @@ class UserController extends BaseCrudController
     }
 
     return $this->render('sendMessage', [
+      'model' => $model,
+    ]);
+  }
+
+	public function actionUpdateImage($id)
+  {
+    $model = new UserChangeImageForm();
+    $model->userID = $id;
+
+    $formPosted = $model->load(Yii::$app->request->post());
+    $done = false;
+    if ($formPosted)
+      $done = $model->process();
+
+    if (Yii::$app->request->isAjax) {
+      if ($done) {
+        return $this->renderJson([
+          'message' => Yii::t('app', 'Success'),
+          // 'id' => $id,
+          // 'redirect' => $this->doneLink ? call_user_func($this->doneLink, $model) : null,
+          // 'modalDoneFragment' => 'details',
+        ]);
+      }
+
+      if ($formPosted) {
+        return $this->renderJson([
+          'status' => 'Error',
+          'message' => Yii::t('app', 'Error'),
+          // 'id' => $id,
+          'error' => Html::errorSummary($model),
+        ]);
+      }
+
+      return $this->renderAjaxModal('_form_image', [
+        'model' => $model,
+      ]);
+    }
+
+    if ($done)
+      return $this->redirect(['index']);
+
+    return $this->render('updateImage', [
       'model' => $model,
     ]);
   }
