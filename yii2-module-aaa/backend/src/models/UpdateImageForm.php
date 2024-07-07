@@ -13,7 +13,6 @@ use yii\web\NotFoundHttpException;
 class UpdateImageForm extends Model
 {
   public $userID;
-  public $email;
 
   public function rules()
   {
