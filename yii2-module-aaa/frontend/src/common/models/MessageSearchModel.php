@@ -7,12 +7,34 @@ namespace shopack\aaa\frontend\common\models;
 
 use yii\base\Model;
 use yii\web\ServerErrorHttpException;
+use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\frontend\common\rest\RestClientDataProvider;
 use shopack\aaa\frontend\common\models\MessageModel;
 
 class MessageSearchModel extends MessageModel
 {
 	use \shopack\base\common\db\SearchModelTrait;
+
+	// public $msgUserID;
+
+	// public function extraRules()
+	// {
+	// 	return [
+	// 		[[
+	// 			'msgUserID',
+	// 		], 'number'],
+	// 		[[
+	// 			'msgUserID',
+	// 		], 'default', 'value' => null],
+	// 	];
+	// }
+
+	// public function attributeLabels()
+	// {
+	// 	return ArrayHelper::merge(parent::attributeLabels(), [
+	// 		'msgUserID' => 'کاربر',
+	// 	]);
+	// }
 
 	public function scenarios()
 	{
@@ -61,6 +83,11 @@ class MessageSearchModel extends MessageModel
 			// $query->where('0=1');
 			return $dataProvider;
 		}
+
+		if (empty($this->msgUserID) == false)
+			$query->andWhere(['msgUserID' => $this->msgUserID]);
+		else if (empty($params['msgUserID']) == false)
+			$query->andWhere(['msgUserID' => $params['msgUserID']]);
 
 		$this->applySearchValuesInQuery($query, $params);
 

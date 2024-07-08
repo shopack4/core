@@ -5,11 +5,7 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\common\widgets\grid\GridView;
 use shopack\base\frontend\common\helpers\Html;
-use shopack\base\common\helpers\StringHelper;
-use shopack\aaa\common\enums\enuOnlinePaymentStatus;
-use shopack\aaa\frontend\common\models\OnlinePaymentModel;
 
 $this->title = Yii::t('aaa', 'Online Payments');
 $this->params['breadcrumbs'][] = Yii::t('aaa', 'System');

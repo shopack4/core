@@ -335,6 +335,15 @@ $this->params['breadcrumbs'][] = $this->title;
         $tabs->endTabPage();
       ?>
 
+      <?php
+        $tabs->newAjaxTabPage(Yii::t('aaa', 'Messages'), [
+            '/aaa/message/index',
+            'msgUserID' => $model->usrID,
+          ],
+          'messages'
+        );
+      ?>
+
       <?php $tabs->end(); ?>
     </div>
   </div>

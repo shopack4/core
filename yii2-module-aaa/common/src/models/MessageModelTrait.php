@@ -59,6 +59,7 @@ trait MessageModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'msgApprovalRequestID' => [
 				enuColumnInfo::type       => 'integer',

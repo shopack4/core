@@ -5,7 +5,6 @@
 
 namespace shopack\aaa\frontend\adminpanel\controllers;
 
-use Yii;
 use shopack\aaa\frontend\common\auth\BaseCrudController;
 use shopack\aaa\frontend\common\models\MessageModel;
 use shopack\aaa\frontend\common\models\MessageSearchModel;

@@ -75,7 +75,7 @@ class OnlinePaymentSearchModel extends OnlinePaymentModel
 				],
 				'defaultOrder' => [
 					'onpCreatedAt' => SORT_DESC,
-				]
+				],
 			],
 		]);
 
