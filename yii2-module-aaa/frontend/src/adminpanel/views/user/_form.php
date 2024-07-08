@@ -113,9 +113,17 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 			],
 
 			GeoCityOrVillageChooseFormField::field($this, $model, 'usrBirthCityID'),
-			['usrBirthDate',
+			[
+				'usrBirthDate',
 				'type' => FormBuilder::FIELD_WIDGET,
 				'widget' => DatePicker::class,
+				'fieldOptions' => [
+					'addon' => [
+						'append' => [
+							'content' => '<i class="far fa-calendar-alt"></i>',
+						],
+					],
+				],
 			],
 		]);
 

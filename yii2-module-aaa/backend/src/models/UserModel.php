@@ -32,6 +32,7 @@ class UserModel extends AAAActiveRecord
 	{
     parent::init();
     $this->on(AAAActiveRecord::EVENT_AFTER_INSERT, [$this, 'slotAfterInsert']);
+    $this->on(AAAActiveRecord::EVENT_AFTER_UPDATE, [$this, 'slotAfterUpdate']);
 	}
 
   public $usrPassword;
@@ -135,6 +136,24 @@ class UserModel extends AAAActiveRecord
         );
       }
     } //bypassRequestApprovalCode
+  }
+
+  public function slotAfterUpdate($event)
+	{
+    if ((array_key_exists('usrEmail', $event->changedAttributes) == false)
+        || ($event->changedAttributes['usrEmail'] == $this->usrEmail)
+        || $this->bypassRequestApprovalCode
+        || empty($this->usrEmail)
+      )
+      return;
+
+    ApprovalRequestModel::requestCode(
+      $this->usrEmail,
+      $this->usrID,
+      $this->usrGender,
+      $this->usrFirstName,
+      $this->usrLastName
+    );
   }
 
   /**
