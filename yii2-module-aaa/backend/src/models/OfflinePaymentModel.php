@@ -58,7 +58,7 @@ class OfflinePaymentModel extends AAAActiveRecord
 				/* userID             */ $this->ofpOwnerUserID,
 				/* targetPath         */ 'offline-payment',
 				/* allowedFileTypes   */ null,
-				/* allowedMimeTypes   */ ['image/png', 'image/gif', 'image/jpeg'],
+				/* allowedMimeTypes   */ ['image/png', 'image/gif', 'image/jpg', 'image/jpeg'],
 				/* allowedMinFileSize */ 0,
 				/* allowedMaxFileSize */ 2 * 1024 * 1024
 			);

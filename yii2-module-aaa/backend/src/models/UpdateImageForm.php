@@ -34,7 +34,7 @@ class UpdateImageForm extends Model
       /* userID             */ $this->userID,
       /* targetPath         */ 'user',
       /* allowedFileTypes   */ null,
-      /* allowedMimeTypes   */ ['image/png', 'image/gif', 'image/jpeg'],
+      /* allowedMimeTypes   */ ['image/png', 'image/gif', 'image/jpg', 'image/jpeg'],
       /* allowedMinFileSize */ 0,
       /* allowedMaxFileSize */ 2 * 1024 * 1024
     );

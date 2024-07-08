@@ -686,16 +686,15 @@ class RestClientQuery
     //   $dataAsArray = (array)$data;
 
     $messageCategory = 'aaa';
-    $fnFormatMessage = function($message) use($messageCategory) {
 
+    $fnFormatMessage = function($message) use($messageCategory) {
+      $saveMsg = $message;
       $message = json_decode($message, true);
-      // if (json_validate($data->message)) {
-      if (empty($message) == false) {
-        $msg = array_shift($message);
-        $message = Yii::t($messageCategory, $msg, $message);
-      } else {
-        $message = $message;
-      }
+      if (empty($message))
+        return $saveMsg;
+
+      $msg = array_shift($message);
+      $message = Yii::t($messageCategory, $msg, $message);
 
       return $message;
     };

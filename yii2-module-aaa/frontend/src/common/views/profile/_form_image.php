@@ -27,7 +27,7 @@ use shopack\base\frontend\common\widgets\FormBuilder;
 				'image',
 				'type' => FormBuilder::FIELD_FILE,
 				'widgetOptions' => [
-					'accept' => 'image/png, image/gif, image/jpeg',
+					'accept' => 'image/png, image/gif, image/jpg, image/jpeg',
 				],
 			],
 			'توجه: برای تایید، عکس شما باید یک عکس پرسنلی استاندارد باشد.',
