@@ -119,6 +119,7 @@ class ForgotPasswordRequestModel extends AAAActiveRecord
               OR usrMobile = '{$normalizedInput}'
                  )
              AND fprExpireAt <= NOW()
+             AND msgStatus != {$fnGetConst(enuMessageStatus::Sent)}
 SQL;
     static::getDb()->createCommand($qry)->execute();
 
@@ -132,6 +133,7 @@ SQL;
               OR usrMobile = '{$normalizedInput}'
                  )
              AND fprExpireAt <= NOW()
+             AND fprStatus != {$fnGetConst(enuForgotPasswordRequestStatus::Applied)}
 SQL;
     static::getDb()->createCommand($qry)->execute();
 
@@ -162,7 +164,7 @@ SQL;
               ON fpr.fprID = msg.msgForgotPasswordRequestID
       INNER JOIN {$userTableName} usr
               ON usr.usrID = fpr.fprUserID
-             SET msgStatus = {$fnGetConst(enuMessageStatus::Error)}
+             SET msgStatus = {$fnGetConst(enuMessageStatus::Removed)}
            WHERE (
                  usrEmail = '{$normalizedInput}'
               OR usrMobile = '{$normalizedInput}'
@@ -277,7 +279,7 @@ SQL;
       $qry =<<<SQL
           UPDATE {$messageTableName}
              SET msgStatus = {$fnGetConst(enuMessageStatus::Removed)}
-           WHERE msgForgotPasswordRequestID = '{$forgotPasswordRequestModel->fprID}'
+           WHERE msgForgotPasswordRequestID = {$forgotPasswordRequestModel->fprID}
 SQL;
       static::getDb()->createCommand($qry)->execute();
     }

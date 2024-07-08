@@ -620,6 +620,10 @@ return [
 	'Removed' => 'حذف شده',
 	'Settled' => 'تسویه شده',
 	'Finished' => 'پایان یافته',
+	'Processing' => 'در حال اقدام',
+	'First Try' => 'سعی اول',
+	'Second Try' => 'سعی دوم',
+	'Sent' => 'ارسال شد',
 
 	'Payment Token' => 'کلید پرداخت',
 	'Track Number' => 'شماره پیگیری',

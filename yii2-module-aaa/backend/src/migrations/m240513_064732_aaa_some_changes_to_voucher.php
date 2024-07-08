@@ -3,9 +3,9 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
+use shopack\base\common\db\Migration;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuVoucherType;
-use shopack\base\common\db\Migration;
 
 class m240513_064732_aaa_some_changes_to_voucher extends Migration
 {

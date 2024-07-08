@@ -309,7 +309,7 @@ SQL;
       $qry =<<<SQL
           UPDATE {$messageTableName}
              SET msgStatus = {$fnGetConst(enuMessageStatus::Removed)}
-           WHERE msgApprovalRequestID = '{$approvalRequestModel->aprID}'
+           WHERE msgApprovalRequestID = {$approvalRequestModel->aprID}
 SQL;
       static::getDb()->createCommand($qry)->execute();
     }

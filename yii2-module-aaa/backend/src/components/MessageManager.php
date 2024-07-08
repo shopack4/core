@@ -133,24 +133,27 @@ SQL;
       //  AND tbl_AAA_MessageTemplate.mstLanguage = tbl_AAA_Message.msgLanguage
 			if (empty($messageID)) {
 	      $qry = <<<SQL
-      UPDATE tbl_AAA_Message
-         SET msgLockedAt = NOW()
-           , msgLockedBy = '{$instanceID}'
-       WHERE EXISTS(
-      SELECT mstID
-        FROM tbl_AAA_MessageTemplate
-       WHERE tbl_AAA_MessageTemplate.mstKey = tbl_AAA_Message.msgTypeKey
-             )
-         AND msgInfo != '__UNKNOWN__'
-         AND (msgLockedAt IS NULL
-          OR msgLockedAt < DATE_SUB(NOW(), INTERVAL 1 HOUR)
-          OR msgLockedBy = '{$instanceID}'
-             )
-         AND (msgStatus = {$fnGetConst(enuMessageStatus::New)}
-          OR (msgStatus = {$fnGetConst(enuMessageStatus::Error)}
-         AND msgLastTryAt < DATE_SUB(NOW(), INTERVAL {$lastTryInterval} MINUTE)
-             )
-             )
+      UPDATE  tbl_AAA_Message
+         SET  msgLockedAt = NOW()
+           ,  msgLockedBy = '{$instanceID}'
+       WHERE  EXISTS(
+      SELECT  mstID
+        FROM  tbl_AAA_MessageTemplate
+       WHERE  tbl_AAA_MessageTemplate.mstKey = tbl_AAA_Message.msgTypeKey
+              )
+         AND  msgInfo != '__UNKNOWN__'
+         AND  (msgLockedAt IS NULL
+          OR  msgLockedAt < DATE_SUB(NOW(), INTERVAL 1 HOUR)
+          OR  msgLockedBy = '{$instanceID}'
+              )
+         AND  (msgStatus = {$fnGetConst(enuMessageStatus::New)}
+          OR  (msgStatus IN (
+                {$fnGetConst(enuMessageStatus::FirstTry)},
+                {$fnGetConst(enuMessageStatus::SecondTry)}
+                )
+         AND  msgLastTryAt < DATE_SUB(NOW(), INTERVAL {$lastTryInterval} MINUTE)
+              )
+              )
     ORDER BY msgCreatedAt ASC
        LIMIT {$maxItemCount}
 SQL;
@@ -186,7 +189,7 @@ SQL;
         ->andWhere(['OR',
           ['msgStatus' => enuMessageStatus::New],
           ['AND',
-            ['msgStatus' => enuMessageStatus::Error],
+            ['IN', 'msgStatus', [enuMessageStatus::FirstTry, enuMessageStatus::SecondTry]],
             ['<', 'msgLastTryAt', new Expression("DATE_SUB(NOW(), INTERVAL {$lastTryInterval} MINUTE)")]
           ]
         ])
@@ -325,7 +328,16 @@ SQL;
         $messageModel->msgLastTryAt = $expNow;
         $messageModel->msgSentAt    = ($errorCount == 0 ? $expNow : null);
         $messageModel->msgResult    = empty($msgResult) ? null : $msgResult;
-        $messageModel->msgStatus    = ($errorCount == 0 ? enuMessageStatus::Sent : enuMessageStatus::Error);
+
+        if ($errorCount == 0)
+          $messageModel->msgStatus = enuMessageStatus::Sent;
+        else if ($messageModel->msgStatus == enuMessageStatus::New)
+          $messageModel->msgStatus = enuMessageStatus::FirstTry;
+        else if ($messageModel->msgStatus == enuMessageStatus::FirstTry)
+          $messageModel->msgStatus = enuMessageStatus::SecondTry;
+        else
+          $messageModel->msgStatus = enuMessageStatus::Error;
+
         $messageModel->save();
 
         if ($messageModel->msgStatus == enuMessageStatus::Sent) {
