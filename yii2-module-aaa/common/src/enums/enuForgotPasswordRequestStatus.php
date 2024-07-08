@@ -9,6 +9,11 @@ use shopack\base\common\base\BaseEnum;
 
 abstract class enuForgotPasswordRequestStatus extends BaseEnum
 {
+	// -----------------------------------------------------
+	// |A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|
+	// |x| | | | | | | | | | | | |x| | | | |x| | | | |x| | |
+	// -----------------------------------------------------
+
   const New 				= 'N';
   const Sent 				= 'S';
   const Applied 		= 'A';
