@@ -694,4 +694,6 @@ return [
 	'INVALID_FILE_MAX_SIZE'	=> 'حداکثر حجم فایل مجاز نیست. فایل: ({name}) حجم: ({fileSize})',
 	'UNKNOWN_MIME_TYPE'			=> 'نوع فایل مشخص نیست. فایل: ({name})',
 	'INVALID_MIME_TYPE'			=> 'نوع فایل مجاز نیست. فایل: ({name}) نوع: ({mimeType})',
+
+	'Offline Payment Reject Reason' => 'دلیل رد پرداخت آفلاین',
 ];

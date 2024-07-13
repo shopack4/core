@@ -89,9 +89,9 @@ class OfflinePaymentModel extends AAAActiveRecord
 		Yii::$app->paymentManager->approveOfflinePayment($this);
 	}
 
-	public function doReject()
+	public function doReject($reasons = null)
 	{
-		Yii::$app->paymentManager->rejectOfflinePayment($this);
+		Yii::$app->paymentManager->rejectOfflinePayment($this, $reasons);
 	}
 
 }

@@ -11,6 +11,7 @@ use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\rest\enuColumnSearchType;
 use shopack\aaa\common\enums\enuOfflinePaymentStatus;
 use shopack\base\common\validators\GroupRequiredValidator;
+use shopack\base\common\validators\JsonValidator;
 
 /*
 'ofpID',
@@ -27,6 +28,7 @@ use shopack\base\common\validators\GroupRequiredValidator;
 'ofpImageFileID',
 'ofpWalletID',
 'ofpComment',
+'ofpRejectReasonIDs',
 'ofpStatus',
 'ofpCreatedAt',
 'ofpCreatedBy',
@@ -150,6 +152,14 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
+			],
+			'ofpRejectReasonIDs' => [
+				enuColumnInfo::type       => JsonValidator::class,
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => null,
+				enuColumnInfo::required   => false,
+				enuColumnInfo::selectable => true,
+        // enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'ofpStatus' => [
 				enuColumnInfo::isStatus   => true,

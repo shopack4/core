@@ -30,6 +30,12 @@ class Module
 				[
 					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
+					'controller' => [$this->id . '/basic-definition'],
+					'pluralize' => false,
+				],
+				[
+					'class' => \shopack\base\common\rest\UrlRule::class,
+					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/auth'],
 					'pluralize' => false,
 					'extraPatterns' => [

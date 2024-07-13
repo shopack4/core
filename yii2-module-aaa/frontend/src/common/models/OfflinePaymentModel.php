@@ -7,9 +7,9 @@ namespace shopack\aaa\frontend\common\models;
 
 use Yii;
 use yii\web\NotFoundHttpException;
+use shopack\base\common\helpers\HttpHelper;
 use shopack\base\frontend\common\rest\RestClientActiveRecord;
 use shopack\aaa\common\enums\enuOfflinePaymentStatus;
-use shopack\base\common\helpers\HttpHelper;
 
 class OfflinePaymentModel extends RestClientActiveRecord
 {
@@ -57,6 +57,7 @@ class OfflinePaymentModel extends RestClientActiveRecord
 			'ofpImageFileID'      => Yii::t('aaa', 'Image'),
 			'ofpWalletID'         => Yii::t('aaa', 'Destination Wallet'),
 			'ofpComment'          => Yii::t('aaa', 'Comment'),
+			'ofpRejectReasonIDs'  => Yii::t('app', 'Reasons'),
 			'ofpStatus'           => Yii::t('app', 'Status'),
 			'ofpCreatedAt'        => Yii::t('app', 'Created At'),
 			'ofpCreatedBy'        => Yii::t('app', 'Created By'),
@@ -80,7 +81,7 @@ class OfflinePaymentModel extends RestClientActiveRecord
 	}
 
 	public function canUpdate() {
-		return ($this->ofpStatus != enuOfflinePaymentStatus::Removed);
+		return ($this->ofpStatus == enuOfflinePaymentStatus::WaitForApprove);
 	}
 
 	public function canDelete() {
@@ -115,21 +116,21 @@ class OfflinePaymentModel extends RestClientActiveRecord
     return true; //[$resultStatus, $resultData['result']];
 	}
 
-	public static function doReject($id)
-	{
-		if (empty($id))
-			throw new NotFoundHttpException('Invalid id');
+	// public static function doReject($id)
+	// {
+	// 	if (empty($id))
+	// 		throw new NotFoundHttpException('Invalid id');
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/offline-payment/reject',
-      HttpHelper::METHOD_POST,
-      [
-        'id' => $id,
-      ]
-    );
+  //   list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/offline-payment/reject',
+  //     HttpHelper::METHOD_POST,
+  //     [
+  //       'id' => $id,
+  //     ]
+  //   );
 
-		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+	// 	HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
 
-    return true; //[$resultStatus, $resultData['result']];
-	}
+  //   return true; //[$resultStatus, $resultData['result']];
+	// }
 
 }

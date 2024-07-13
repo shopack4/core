@@ -5,15 +5,15 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\common\widgets\PopoverX;
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\HttpHelper;
-use shopack\base\frontend\common\widgets\DetailView;
 use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\PopoverX;
+use shopack\base\frontend\common\widgets\DetailView;
 use shopack\aaa\common\enums\enuOfflinePaymentStatus;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 
-$this->title = Yii::t('aaa', 'Offline Payment') . ': ' . $model->ofpID . ' - ' . $model->ofpName;
+$this->title = Yii::t('aaa', 'Offline Payment') . ': ' . $model->ofpID;
 $this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
 $this->params['breadcrumbs'][] = ['label' => Yii::t('aaa', 'Offline Payments'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
@@ -86,6 +86,7 @@ $this->params['breadcrumbs'][] = $this->title;
           'ofpImageFileID',
           'ofpWalletID',
           'ofpComment',
+          // 'ofpRejectReasonIDs',
           [
             'attribute' => 'ofpStatus',
             'value' => enuOfflinePaymentStatus::getLabel($model->ofpStatus),

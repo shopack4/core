@@ -13,6 +13,8 @@ use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuVoucherType;
+use shopack\base\backend\helpers\PrivHelper;
+use yii\web\ForbiddenHttpException;
 
 class OrderChangeDeliveryMethodForm extends Model
 {
@@ -44,6 +46,10 @@ class OrderChangeDeliveryMethodForm extends Model
 
 		if ($voucherModel == null)
 			throw new NotFoundHttpException('The requested item does not exist.');
+
+		if (($voucherModel->vchOwnerUserID != Yii::$app->user->id)
+				&& (PrivHelper::hasPriv('aaa/voucher/crud', '0010') == false))
+			throw new ForbiddenHttpException('access denied');
 
 		if ($voucherModel->vchStatus != enuVoucherStatus::WaitForPayment)
 			throw new UnauthorizedHttpException('وضعیت سفارش باید منتظر پرداخت باشد.');

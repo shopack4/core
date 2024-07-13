@@ -560,14 +560,24 @@ SQL;
     }
   }
 
-  public function rejectOfflinePayment($offlinePaymentModel)
+  public function rejectOfflinePayment($offlinePaymentModel, $reasons = null)
   {
     if ($offlinePaymentModel->ofpStatus != enuOfflinePaymentStatus::WaitForApprove)
       throw new UnprocessableEntityHttpException('This payment is not in pending state.');
 
     $offlinePaymentModel->ofpStatus = enuOfflinePaymentStatus::Rejected;
+
+    if (empty($reasons) == false) {
+      if (is_string($reasons)) {
+        $array = json_decode($reasons, true);
+        if (empty($array) == false)
+          $offlinePaymentModel->ofpRejectReasonIDs = $array;
+      } else if (is_array($reasons))
+        $offlinePaymentModel->ofpRejectReasonIDs = $reasons;
+    }
+
     if ($offlinePaymentModel->save() == false)
-      throw new ServerErrorHttpException('It is not possible to create an offline payment');
+      throw new ServerErrorHttpException('It is not possible to reject offline payment');
 
     return $offlinePaymentModel;
   }

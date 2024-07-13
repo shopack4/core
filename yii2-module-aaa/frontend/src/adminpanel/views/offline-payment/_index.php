@@ -46,6 +46,8 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
         // if (empty($model->ofpComment) == false)
           $rows[] = [$model->getAttributeLabel('ofpComment'), $model->ofpComment];
 
+        //ofpRejectReasonIDs
+
         return Html::asTable($rows);
       },
     ],
@@ -109,8 +111,7 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
         'create',
         'ofpOwnerUserID' => $ofpOwnerUserID ?? $_GET['ofpOwnerUserID'] ?? null,
       ]) : Yii::t('app', 'Actions'),
-      // 'template' => '{accept} {reject} {update} {delete}{undelete}',
-      'template' => '{accept} {reject} {delete}{undelete}',
+      'template' => '{accept} {reject} {update} {delete}{undelete}',
 
       'buttons' => [
         'accept' => function ($url, $model, $key) {
@@ -122,22 +123,23 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
             'modal' => true,
             'title' => Yii::t('aaa', 'Approve'),
           ]);
-          // return Html::confirmButton(Yii::t('aaa', 'Approve'), [
-          //   'approve',
-          //   'id' => $model->ofpID,
-          // ], Yii::t('aaa', 'Are you sure you want to APPROVE this item?'), [
-          //   'class' => 'btn btn-sm btn-success',
-          //   'ajax' => 'post',
-          // ]);
         },
         'reject' => function ($url, $model, $key) {
-          return Html::confirmButton(Yii::t('aaa', 'Reject'), [
+          return Html::a(Yii::t('aaa', 'Reject'), [
             'reject',
             'id' => $model->ofpID,
-          ], Yii::t('aaa', 'Are you sure you want to REJECT this item?'), [
+          ], [
             'class' => 'btn btn-sm btn-warning',
-            'ajax' => 'post',
+            'modal' => true,
+            'title' => Yii::t('aaa', 'Reject'),
           ]);
+          // return Html::confirmButton(Yii::t('aaa', 'Reject'), [
+          //   'reject',
+          //   'id' => $model->ofpID,
+          // ], Yii::t('aaa', 'Are you sure you want to REJECT this item?'), [
+          //   'class' => 'btn btn-sm btn-warning',
+          //   'ajax' => 'post',
+          // ]);
         },
       ],
 
