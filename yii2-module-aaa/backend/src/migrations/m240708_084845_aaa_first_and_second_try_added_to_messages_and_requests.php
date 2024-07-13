@@ -15,12 +15,12 @@ ALTER TABLE `tbl_AAA_Message`
 SQL
     );
 
-    $this->execute(<<<SQL
-UPDATE	tbl_AAA_Message
-	 SET	msgStatus = 'A'
- WHERE	msgStatus = 'E'
-SQL
-    );
+//     $this->execute(<<<SQL
+// UPDATE	tbl_AAA_Message
+// 	 SET	msgStatus = 'A'
+//  WHERE	msgStatus = 'E'
+// SQL
+//     );
 
 	}
 
