@@ -14,6 +14,7 @@ use yii\data\ActiveDataProvider;
 use shopack\base\common\helpers\ExceptionHelper;
 use shopack\base\backend\helpers\PrivHelper;
 use shopack\base\common\helpers\ArrayHelper;
+use yii\web\ServerErrorHttpException;
 
 abstract class BaseCrudController extends BaseRestController
 {
@@ -47,10 +48,19 @@ abstract class BaseCrudController extends BaseRestController
 	{
 		$permissions = $this->permissions();
 
-		if (empty($permissions[$this->action->id]))
+		$permissions = $permissions[$this->action->id] ?? null;
+
+		if (empty($permissions))
 			return;
 
-		$permissions = $permissions[$this->action->id];
+		$behaviors = $this->behaviors();
+
+		if ((empty($behaviors[static::BEHAVIOR_AUTHENTICATOR]['except']) == false)
+			&& (in_array($this->action->id, $behaviors[static::BEHAVIOR_AUTHENTICATOR]['except']))
+		) {
+			throw new ServerErrorHttpException("action ({$this->action->id}) is set as except for jwt checking, but exists in controller's permission checking");
+		}
+
 		$filter = ArrayHelper::remove($permissions, 'filter', null);
 		$checker = ArrayHelper::remove($permissions, 'checker', null);
 

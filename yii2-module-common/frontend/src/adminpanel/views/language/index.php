@@ -8,20 +8,19 @@
 use shopack\base\frontend\common\widgets\grid\GridView;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
-use shopack\aaa\common\enums\enuBasicDefinitionType;
-use shopack\aaa\common\enums\enuBasicDefinitionStatus;
-use shopack\aaa\frontend\common\models\BasicDefinitionModel;
+// use shopack\cmn\common\enums\enuLanguageStatus;
+use shopack\cmn\frontend\common\models\LanguageModel;
 
-$this->title = Yii::t('app', 'Basic Definitions');
-$this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
+$this->title = Yii::t('cmn', 'Languages');
+$this->params['breadcrumbs'][] = Yii::t('cmn', 'Common');
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="basic-definition-index w-100">
+<div class="language-index w-100">
   <div class='card'>
 		<div class='card-header'>
 			<div class="float-end">
-        <?= BasicDefinitionModel::canCreate() ? Html::createButton() : '' ?>
+        <?= LanguageModel::canCreate() ? Html::createButton() : '' ?>
 			</div>
       <div class='card-title'><?= Html::encode($this->title) ?></div>
 			<div class="clearfix"></div>
@@ -38,27 +37,22 @@ $this->params['breadcrumbs'][] = $this->title;
           [
             'class' => 'kartik\grid\SerialColumn',
           ],
-          'bdfID',
+          'lngID',
           [
-            'attribute' => 'bdfName',
+            'attribute' => 'lngName',
             'format' => 'raw',
             'value' => function ($model, $key, $index, $widget) {
-              return Html::a($model->bdfName, ['view', 'id' => $model->bdfID]);
+              return Html::a($model->lngName, ['view', 'id' => $model->lngID]);
             },
           ],
-          [
-            'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
-            'enumClass' => enuBasicDefinitionType::class,
-            'attribute' => 'bdfType',
-          ],
-          [
-            'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
-            'enumClass' => enuBasicDefinitionStatus::class,
-            'attribute' => 'bdfStatus',
-          ],
+          // [
+          //   'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
+          //   'enumClass' => enuLanguageStatus::class,
+          //   'attribute' => 'lngStatus',
+          // ],
           [
             'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
-            'header' => BasicDefinitionModel::canCreate() ? Html::createButton() : Yii::t('app', 'Actions'),
+            'header' => LanguageModel::canCreate() ? Html::createButton() : Yii::t('app', 'Actions'),
             'template' => '{update} {delete}{undelete}',
             'visibleButtons' => [
               'update' => function ($model, $key, $index) {
@@ -79,11 +73,11 @@ $this->params['breadcrumbs'][] = $this->title;
             'label' => 'ایجاد / ویرایش',
             'value' => function($model) {
               return Html::formatRowDates(
-                $model->bdfCreatedAt,
+                $model->lngCreatedAt,
                 $model->createdByUser,
-                $model->bdfUpdatedAt,
+                $model->lngUpdatedAt,
                 $model->updatedByUser,
-                $model->bdfRemovedAt,
+                $model->lngRemovedAt,
                 $model->removedByUser,
               );
             },

@@ -10,6 +10,11 @@ use Lcobucci\JWT\Token;
 
 class JwtHttpBearerAuth extends BaseJwtHttpBearerAuth
 {
+	public function init(): void
+	{
+		parent::init();
+	}
+
 	public function processToken(string $data): ?Token
 	{
 		$token = $this->getJwtComponent()->parse($data);

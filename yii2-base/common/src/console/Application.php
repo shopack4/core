@@ -16,4 +16,15 @@ class Application extends \yii\console\Application
 	public $isConsole = true;
 	public $isJustForMe = true;
 
+	public function coreCommands()
+	{
+		$commands = parent::coreCommands();
+
+		$commands =array_replace_recursive($commands, [
+			'migrate' => \shopack\base\common\console\controllers\MigrateController::class,
+		]);
+
+		return $commands;
+	}
+
 }

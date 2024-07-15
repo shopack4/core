@@ -19,19 +19,20 @@ class BasicDefinitionModel extends RestClientActiveRecord
 	public function attributeLabels()
 	{
 		return [
-			'bdfID'                    => Yii::t('app', 'ID'),
-			'bdfType'                  => Yii::t('app', 'Type'),
-			'bdfName'                  => Yii::t('app', 'Title'),
-			'bdfStatus'                => Yii::t('app', 'Status'),
-			'bdfCreatedAt'             => Yii::t('app', 'Created At'),
-			'bdfCreatedBy'             => Yii::t('app', 'Created By'),
-			'bdfCreatedBy_User'        => Yii::t('app', 'Created By'),
-			'bdfUpdatedAt'             => Yii::t('app', 'Updated At'),
-			'bdfUpdatedBy'             => Yii::t('app', 'Updated By'),
-			'bdfUpdatedBy_User'        => Yii::t('app', 'Updated By'),
-			'bdfRemovedAt'             => Yii::t('app', 'Removed At'),
-			'bdfRemovedBy'             => Yii::t('app', 'Removed By'),
-			'bdfRemovedBy_User'        => Yii::t('app', 'Removed By'),
+			'bdfID'							=> Yii::t('app', 'ID'),
+			'bdfType'						=> Yii::t('app', 'Type'),
+			'bdfName'						=> Yii::t('app', 'Title'),
+			'bdfI18NData'				=> Yii::t('app', 'I18N Translations'),
+			'bdfStatus'					=> Yii::t('app', 'Status'),
+			'bdfCreatedAt'			=> Yii::t('app', 'Created At'),
+			'bdfCreatedBy'			=> Yii::t('app', 'Created By'),
+			'bdfCreatedBy_User'	=> Yii::t('app', 'Created By'),
+			'bdfUpdatedAt'			=> Yii::t('app', 'Updated At'),
+			'bdfUpdatedBy'			=> Yii::t('app', 'Updated By'),
+			'bdfUpdatedBy_User'	=> Yii::t('app', 'Updated By'),
+			'bdfRemovedAt'			=> Yii::t('app', 'Removed At'),
+			'bdfRemovedBy'			=> Yii::t('app', 'Removed By'),
+			'bdfRemovedBy_User'	=> Yii::t('app', 'Removed By'),
 		];
 	}
 

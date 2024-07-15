@@ -5,14 +5,13 @@
 
 use shopack\base\frontend\common\helpers\Html;
 
-$this->title = Yii::t('app', 'Update Basic Definition');
-$this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Basic Definitions'), 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->bdfName, 'url' => ['view', 'id' => $model->bdfID]];
+$this->title = Yii::t('cmn', 'Create Language');
+$this->params['breadcrumbs'][] = Yii::t('cmn', 'Common');
+$this->params['breadcrumbs'][] = ['label' => Yii::t('cmn', 'Languages'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div id='basic-definition-update' class='d-flex justify-content-center'>
+<div id='language-create' class='d-flex justify-content-center'>
 	<div class='w-sm-75 card border-primary'>
 
 		<div class='card-header bg-primary text-white'>

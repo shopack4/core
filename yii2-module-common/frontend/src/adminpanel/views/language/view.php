@@ -5,27 +5,26 @@
 
 /** @var yii\web\View $this */
 
+use shopack\base\common\helpers\Json;
 use shopack\base\frontend\common\widgets\PopoverX;
-use shopack\base\frontend\common\widgets\DetailView;
 use shopack\base\frontend\common\helpers\Html;
-use shopack\aaa\frontend\common\models\BasicDefinitionModel;
-use shopack\aaa\common\enums\enuBasicDefinitionType;
-use shopack\aaa\common\enums\enuBasicDefinitionStatus;
+use shopack\base\frontend\common\widgets\DetailView;
+use shopack\cmn\frontend\common\models\LanguageModel;
 
-$this->title = Yii::t('app', 'Basic Definition') . ': ' . $model->bdfID . ' - ' . $model->bdfName;
-$this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
-$this->params['breadcrumbs'][] = ['label' => Yii::t('app', 'Basic Definitions'), 'url' => ['index']];
+$this->title = Yii::t('cmn', 'Language') . ': ' . $model->lngID . ' - ' . $model->lngName;
+$this->params['breadcrumbs'][] = Yii::t('cmn', 'Common');
+$this->params['breadcrumbs'][] = ['label' => Yii::t('cmn', 'Languages'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
-<div class="basic-definition-view w-100">
+<div class="language-view w-100">
   <div class='card'>
 		<div class='card-header'>
 			<div class="float-end">
-				<?= BasicDefinitionModel::canCreate() ? Html::createButton() : '' ?>
-        <?= $model->canUpdate()   ? Html::updateButton(null,   ['id' => $model->bdfID]) : '' ?>
-        <?= $model->canDelete()   ? Html::deleteButton(null,   ['id' => $model->bdfID]) : '' ?>
-        <?= $model->canUndelete() ? Html::undeleteButton(null, ['id' => $model->bdfID]) : '' ?>
+				<?= LanguageModel::canCreate() ? Html::createButton() : '' ?>
+        <?= $model->canUpdate()   ? Html::updateButton(null,   ['id' => $model->lngID]) : '' ?>
+        <?= $model->canDelete()   ? Html::deleteButton(null,   ['id' => $model->lngID]) : '' ?>
+        <?= $model->canUndelete() ? Html::undeleteButton(null, ['id' => $model->lngID]) : '' ?>
         <?php
           PopoverX::begin([
             // 'header' => 'Hello world',
@@ -41,21 +40,21 @@ $this->params['breadcrumbs'][] = $this->title;
             'model' => $model,
             'enableEditMode' => false,
             'attributes' => [
-              'bdfCreatedAt:jalaliWithTime',
+              'lngCreatedAt:jalaliWithTime',
               [
-                'attribute' => 'bdfCreatedBy_User',
+                'attribute' => 'lngCreatedBy_User',
                 'format' => 'raw',
                 'value' => $model->createdByUser->actorName ?? '-',
               ],
-              'bdfUpdatedAt:jalaliWithTime',
+              'lngUpdatedAt:jalaliWithTime',
               [
-                'attribute' => 'bdfUpdatedBy_User',
+                'attribute' => 'lngUpdatedBy_User',
                 'format' => 'raw',
                 'value' => $model->updatedByUser->actorName ?? '-',
               ],
-              'bdfRemovedAt:jalaliWithTime',
+              'lngRemovedAt:jalaliWithTime',
               [
-                'attribute' => 'bdfRemovedBy_User',
+                'attribute' => 'lngRemovedBy_User',
                 'format' => 'raw',
                 'value' => $model->removedByUser->actorName ?? '-',
               ],
@@ -68,24 +67,25 @@ $this->params['breadcrumbs'][] = $this->title;
       <div class='card-title'><?= Html::encode($this->title) ?></div>
 			<div class="clearfix"></div>
 		</div>
-
     <div class='card-body'>
       <?php
+        $attributes = [
+          'lngID',
+          'lngName',
+          [
+            'attribute' => 'lngPrivs',
+            'value' => Json::encode($model->lngPrivs),
+          ],
+          // [
+          //   'attribute' => 'lngStatus',
+          //   'value' => enuLanguageStatus::getLabel($model->lngStatus),
+          // ],
+        ];
+
         echo DetailView::widget([
           'model' => $model,
           'enableEditMode' => false,
-          'attributes' => [
-            'bdfID',
-            [
-              'attribute' => 'bdfStatus',
-              'value' => enuBasicDefinitionStatus::getLabel($model->bdfStatus),
-            ],
-            'bdfName',
-            [
-              'attribute' => 'bdfType',
-              'value' => enuBasicDefinitionType::getLabel($model->bdfType),
-            ],
-          ],
+          'attributes' => $attributes,
         ]);
       ?>
     </div>

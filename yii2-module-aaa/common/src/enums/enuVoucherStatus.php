@@ -16,9 +16,9 @@ abstract class enuVoucherStatus extends BaseEnum
 	// -----------------------------------------------------
 
   const New							= 'N';
+	//const Accepted				= 'A'; //for proforma
 	const WaitForPayment	= 'W';
 	const Canceled				= 'C';
-	//const Accepted				= 'A'; //for proforma
   const Settled					= 'S';
   const Finished				= 'F';
   const Error						= 'E';
