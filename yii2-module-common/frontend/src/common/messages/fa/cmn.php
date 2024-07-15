@@ -12,4 +12,8 @@ return [
 	'Language Info' => 'مشخصات زبان',
 	'Create Language' => 'ایجاد زبان',
 	'Update Language' => 'ویرایش زبان',
+
+	'Language Code' => 'کد زبان',
+	'Country Code' => 'کد کشور',
+
 ];

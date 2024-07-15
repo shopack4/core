@@ -45,6 +45,9 @@ $this->params['breadcrumbs'][] = $this->title;
               return Html::a($model->lngName, ['view', 'id' => $model->lngID]);
             },
           ],
+          'lngLanguageCode',
+          'lngCountryCode',
+          'lngIsPreferred:boolean',
           // [
           //   'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
           //   'enumClass' => enuLanguageStatus::class,

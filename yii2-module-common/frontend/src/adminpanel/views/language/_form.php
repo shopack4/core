@@ -25,9 +25,6 @@ use yii\web\JsExpression;
 
 		$builder = $form->getBuilder();
 
-		if ((empty($model->lngPrivs) == false) && is_array($model->lngPrivs))
-			$model->lngPrivs = Json::encode($model->lngPrivs);
-
 		$builder->fields([
 			// [
 			// 	'lngStatus',
@@ -38,12 +35,21 @@ use yii\web\JsExpression;
 			// 	],
 			// ],
 			['lngName'],
-			['lngPrivs',
-				'type' => FormBuilder::FIELD_TEXTAREA,
+			[
+				'lngLanguageCode',
 				'widgetOptions' => [
-					'rows' => 4,
 					'style' => 'direction:ltr',
 				],
+			],
+			[
+				'lngCountryCode',
+				'widgetOptions' => [
+					'style' => 'direction:ltr',
+				],
+			],
+			[
+				'lngIsPreferred',
+				'type' => FormBuilder::FIELD_CHECKBOX,
 			],
 		]);
 	?>

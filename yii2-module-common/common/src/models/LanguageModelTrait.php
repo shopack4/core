@@ -17,6 +17,7 @@ use shopack\cmn\common\enums\enuLanguageStatus;
 'lngLanguageCode',
 'lngCountryCode',
 'lngName',
+'lngIsPreferred',
 'lngStatus',
 'lngCreatedAt',
 'lngCreatedBy',
@@ -50,6 +51,7 @@ trait LanguageModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
+				enuColumnInfo::search     => enuColumnSearchType::like,
       ],
       'lngCountryCode' => [
         enuColumnInfo::type       => ['string', 'max' => 5],
@@ -57,6 +59,7 @@ trait LanguageModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+				enuColumnInfo::search     => enuColumnSearchType::like,
       ],
 			'lngName' => [
         enuColumnInfo::type       => ['string', 'max' => 64],
@@ -64,6 +67,15 @@ trait LanguageModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+				enuColumnInfo::search     => enuColumnSearchType::like,
+      ],
+      'lngIsPreferred' => [
+				enuColumnInfo::type       => 'boolean',
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => false,
+				enuColumnInfo::required   => true,
+				enuColumnInfo::selectable => true,
+				enuColumnInfo::search     => enuColumnSearchType::exact,
       ],
       'lngStatus' => [
         enuColumnInfo::isStatus   => true,

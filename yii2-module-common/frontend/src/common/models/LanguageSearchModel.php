@@ -6,7 +6,6 @@
 namespace shopack\cmn\frontend\common\models;
 
 use yii\base\Model;
-use yii\web\ServerErrorHttpException;
 use shopack\base\frontend\common\rest\RestClientDataProvider;
 use shopack\cmn\frontend\common\models\LanguageModel;
 
@@ -30,6 +29,9 @@ class LanguageSearchModel extends LanguageModel
 				// 'enableMultiSort' => true,
 				'attributes' => [
 					'lngID',
+					'lngLanguageCode',
+					'lngCountryCode',
+					'lngName',
 					'lngCreatedAt' => [
 						'default' => SORT_DESC,
 					],

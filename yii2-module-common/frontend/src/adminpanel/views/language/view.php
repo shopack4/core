@@ -72,10 +72,9 @@ $this->params['breadcrumbs'][] = $this->title;
         $attributes = [
           'lngID',
           'lngName',
-          [
-            'attribute' => 'lngPrivs',
-            'value' => Json::encode($model->lngPrivs),
-          ],
+          'lngLanguageCode',
+          'lngCountryCode',
+          'lngIsPreferred:boolean',
           // [
           //   'attribute' => 'lngStatus',
           //   'value' => enuLanguageStatus::getLabel($model->lngStatus),
