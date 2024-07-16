@@ -11,7 +11,7 @@ abstract class CommonActiveRecord extends RestServerActiveRecord
 {
 	public static function getDb()
 	{
-		return \shopack\aaa\backend\Module::getInstance()->db;
+		return \shopack\cmn\backend\Module::getInstance()->db;
 		// return Yii::$app->controller->module->db;
 	}
 
