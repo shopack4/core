@@ -10,6 +10,8 @@ class m240713_153200_aaa_create_tbl_language extends Migration
 {
 	public function safeUp()
 	{
+		// `lngIsPreferred` BIT(1) NOT NULL DEFAULT 0,
+
     $this->execute(<<<SQL
 CREATE TABLE `{{%CMN_Language}}` (
 	`lngID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -17,7 +19,6 @@ CREATE TABLE `{{%CMN_Language}}` (
 	`lngLanguageCode` CHAR(5) NOT NULL COLLATE 'utf8mb4_unicode_ci',
 	`lngCountryCode` CHAR(5) NULL DEFAULT NULL COLLATE 'utf8mb4_unicode_ci',
 	`lngName` VARCHAR(64) NOT NULL COLLATE 'utf8mb4_unicode_ci',
-	`lngIsPreferred` BIT(1) NOT NULL DEFAULT 0,
 	`lngStatus` CHAR(1) NOT NULL DEFAULT 'A' COMMENT 'A:Active, R:Removed' COLLATE 'utf8mb4_unicode_ci',
 	`lngCreatedAt` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
 	`lngCreatedBy` BIGINT(20) UNSIGNED NULL DEFAULT NULL,
@@ -61,21 +62,21 @@ SQL
       'lngLanguageCode',
 			'lngCountryCode',
 			'lngName',
-			'lngIsPreferred'
+			// 'lngIsPreferred'
     ], [
       [
 				/* lngUUID         */ new Expression('UUID()'),
 				/* lngLanguageCode */ 'en',
 				/* lngCountryCode  */ NULL,
 				/* lngName         */ 'English',
-				/* lngIsPreferred  */ 1,
+				// /* lngIsPreferred  */ 1,
       ],
       [
 				/* lngUUID         */ new Expression('UUID()'),
 				/* lngLanguageCode */ 'fa',
 				/* lngCountryCode  */ NULL,
 				/* lngName         */ 'فارسی',
-				/* lngIsPreferred  */ 0,
+				// /* lngIsPreferred  */ 0,
       ],
 		]);
 

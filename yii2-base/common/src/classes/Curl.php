@@ -198,6 +198,9 @@ class Curl {
       $headers[] = 'Accept: application/json';
       // $headers[] = 'Content-Type: application/json';
 
+      if (empty(YII::$app->language) == false)
+        $headers[] = 'Accept-Language: ' . YII::$app->language;
+
       if (Yii::$app->request->headers->has('Authorization'))
         $headers[] = 'Authorization: ' . Yii::$app->request->headers->get('Authorization');
       else if (method_exists(Yii::$app->user, 'getJwtByCookie')) {

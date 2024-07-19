@@ -74,7 +74,7 @@ $this->params['breadcrumbs'][] = $this->title;
           'lngName',
           'lngLanguageCode',
           'lngCountryCode',
-          'lngIsPreferred:boolean',
+          // 'lngIsPreferred:boolean',
           // [
           //   'attribute' => 'lngStatus',
           //   'value' => enuLanguageStatus::getLabel($model->lngStatus),

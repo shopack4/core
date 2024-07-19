@@ -196,6 +196,10 @@ class RestClientQuery
     $this->limitKey = $modelClass::$limitKey;
 
     $this->requestHeaders = ['Accept' => RestClientQuery::JSON_TYPE];
+
+    if (empty(YII::$app->language) == false)
+      $this->requestHeaders = ['Accept-Language' => YII::$app->language];
+
     if (Yii::$app->request->headers->has('Authorization'))
       $this->requestHeaders['Authorization'] = Yii::$app->request->headers->get('Authorization');
     else {

@@ -127,7 +127,7 @@ abstract class BaseCrudController extends BaseRestController
 		return $this->queryAllToResponse($query);
 	}
 
-	public function actionView($id, $i18ntranslate = true)
+	public function actionView($id, $i18ntranslate = false)
 	{
 		$modelClass = $this->modelClass;
 

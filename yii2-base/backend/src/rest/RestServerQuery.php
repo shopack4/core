@@ -36,21 +36,25 @@ class RestServerQuery extends \yii\db\ActiveQuery
         $parts = explode(';', $lng);
         $languages[] = $parts[0];
       }
-    }
+    } else
+      $languages[] = YII::$app->language ?? 'en';
 
-    $languages[] = YII::$app->language ?? 'en';
     $languages = array_unique($languages);
 
     $lngParts = [];
     foreach ($languages as $lng)
     {
       $lng = explode('_', str_replace('-', '_', $lng));
-      $lng[0] = strtolower($lng[0]);
-      if (isset($lng[1]))
-        $lng[1] = strtoupper($lng[1]);
-      $lng = implode('_', $lng);
 
-      $lngParts[] = "JSON_UNQUOTE(JSON_EXTRACT(__dataField__, '$.{$lng}.__field__'))";
+      $lng[0] = strtolower($lng[0]);
+
+      if (isset($lng[1])) {
+        $lng[1] = strtoupper($lng[1]);
+        $lngs = implode('_', $lng);
+        $lngParts[] = "JSON_UNQUOTE(JSON_EXTRACT(__dataField__, '$.{$lngs}.__field__'))";
+      }
+
+      $lngParts[] = "JSON_UNQUOTE(JSON_EXTRACT(__dataField__, '$.{$lng[0]}.__field__'))";
     }
     $lngParts = implode(',', $lngParts);
 
@@ -59,7 +63,8 @@ class RestServerQuery extends \yii\db\ActiveQuery
     {
       foreach ($fields as $field)
       {
-        unset($this->select["{$field}"]);
+        if (isset($this->select["{$field}"]))
+          unset($this->select["{$field}"]);
 
         $this->addSelect(new \yii\db\Expression("COALESCE("
           . strtr($lngParts, [

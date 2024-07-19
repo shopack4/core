@@ -39,10 +39,20 @@ abstract class BaseCrudController extends BaseController
 			throw new InvalidConfigException('The "searchModelClass" property must be set.');
 	}
 
-	protected function findModel($id)
+	protected function findModel($id, $i18ntranslate = false)
 	{
 		$modelClass = $this->modelClass;
-		if (($model = $modelClass::findOne($id)) === null)
+
+    $primaryKey = $modelClass::primaryKey();
+    if (empty($primaryKey))
+      throw new NotFoundHttpException('The requested item does not exist.');
+
+    $query = $modelClass::find()
+      ->andWhere([$primaryKey[0] => $id])
+      ->addUrlParameter('i18ntranslate', $i18ntranslate ? 1 : 0)
+    ;
+
+		if (($model = $query->one()) === null)
       throw new NotFoundHttpException('The requested item does not exist.');
 
     return $model;
@@ -89,7 +99,7 @@ abstract class BaseCrudController extends BaseController
 
   public function actionView($id)
   {
-		$model = $this->findModel($id);
+		$model = $this->findModel($id, true);
 
     list ($viewName, $formName) = $this->actionView_afterFindModel($model);
     if (empty($viewName))

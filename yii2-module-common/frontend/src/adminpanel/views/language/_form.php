@@ -47,10 +47,10 @@ use yii\web\JsExpression;
 					'style' => 'direction:ltr',
 				],
 			],
-			[
-				'lngIsPreferred',
-				'type' => FormBuilder::FIELD_CHECKBOX,
-			],
+			// [
+			// 	'lngIsPreferred',
+			// 	'type' => FormBuilder::FIELD_CHECKBOX,
+			// ],
 		]);
 	?>
 
