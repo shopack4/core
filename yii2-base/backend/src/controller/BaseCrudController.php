@@ -91,6 +91,7 @@ abstract class BaseCrudController extends BaseRestController
 	public function augmentQuery($query)
 	{
 		$augmentaters = $this->queryAugmentaters();
+
 		if (isset($augmentaters[$this->action->id])) {
 			$augmentaters[$this->action->id]($query);
 		}
@@ -103,15 +104,18 @@ abstract class BaseCrudController extends BaseRestController
 
 	}
 
-	public function actionIndex($q = null)
+	public function actionIndex($q = null, $i18ntranslate = true)
 	{
 		$modelClass = $this->modelClass;
-		$model = new $modelClass;
-		$query = $model::find()
-			->select($modelClass::selectableColumns())
-			->asArray()
-		;
 
+		$query = $modelClass::find()
+			->i18nTranslate($i18ntranslate)
+			->asArray();
+
+		if (empty($query->select))
+			$query->select($modelClass::selectableColumns());
+
+		$model = new $modelClass;
 		$this->checkPermission($model, $query);
 
 		$this->augmentQuery($query);
@@ -123,16 +127,19 @@ abstract class BaseCrudController extends BaseRestController
 		return $this->queryAllToResponse($query);
 	}
 
-	public function actionView($id)
+	public function actionView($id, $i18ntranslate = true)
 	{
 		$modelClass = $this->modelClass;
-		$primaryKey = $modelClass::$primaryKey;
+
 		$query = $modelClass::find()
-			->select($modelClass::selectableColumns())
-			// ->where(['docID' => $id])
-			->andWhere([$primaryKey[0] => $id])
-			->asArray()
-		;
+			->i18nTranslate($i18ntranslate)
+			->asArray();
+
+		if (empty($query->select))
+			$query->select($modelClass::selectableColumns());
+
+		$primaryKey = $modelClass::$primaryKey;
+		$query->andWhere([$primaryKey[0] => $id]);
 
 		$this->augmentQuery($query);
 

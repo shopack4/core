@@ -35,7 +35,7 @@ trait AccessGroupModelTrait
 
   public function columnsInfo()
   {
-    return [
+    return array_merge([
       'agpID' => [
         enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
@@ -58,7 +58,9 @@ trait AccessGroupModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
-			'agpI18NData' => ModelColumnHelper::I18NData(['agpName']),
+    ],
+		ModelColumnHelper::I18NData($this, 'agpI18NData', ['agpName']),
+    [
       'agpStatus' => [
         enuColumnInfo::isStatus   => true,
         enuColumnInfo::type       => ['string', 'max' => 1],
@@ -75,7 +77,7 @@ trait AccessGroupModelTrait
       'agpUpdatedBy' => ModelColumnHelper::UpdatedBy(),
       'agpRemovedAt' => ModelColumnHelper::RemovedAt(),
       'agpRemovedBy' => ModelColumnHelper::RemovedBy(),
-    ];
+    ]);
   }
 
   public function getCreatedByUser() {

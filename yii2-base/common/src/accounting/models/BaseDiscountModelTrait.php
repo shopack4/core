@@ -57,7 +57,7 @@ trait BaseDiscountModelTrait
 
   public function columnsInfo()
   {
-    return [
+    return array_merge([
       'dscID' => [
         enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
@@ -238,8 +238,9 @@ trait BaseDiscountModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
-
-      'dscI18NData' => ModelColumnHelper::I18NData(['dscName']),
+    ],
+    ModelColumnHelper::I18NData($this, 'dscI18NData', ['dscName']),
+    [
 			'dscStatus' => [
 				enuColumnInfo::isStatus   => true,
 				enuColumnInfo::type       => ['string', 'max' => 1],
@@ -256,7 +257,7 @@ trait BaseDiscountModelTrait
       'dscUpdatedBy' => ModelColumnHelper::UpdatedBy(),
 			'dscRemovedAt' => ModelColumnHelper::RemovedAt(),
 			'dscRemovedBy' => ModelColumnHelper::RemovedBy(),
-    ];
+    ]);
   }
 
   public function getCreatedByUser() {

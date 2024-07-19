@@ -52,7 +52,7 @@ trait BaseSaleableModelTrait
 
   public function columnsInfo()
   {
-    return [
+    return array_merge([
       'slbID' => [
         enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
@@ -174,7 +174,9 @@ trait BaseSaleableModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
-			'slbI18NData' => ModelColumnHelper::I18NData(['slbName', 'slbDesc']),
+    ],
+		ModelColumnHelper::I18NData($this, 'slbI18NData', ['slbName', 'slbDesc']),
+    [
       'slbStatus' => [
         enuColumnInfo::isStatus   => true,
         enuColumnInfo::type       => ['string', 'max' => 1],
@@ -191,7 +193,7 @@ trait BaseSaleableModelTrait
       'slbUpdatedBy' => ModelColumnHelper::UpdatedBy(),
       'slbRemovedAt' => ModelColumnHelper::RemovedAt(),
       'slbRemovedBy' => ModelColumnHelper::RemovedBy(),
-    ];
+    ]);
   }
 
   public function getCreatedByUser() {

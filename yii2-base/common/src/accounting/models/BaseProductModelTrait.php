@@ -51,7 +51,7 @@ trait BaseProductModelTrait
 
   public function columnsInfo()
   {
-    return [
+    return array_merge([
       'prdID' => [
         enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
@@ -188,7 +188,9 @@ trait BaseProductModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
       ],
-			'prdI18NData' => ModelColumnHelper::I18NData(['prdName', 'prdDesc']),
+    ],
+		ModelColumnHelper::I18NData($this, 'prdI18NData', ['prdName', 'prdDesc']),
+    [
       'prdStatus' => [
         enuColumnInfo::isStatus   => true,
         enuColumnInfo::type       => ['string', 'max' => 1],
@@ -205,7 +207,7 @@ trait BaseProductModelTrait
       'prdUpdatedBy' => ModelColumnHelper::UpdatedBy(),
       'prdRemovedAt' => ModelColumnHelper::RemovedAt(),
       'prdRemovedBy' => ModelColumnHelper::RemovedBy(),
-    ];
+    ]);
   }
 
   public function getCreatedByUser() {

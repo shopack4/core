@@ -39,7 +39,7 @@ trait DeliveryMethodModelTrait
 
   public function columnsInfo()
   {
-    return [
+    return array_merge([
       'dlvID' => [
         enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
@@ -88,7 +88,9 @@ trait DeliveryMethodModelTrait
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => true,
       ],
-			'dlvI18NData' => ModelColumnHelper::I18NData(['dlvName']),
+    ],
+    ModelColumnHelper::I18NData($this, 'dlvI18NData', ['dlvName']),
+    [
       'dlvStatus' => [
         enuColumnInfo::isStatus   => true,
         enuColumnInfo::type       => ['string', 'max' => 1],
@@ -105,7 +107,7 @@ trait DeliveryMethodModelTrait
       'dlvUpdatedBy' => ModelColumnHelper::UpdatedBy(),
       'dlvRemovedAt' => ModelColumnHelper::RemovedAt(),
       'dlvRemovedBy' => ModelColumnHelper::RemovedBy(),
-    ];
+    ]);
   }
 
   public function getCreatedByUser() {

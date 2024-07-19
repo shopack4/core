@@ -90,8 +90,9 @@ class UserModel extends AAAActiveRecord
     $query
       // ->alias($tableName)
       ->select(self::selectableColumns())
-      ->addSelect(new \yii\db\Expression("usrPasswordHash IS NOT NULL AND usrPasswordHash != '' AS hasPassword"))
     ;
+
+    $query->addSelect(new \yii\db\Expression("usrPasswordHash IS NOT NULL AND usrPasswordHash != '' AS hasPassword"));
 
     if ($withFile)
       $query->joinWith('imageFile');

@@ -23,16 +23,45 @@ class ModelColumnHelper
 		];
 	}
 
-	public static function I18NData(Array $fieldNames)
+	public static function I18NData($model, $i18nDataFieldName, array $fieldNames)
 	{
-		return [
-			enuColumnInfo::type       => JsonValidator::class,
-			enuColumnInfo::validator  => null,
-			enuColumnInfo::default    => null,
-			enuColumnInfo::required   => false,
-			enuColumnInfo::selectable => true,
-			enuColumnInfo::search     => enuColumnSearchType::like,
+		$className = get_class($model);
+		$className::$i18nDataFields += [
+			$i18nDataFieldName => $fieldNames
 		];
+
+		$fields = [
+			$i18nDataFieldName => [
+				enuColumnInfo::type       => JsonValidator::class,
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => null,
+				enuColumnInfo::required   => false,
+				enuColumnInfo::selectable => true,
+				enuColumnInfo::search     => enuColumnSearchType::like,
+			]
+		];
+
+		// $isBackend = (str_contains($className, '\\backend\\'));
+
+		// foreach ($fieldNames as $f)
+		// {
+		// 	$fields = array_merge($fields, [
+		// 		$f . '_translated' => [
+		// 			enuColumnInfo::virtual		=> true,
+		// 			enuColumnInfo::type       => 'string',
+		// 			enuColumnInfo::validator  => null,
+		// 			enuColumnInfo::default    => null,
+		// 			enuColumnInfo::required   => false,
+
+		// 			// enuColumnInfo::selectable => !$isBackend,
+		// 			enuColumnInfo::selectable => true,
+
+		// 			enuColumnInfo::search     => enuColumnSearchType::like,
+		// 		]
+		// 	]);
+		// }
+
+		return $fields;
 	}
 
 	public static function CreatedAt()

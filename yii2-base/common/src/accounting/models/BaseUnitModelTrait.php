@@ -26,7 +26,7 @@ trait BaseUnitModelTrait
 
   public function columnsInfo()
   {
-    return [
+    return array_merge([
       'untID' => [
         enuColumnInfo::type       => 'integer',
         enuColumnInfo::validator  => null,
@@ -42,8 +42,9 @@ trait BaseUnitModelTrait
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
       ],
-			'untI18NData' => ModelColumnHelper::I18NData(['untName']),
-    ];
+    ],
+		ModelColumnHelper::I18NData($this, 'untI18NData', ['untName'])
+    );
   }
 
 }

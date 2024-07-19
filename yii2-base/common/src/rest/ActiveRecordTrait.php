@@ -12,6 +12,8 @@ use shopack\base\common\helpers\StringHelper;
 
 trait ActiveRecordTrait
 {
+	public static $i18nDataFields = [];
+
   public function getStatusColumnName()
   {
     $columnsInfo = $this->columnsInfo();

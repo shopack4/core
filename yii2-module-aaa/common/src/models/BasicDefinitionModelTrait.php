@@ -35,7 +35,7 @@ trait BasicDefinitionModelTrait
 
 	public function columnsInfo()
 	{
-		return [
+		return array_merge([
 			'bdfID' => [
 				enuColumnInfo::type       => 'integer',
 				enuColumnInfo::validator  => null,
@@ -61,8 +61,9 @@ trait BasicDefinitionModelTrait
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
 			],
-			'bdfI18NData' => ModelColumnHelper::I18NData(['bdfName']),
-
+		],
+		ModelColumnHelper::I18NData($this, 'bdfI18NData', ['bdfName']),
+		[
 			'bdfStatus' => [
 				enuColumnInfo::isStatus   => true,
 				enuColumnInfo::type       => ['string', 'max' => 1],
@@ -79,7 +80,7 @@ trait BasicDefinitionModelTrait
       'bdfUpdatedBy' => ModelColumnHelper::UpdatedBy(),
 			'bdfRemovedAt' => ModelColumnHelper::RemovedAt(),
 			'bdfRemovedBy' => ModelColumnHelper::RemovedBy(),
-		];
+		]);
 	}
 
 	public function getCreatedByUser() {

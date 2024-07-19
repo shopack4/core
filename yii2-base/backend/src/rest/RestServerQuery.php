@@ -9,6 +9,78 @@ use Yii;
 
 class RestServerQuery extends \yii\db\ActiveQuery
 {
+  public $translate = false;
+  public function i18nTranslate($translate)
+  {
+    $this->translate = $translate;
+
+    return $this;
+  }
+
+  public function applyI18NTranslate()
+  {
+    if ($this->translate == false)
+      return;
+
+    $modelClass = $this->modelClass;
+
+    //-- languages ------------------------------------
+    $languages = [];
+
+    //sample: 'en-US,en;q=0.9,fa;q=0.8'
+    $acceptLanguage = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? null;
+    if ((empty($acceptLanguage) == false) && ($acceptLanguage != '*')) {
+      $acceptLanguages = explode(',', $acceptLanguage);
+      foreach ($acceptLanguages as $lng)
+      {
+        $parts = explode(';', $lng);
+        $languages[] = $parts[0];
+      }
+    }
+
+    $languages[] = YII::$app->language ?? 'en';
+    $languages = array_unique($languages);
+
+    $lngParts = [];
+    foreach ($languages as $lng)
+    {
+      $lng = explode('_', str_replace('-', '_', $lng));
+      $lng[0] = strtolower($lng[0]);
+      if (isset($lng[1]))
+        $lng[1] = strtoupper($lng[1]);
+      $lng = implode('_', $lng);
+
+      $lngParts[] = "JSON_UNQUOTE(JSON_EXTRACT(__dataField__, '$.{$lng}.__field__'))";
+    }
+    $lngParts = implode(',', $lngParts);
+
+    //--------------------------------------
+    foreach ($modelClass::$i18nDataFields as $dataField => $fields)
+    {
+      foreach ($fields as $field)
+      {
+        unset($this->select["{$field}"]);
+
+        $this->addSelect(new \yii\db\Expression("COALESCE("
+          . strtr($lngParts, [
+            '__dataField__' => $dataField,
+            '__field__' => $field,
+          ])
+          . ", {$field}) AS {$field}"));
+
+        // unset($query->select["{$field}_translated"]);
+        // $query->addSelect(new \yii\db\Expression("COALESCE(JSON_UNQUOTE(JSON_EXTRACT({$dataField}, '$.{$language}.{$field}')), {$field}) AS {$field}_translated"));
+      }
+    }
+  }
+
+  public function createCommand($db = null)
+  {
+    $this->applyI18NTranslate();
+
+    return parent::createCommand($db);
+  }
+
   public function prepare($builder)
   {
     $modelClass = $this->modelClass;
