@@ -8,6 +8,7 @@ namespace shopack\base\common\classes;
 use Yii;
 use yii\web\ServerErrorHttpException;
 use shopack\base\common\helpers\Json;
+use shopack\base\common\helpers\LanguageHelper;
 use shopack\base\common\helpers\Url;
 
 class Curl {
@@ -198,8 +199,9 @@ class Curl {
       $headers[] = 'Accept: application/json';
       // $headers[] = 'Content-Type: application/json';
 
-      if (empty(YII::$app->language) == false)
-        $headers[] = 'Accept-Language: ' . YII::$app->language;
+      $currentLanguage = LanguageHelper::getCurrentLanguage();
+      if (empty($currentLanguage) == false)
+        $headers[] = 'Accept-Language: ' . $currentLanguage;
 
       if (Yii::$app->request->headers->has('Authorization'))
         $headers[] = 'Authorization: ' . Yii::$app->request->headers->get('Authorization');

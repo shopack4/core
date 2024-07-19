@@ -112,12 +112,21 @@ JS;
 
 		$builder->fields([
 			// 'ofpVoucherID',
+			[
+				'ofpAmount',
+				'fieldOptions' => [
+					'addon' => [
+						'append' => [
+							'content' => 'تومان',
+						],
+					],
+				],
+			],
 			['ofpBankOrCart'],
-			['ofpTrackNumber',
-			],
-			['ofpReferenceNumber',
-			],
-			['ofpPayDate',
+			['ofpTrackNumber'],
+			['ofpReferenceNumber'],
+			[
+				'ofpPayDate',
 				'type' => FormBuilder::FIELD_WIDGET,
 				'widget' => DatePicker::class,
 				'fieldOptions' => [
@@ -131,19 +140,11 @@ JS;
 				// 	'withTime' => true,
 				// ],
 			],
-			['ofpAmount',
-				'fieldOptions' => [
-					'addon' => [
-						'append' => [
-							'content' => 'تومان',
-						],
-					],
-				],
-			],
 			['ofpPayer'],
 			['ofpSourceCartNumber'],
 			// ['ofpWalletID'],
-			['ofpImageFileID',
+			[
+				'ofpImageFileID',
 				'type' => FormBuilder::FIELD_FILE,
 				'widgetOptions' => [
 					'accept' => 'image/png, image/gif, image/jpg, image/jpeg',

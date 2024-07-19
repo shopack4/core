@@ -37,7 +37,7 @@ class RestServerQuery extends \yii\db\ActiveQuery
         $languages[] = $parts[0];
       }
     } else
-      $languages[] = YII::$app->language ?? 'en';
+      $languages[] = Yii::$app->language ?? 'en';
 
     $languages = array_unique($languages);
 

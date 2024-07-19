@@ -45,6 +45,13 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
         },
       ],
       'ofpID',
+      [
+        'attribute' => 'ofpAmount',
+        'format' => 'toman',
+        'contentOptions' => [
+          'class' => ['text-nowrap', 'tabular-nums'],
+        ],
+      ],
       'ofpBankOrCart',
       'ofpPayDate:jalaliWithTime',
       [
@@ -57,13 +64,6 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
         'attribute' => 'ofpReferenceNumber',
         'contentOptions' => [
           'class' => ['small'],
-        ],
-      ],
-      [
-        'attribute' => 'ofpAmount',
-        'format' => 'toman',
-        'contentOptions' => [
-          'class' => ['text-nowrap', 'tabular-nums'],
         ],
       ],
       'ofpPayer',

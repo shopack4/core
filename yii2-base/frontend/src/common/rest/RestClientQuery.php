@@ -18,6 +18,7 @@ use yii\base\InvalidArgumentException;
 use yii\web\HttpException;
 use yii\web\ServerErrorHttpException;
 use shopack\base\common\helpers\Json;
+use shopack\base\common\helpers\LanguageHelper;
 use shopack\base\frontend\common\rest\RestClientQueryInterface;
 // use shopack\base\frontend\common\rest\Model;
 use shopack\base\frontend\common\rest\RestClientActiveRecord;
@@ -197,8 +198,9 @@ class RestClientQuery
 
     $this->requestHeaders = ['Accept' => RestClientQuery::JSON_TYPE];
 
-    if (empty(YII::$app->language) == false)
-      $this->requestHeaders = ['Accept-Language' => YII::$app->language];
+    $currentLanguage = LanguageHelper::getCurrentLanguage();
+    if (empty($currentLanguage) == false)
+      $this->requestHeaders = ['Accept-Language' => $currentLanguage];
 
     if (Yii::$app->request->headers->has('Authorization'))
       $this->requestHeaders['Authorization'] = Yii::$app->request->headers->get('Authorization');

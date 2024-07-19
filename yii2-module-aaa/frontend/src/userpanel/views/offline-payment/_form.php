@@ -25,10 +25,21 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 
 		$builder->fields([
 			['@cols' => 2, 'vertical' => true],
+			[
+				'ofpAmount',
+				'fieldOptions' => [
+					'addon' => [
+						'append' => [
+							'content' => 'تومان',
+						],
+					],
+				],
+			],
 			['ofpBankOrCart'],
 			['ofpTrackNumber'],
 			['ofpReferenceNumber'],
-			['ofpPayDate',
+			[
+				'ofpPayDate',
 				'type' => FormBuilder::FIELD_WIDGET,
 				'widget' => DatePicker::class,
 				'fieldOptions' => [
@@ -43,19 +54,11 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 				// ],
 			],
 			['@col-break'],
-			['ofpAmount',
-				'fieldOptions' => [
-					'addon' => [
-						'append' => [
-							'content' => 'تومان',
-						],
-					],
-				],
-			],
 			['ofpPayer'],
 			['ofpSourceCartNumber'],
 			// ['ofpWalletID'],
-			['ofpImageFileID',
+			[
+				'ofpImageFileID',
 				'type' => FormBuilder::FIELD_FILE,
 				'widgetOptions' => [
 					'accept' => 'image/png, image/gif, image/jpg, image/jpeg',

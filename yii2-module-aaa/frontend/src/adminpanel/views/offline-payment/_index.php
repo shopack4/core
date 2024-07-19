@@ -77,6 +77,7 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
   }
 
   $columns = array_merge($columns, [
+    'ofpAmount:toman',
     'ofpBankOrCart',
     'ofpTrackNumber',
     'ofpReferenceNumber',
@@ -88,7 +89,6 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
         return Html::a($model->wallet->walID . ' - ' . $model->wallet->walName, ['/aaa/wallet/view', 'id' => $model->ofpWalletID]);
       },
     ],
-    'ofpAmount:toman',
     // 'ofpPayer',
     // 'ofpSourceCartNumber',
     [
@@ -111,8 +111,7 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
         'create',
         'ofpOwnerUserID' => $ofpOwnerUserID ?? $_GET['ofpOwnerUserID'] ?? null,
       ]) : Yii::t('app', 'Actions'),
-      'template' => '{accept} {reject} {update} {delete}{undelete}',
-
+      'template' => '{accept} {reject}<br>{update} {delete}{undelete}',
       'buttons' => [
         'accept' => function ($url, $model, $key) {
           return Html::a(Yii::t('aaa', 'Approve'), [

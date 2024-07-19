@@ -6,7 +6,7 @@ use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\helpers\StringHelper;
 use shopack\base\frontend\common\helpers\Html;
-use shopack\multilanguage\helpers\LanguageHelper;
+// use shopack\multilanguage\helpers\LanguageHelper;
 use shopack\base\frontend\common\widgets\datetime\DatePicker;
 use shopack\base\frontend\common\widgets\FormBuilder;
 
@@ -509,6 +509,7 @@ console.log('server error');
 		);
 	}
 
+	/*
 	public function multiLanguageFields($model, $fieldName, $params=[]) //, $callback=null)
 	{
 		$callback = ArrayHelper::remove($params, 'callback', null);
@@ -530,6 +531,7 @@ console.log('server error');
 			echo $field; //->label($model->getAttributeLabel($fieldName) . ' (' . $lng['lngName'] . ')');
 		}
 	}
+	*/
 
 	private $_builder;
 	public function getBuilder($options=[]) : FormBuilder
