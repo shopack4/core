@@ -57,11 +57,18 @@ END
 SQL
 		);
 
+    $this->execute(<<<SQL
+ TABLE `{{%CMN_Language}}`
+	ADD COLUMN `lngIsRTL` BIT NOT NULL DEFAULT 0 AFTER `lngName`;
+SQL
+		);
+
     $this->batchInsertIgnore('{{%CMN_Language}}', [
       'lngUUID',
       'lngLanguageCode',
 			'lngCountryCode',
 			'lngName',
+			'lngIsRTL',
 			// 'lngIsPreferred'
     ], [
       [
@@ -69,6 +76,7 @@ SQL
 				/* lngLanguageCode */ 'en',
 				/* lngCountryCode  */ NULL,
 				/* lngName         */ 'English',
+				/* lngIsRTL        */ 0,
 				// /* lngIsPreferred  */ 1,
       ],
       [
@@ -76,6 +84,7 @@ SQL
 				/* lngLanguageCode */ 'fa',
 				/* lngCountryCode  */ NULL,
 				/* lngName         */ 'فارسی',
+				/* lngIsRTL        */ 1,
 				// /* lngIsPreferred  */ 0,
       ],
 		]);

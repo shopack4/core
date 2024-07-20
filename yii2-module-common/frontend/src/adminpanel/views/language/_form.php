@@ -47,6 +47,10 @@ use yii\web\JsExpression;
 					'style' => 'direction:ltr',
 				],
 			],
+			[
+				'lngIsRTL',
+				'type' => FormBuilder::FIELD_CHECKBOX,
+			],
 			// [
 			// 	'lngIsPreferred',
 			// 	'type' => FormBuilder::FIELD_CHECKBOX,

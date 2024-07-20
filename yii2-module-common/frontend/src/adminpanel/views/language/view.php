@@ -74,6 +74,7 @@ $this->params['breadcrumbs'][] = $this->title;
           'lngName',
           'lngLanguageCode',
           'lngCountryCode',
+          'lngIsRTL:boolean',
           // 'lngIsPreferred:boolean',
           // [
           //   'attribute' => 'lngStatus',

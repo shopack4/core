@@ -10,6 +10,8 @@ use yii\base\InvalidConfigException;
 use kartik\detail\DetailView as BaseDetailView;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\ArrayHelper;
+use yii\base\Model;
+
 // use shopack\multilanguage\helpers\LanguageHelper;
 
 class DetailView extends BaseDetailView
@@ -142,7 +144,17 @@ class DetailView extends BaseDetailView
 			}
 		}
 
-		return parent::parseAttributeItem($attribute);
+		$result = parent::parseAttributeItem($attribute);
+
+		if (empty($result['value']) && isset($attribute['attribute'])) {
+			$attributeName = $attribute['attribute'];
+			$model = !empty($attribute['viewModel']) && $attribute['viewModel'] instanceof Model ?
+				$attribute['viewModel'] : $this->model;
+
+			$result['value'] = Html::getAttributeValue($model, $attributeName);
+		}
+
+		return $result;
 	}
 
 }

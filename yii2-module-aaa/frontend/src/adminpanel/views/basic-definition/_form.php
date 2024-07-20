@@ -13,6 +13,8 @@ use shopack\base\frontend\common\widgets\ActiveForm;
 use shopack\base\frontend\common\widgets\FormBuilder;
 use shopack\aaa\common\enums\enuBasicDefinitionType;
 use shopack\aaa\common\enums\enuBasicDefinitionStatus;
+use shopack\cmn\frontend\common\models\LanguageModel;
+
 ?>
 
 <div class='basic-definition-form'>
@@ -50,7 +52,27 @@ use shopack\aaa\common\enums\enuBasicDefinitionStatus;
 			[
 				'bdfName',
 			],
+			[
+				'bdfName',
+				'type' => FormBuilder::FIELD_TEXT_MULTILANGUAGE,
+				'fieldOptions' => [
+					'I18NDataFieldName' => 'bdfI18NData',
+					// 'generateNoLanguageField' => true,
+				],
+			],
 		]);
+
+		// $languages = LanguageModel::find()->asArray()->all();
+		// foreach ($languages as $lng)
+		// {
+		// 	$lngCode = implode('_', array_filter([$lng['lngLanguageCode'], $lng['lngCountryCode']]) );
+		// 	$builder->fields([
+		// 		[
+		// 			"bdfI18NData[{$lngCode}][bdfName]",
+		// 			'label' => $model->getAttributeLabel('bdfName') . " ({$lng['lngName']})",
+		// 		],
+		// 	]);
+		// }
 	?>
 
 	<?php $builder->beginField(); ?>

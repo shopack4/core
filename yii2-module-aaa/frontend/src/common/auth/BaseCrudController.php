@@ -99,7 +99,7 @@ abstract class BaseCrudController extends BaseController
 
   public function actionView($id)
   {
-		$model = $this->findModel($id, true);
+		$model = $this->findModel($id, false);
 
     list ($viewName, $formName) = $this->actionView_afterFindModel($model);
     if (empty($viewName))

@@ -11,6 +11,7 @@ use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\models\BasicDefinitionModel;
 use shopack\aaa\common\enums\enuBasicDefinitionType;
 use shopack\aaa\common\enums\enuBasicDefinitionStatus;
+use shopack\cmn\frontend\common\models\LanguageModel;
 
 $this->title = Yii::t('app', 'Basic Definition') . ': ' . $model->bdfID . ' - ' . $model->bdfName;
 $this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
@@ -71,21 +72,49 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <div class='card-body'>
       <?php
+        $attributes = [
+          'bdfID',
+          [
+            'attribute' => 'bdfStatus',
+            'value' => enuBasicDefinitionStatus::getLabel($model->bdfStatus),
+          ],
+          [
+            'attribute' => 'bdfType',
+            'value' => enuBasicDefinitionType::getLabel($model->bdfType),
+          ],
+          'bdfName',
+        ];
+
+        $languages = LanguageModel::find()->asArray()->all();
+        foreach ($languages as $lng)
+        {
+          $lngCode = implode('_', array_filter([$lng['lngLanguageCode'], $lng['lngCountryCode']]) );
+          $languages[$lngCode] = $lng;
+        }
+
+        $fnMultiLanguageAttributs = function($model, $fieldName, $I18NDataFieldName) use($languages) {
+          $attributes = [];
+          foreach ($model->$I18NDataFieldName as $lngCode => $fields)
+          {
+            foreach ($fields as $field => $value)
+            {
+              if ($field == $fieldName) {
+                $attributes[] = [
+                  'attribute' => "{$I18NDataFieldName}[{$lngCode}][{$field}]",
+                  'label' => $model->getAttributeLabel($field) . " ({$languages[$lngCode]['lngName']})",
+                ];
+              }
+            }
+          }
+          return $attributes;
+        };
+
+        $attributes = array_merge($attributes, $fnMultiLanguageAttributs($model, 'bdfName', 'bdfI18NData'));
+
         echo DetailView::widget([
           'model' => $model,
           'enableEditMode' => false,
-          'attributes' => [
-            'bdfID',
-            [
-              'attribute' => 'bdfStatus',
-              'value' => enuBasicDefinitionStatus::getLabel($model->bdfStatus),
-            ],
-            'bdfName',
-            [
-              'attribute' => 'bdfType',
-              'value' => enuBasicDefinitionType::getLabel($model->bdfType),
-            ],
-          ],
+          'attributes' => $attributes,
         ]);
       ?>
     </div>

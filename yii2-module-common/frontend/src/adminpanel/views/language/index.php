@@ -47,6 +47,7 @@ $this->params['breadcrumbs'][] = $this->title;
           ],
           'lngLanguageCode',
           'lngCountryCode',
+          'lngIsRTL:boolean',
           // 'lngIsPreferred:boolean',
           // [
           //   'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,

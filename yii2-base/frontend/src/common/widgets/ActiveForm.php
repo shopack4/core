@@ -9,6 +9,7 @@ use shopack\base\frontend\common\helpers\Html;
 // use shopack\multilanguage\helpers\LanguageHelper;
 use shopack\base\frontend\common\widgets\datetime\DatePicker;
 use shopack\base\frontend\common\widgets\FormBuilder;
+use shopack\cmn\frontend\common\models\LanguageModel;
 
 // class ActiveForm extends \yii\bootstrap\ActiveForm
 class ActiveForm extends \kartik\form\ActiveForm
@@ -509,29 +510,41 @@ console.log('server error');
 		);
 	}
 
-	/*
 	public function multiLanguageFields($model, $fieldName, $params=[]) //, $callback=null)
 	{
 		$callback = ArrayHelper::remove($params, 'callback', null);
-		$lngMap = LanguageHelper::getLanguagesMap();
+		$I18NDataFieldName = ArrayHelper::remove($params, 'I18NDataFieldName', 'I18NData');
+		$generateNoLanguageField = ArrayHelper::remove($params, 'generateNoLanguageField', false);
 
-		foreach ($model->getTranslateAttributes($fieldName) as $translateAttribute)
+		// $lngMap = LanguageHelper::getLanguagesMap();
+		$languages = LanguageModel::find()->asArray()->all();
+		foreach ($languages as $lng)
 		{
-			$ps = explode('_', $translateAttribute);
-			$ps = array_pop($ps);
-			$lng = [
-				'lngCode' => $ps,
-				'info' => $lngMap[$ps],
-			];
+			$lngCode = implode('_', array_filter([$lng['lngLanguageCode'], $lng['lngCountryCode']]) );
 
-			$field = $this->field($model, $translateAttribute, $params);
+			$translateAttribute = "{$I18NDataFieldName}[{$lngCode}][{$fieldName}]";
+
+			$field = $this
+				->field($model, $translateAttribute, $params)
+				->label($model->getAttributeLabel($fieldName) . " ({$lng['lngName']})");
+
 			if ($callback != null)
 				$field = $callback($this, $model, $fieldName, $lng, $field);
 
-			echo $field; //->label($model->getAttributeLabel($fieldName) . ' (' . $lng['lngName'] . ')');
+			echo $field;
 		}
+
+		// foreach ($model->getTranslateAttributes($fieldName) as $translateAttribute)
+		// {
+		// 	$ps = explode('_', $translateAttribute);
+		// 	$ps = array_pop($ps);
+		// 	$lng = [
+		// 		'lngCode' => $ps,
+		// 		'info' => $lngMap[$ps],
+		// 	];
+
+		// }
 	}
-	*/
 
 	private $_builder;
 	public function getBuilder($options=[]) : FormBuilder

@@ -17,6 +17,7 @@ use shopack\cmn\common\enums\enuLanguageStatus;
 'lngLanguageCode',
 'lngCountryCode',
 'lngName',
+'lngIsRTL',
 // 'lngIsPreferred',
 'lngStatus',
 'lngCreatedAt',
@@ -68,6 +69,14 @@ trait LanguageModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
 				enuColumnInfo::search     => enuColumnSearchType::like,
+      ],
+      'lngIsRTL' => [
+				enuColumnInfo::type       => 'boolean',
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => false,
+				enuColumnInfo::required   => false,
+				enuColumnInfo::selectable => true,
+				// enuColumnInfo::search     => enuColumnSearchType::exact,
       ],
       // 'lngIsPreferred' => [
 			// 	enuColumnInfo::type       => 'boolean',

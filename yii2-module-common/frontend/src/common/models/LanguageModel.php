@@ -22,6 +22,7 @@ class LanguageModel extends RestClientActiveRecord
 			'lngLanguageCode'     => Yii::t('cmn', 'Language Code'),
 			'lngCountryCode'      => Yii::t('cmn', 'Country Code'),
 			'lngName'             => Yii::t('app', 'Title'),
+			'lngIsRTL'						=> Yii::t('app', 'Is RTL'),
 			// 'lngIsPreferred'			=> Yii::t('app', 'Is Preferred'),
 			'lngCreatedAt'        => Yii::t('app', 'Created At'),
 			'lngCreatedBy'        => Yii::t('app', 'Created By'),

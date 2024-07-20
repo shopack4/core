@@ -5,6 +5,7 @@
 
 namespace shopack\base\frontend\common\rest;
 
+use shopack\base\common\helpers\ArrayHelper;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\BaseActiveRecord;
@@ -147,7 +148,7 @@ abstract class RestClientActiveRecord extends BaseActiveRecord
           if (is_string($this->$column))
             $this->$column = Json::decode($this->$column, true);
 
-          $this->$column = array_filter($this->$column);
+          $this->$column = ArrayHelper::FilterRecursive($this->$column);
         }
       }
     }

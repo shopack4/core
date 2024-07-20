@@ -231,8 +231,8 @@ class FormBuilder extends \yii\base\Component
 								$fieldOptions['callback'] = function($form, $model, $fieldName, $lng, $field) use ($widgetOptions) {
 									return $field->textInput(array_merge_recursive($widgetOptions, [
 										'maxlength' => true,
-										'style' => [
-											'direction' => ($lng['info']['lngIsRTL'] ? 'rtl' : 'ltr'),
+										'class' => [
+											'dir-' . ($lng['lngIsRTL'] ? 'rtl' : 'ltr'),
 										],
 									]));
 								};
@@ -243,8 +243,8 @@ class FormBuilder extends \yii\base\Component
 								$fieldOptions['callback'] = function($form, $model, $fieldName, $lng, $field) use ($widgetOptions) {
 									return $field->textArea(array_merge_recursive($widgetOptions, [
 										'maxlength' => true,
-										'style' => [
-											'direction' => ($lng['info']['lngIsRTL'] ? 'rtl' : 'ltr'),
+										'class' => [
+											'dir-' . ($lng['lngIsRTL'] ? 'rtl' : 'ltr'),
 										],
 									]));
 								};
