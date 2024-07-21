@@ -151,7 +151,9 @@ class DetailView extends BaseDetailView
 			$model = !empty($attribute['viewModel']) && $attribute['viewModel'] instanceof Model ?
 				$attribute['viewModel'] : $this->model;
 
-			$result['value'] = Html::getAttributeValue($model, $attributeName);
+			try {
+				$result['value'] = Html::getAttributeValue($model, $attributeName);
+			} catch (\Throwable $th) { ; }
 		}
 
 		return $result;
