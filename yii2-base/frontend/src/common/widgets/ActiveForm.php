@@ -2,14 +2,14 @@
 namespace shopack\base\frontend\common\widgets;
 
 use Yii;
+use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\helpers\StringHelper;
 use shopack\base\frontend\common\helpers\Html;
-// use shopack\multilanguage\helpers\LanguageHelper;
 use shopack\base\frontend\common\widgets\datetime\DatePicker;
 use shopack\base\frontend\common\widgets\FormBuilder;
-use shopack\cmn\frontend\common\models\LanguageModel;
+use shopack\cmn\frontend\common\helpers\I18NHelper;
 
 // class ActiveForm extends \yii\bootstrap\ActiveForm
 class ActiveForm extends \kartik\form\ActiveForm
@@ -512,16 +512,16 @@ console.log('server error');
 
 	public function multiLanguageFields($model, $fieldName, $params=[]) //, $callback=null)
 	{
+		$I18NDataFieldName = ArrayHelper::remove($params, 'I18NDataFieldName', null);
+		if (empty($I18NDataFieldName))
+			throw new UnprocessableEntityHttpException('Invalid I18N Field Name');
+
+		// $generateNoLanguageField = ArrayHelper::remove($params, 'generateNoLanguageField', false);
 		$callback = ArrayHelper::remove($params, 'callback', null);
-		$I18NDataFieldName = ArrayHelper::remove($params, 'I18NDataFieldName', 'I18NData');
-		$generateNoLanguageField = ArrayHelper::remove($params, 'generateNoLanguageField', false);
 
-		// $lngMap = LanguageHelper::getLanguagesMap();
-		$languages = LanguageModel::find()->asArray()->all();
-		foreach ($languages as $lng)
+		$languagesMap = I18NHelper::getLanguagesMap();
+		foreach ($languagesMap as $lngCode => $lng)
 		{
-			$lngCode = implode('_', array_filter([$lng['lngLanguageCode'], $lng['lngCountryCode']]) );
-
 			$translateAttribute = "{$I18NDataFieldName}[{$lngCode}][{$fieldName}]";
 
 			$field = $this

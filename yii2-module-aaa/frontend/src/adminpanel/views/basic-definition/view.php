@@ -11,7 +11,7 @@ use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\models\BasicDefinitionModel;
 use shopack\aaa\common\enums\enuBasicDefinitionType;
 use shopack\aaa\common\enums\enuBasicDefinitionStatus;
-use shopack\cmn\frontend\common\models\LanguageModel;
+use shopack\cmn\frontend\common\helpers\I18NHelper;
 
 $this->title = Yii::t('app', 'Basic Definition') . ': ' . $model->bdfID . ' - ' . $model->bdfName;
 $this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
@@ -85,31 +85,7 @@ $this->params['breadcrumbs'][] = $this->title;
           'bdfName',
         ];
 
-        $languages = LanguageModel::find()->asArray()->all();
-        foreach ($languages as $lng)
-        {
-          $lngCode = implode('_', array_filter([$lng['lngLanguageCode'], $lng['lngCountryCode']]) );
-          $languages[$lngCode] = $lng;
-        }
-
-        $fnMultiLanguageAttributs = function($model, $fieldName, $I18NDataFieldName) use($languages) {
-          $attributes = [];
-          foreach ($model->$I18NDataFieldName as $lngCode => $fields)
-          {
-            foreach ($fields as $field => $value)
-            {
-              if ($field == $fieldName) {
-                $attributes[] = [
-                  'attribute' => "{$I18NDataFieldName}[{$lngCode}][{$field}]",
-                  'label' => $model->getAttributeLabel($field) . " ({$languages[$lngCode]['lngName']})",
-                ];
-              }
-            }
-          }
-          return $attributes;
-        };
-
-        $attributes = array_merge($attributes, $fnMultiLanguageAttributs($model, 'bdfName', 'bdfI18NData'));
+        $attributes = array_merge($attributes, I18NHelper::getMultiLanguageAttributs($model, 'bdfName', 'bdfI18NData'));
 
         echo DetailView::widget([
           'model' => $model,
