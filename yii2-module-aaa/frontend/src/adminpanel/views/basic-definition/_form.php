@@ -55,18 +55,6 @@ use shopack\aaa\common\enums\enuBasicDefinitionStatus;
 				],
 			],
 		]);
-
-		// $languages = LanguageModel::find()->asArray()->all();
-		// foreach ($languages as $lng)
-		// {
-		// 	$lngCode = implode('_', array_filter([$lng['lngLanguageCode'], $lng['lngCountryCode']]) );
-		// 	$builder->fields([
-		// 		[
-		// 			"bdfI18NData[{$lngCode}][bdfName]",
-		// 			'label' => $model->getAttributeLabel('bdfName') . " ({$lng['lngName']})",
-		// 		],
-		// 	]);
-		// }
 	?>
 
 	<?php $builder->beginField(); ?>
