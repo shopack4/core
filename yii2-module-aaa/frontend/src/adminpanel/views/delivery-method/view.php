@@ -14,6 +14,7 @@ use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\models\DeliveryMethodModel;
 use shopack\aaa\common\enums\enuDeliveryMethodStatus;
 use shopack\aaa\common\enums\enuDeliveryMethodType;
+use shopack\cmn\frontend\common\helpers\I18NHelper;
 
 $this->title = Yii::t('aaa', 'Delivery Method') . ': ' . $model->dlvID . ' - ' . $model->dlvName;
 $this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
@@ -74,26 +75,33 @@ $this->params['breadcrumbs'][] = $this->title;
 		</div>
     <div class='card-body'>
       <?php
+        $attributes = [
+          'dlvID',
+          [
+            'attribute' => 'dlvStatus',
+            'value' => enuDeliveryMethodStatus::getLabel($model->dlvStatus),
+          ],
+          'dlvName',
+        ];
+
+        $attributes = array_merge($attributes, I18NHelper::getMultiLanguageAttributs($model, 'dlvName', 'dlvI18NData'));
+
+        $attributes = array_merge($attributes, [
+          [
+            'attribute' => 'dlvType',
+            'value' => enuDeliveryMethodType::getLabel($model->dlvType),
+          ],
+          'dlvAmount:toman',
+          'dlvTotalUsedCount:toman',
+          'dlvTotalUsedAmount:toman',
+        ]);
+
         echo DetailView::widget([
           'model' => $model,
           'enableEditMode' => false,
           // 'cols' => 2,
           // 'isVertical' => false,
-          'attributes' => [
-            'dlvID',
-            [
-              'attribute' => 'dlvStatus',
-              'value' => enuDeliveryMethodStatus::getLabel($model->dlvStatus),
-            ],
-            'dlvName',
-            [
-              'attribute' => 'dlvType',
-              'value' => enuDeliveryMethodType::getLabel($model->dlvType),
-            ],
-            'dlvAmount:toman',
-            'dlvTotalUsedCount:toman',
-            'dlvTotalUsedAmount:toman',
-          ],
+          'attributes' => $attributes,
         ]);
       ?>
     </div>

@@ -3,23 +3,20 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-use shopack\base\common\helpers\Url;
-use shopack\base\frontend\common\widgets\Select2;
-use shopack\base\frontend\common\widgets\DepDrop;
 use shopack\base\frontend\common\helpers\Html;
-use shopack\base\common\helpers\HttpHelper;
 use shopack\base\frontend\common\widgets\ActiveForm;
 use shopack\base\frontend\common\widgets\FormBuilder;
 use shopack\aaa\common\enums\enuDeliveryMethodType;
 use shopack\aaa\common\enums\enuDeliveryMethodStatus;
-
-// \shopack\base\frontend\common\DynamicParamsFormAsset::register($this);
 ?>
 
 <div class='delivery-method-form'>
 	<?php
 		$form = ActiveForm::begin([
 			'model' => $model,
+			'formConfig' => [
+				'labelSpan' => 4,
+			],
 		]);
 
 		$builder = $form->getBuilder();
@@ -33,6 +30,14 @@ use shopack\aaa\common\enums\enuDeliveryMethodStatus;
 				],
 			],
 			['dlvName'],
+			[
+				'dlvName',
+				'type' => FormBuilder::FIELD_TEXT_MULTILANGUAGE,
+				'fieldOptions' => [
+					'I18NDataFieldName' => 'dlvI18NData',
+					// 'generateNoLanguageField' => true,
+				],
+			],
 			['dlvType',
 				'type' => FormBuilder::FIELD_RADIOLIST,
 				'data' => enuDeliveryMethodType::listData('form'),

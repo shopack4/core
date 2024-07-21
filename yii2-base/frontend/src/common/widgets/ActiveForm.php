@@ -520,8 +520,10 @@ console.log('server error');
 		$callback = ArrayHelper::remove($params, 'callback', null);
 
 		$languagesMap = I18NHelper::getLanguagesMap();
-		foreach ($languagesMap as $lngCode => $lng)
-		{
+		if (empty($languagesMap))
+			return;
+
+		foreach ($languagesMap as $lngCode => $lng) {
 			$translateAttribute = "{$I18NDataFieldName}[{$lngCode}][{$fieldName}]";
 
 			$field = $this

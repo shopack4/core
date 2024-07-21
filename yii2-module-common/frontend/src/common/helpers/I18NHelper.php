@@ -14,9 +14,12 @@ class I18NHelper
 	{
 		if (empty(self::$_languagesMap)) {
 			self::$_languagesMap = [];
+
 			$languages = LanguageModel::find()->asArray()->all();
-			foreach ($languages as $lng)
-			{
+			if (empty($languages))
+				return [];
+
+			foreach ($languages as $lng) {
 				$lngCode = implode('_', array_filter([$lng['lngLanguageCode'], $lng['lngCountryCode']]) );
 				self::$_languagesMap[$lngCode] = $lng;
 			}
@@ -27,13 +30,16 @@ class I18NHelper
 
 	public static function getMultiLanguageAttributs($model, $fieldName, $I18NDataFieldName)
 	{
+		if (empty($model->$I18NDataFieldName))
+			return [];
+
 		$languagesMap = self::getLanguagesMap();
+		if (empty($languagesMap))
+			return [];
 
 		$attributes = [];
-		foreach ($model->$I18NDataFieldName as $lngCode => $fields)
-		{
-			foreach ($fields as $field => $value)
-			{
+		foreach ($model->$I18NDataFieldName as $lngCode => $fields) {
+			foreach ($fields as $field => $value) {
 				if ($field == $fieldName) {
 					$attributes[] = [
 						'attribute' => "{$I18NDataFieldName}[{$lngCode}][{$field}]",
@@ -42,6 +48,7 @@ class I18NHelper
 				}
 			}
 		}
+
 		return $attributes;
 	}
 

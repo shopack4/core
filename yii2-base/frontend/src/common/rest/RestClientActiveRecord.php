@@ -137,18 +137,23 @@ abstract class RestClientActiveRecord extends BaseActiveRecord
   public function save($runValidation = true, $attributeNames = null)
   {
     $values = $this->getDirtyAttributes($attributeNames);
+
     if (empty($values) == false) {
       $JsonValidator_class = JsonValidator::class;
       $columnsInfo = $this->columnsInfo();
       foreach (array_keys($values) as $column) {
         if (isset($columnsInfo[$column][enuColumnInfo::type])
-            && $columnsInfo[$column][enuColumnInfo::type] === $JsonValidator_class
-            && empty($this->$column) == false
+            && ($columnsInfo[$column][enuColumnInfo::type] === $JsonValidator_class)
+            && (empty($this->$column) == false)
         ) {
           if (is_string($this->$column))
             $this->$column = Json::decode($this->$column, true);
 
           $this->$column = ArrayHelper::FilterRecursive($this->$column);
+          if (empty($this->$column)
+              && (($columnsInfo[$column][enuColumnInfo::required] ?? false) == false)
+          )
+            $this->$column = null;
         }
       }
     }

@@ -4,23 +4,18 @@
  */
 
 use shopack\base\common\helpers\Json;
-use shopack\base\common\helpers\Url;
-use shopack\base\frontend\common\widgets\Select2;
-use shopack\base\frontend\common\widgets\DepDrop;
 use shopack\base\frontend\common\helpers\Html;
-use shopack\base\common\helpers\HttpHelper;
 use shopack\base\frontend\common\widgets\ActiveForm;
 use shopack\base\frontend\common\widgets\FormBuilder;
-// use shopack\aaa\common\enums\enuAccessGroupStatus;
-use yii\web\JsExpression;
-
-// \shopack\base\frontend\common\DynamicParamsFormAsset::register($this);
 ?>
 
 <div class='access-group-form'>
 	<?php
 		$form = ActiveForm::begin([
 			'model' => $model,
+			'formConfig' => [
+				'labelSpan' => 4,
+			],
 		]);
 
 		$builder = $form->getBuilder();
@@ -38,6 +33,14 @@ use yii\web\JsExpression;
 			// 	],
 			// ],
 			['agpName'],
+			[
+				'agpName',
+				'type' => FormBuilder::FIELD_TEXT_MULTILANGUAGE,
+				'fieldOptions' => [
+					'I18NDataFieldName' => 'agpI18NData',
+					// 'generateNoLanguageField' => true,
+				],
+			],
 			['agpPrivs',
 				'type' => FormBuilder::FIELD_TEXTAREA,
 				'widgetOptions' => [

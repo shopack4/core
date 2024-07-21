@@ -10,6 +10,7 @@ use shopack\base\frontend\common\widgets\PopoverX;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\DetailView;
 use shopack\aaa\frontend\common\models\AccessGroupModel;
+use shopack\cmn\frontend\common\helpers\I18NHelper;
 
 $this->title = Yii::t('aaa', 'Access Group') . ': ' . $model->agpID . ' - ' . $model->agpName;
 $this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
@@ -72,6 +73,11 @@ $this->params['breadcrumbs'][] = $this->title;
         $attributes = [
           'agpID',
           'agpName',
+        ];
+
+        $attributes = array_merge($attributes, I18NHelper::getMultiLanguageAttributs($model, 'agpName', 'agpI18NData'));
+
+        $attributes = array_merge($attributes, [
           [
             'attribute' => 'agpPrivs',
             'value' => Json::encode($model->agpPrivs),
@@ -80,7 +86,7 @@ $this->params['breadcrumbs'][] = $this->title;
           //   'attribute' => 'agpStatus',
           //   'value' => enuAccessGroupStatus::getLabel($model->agpStatus),
           // ],
-        ];
+        ]);
 
         echo DetailView::widget([
           'model' => $model,
