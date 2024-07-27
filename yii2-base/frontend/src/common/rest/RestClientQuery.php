@@ -213,6 +213,9 @@ class RestClientQuery
     }
 
     $httpClientConfig = array_merge([
+        // \GuzzleHttp\RequestOptions::CONNECT_TIMEOUT => 10, //seconds
+        // \GuzzleHttp\RequestOptions::TIMEOUT => 10, //seconds
+
         /* @link http://docs.guzzlephp.org/en/latest/quickstart.html */
         'base_uri' => $this->_getUrl('api'),
         /* @link http://docs.guzzlephp.org/en/latest/request-options.html#headers */
@@ -220,6 +223,7 @@ class RestClientQuery
       ],
       $this->httpClientExtraConfig
     );
+
     $this->httpClient = new Client($httpClientConfig);
 
     if (Yii::$app->isJustForMe)
