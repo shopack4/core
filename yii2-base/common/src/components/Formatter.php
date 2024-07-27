@@ -8,16 +8,9 @@ namespace shopack\base\common\components;
 use NumberFormatter;
 use Yii;
 use yii\helpers\Html;
-// use yii\base\InvalidParamException;
-// use shopack\base\frontend\common\helpers\Html;
-// use shopack\base\helpers\Geometry;
-// use shopack\base\helpers\ArrayHelper;
-// use shopack\filemanager\helpers\FileManager;
-// use shopack\app\models\enuGender;
-// use shopack\app\models\UserModel;
+use libphonenumber\PhoneNumberFormat;
 use shopack\base\common\classes\datetime\Jalali;
 use shopack\base\common\helpers\PhoneHelper;
-use libphonenumber\PhoneNumberFormat;
 
 class Formatter extends \yii\i18n\Formatter
 {
@@ -79,7 +72,7 @@ class Formatter extends \yii\i18n\Formatter
 
 	public function asPersianNum($value, $nullValue = null)
 	{
-		if ($value === null)
+		if (empty($value))
 			return ($nullValue === null ? $this->nullDisplay : $nullValue);
 
 		$_out = '';
@@ -371,13 +364,13 @@ class Formatter extends \yii\i18n\Formatter
 		return null;
 	}
 
-	public function asParagraphs($value)
+	public function asSoftParagraphs($value)
 	{
 		if ($value === null) {
 			return $this->nullDisplay;
 		}
 
-		return str_replace('<p></p>', '', '<p>' . preg_replace('/\R/u', "</p>\n<p>", Html::encode($value)) . '</p>');
+		return str_replace('<br><br>', '<br>', preg_replace('/\R/u', "<br>", Html::encode($value)) . '<br>');
 	}
 
 	// public function asLink($value, $link, $idParam='id', $linkOptions=null, $text=null, $nullText=null)
