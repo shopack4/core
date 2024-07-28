@@ -6,6 +6,7 @@
 //----> ZWNJ (‌)
 return [
 	'System' => 'سیستم',
+	'Accounting' => 'اکانتینگ',
 
 	'My Profile' => 'پروفایل من',
 	'Login' => 'ورود',
@@ -104,6 +105,9 @@ return [
 	'Create User' => 'ایجاد کاربر',
 	'Update User' => 'ویرایش کاربر',
 	'User Status' => 'وضعیت کاربر',
+
+	'Online Users' => 'کاربران آنلاین',
+	'Online Sessions' => 'کاربران آنلاین',
 
 	'Gateways' => 'درگاه‌ها',
 	'Gateway' => 'درگاه',

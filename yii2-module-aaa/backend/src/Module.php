@@ -62,6 +62,21 @@ class Module
 				[
 					'class' => \shopack\base\common\rest\UrlRule::class,
 					// 'prefix' => 'v1',
+					'controller' => [$this->id . '/session'],
+					'pluralize' => false,
+					'patterns' => [
+						'GET,HEAD' => 'index',
+						// 'GET,HEAD {uuid}'		=> 'view',
+						// 'POST'							=> 'create',
+						// 'PUT,PATCH {uuid}'	=> 'update',
+						// 'DELETE item/{key}'		=> 'remove-item',
+						// '{uuid}'						=> 'options',
+						// ''									=> 'options',
+					],
+				],
+				[
+					'class' => \shopack\base\common\rest\UrlRule::class,
+					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/user'],
 					'pluralize' => false,
 					'extraPatterns' => [

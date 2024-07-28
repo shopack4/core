@@ -493,9 +493,8 @@ SQL;
       $userModel->bypassRequestApprovalCode = true;
 
       if ($approvalRequestModel->aprKeyType == enuApprovalRequestKeyType::Email) {
-        $userModel->usrEmailApprovedAt = new Expression('NOW()');
         if (empty($userModel->usrEmail)
-            || ($userModel->usrEmail != $approvalRequestModel->aprKey)
+          || ($userModel->usrEmail != $approvalRequestModel->aprKey)
         ) {
           $result['emailChanged'] = [
             'from' => $userModel->usrEmail,
@@ -503,13 +502,16 @@ SQL;
           ];
 
           $userModel->usrEmail = $approvalRequestModel->aprKey;
+
           if ($sendMessage === null)
             $sendMessage = true;
         }
+
+        $userModel->usrEmailApprovedAt = new Expression('NOW()');
+
       } else if ($approvalRequestModel->aprKeyType == enuApprovalRequestKeyType::Mobile) {
-        $userModel->usrMobileApprovedAt = new Expression('NOW()');
         if (empty($userModel->usrMobile)
-            || ($userModel->usrMobile != $approvalRequestModel->aprKey)
+          || ($userModel->usrMobile != $approvalRequestModel->aprKey)
         ) {
           $result['mobileChanged'] = [
             'from' => $userModel->usrMobile,
@@ -517,9 +519,13 @@ SQL;
           ];
 
           $userModel->usrMobile = $approvalRequestModel->aprKey;
+
           if ($sendMessage === null)
             $sendMessage = true;
         }
+
+        if (empty($userModel->usrMobileApprovedAt) || array_key_exists('mobileChanged', $result))
+          $userModel->usrMobileApprovedAt = new Expression('NOW()');
       }
 
       if ($userModel->save() == false)

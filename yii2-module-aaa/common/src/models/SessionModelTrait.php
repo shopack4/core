@@ -56,7 +56,7 @@ trait SessionModelTrait
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
+        enuColumnInfo::selectable => false, //true,
       ],
       'ssnStatus' => [
         enuColumnInfo::isStatus   => true,
@@ -116,6 +116,17 @@ trait SessionModelTrait
 			$className = '\shopack\aaa\frontend\common\models\UserModel';
 
 		return $this->hasOne($className, ['usrID' => 'ssnRemovedBy']);
+	}
+
+  public function getUser() {
+		$className = get_called_class();
+
+		if (str_contains($className, '\\backend\\'))
+			$className = '\shopack\aaa\backend\models\UserModel';
+		else
+			$className = '\shopack\aaa\frontend\common\models\UserModel';
+
+		return $this->hasOne($className, ['usrID' => 'ssnUserID']);
 	}
 
 }

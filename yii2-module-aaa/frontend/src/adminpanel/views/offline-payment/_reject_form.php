@@ -48,6 +48,7 @@ use shopack\base\frontend\common\widgets\FormBuilder;
 					'inline' => false,
 				],
 			],
+			['ofpComment'],
 		]);
 	?>
 

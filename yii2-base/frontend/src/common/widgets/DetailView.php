@@ -146,7 +146,10 @@ class DetailView extends BaseDetailView
 
 		$result = parent::parseAttributeItem($attribute);
 
-		if ((array_key_exists('value', $result) == false) && isset($attribute['attribute'])) {
+		if (((array_key_exists('value', $result) == false)
+					|| ($result['value'] === null)
+				) && isset($attribute['attribute'])
+		) {
 			$attributeName = $attribute['attribute'];
 			$model = !empty($attribute['viewModel']) && $attribute['viewModel'] instanceof Model ?
 				$attribute['viewModel'] : $this->model;

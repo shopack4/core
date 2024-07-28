@@ -5,11 +5,15 @@
 
 /** @var yii\web\View $this */
 
+use shopack\aaa\common\enums\enuBasicDefinitionType;
 use shopack\base\common\helpers\StringHelper;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\grid\GridView;
 use shopack\aaa\common\enums\enuOfflinePaymentStatus;
+use shopack\aaa\frontend\common\models\BasicDefinitionModel;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
+use shopack\base\common\helpers\ArrayHelper;
+
 ?>
 
 <?php
@@ -24,6 +28,15 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 
   // (is_array($statusReport) ? Html::icon($statusReport[0], ['plugin' => 'glyph']) . ' ' . $statusReport[1] : $statusReport);
 
+  $rejectReasons = ArrayHelper::map(BasicDefinitionModel::find()
+    ->where(['bdfType' => enuBasicDefinitionType::OfflinePaymentRejectReason])
+    ->noLimit()
+    ->asArray()
+    ->all(),
+    'bdfID',
+    'bdfName'
+  );
+
   $columns = [
     [
       'class' => 'kartik\grid\SerialColumn',
@@ -37,16 +50,28 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
       },
       'expandOneOnly' => true,
       'detailAnimationDuration' => 150,
-      'detail' => function ($model) {
+      'detail' => function ($model) use($rejectReasons) {
         $rows = [];
 
         $rows[] = [$model->getAttributeLabel('ofpPayer'), $model->ofpPayer];
         $rows[] = [$model->getAttributeLabel('ofpSourceCartNumber'), $model->ofpSourceCartNumber];
 
-        // if (empty($model->ofpComment) == false)
-          $rows[] = [$model->getAttributeLabel('ofpComment'), $model->ofpComment];
+        if (empty($model->ofpRejectReasonIDs) == false) {
+          $reasons = [];
 
-        //ofpRejectReasonIDs
+          foreach ($model->ofpRejectReasonIDs as $r) {
+            if (isset($rejectReasons[$r]))
+              $reasons[] = $rejectReasons[$r];
+          }
+
+          if (empty($reasons) == false) {
+            //todo: use Yii::t
+            $rows[] = ['دلایل رد', implode(' - ', $reasons)];
+          }
+        }
+
+        // if (empty($model->ofpComment) == false)
+        $rows[] = [$model->getAttributeLabel('ofpComment'), $model->ofpComment];
 
         return Html::asTable($rows);
       },

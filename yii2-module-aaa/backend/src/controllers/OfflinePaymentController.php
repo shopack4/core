@@ -206,7 +206,7 @@ class OfflinePaymentController extends BaseRestController
 		PrivHelper::checkPriv('aaa/offline-payment/reject');
 
 		$model = $this->findModel($id);
-		$model->doReject($_POST['reasons'] ?? null);
+		$model->doReject($_POST['reasons'] ?? null, $_POST['comment'] ?? null);
 
 		return [
 			'result' => true,

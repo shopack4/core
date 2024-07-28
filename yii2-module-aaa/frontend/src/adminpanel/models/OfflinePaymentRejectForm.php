@@ -15,6 +15,7 @@ class OfflinePaymentRejectForm extends Model
 {
 	public $ofpID;
 	public $ofpRejectReasonIDs;
+  public $ofpComment;
 
   public function rules()
   {
@@ -22,7 +23,7 @@ class OfflinePaymentRejectForm extends Model
       ['ofpID', 'integer'],
       ['ofpID', 'required'],
 
-      ['ofpRejectReasonIDs', 'safe'],
+      [['ofpRejectReasonIDs', 'ofpComment'], 'safe'],
     ];
   }
 
@@ -30,6 +31,7 @@ class OfflinePaymentRejectForm extends Model
 	{
 		return [
       'ofpRejectReasonIDs' => Yii::t('app', 'Reasons'),
+      'ofpComment' => Yii::t('aaa', 'Comment'),
 		];
 	}
 
@@ -45,6 +47,7 @@ class OfflinePaymentRejectForm extends Model
       ],
       [
         'reasons' => json_encode($this->ofpRejectReasonIDs ?? []),
+        'comment' => $this->ofpComment,
       ]
     );
 

@@ -8,6 +8,7 @@ namespace shopack\base\backend\rest;
 use Yii;
 use shopack\base\common\helpers\Json;
 use shopack\base\backend\rest\RestServerQuery;
+use shopack\base\common\helpers\ArrayHelper;
 
 abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 	implements \shopack\base\common\rest\ActiveRecordInterface
@@ -59,27 +60,40 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 
 		//-------------
 		foreach ($queryParams as $k => $v) {
-			if ($this->hasAttribute($k))
+			if ($this->hasAttribute($k)) {
+				if (is_array($v) && array_key_exists('expression', $v)) {
+					$v = new \yii\db\Expression($v['expression'], $v['params'] ?? []);
+				}
+
 				$query->andWhere([$k => $v]);
+			}
 		}
 	}
 
 	private function _fillQueryFilterPart(&$queryParams, &$query)
 	{
-		if (empty($queryParams[$this->filterKey]))
+		$filters = ArrayHelper::getValue($queryParams, $this->filterKey, null);
+		if (empty($filters))
 			return;
 
-		$query->where = Json::decode($queryParams[$this->filterKey]);
+		$query->where = [];
 
-		// $filters =
-		// foreach ($filters as $filter) {
-		// 	$query->andWhere($filter);
+		$filters = Json::decode($filters);
 
-		// 	// if ($this->hasAttribute($k))
-		// 	// 	$query->andWhere([$k => $v]);
-		// }
+		$fnCheckExpressions = function(&$item, $key) use (&$fnCheckExpressions) {
+			if (is_array($item) == false)
+				return;
 
-		unset ($queryParams[$this->filterKey]);
+			if (array_key_exists('expression', $item)) {
+				$item = new \yii\db\Expression($item['expression'], $item['params'] ?? []);
+			} else {
+				array_walk($item, $fnCheckExpressions);
+			}
+		};
+
+		array_walk($filters, $fnCheckExpressions);
+
+		$query->where = $filters;
 	}
 
 	public function fillQueryOrderByPart(&$queryParams, &$query)

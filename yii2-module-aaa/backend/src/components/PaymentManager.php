@@ -560,7 +560,7 @@ SQL;
     }
   }
 
-  public function rejectOfflinePayment($offlinePaymentModel, $reasons = null)
+  public function rejectOfflinePayment($offlinePaymentModel, $reasons = null, $comment = null)
   {
     if ($offlinePaymentModel->ofpStatus != enuOfflinePaymentStatus::WaitForApprove)
       throw new UnprocessableEntityHttpException('This payment is not in pending state.');
@@ -575,6 +575,8 @@ SQL;
       } else if (is_array($reasons))
         $offlinePaymentModel->ofpRejectReasonIDs = $reasons;
     }
+
+    $offlinePaymentModel->ofpComment = $comment;
 
     if ($offlinePaymentModel->save() == false)
       throw new ServerErrorHttpException('It is not possible to reject offline payment');
