@@ -5,6 +5,7 @@
 
 namespace shopack\base\frontend\common\widgets;
 
+use Closure;
 use Yii;
 use yii\base\InvalidArgumentException;
 use yii\widgets\InputWidget;
@@ -175,7 +176,7 @@ JS;
 				} else {
 					if (isset($field['type'])) {
 						switch ($field['type']) {
-							case JsonSchema::TYPE_int:
+							case JsonSchema::TYPE_number:
 							case jsonSchema::TYPE_string:
 								$formField = Html::textInput($fieldName,
 									$dataValues[$field[0]] ?? null,
@@ -189,9 +190,9 @@ JS;
 
 							case jsonSchema::TYPE_select:
 								$selectData = $field['data'];
-								foreach ($selectData as $k => &$v) {
+								foreach ($selectData as $k => $v) {
 									if (is_array($v))
-										$v = Yii::t(array_shift($v), array_shift($v), $v);
+										$selectData[$k] = Yii::t(array_shift($v), array_shift($v), $v);
 								}
 								$formField = Html::dropDownList($fieldName,
 									$dataValues[$field[0]] ?? null,
@@ -313,6 +314,55 @@ JS;
 
 		//render
 		return implode("\n", $contents);
+	}
+
+	public static function asDynamicParamsForm($model, $attribute, ?Closure $fnGetTypeData = null)
+	{
+		$result = ['count' => 0, 'list' => []];
+
+    if (empty($model->$attribute))
+	    return $result;
+
+		$value = Html::getAttributeValue($model, $attribute);
+		if (empty($value['rows']))
+			return $result;
+
+		$columnsInfo = $model->getColumnsInfo();
+		$jsonSchema_fields = $columnsInfo[$attribute][enuColumnInfo::jsonSchema]['fields'] ?? null;
+		if (empty($jsonSchema_fields))
+			return $result;
+
+		foreach ($jsonSchema_fields as $field)
+		{
+			if (empty($field['pk']) == false)
+				$pkField = $field;
+
+			if ($field[0] == 'type')
+				$typeField = $field;
+		}
+		if (empty($pkField) || empty($typeField))
+			return $result;
+
+		foreach ($value['rows'] as $row) {
+			$type = $row['type'];
+			$data = null;
+			if ($fnGetTypeData != null)
+				list($type, $data) = $fnGetTypeData($type);
+
+			$item = [
+				'id'				=> $row[$pkField[0]],
+				'label'			=> $row['name'],
+				'type'			=> $type,
+				'data'			=> $data,
+				'mandatory'	=> $row['mandatory'] ?? 0,
+			];
+
+			$result['list'][] = $item;
+		}
+
+		$result['count'] = count($value['rows']);
+
+		return $result;
 	}
 
 }

@@ -114,10 +114,288 @@ function createDynamicParamsFormField(
 
 	var div = '';
 
-	if (val['type'] == 'section') {
+	function render_section()
+	{
 		div += "<h4 class='form-section'>";
 		div += val['label'];
 		div += "</h4>";
+	}
+	function render_input()
+	{
+		div += "<input type='" + (val['type'] == 'password' ? 'password' : 'text') + "' class='form-control'"
+			+ "id='" + _id + "' "
+			+ "name='" + _name + "'";
+		if (init_val != null)
+			div += " value='" + init_val + "'";
+		else if (val['default'] !== undefined)
+			div += " value='" + val['default'] + "'";
+
+		var style = '';
+		if (val['style'] !== undefined)
+			style = val['style'];
+
+		if (val['type'] == 'number') {
+			if (style != '')
+				style += ';';
+			style += 'direction:ltr;';
+		}
+
+		if (style != '')
+			div += " style='" + style + "'";
+
+		div += ">";
+	}
+	function render_textArea()
+	{
+		div += "<textarea class='form-control'"
+			+ "id='" + _id + "' "
+			+ "name='" + _name + "'";
+
+		if (val['style'] !== undefined)
+			div += " style='" + val['style'] + "'";
+
+		if (val['rows'] !== undefined)
+			div += " rows='" + val['rows'] + "'";
+
+		div += ">";
+
+		if (init_val != null)
+			div += init_val;
+		else if (val['default'] !== undefined)
+			div += val['default'];
+
+		div += "</textarea>";
+	}
+	function render_checkbox()
+	{
+		// div += "<input type='checkbox' value='1'"
+			// + "id='" + _id + "' "
+			// + "name='" + _name + "'";
+		// if ((init_val != null) && (init_val == '1'))
+			// div += " checked";
+		// else if ((val['default'] !== undefined) && (val['default'] == true))
+			// div += " checked";
+		// div += ">";
+
+		div += "<label class='radio-inline'>"
+			+ "<input type='radio' value='1'"
+			// + "id='" + _id + "' "
+			+ "name='" + _name + "'";
+
+		if ((init_val != null) && (init_val == '1'))
+			div += " checked";
+		else if ((val['default'] !== undefined) && (val['default'] == 1))
+			div += " checked";
+
+		div += ">";
+		div += "بلی";
+		div += "</label>";
+
+		div += "<label class='radio-inline'>"
+			+ "<input type='radio' value='0'"
+			// + "id='" + _id + "' "
+			+ "name='" + _name + "'";
+
+		if ((init_val != null) && (init_val == '0'))
+			div += " checked";
+		else if ((val['default'] !== undefined) && (val['default'] == 0))
+			div += " checked";
+
+		div += ">";
+		div += "خیر";
+		div += "</label>";
+	}
+	function render_select()
+	{
+		div += "<select class='form-control'"
+			+ "id='" + _id + "' "
+			+ "name='" + _name + "'"
+			+ ">";
+		options = '';
+		if (val['allowNone'] !== undefined) {
+			options += "<option value=''>" + val['allowNone'] + "</option>";
+		}
+
+		data = val['data'];
+// console.log(val);
+// console.log(init_val);
+// console.log(data);
+// console.log(initialData);
+// console.log(typeof data);
+		if (data.length > 0) { //array
+			for (i=0; i<data.length; i++) {
+				//this is for CategoryModel::getListForDropdown -> browsers reorder array keys
+				if (data[i].key === undefined)
+					options += "<option value='" + i + "'>" + data[i] + "</option>";
+				else
+					options += "<option value='" + data[i].key + "'>" + data[i].value + "</option>";
+			}
+		} else { //object
+			for (var v in data) {
+				options += "<option value='" + v + "'>" + data[v] + "</option>";
+			}
+		}
+
+		if (init_val != null)
+			options = options.replace('value=\'' + init_val + '\'', 'value=\'' + init_val + '\' selected');
+		else if (val['default'] !== undefined)
+			options = options.replace('value=\'' + val['default'] + '\'', 'value=\'' + val['default'] + '\' selected');
+
+		div += options;
+		div += "</select>";
+	}
+	function render_radioList()
+	{
+		data = val['data'];
+// console.log(val);
+// console.log(data);
+// console.log(initialData);
+
+		div += "<div class='form-control' style='padding-top:0; padding-bottom:0;'>";
+		for (var v in data) {
+			div += "<label class='radio-inline'>"
+				+ "<input type='radio' value='" + v + "'"
+				// + "id='" + _id + "' "
+				+ "name='" + _name + "'";
+
+			if ((init_val != null) && (init_val == v))
+				div += " checked";
+			else if ((val['default'] !== undefined) && (val['default'] == v))
+				div += " checked";
+
+			div += ">";
+			div += data[v];
+			div += "</label>";
+		}
+		div += "</div>";
+	}
+	function render_multiSelect()
+	{
+		data = val['data'];
+// console.log(val);
+// console.log(data);
+// console.log(initialData);
+		if (data.length > 0) { //array
+			for (i=0; i<data.length; i++) {
+				// div += "<input type='checkbox' value='" + i + "'"
+					// + "id='" + _id + "' "
+					// + "name='" + _name + "'";
+				// if ((init_val != null) && (init_val == '1'))
+					// div += " checked";
+				// else if ((val['default'] !== undefined) && (val['default'] == true))
+					// div += " checked";
+				// div += ">";
+
+				// options += "<option value='" + i + "'>" + data[i] + "</option>";
+			}
+		} else { //object
+			for (var v in data) {
+// if (Array.isArray(val['default']))
+// {
+// console.log(v);
+// console.log(val);
+// console.log(Array.isArray(val['default']));
+// console.log(val['default'][v]);
+// console.log($.inArray(v, val['default']));
+// }
+				// options += "<option value='" + v + "'>" + data[v] + "</option>";
+				div += "<div>";
+				div += "<input type='checkbox' value='1'"
+					+ "id='" + _id + "-" + v + "' "
+					+ "name='" + _name + "[" + v + "]'";
+
+				if (initialData !== undefined) {
+					if ((init_val != null) && (init_val[v] !== undefined) && (init_val[v] == '1'))
+						div += " checked";
+				} else if (val['default'] !== undefined) {
+					if ((Array.isArray(val['default'])
+								&& ((val['default'][v] !== undefined) || ($.inArray(v, val['default']) != -1)))
+							|| (val['default'] === v)
+						)
+						div += " checked";
+				}
+
+				div += ">";
+				div += "&nbsp;<label class='control-label' for='" + _id + "-" + v + "'>" + data[v] + "</label>";
+				div += "</div>";
+			}
+		}
+	}
+	function render_kvpMulti()
+	{
+		div += "<table class='table table-bordered table-striped'>";
+		kvptypedef = val['typedef'];
+
+		div += "<tr>";
+		if (kvptypedef['enableField']) {
+			div += "<th>" + kvptypedef['enableField']['label'] + "</th>";
+		}
+		div += "<th>" + kvptypedef['key']['label'] + "</th>";
+		kvptypedef['value'].forEach(element => {
+			div += "<th>" + element['label'] + "</th>";
+		});
+		div += "</tr>";
+
+		dataindex = 0;
+
+		if (init_val != null)
+			dataindex = init_val.length;
+
+		for (i=0; i<dataindex+3; i++) {
+			div += "<tr>";
+
+			if (kvptypedef['enableField']) {
+				if (kvptypedef['id'])
+					enableFieldId = kvptypedef['id'];
+				else
+					enableFieldId = 'enable';
+
+				div += "<td>";
+				div += "<input type='checkbox' value='1'"
+					+ " id='" + _id + "-" + i + "-" + enableFieldId + "'"
+					+ " name='" + _name + "[" + i + "][" + enableFieldId + "]" + "'";
+				if (i < dataindex) {
+					if ((init_val != null) && (init_val[i][enableFieldId] !== undefined)
+							&& init_val[i][enableFieldId])
+						div += " checked";
+				} else
+					div += " checked";
+				div += ">";
+				div += "</td>";
+			}
+
+			div += "<td>";
+			div += "<input type='text' class='form-control'"
+				+ " id='" + _id + "-" + i + "-key" + "'"
+				+ " name='" + _name + "[" + i + "][key]" + "'";
+			if (i < dataindex) {
+				if (init_val != null)
+					div += " value='" + init_val[i].key + "'";
+			}
+			div += ">";
+			div += "</td>";
+
+			kvptypedef['value'].forEach(element => {
+				div += "<td>";
+				div += "<input type='text' class='form-control'"
+					+ " id='" + _id + "-" + i + "-value-" + element['id'] + "'"
+					+ " name='" + _name + "[" + i + "][value][" + element['id'] + "]'";
+				if (i < dataindex) {
+					if (init_val != null)
+						div += " value='" + init_val[i].value[element['id']] + "'";
+				}
+				div += ">";
+				div += "</td>";
+			});
+
+			div += "</tr>";
+		}
+
+		div += "</table>";
+	}
+
+	if (val['type'] == 'section') {
+		render_section();
 	} else {
 		div += "<div class='mb-3 row highlight-addon form-group field-" + _id + "'>";
 		div += "<label class='col-form-label col-md-" + labelSpan + "' for='" + _id + "'>" + val['label'] + "</label>";
@@ -138,272 +416,20 @@ function createDynamicParamsFormField(
 			}
 		}
 
-		if ((val['type'] == 'string')
-			|| (val['type'] == 'text')
-			|| (val['type'] == 'password')
-			|| (val['type'] == 'number')
-		) {
-			div += "<input type='" + (val['type'] == 'password' ? 'password' : 'text') + "' class='form-control'"
-				+ "id='" + _id + "' "
-				+ "name='" + _name + "'";
-			if (init_val != null)
-				div += " value='" + init_val + "'";
-			else if (val['default'] !== undefined)
-				div += " value='" + val['default'] + "'";
-
-			var style = '';
-			if (val['style'] !== undefined)
-				style = val['style'];
-
-			if (val['type'] == 'number') {
-				if (style != '')
-					style += ';';
-				style += 'direction:ltr;';
-			}
-
-			if (style != '')
-				div += " style='" + style + "'";
-
-			div += ">";
-		} else if ((val['type'] == 'multi-string') || (val['type'] == 'multi-text')) {
-			div += "<textarea class='form-control'"
-				+ "id='" + _id + "' "
-				+ "name='" + _name + "'";
-
-			if (val['style'] !== undefined)
-				div += " style='" + val['style'] + "'";
-
-			if (val['rows'] !== undefined)
-				div += " rows='" + val['rows'] + "'";
-
-			div += ">";
-
-			if (init_val != null)
-				div += init_val;
-			else if (val['default'] !== undefined)
-				div += val['default'];
-
-			div += "</textarea>";
-		}
-		// else if ((val['type'] == 'bool') || (val['type'] == 'boolean'))
-		// {
-			// div += "<input type='checkbox' value='1'"
-				// + "id='" + _id + "' "
-				// + "name='" + _name + "'";
-			// if ((init_val != null) && (init_val == '1'))
-				// div += " checked";
-			// else if ((val['default'] !== undefined) && (val['default'] == true))
-				// div += " checked";
-			// div += ">";
-		// }
-		else if ((val['type'] == 'bool') || (val['type'] == 'boolean')) {
-			div += "<label class='radio-inline'>"
-				+ "<input type='radio' value='1'"
-				// + "id='" + _id + "' "
-				+ "name='" + _name + "'";
-
-			if ((init_val != null) && (init_val == '1'))
-				div += " checked";
-			else if ((val['default'] !== undefined) && (val['default'] == 1))
-				div += " checked";
-
-			div += ">";
-			div += "بلی";
-			div += "</label>";
-
-			div += "<label class='radio-inline'>"
-				+ "<input type='radio' value='0'"
-				// + "id='" + _id + "' "
-				+ "name='" + _name + "'";
-
-			if ((init_val != null) && (init_val == '0'))
-				div += " checked";
-			else if ((val['default'] !== undefined) && (val['default'] == 0))
-				div += " checked";
-
-			div += ">";
-			div += "خیر";
-			div += "</label>";
-		} else if ((val['type'] == 'dropdown') || (val['type'] == 'combo')) {
-			div += "<select class='form-control'"
-				+ "id='" + _id + "' "
-				+ "name='" + _name + "'"
-				+ ">";
-			options = '';
-			if (val['allowNone'] !== undefined) {
-				options += "<option value=''>" + val['allowNone'] + "</option>";
-			}
-
-			data = val['data'];
-// console.log(val);
-// console.log(init_val);
-// console.log(data);
-// console.log(initialData);
-// console.log(typeof data);
-			if (data.length > 0) { //array
-				for (i=0; i<data.length; i++) {
-					//this is for CategoryModel::getListForDropdown -> browsers reorder array keys
-					if (data[i].key === undefined)
-						options += "<option value='" + i + "'>" + data[i] + "</option>";
-					else
-						options += "<option value='" + data[i].key + "'>" + data[i].value + "</option>";
-				}
-			} else { //object
-				for (var v in data) {
-					options += "<option value='" + v + "'>" + data[v] + "</option>";
-				}
-			}
-
-			if (init_val != null)
-				options = options.replace('value=\'' + init_val + '\'', 'value=\'' + init_val + '\' selected');
-			else if (val['default'] !== undefined)
-				options = options.replace('value=\'' + val['default'] + '\'', 'value=\'' + val['default'] + '\' selected');
-
-			div += options;
-			div += "</select>";
+		if (['string', 'text', 'password', 'number'].includes(val['type'])) {
+			render_input();
+		} else if (['multi-string', 'multi-text'].includes(val['type'])) {
+			render_textArea();
+		} else if (['bool', 'boolean'].includes(val['type'])) {
+			render_checkbox();
+		} else if (['dropdown', 'combo', 'select'].includes(val['type'])) {
+			render_select();
 		} else if (val['type'] == 'radio-list') {
-			data = val['data'];
-// console.log(val);
-// console.log(data);
-// console.log(initialData);
-
-			div += "<div class='form-control' style='padding-top:0; padding-bottom:0;'>";
-			for (var v in data) {
-				div += "<label class='radio-inline'>"
-					+ "<input type='radio' value='" + v + "'"
-					// + "id='" + _id + "' "
-					+ "name='" + _name + "'";
-
-				if ((init_val != null) && (init_val == v))
-					div += " checked";
-				else if ((val['default'] !== undefined) && (val['default'] == v))
-					div += " checked";
-
-				div += ">";
-				div += data[v];
-				div += "</label>";
-			}
-			div += "</div>";
+			render_radioList();
 		} else if (val['type'] == 'multi-select') {
-			data = val['data'];
-// console.log(val);
-// console.log(data);
-// console.log(initialData);
-			if (data.length > 0) { //array
-				for (i=0; i<data.length; i++) {
-					// div += "<input type='checkbox' value='" + i + "'"
-						// + "id='" + _id + "' "
-						// + "name='" + _name + "'";
-					// if ((init_val != null) && (init_val == '1'))
-						// div += " checked";
-					// else if ((val['default'] !== undefined) && (val['default'] == true))
-						// div += " checked";
-					// div += ">";
-
-					// options += "<option value='" + i + "'>" + data[i] + "</option>";
-				}
-			} else { //object
-				for (var v in data) {
-// if (Array.isArray(val['default']))
-// {
-// console.log(v);
-// console.log(val);
-// console.log(Array.isArray(val['default']));
-// console.log(val['default'][v]);
-// console.log($.inArray(v, val['default']));
-// }
-					// options += "<option value='" + v + "'>" + data[v] + "</option>";
-					div += "<div>";
-					div += "<input type='checkbox' value='1'"
-						+ "id='" + _id + "-" + v + "' "
-						+ "name='" + _name + "[" + v + "]'";
-
-					if (initialData !== undefined) {
-						if ((init_val != null) && (init_val[v] !== undefined) && (init_val[v] == '1'))
-							div += " checked";
-					} else if (val['default'] !== undefined) {
-						if ((Array.isArray(val['default'])
-									&& ((val['default'][v] !== undefined) || ($.inArray(v, val['default']) != -1)))
-								|| (val['default'] === v)
-							)
-							div += " checked";
-					}
-
-					div += ">";
-					div += "&nbsp;<label class='control-label' for='" + _id + "-" + v + "'>" + data[v] + "</label>";
-					div += "</div>";
-				}
-			}
+			render_multiSelect();
 		} else if (val['type'] == 'kvp-multi') { //key-value-pair
-			div += "<table class='table table-bordered table-striped'>";
-			kvptypedef = val['typedef'];
-
-			div += "<tr>";
-			if (kvptypedef['enableField']) {
-				div += "<th>" + kvptypedef['enableField']['label'] + "</th>";
-			}
-			div += "<th>" + kvptypedef['key']['label'] + "</th>";
-			kvptypedef['value'].forEach(element => {
-				div += "<th>" + element['label'] + "</th>";
-			});
-			div += "</tr>";
-
-			dataindex = 0;
-
-			if (init_val != null)
-				dataindex = init_val.length;
-
-			for (i=0; i<dataindex+3; i++) {
-				div += "<tr>";
-
-				if (kvptypedef['enableField']) {
-					if (kvptypedef['id'])
-						enableFieldId = kvptypedef['id'];
-					else
-						enableFieldId = 'enable';
-
-					div += "<td>";
-					div += "<input type='checkbox' value='1'"
-						+ " id='" + _id + "-" + i + "-" + enableFieldId + "'"
-						+ " name='" + _name + "[" + i + "][" + enableFieldId + "]" + "'";
-					if (i < dataindex) {
-						if ((init_val != null) && (init_val[i][enableFieldId] !== undefined)
-								&& init_val[i][enableFieldId])
-							div += " checked";
-					} else
-						div += " checked";
-					div += ">";
-					div += "</td>";
-				}
-
-				div += "<td>";
-				div += "<input type='text' class='form-control'"
-					+ " id='" + _id + "-" + i + "-key" + "'"
-					+ " name='" + _name + "[" + i + "][key]" + "'";
-				if (i < dataindex) {
-					if (init_val != null)
-						div += " value='" + init_val[i].key + "'";
-				}
-				div += ">";
-				div += "</td>";
-
-				kvptypedef['value'].forEach(element => {
-					div += "<td>";
-					div += "<input type='text' class='form-control'"
-						+ " id='" + _id + "-" + i + "-value-" + element['id'] + "'"
-						+ " name='" + _name + "[" + i + "][value][" + element['id'] + "]'";
-					if (i < dataindex) {
-						if (init_val != null)
-							div += " value='" + init_val[i].value[element['id']] + "'";
-					}
-					div += ">";
-					div += "</td>";
-				});
-
-				div += "</tr>";
-			}
-
-			div += "</table>";
+			render_kvpMulti();
 		}
 	}
 
