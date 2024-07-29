@@ -263,9 +263,7 @@ trait ActiveRecordTrait
 				}
 
 				//jsonSchema
-				if ((empty($columnValue) == false)
-					&& (isset($colInfo[enuColumnInfo::jsonSchema]))
-				) {
+				if (isset($colInfo[enuColumnInfo::jsonSchema])) {
 					//normalize jsonTable
 					if (isset($columnValue['rows']) == false) {
 						$columnValue = [
@@ -273,47 +271,63 @@ trait ActiveRecordTrait
 						];
 					}
 
-					$jsonSchema = $colInfo[enuColumnInfo::jsonSchema];
-					foreach($jsonSchema['fields'] as $f) {
-						if (empty($f['pk']) == false) {
-							$pkField = $f;
-							break;
-						}
+					$oldAttrValue = $this->oldAttributes[$column] ?? null;
+					if (isset($oldAttrValue['lastid'])) {
+						$columnValue['lastid'] = $oldAttrValue['lastid'];
 					}
 
-					//find last id
-					if (isset($pkField)) {
-						$pkFieldName = $pkField[0];
+					if (empty($columnValue['rows']) == false) {
 
-						if (empty($columnValue['lastid'])) {
-							$lastid = 0;
-							foreach ($columnValue['rows'] as $row) {
-								if (($row[$pkFieldName] ?? 0) > $lastid)
-									$lastid = $row[$pkFieldName];
+						$jsonSchema = $colInfo[enuColumnInfo::jsonSchema];
+						foreach($jsonSchema['fields'] as $f) {
+							if (empty($f['pk']) == false) {
+								$pkField = $f;
+								break;
 							}
-							// $columnValue['lastid'] = $lastid;
-						} else
-							$lastid = $columnValue['lastid'];
+						}
 
-						//apply id for new rows
+						//find last id
+						if (isset($pkField)) {
+							$pkFieldName = $pkField[0];
+
+							if (empty($columnValue['lastid'])) {
+								// $oldAttrValue = $this->oldAttributes[$column] ?? null;
+
+								// if (isset($oldAttrValue['lastid']))
+								// 	$lastid = $oldAttrValue['lastid'];
+								// else
+									$lastid = 0;
+
+								foreach ($columnValue['rows'] as $row) {
+									if (($row[$pkFieldName] ?? 0) > $lastid)
+										$lastid = $row[$pkFieldName];
+								}
+								// $columnValue['lastid'] = $lastid;
+							} else
+								$lastid = $columnValue['lastid'];
+
+							//apply id for new rows
+							foreach ($columnValue['rows'] as $k => $row) {
+								if (empty($row[$pkFieldName])) {
+									++$lastid;
+
+									$row[$pkFieldName] = $lastid;
+									$columnValue['rows'][$k] = $row;
+								}
+							}
+
+							$columnValue['lastid'] = $lastid;
+						}
+
+						//remove array key
+						$rows = [];
 						foreach ($columnValue['rows'] as $k => $row) {
-							if (empty($row[$pkFieldName])) {
-								++$lastid;
-
-								$row[$pkFieldName] = $lastid;
-								$columnValue['rows'][$k] = $row;
-							}
+							$rows[] = $row;
 						}
-
-						$columnValue['lastid'] = $lastid;
+						$columnValue['rows'] = $rows;
 					}
 
-					//remove array key
-					$rows = [];
-					foreach ($columnValue['rows'] as $k => $row) {
-						$rows[] = $row;
-					}
-					$columnValue['rows'] = $rows;
+					$columnValue = ArrayHelper::FilterRecursive($columnValue);
 				}
 			}
 

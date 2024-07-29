@@ -43,7 +43,8 @@ function addJSRow()
 	++lastrowidx;
 
 	var newrow = $('#' + tableid + '-__row__-t').clone();
-	newrow.attr('id', tableid + '-__row__-n' + lastrowidx);
+	var newtableid = tableid + '-__row__-n' + lastrowidx;
+	newrow.attr('id', newtableid);
 
 	newrow.find('[id^=' + tableid + '-]').each(function() {
     var el = $(this);
@@ -58,13 +59,15 @@ function addJSRow()
 
 	jstable.append(newrow);
 	newrow.show();
-	newrow.find('#remjsrow').on('click', removeJSRow);
+	newrow.find('[id^=remjsrow-]').attr('id', 'remjsrow-' + newtableid).on('click', removeJSRow);
 }
 
 function removeJSRow()
 {
 	var sender = $(this);
+	console.log(sender);
 	var row = sender.closest('tr');
+	console.log(row);
 	row.remove();
 }
 JS;
@@ -72,8 +75,8 @@ JS;
 		$view->registerJs($js, \yii\web\View::POS_END);
 
 		$js =<<<JS
-$('#addjsrow').each(function() { $(this).on('click', addJSRow) });
-$('#remjsrow').each(function() { $(this).on('click', removeJSRow) });
+$('[id^=addjsrow-]').each(function() { $(this).on('click', addJSRow) });
+$('[id^=remjsrow-]').each(function() { $(this).on('click', removeJSRow) });
 JS;
 
 		$view->registerJs($js, \yii\web\View::POS_READY);
@@ -110,23 +113,28 @@ JS;
 			'class' => ['table', 'table-bordered', 'w-100'],
 		]);
 
+		$fnGetLabel = function($label) {
+			if (is_array($label)) {
+				$cat = array_shift($label);
+				$msg = array_shift($label);
+				return Yii::t($cat, $msg, $label);
+			}
+
+			return Yii::t('app', $label);
+		};
+
 		//header row
 		$contents[] = Html::beginTag('thead');
 		$contents[] = Html::beginTag('tr');
 		foreach ($jsonSchema_fields as $field) {
-			if (isset($field['label'])) {
-				if (is_array($field['label'])) {
-					$cat = array_shift($field['label']);
-					$msg = array_shift($field['label']);
-					$label = Yii::t($cat, $msg, $field['label']);
-				} else
-					$label = Yii::t('app', $field['label']);
-			} else
+			if (isset($field['label']))
+				$label = $fnGetLabel($field['label']);
+			else
 				$label = $field[0];
 
 			$contents[] = Html::tag('th', $label);
 		}
-		$contents[] = Html::tag('th', "<a id='addjsrow' href='#' data-table-id='{$this->options['id']}'>[+]</a>");
+		$contents[] = Html::tag('th', "<a id='addjsrow-{$this->options['id']}' href='#'>[+]</a>");
 		$contents[] = Html::endTag('tr');
 		$contents[] = Html::endTag('thead');
 
@@ -213,7 +221,7 @@ JS;
 			}
 
 			$contents[] = Html::tag('td', $dataValues !== null || $asTemplate
-				? "<a id='remjsrow' href='#'>[-]</a>"
+				? "<a id='remjsrow-{$rowId}' href='#'>[-]</a>"
 				// ? "<a id='remjsrow' href='#' data-row-id='{$rowId}'>[-]</a>"
 				: '');
 
@@ -236,6 +244,69 @@ JS;
 		$fnRenderDataRow(null, true);
 
 		$contents[] = Html::endTag('tbody');
+
+		//end table
+		$contents[] = Html::endTag('table');
+
+		//render
+		return implode("\n", $contents);
+	}
+
+	public static function asHtml($model, $attribute)
+	{
+		$value = Html::getAttributeValue($model, $attribute);
+		if (empty($value['rows']))
+			return null;
+
+		$columnsInfo = $model->getColumnsInfo();
+		$jsonSchema_fields = $columnsInfo[$attribute][enuColumnInfo::jsonSchema]['fields'] ?? null;
+		if (empty($jsonSchema_fields))
+			return null;
+
+		//begin table
+		$contents = [
+			Html::beginTag('table', ['class' => ['table', 'table-bordered', 'table-striped', 'w-100']]),
+		];
+
+		$fnGetLabel = function($label) {
+			if (is_array($label)) {
+				$cat = array_shift($label);
+				$msg = array_shift($label);
+				return Yii::t($cat, $msg, $label);
+			}
+
+			return Yii::t('app', $label);
+		};
+
+		//header row
+		$contents[] = Html::beginTag('thead');
+		$contents[] = Html::beginTag('tr');
+		foreach ($jsonSchema_fields as $field) {
+			$label = $fnGetLabel($field['label'] ?? $field[0]);
+			$contents[] = Html::tag('th', $label);
+		}
+		$contents[] = Html::endTag('tr');
+		$contents[] = Html::endTag('thead');
+
+		//data rows
+		foreach ($value['rows'] as $row) {
+			$contents[] = Html::beginTag('tr');
+
+			foreach ($jsonSchema_fields as $field) {
+				$contents[] = Html::beginTag('td');
+				if (isset($row[$field[0]])) {
+					if ($field['type'] == jsonSchema::TYPE_boolean) {
+						$contents[] = Yii::$app->formatter->asBoolean($row[$field[0]]);
+					} else if ($field['type'] == jsonSchema::TYPE_select) {
+						$contents[] = $fnGetLabel($field['data'][$row[$field[0]]] ?? $row[$field[0]]);
+					} else
+						$contents[] = $row[$field[0]];
+				}
+				$contents[] = Html::endTag('td');
+			}
+
+			$contents[] = Html::endTag('tr');
+		}
 
 		//end table
 		$contents[] = Html::endTag('table');
