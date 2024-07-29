@@ -72,6 +72,7 @@ class JsonSchema
 	const TYPE_int			= 'int';
 	const TYPE_string		= 'string';
 	const TYPE_boolean	= 'bool';
+	const TYPE_select		= 'select';
 
 	public $fields = [];
 

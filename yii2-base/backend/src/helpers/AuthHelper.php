@@ -43,9 +43,9 @@ class AuthHelper
     }
 
     $settings = Yii::$app->params['settings'];
-    $ttl = ArrayHelper::getValue($settings['AAA']['jwt'], 'ttl', 5 * 60);
+    $expireTTL = ArrayHelper::getValue($settings['AAA']['jwt'], 'ttl', 5 * 60);
     $now = new \DateTimeImmutable();
-    $expire = $now->modify("+{$ttl} second");
+    $expire = $now->modify("+{$expireTTL} second");
 
     $challenge = null;
     if ($challengeNeeded !== self::CHALLENGE_NONE) {
@@ -210,7 +210,7 @@ class AuthHelper
     $sessionModel->ssnStatus = ($user->usrStatus == enuUserStatus::NewForLoginByMobile
       ? enuSessionStatus::ForLoginByMobile
       : enuSessionStatus::Active);
-    $sessionModel->ssnExpireAt = $expire->format('Y-m-d H:i:s');
+    $sessionModel->ssnExpireAt = new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$expireTTL} SECOND)"); //$expire->format('Y-m-d H:i:s');
     $sessionModel->save();
 
     //-----------------------

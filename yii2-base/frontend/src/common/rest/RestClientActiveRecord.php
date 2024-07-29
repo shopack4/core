@@ -120,7 +120,7 @@ abstract class RestClientActiveRecord extends BaseActiveRecord
   public function afterFind()
 	{
     $JsonValidator_class = JsonValidator::class;
-    $columnsInfo = $this->columnsInfo();
+    $columnsInfo = $this->getColumnsInfo();
     foreach ($columnsInfo as $column => $info) {
       if (isset($info[enuColumnInfo::type])
           && $info[enuColumnInfo::type] === $JsonValidator_class
@@ -140,7 +140,8 @@ abstract class RestClientActiveRecord extends BaseActiveRecord
 
     if (empty($values) == false) {
       $JsonValidator_class = JsonValidator::class;
-      $columnsInfo = $this->columnsInfo();
+      $columnsInfo = $this->getColumnsInfo();
+
       foreach (array_keys($values) as $column) {
         if (isset($columnsInfo[$column][enuColumnInfo::type])
             && ($columnsInfo[$column][enuColumnInfo::type] === $JsonValidator_class)
@@ -263,7 +264,7 @@ abstract class RestClientActiveRecord extends BaseActiveRecord
     //   }
     // }
 
-    $columnsInfo = $this->columnsInfo();
+    $columnsInfo = $this->getColumnsInfo();
     foreach ($columnsInfo as $column => $info) {
       if (array_key_exists($column, $attributes) == false)
         $attributes[] = $column;

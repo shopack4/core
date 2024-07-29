@@ -7,18 +7,30 @@ namespace shopack\base\common\rest;
 
 use Yii;
 use Ramsey\Uuid\Uuid;
+use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\helpers\StringHelper;
+use shopack\base\common\validators\JsonValidator;
 
 trait ActiveRecordTrait
 {
 	public static $i18nDataFields = [];
 
+	protected $_cachedColumnsInfo = null;
+	public function getColumnsInfo()
+	{
+		if ($this->_cachedColumnsInfo === null) {
+			$this->_cachedColumnsInfo = $this->columnsInfo();
+		}
+
+		return $this->_cachedColumnsInfo;
+	}
+
   public function getStatusColumnName()
   {
-    $columnsInfo = $this->columnsInfo();
-    foreach ($columnsInfo as $column => $info) {
-      if ($info[enuColumnInfo::isStatus] ?? false)
+    $columnsInfo = $this->getColumnsInfo();
+    foreach ($columnsInfo as $column => $colInfo) {
+      if ($colInfo[enuColumnInfo::isStatus] ?? false)
         return $column;
     }
 
@@ -27,7 +39,7 @@ trait ActiveRecordTrait
 
 	public function canViewColumn($column)
 	{
-		$columnsInfo = $this->columnsInfo();
+		$columnsInfo = $this->getColumnsInfo();
 		if (empty($columnsInfo[$column]))
 			return false;
 
@@ -62,9 +74,9 @@ trait ActiveRecordTrait
 
 			$model = new $_class;
 
-			$columnsInfo = $model->columnsInfo();
-			foreach ($columnsInfo as $column => $info) {
-				if ($model->_canViewColumn($column, $info)) {
+			$columnsInfo = $model->getColumnsInfo();
+			foreach ($columnsInfo as $column => $colInfo) {
+				if ($model->_canViewColumn($column, $colInfo)) {
 					$columns[] = $column;
 				}
 			}
@@ -90,10 +102,10 @@ trait ActiveRecordTrait
 	// 	if (empty(self::$_globalSearchableColumns[$_class])) {
 	// 		$columns = [];
 
-	// 		$columnsInfo = $this->columnsInfo();
-	// 		foreach ($columnsInfo as $column => $info) {
-	// 			if (isset($info[enuColumnInfo::globalSearch])) {
-	// 				$columns[$column] = $info;
+	// 		$columnsInfo = $this->getColumnsInfo();
+	// 		foreach ($columnsInfo as $column => $colInfo) {
+	// 			if (isset($colInfo[enuColumnInfo::globalSearch])) {
+	// 				$columns[$column] = $colInfo;
 	// 			}
 	// 		}
 	// 		self::$_globalSearchableColumns[$_class] = $columns;
@@ -111,55 +123,55 @@ trait ActiveRecordTrait
 		if (empty(self::$_rules[$_class])) {
 			$baseRules = [];
 
-			$columnsInfo = $this->columnsInfo();
-			foreach ($columnsInfo as $column => $info) {
-				// if (isset($info[enuColumnInfo::virtual]) && $info[enuColumnInfo::virtual])
+			$columnsInfo = $this->getColumnsInfo();
+			foreach ($columnsInfo as $column => $colInfo) {
+				// if (isset($colInfo[enuColumnInfo::virtual]) && $colInfo[enuColumnInfo::virtual])
 				// 	continue;
 
 				if ($isSearchModel) {
-					if (isset($info[enuColumnInfo::search])) {
-						if ($info[enuColumnInfo::search] !== false) {
-							// if (is_bool($info[enuColumnInfo::search])) {
-								if (isset($info[enuColumnInfo::type]))
-									$rule = array_merge([$column], (array)$info[enuColumnInfo::type]);
+					if (isset($colInfo[enuColumnInfo::search])) {
+						if ($colInfo[enuColumnInfo::search] !== false) {
+							// if (is_bool($colInfo[enuColumnInfo::search])) {
+								if (isset($colInfo[enuColumnInfo::type]))
+									$rule = array_merge([$column], (array)$colInfo[enuColumnInfo::type]);
 								else
 									$rule = [$column, 'safe'];
 							// } else {
-							// 	$rule = array_merge([$column], (array)$info[enuColumnInfo::search]);
+							// 	$rule = array_merge([$column], (array)$colInfo[enuColumnInfo::search]);
 							// }
 							$baseRules[] = $rule;
 						}
 					}
 				} else {
-					if (isset($info[enuColumnInfo::type])) {
-						$rule = array_merge([$column], (array)$info[enuColumnInfo::type]);
+					if (isset($colInfo[enuColumnInfo::type])) {
+						$rule = array_merge([$column], (array)$colInfo[enuColumnInfo::type]);
 						$baseRules[] = $rule;
 					}
 
-					if (isset($info[enuColumnInfo::validator])) {
-						$rule = array_merge([$column], (array)$info[enuColumnInfo::validator]);
+					if (isset($colInfo[enuColumnInfo::validator])) {
+						$rule = array_merge([$column], (array)$colInfo[enuColumnInfo::validator]);
 						$baseRules[] = $rule;
 					}
 
-					if (isset($info[enuColumnInfo::default])) {
+					if (isset($colInfo[enuColumnInfo::default])) {
 						$rule = [
 							$column,
 							'default',
-							'value' => $info[enuColumnInfo::default]
+							'value' => $colInfo[enuColumnInfo::default]
 						];
 						$baseRules[] = $rule;
 					}
 
-					if (isset($info[enuColumnInfo::required])
-							&& ($info[enuColumnInfo::required] !== false)
+					if (isset($colInfo[enuColumnInfo::required])
+							&& ($colInfo[enuColumnInfo::required] !== false)
 					) {
 						$rule = [
 							$column,
 							'required'
 						];
 
-						if (is_array($info[enuColumnInfo::required])) {
-							$rule = array_merge($rule, $info[enuColumnInfo::required]);
+						if (is_array($colInfo[enuColumnInfo::required])) {
+							$rule = array_merge($rule, $colInfo[enuColumnInfo::required]);
 						}
 
 						$baseRules[] = $rule;
@@ -218,39 +230,109 @@ trait ActiveRecordTrait
 
 	protected function checkColumnsBeforeSave($insert)
 	{
-		$columnsInfo = $this->columnsInfo();
-		foreach ($columnsInfo as $column => $info) {
+		$JsonValidator_class = JsonValidator::class;
+		$columnsInfo = $this->getColumnsInfo();
+
+		foreach ($columnsInfo as $column => $colInfo) {
+			$columnValue = $this->$column;
 
 			//uuid
 			if ($insert
-				&& isset($info[enuColumnInfo::default])
-				&& ($info[enuColumnInfo::default] == 'uuid')
-				&& (empty($this->$column) || $this->$column == 'uuid')
+				&& isset($colInfo[enuColumnInfo::default])
+				&& ($colInfo[enuColumnInfo::default] == 'uuid')
+				&& (empty($columnValue) || $columnValue == 'uuid')
 			) {
-				$this->$column = strtolower(Uuid::uuid4()->toString());
+				$columnValue = strtolower(Uuid::uuid4()->toString());
 			}
 
-			//string
-
-			// if (empty($info[enuColumnInfo::type]))
-			// 	continue;
-
-			// if (((array)$info[enuColumnInfo::type])[0] != 'string')
-			// 	continue;
-
-			if (is_string($this->$column))
-				$this->$column = trim($this->$column);
-
-			if (($this->$column === '')
-				&& (empty($info[enuColumnInfo::required]) || ($info[enuColumnInfo::required] !== true))
+			//json
+			if (isset($colInfo[enuColumnInfo::type])
+				&& ($colInfo[enuColumnInfo::type] === $JsonValidator_class)
 			) {
-				$this->$column = null;
+				if (is_string($columnValue))
+					$columnValue = json_decode($columnValue, true);
+
+				if (empty($columnValue) == false)
+					$columnValue = ArrayHelper::FilterRecursive($columnValue);
+
+				if (empty($columnValue)) {
+					if (($colInfo[enuColumnInfo::required] ?? false))
+						$columnValue = [];
+					else
+						$columnValue = null;
+				}
+
+				//jsonSchema
+				if ((empty($columnValue) == false)
+					&& (isset($colInfo[enuColumnInfo::jsonSchema]))
+				) {
+					//normalize jsonTable
+					if (isset($columnValue['rows']) == false) {
+						$columnValue = [
+							'rows' => $columnValue,
+						];
+					}
+
+					$jsonSchema = $colInfo[enuColumnInfo::jsonSchema];
+					foreach($jsonSchema['fields'] as $f) {
+						if (empty($f['pk']) == false) {
+							$pkField = $f;
+							break;
+						}
+					}
+
+					//find last id
+					if (isset($pkField)) {
+						$pkFieldName = $pkField[0];
+
+						if (empty($columnValue['lastid'])) {
+							$lastid = 0;
+							foreach ($columnValue['rows'] as $row) {
+								if (($row[$pkFieldName] ?? 0) > $lastid)
+									$lastid = $row[$pkFieldName];
+							}
+							// $columnValue['lastid'] = $lastid;
+						} else
+							$lastid = $columnValue['lastid'];
+
+						//apply id for new rows
+						foreach ($columnValue['rows'] as $k => $row) {
+							if (empty($row[$pkFieldName])) {
+								++$lastid;
+
+								$row[$pkFieldName] = $lastid;
+								$columnValue['rows'][$k] = $row;
+							}
+						}
+
+						$columnValue['lastid'] = $lastid;
+					}
+
+					//remove array key
+					$rows = [];
+					foreach ($columnValue['rows'] as $k => $row) {
+						$rows[] = $row;
+					}
+					$columnValue['rows'] = $rows;
+				}
 			}
 
-			if (is_string($this->$column) && (empty($this->$column) == false)) {
-				$this->$column = StringHelper::fixPersianCharacters($this->$column);
+			//
+			if (is_string($columnValue)) {
+				$columnValue = trim($columnValue);
 			}
 
+			if (($columnValue === '')
+				&& (empty($colInfo[enuColumnInfo::required]) || ($colInfo[enuColumnInfo::required] !== true))
+			) {
+				$columnValue = null;
+			}
+
+			if (is_string($columnValue) && (empty($columnValue) == false)) {
+				$columnValue = StringHelper::fixPersianCharacters($columnValue);
+			}
+
+			$this->$column = $columnValue;
 		}
 	}
 
@@ -269,11 +351,11 @@ trait ActiveRecordTrait
 
 	public function applyDefaultValuesFromColumnsInfo()
 	{
-		$columnsInfo = $this->columnsInfo();
-		foreach ($columnsInfo as $column => $info) {
-			if (empty($this->$column) && isset($info[enuColumnInfo::default])) {
+		$columnsInfo = $this->getColumnsInfo();
+		foreach ($columnsInfo as $column => $colInfo) {
+			if (empty($this->$column) && isset($colInfo[enuColumnInfo::default])) {
 
-				$def = $info[enuColumnInfo::default];
+				$def = $colInfo[enuColumnInfo::default];
 
 				if ($def == 'uuid') {
 					continue; //->will be filled in checkColumnsBeforeSave

@@ -177,7 +177,7 @@ abstract class BaseCrudController extends BaseController
   public function actionUpdate_afterFindModel(&$model)
   {
   }
-  public function actionUpdate_afterLoadModel(&$model)
+  public function actionUpdate_afterLoadModel(&$model, $formPosted)
   {
   }
 
@@ -195,7 +195,7 @@ abstract class BaseCrudController extends BaseController
       throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
 		$formPosted = $model->load(Yii::$app->request->post());
-    $this->actionUpdate_afterLoadModel($model);
+    $this->actionUpdate_afterLoadModel($model, $formPosted);
 		$done = false;
 		if ($formPosted)
 			$done = $model->save();
