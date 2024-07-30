@@ -113,7 +113,7 @@ class ModelColumnHelper
 		return [
 			enuColumnInfo::type       => 'safe', //int, now() 'integer',
 			enuColumnInfo::validator  => null,
-			enuColumnInfo::default    => null,
+			enuColumnInfo::default    => 0,
 			enuColumnInfo::required   => false,
 			enuColumnInfo::selectable => true,
 		];

@@ -365,4 +365,8 @@ JS;
 		return $result;
 	}
 
+	public static function asDataTable($extraParamsData, $extraParamsSchema)
+	{
+	}
+
 }

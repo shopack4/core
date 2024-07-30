@@ -420,7 +420,7 @@ class RestClientQuery
       } else {
         $multipartAttributes[] = [
           'name' => $k,
-          'contents' => $v,
+          'contents' => (is_array($v) && (empty($v) == false) ? json_encode($v) : $v),
         ];
       }
     }

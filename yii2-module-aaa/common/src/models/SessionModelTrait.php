@@ -81,7 +81,6 @@ trait SessionModelTrait
       'ssnUpdatedBy' => ModelColumnHelper::UpdatedBy(),
       'ssnRemovedAt' => ModelColumnHelper::RemovedAt(),
       'ssnRemovedBy' => ModelColumnHelper::RemovedBy(),
-
     ];
   }
 
