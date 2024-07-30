@@ -112,23 +112,24 @@ function createDynamicParamsFormField(
 
 	var valueSpan = 12 - labelSpan;
 
-	var div = '';
+	var content = '';
+	var scriptContent = '';
 
 	function render_section()
 	{
-		div += "<h4 class='form-section'>";
-		div += val['label'];
-		div += "</h4>";
+		content += "<h4 class='form-section'>";
+		content += val['label'];
+		content += "</h4>";
 	}
 	function render_input()
 	{
-		div += "<input type='" + (val['type'] == 'password' ? 'password' : 'text') + "' class='form-control'"
+		content += "<input type='" + (val['type'] == 'password' ? 'password' : 'text') + "' class='form-control'"
 			+ "id='" + _id + "' "
 			+ "name='" + _name + "'";
 		if (init_val != null)
-			div += " value='" + init_val + "'";
+			content += " value='" + init_val + "'";
 		else if (val['default'] !== undefined)
-			div += " value='" + val['default'] + "'";
+			content += " value='" + val['default'] + "'";
 
 		var style = '';
 		if (val['style'] !== undefined)
@@ -141,73 +142,73 @@ function createDynamicParamsFormField(
 		}
 
 		if (style != '')
-			div += " style='" + style + "'";
+			content += " style='" + style + "'";
 
-		div += ">";
+		content += ">";
 	}
 	function render_textArea()
 	{
-		div += "<textarea class='form-control'"
+		content += "<textarea class='form-control'"
 			+ "id='" + _id + "' "
 			+ "name='" + _name + "'";
 
 		if (val['style'] !== undefined)
-			div += " style='" + val['style'] + "'";
+			content += " style='" + val['style'] + "'";
 
 		if (val['rows'] !== undefined)
-			div += " rows='" + val['rows'] + "'";
+			content += " rows='" + val['rows'] + "'";
 
-		div += ">";
+		content += ">";
 
 		if (init_val != null)
-			div += init_val;
+			content += init_val;
 		else if (val['default'] !== undefined)
-			div += val['default'];
+			content += val['default'];
 
-		div += "</textarea>";
+		content += "</textarea>";
 	}
 	function render_checkbox()
 	{
-		// div += "<input type='checkbox' value='1'"
+		// content += "<input type='checkbox' value='1'"
 			// + "id='" + _id + "' "
 			// + "name='" + _name + "'";
 		// if ((init_val != null) && (init_val == '1'))
-			// div += " checked";
+			// content += " checked";
 		// else if ((val['default'] !== undefined) && (val['default'] == true))
-			// div += " checked";
-		// div += ">";
+			// content += " checked";
+		// content += ">";
 
-		div += "<label class='radio-inline'>"
+		content += "<label class='radio-inline'>"
 			+ "<input type='radio' value='1'"
 			// + "id='" + _id + "' "
 			+ "name='" + _name + "'";
 
 		if ((init_val != null) && (init_val == '1'))
-			div += " checked";
+			content += " checked";
 		else if ((val['default'] !== undefined) && (val['default'] == 1))
-			div += " checked";
+			content += " checked";
 
-		div += ">";
-		div += "بلی";
-		div += "</label>";
+		content += ">";
+		content += "بلی";
+		content += "</label>";
 
-		div += "<label class='radio-inline'>"
+		content += "<label class='radio-inline'>"
 			+ "<input type='radio' value='0'"
 			// + "id='" + _id + "' "
 			+ "name='" + _name + "'";
 
 		if ((init_val != null) && (init_val == '0'))
-			div += " checked";
+			content += " checked";
 		else if ((val['default'] !== undefined) && (val['default'] == 0))
-			div += " checked";
+			content += " checked";
 
-		div += ">";
-		div += "خیر";
-		div += "</label>";
+		content += ">";
+		content += "خیر";
+		content += "</label>";
 	}
 	function render_select()
 	{
-		div += "<select class='form-control'"
+		content += "<select class='form-control'"
 			+ "id='" + _id + "' "
 			+ "name='" + _name + "'"
 			+ ">";
@@ -241,8 +242,8 @@ function createDynamicParamsFormField(
 		else if (val['default'] !== undefined)
 			options = options.replace('value=\'' + val['default'] + '\'', 'value=\'' + val['default'] + '\' selected');
 
-		div += options;
-		div += "</select>";
+		content += options;
+		content += "</select>";
 	}
 	function render_radioList()
 	{
@@ -251,23 +252,23 @@ function createDynamicParamsFormField(
 // console.log(data);
 // console.log(initialData);
 
-		div += "<div class='form-control' style='padding-top:0; padding-bottom:0;'>";
+		content += "<div class='form-control' style='padding-top:0; padding-bottom:0;'>";
 		for (var v in data) {
-			div += "<label class='radio-inline'>"
+			content += "<label class='radio-inline'>"
 				+ "<input type='radio' value='" + v + "'"
 				// + "id='" + _id + "' "
 				+ "name='" + _name + "'";
 
 			if ((init_val != null) && (init_val == v))
-				div += " checked";
+				content += " checked";
 			else if ((val['default'] !== undefined) && (val['default'] == v))
-				div += " checked";
+				content += " checked";
 
-			div += ">";
-			div += data[v];
-			div += "</label>";
+			content += ">";
+			content += data[v];
+			content += "</label>";
 		}
-		div += "</div>";
+		content += "</div>";
 	}
 	function render_multiSelect()
 	{
@@ -277,14 +278,14 @@ function createDynamicParamsFormField(
 // console.log(initialData);
 		if (data.length > 0) { //array
 			for (i=0; i<data.length; i++) {
-				// div += "<input type='checkbox' value='" + i + "'"
+				// content += "<input type='checkbox' value='" + i + "'"
 					// + "id='" + _id + "' "
 					// + "name='" + _name + "'";
 				// if ((init_val != null) && (init_val == '1'))
-					// div += " checked";
+					// content += " checked";
 				// else if ((val['default'] !== undefined) && (val['default'] == true))
-					// div += " checked";
-				// div += ">";
+					// content += " checked";
+				// content += ">";
 
 				// options += "<option value='" + i + "'>" + data[i] + "</option>";
 			}
@@ -299,42 +300,42 @@ function createDynamicParamsFormField(
 // console.log($.inArray(v, val['default']));
 // }
 				// options += "<option value='" + v + "'>" + data[v] + "</option>";
-				div += "<div>";
-				div += "<input type='checkbox' value='1'"
+				content += "<div>";
+				content += "<input type='checkbox' value='1'"
 					+ "id='" + _id + "-" + v + "' "
 					+ "name='" + _name + "[" + v + "]'";
 
 				if (initialData !== undefined) {
 					if ((init_val != null) && (init_val[v] !== undefined) && (init_val[v] == '1'))
-						div += " checked";
+						content += " checked";
 				} else if (val['default'] !== undefined) {
 					if ((Array.isArray(val['default'])
 								&& ((val['default'][v] !== undefined) || ($.inArray(v, val['default']) != -1)))
 							|| (val['default'] === v)
 						)
-						div += " checked";
+						content += " checked";
 				}
 
-				div += ">";
-				div += "&nbsp;<label class='control-label' for='" + _id + "-" + v + "'>" + data[v] + "</label>";
-				div += "</div>";
+				content += ">";
+				content += "&nbsp;<label class='control-label' for='" + _id + "-" + v + "'>" + data[v] + "</label>";
+				content += "</div>";
 			}
 		}
 	}
 	function render_kvpMulti()
 	{
-		div += "<table class='table table-bordered table-striped'>";
+		content += "<table class='table table-bordered table-striped'>";
 		kvptypedef = val['typedef'];
 
-		div += "<tr>";
+		content += "<tr>";
 		if (kvptypedef['enableField']) {
-			div += "<th>" + kvptypedef['enableField']['label'] + "</th>";
+			content += "<th>" + kvptypedef['enableField']['label'] + "</th>";
 		}
-		div += "<th>" + kvptypedef['key']['label'] + "</th>";
+		content += "<th>" + kvptypedef['key']['label'] + "</th>";
 		kvptypedef['value'].forEach(element => {
-			div += "<th>" + element['label'] + "</th>";
+			content += "<th>" + element['label'] + "</th>";
 		});
-		div += "</tr>";
+		content += "</tr>";
 
 		dataindex = 0;
 
@@ -342,7 +343,7 @@ function createDynamicParamsFormField(
 			dataindex = init_val.length;
 
 		for (i=0; i<dataindex+3; i++) {
-			div += "<tr>";
+			content += "<tr>";
 
 			if (kvptypedef['enableField']) {
 				if (kvptypedef['id'])
@@ -350,68 +351,167 @@ function createDynamicParamsFormField(
 				else
 					enableFieldId = 'enable';
 
-				div += "<td>";
-				div += "<input type='checkbox' value='1'"
+				content += "<td>";
+				content += "<input type='checkbox' value='1'"
 					+ " id='" + _id + "-" + i + "-" + enableFieldId + "'"
 					+ " name='" + _name + "[" + i + "][" + enableFieldId + "]" + "'";
 				if (i < dataindex) {
 					if ((init_val != null) && (init_val[i][enableFieldId] !== undefined)
 							&& init_val[i][enableFieldId])
-						div += " checked";
+						content += " checked";
 				} else
-					div += " checked";
-				div += ">";
-				div += "</td>";
+					content += " checked";
+				content += ">";
+				content += "</td>";
 			}
 
-			div += "<td>";
-			div += "<input type='text' class='form-control'"
+			content += "<td>";
+			content += "<input type='text' class='form-control'"
 				+ " id='" + _id + "-" + i + "-key" + "'"
 				+ " name='" + _name + "[" + i + "][key]" + "'";
 			if (i < dataindex) {
 				if (init_val != null)
-					div += " value='" + init_val[i].key + "'";
+					content += " value='" + init_val[i].key + "'";
 			}
-			div += ">";
-			div += "</td>";
+			content += ">";
+			content += "</td>";
 
 			kvptypedef['value'].forEach(element => {
-				div += "<td>";
-				div += "<input type='text' class='form-control'"
+				content += "<td>";
+				content += "<input type='text' class='form-control'"
 					+ " id='" + _id + "-" + i + "-value-" + element['id'] + "'"
 					+ " name='" + _name + "[" + i + "][value][" + element['id'] + "]'";
 				if (i < dataindex) {
 					if (init_val != null)
-						div += " value='" + init_val[i].value[element['id']] + "'";
+						content += " value='" + init_val[i].value[element['id']] + "'";
 				}
-				div += ">";
-				div += "</td>";
+				content += ">";
+				content += "</td>";
 			});
 
-			div += "</tr>";
+			content += "</tr>";
 		}
 
-		div += "</table>";
+		content += "</table>";
+	}
+	function render_datetime()
+	{
+		strvalue = '';
+		if (init_val != null)
+			strvalue = "value='" + init_val + "' ";
+		else if (val['default'] !== undefined)
+			strvalue += "value='" + val['default'] + "' ";
+
+		containerID = "date-" + _id;
+
+		content += "<input type='text' "
+			+ "id='" + containerID + "' "
+			// + "name='" + _name + "-date' "
+			+ "readonly='readonly' "
+			+ "format='YYYY/MM/DD' "
+			+ "altformat='YYYY/MM/DD' "
+			+ "altfield='#" + _id + "' "
+			+ "autoclose "
+			+ "observer "
+			+ "theme='default' "
+			+ "autocomplete='off' "
+			+ strvalue
+			+ "class='form-control' "
+		;
+
+		var style = '';
+		if (val['style'] !== undefined)
+			style = val['style'];
+
+		if (style != '')
+			content += "style='" + style + "' ";
+
+		content += ">\n";
+
+		content += "<input type='hidden' "
+			+ "id='" + _id + "' "
+			+ "name='" + _name + "' "
+			+ strvalue
+			+ ">\n";
+
+		dpVarID = "datepicker_" + _id.replaceAll("-", "_");
+
+		scriptContent += "<script>\njQuery(function ($) {\n";
+		// scriptContent += "window.persianDatepickerDebug=true;\n";
+		scriptContent += dpVarID + "=$('#" + containerID + "').persianDatepicker({ "
+			+ "'format':'YYYY/MM/DD',"
+			+ "'altFormat':'YYYY/MM/DD',"
+			+ "'class':'form-control',"
+			+ "'autoClose':true,"
+			+ "'observer':true,"
+			+ "'readonly':'readonly',"
+			+ "'theme':'default',"
+			+ "'initialValue':false,"
+			+ "'altField':'#" + _id + "',"
+			+ "'autocomplete':'off',"
+			+ "'onSelect':function onSelect(unix) { $('#" + containerID + "').trigger('change'); },\n"
+			+ "'onSet':function onSet(unix) { $('#" + containerID + "').trigger('change'); },\n"
+			+ "'altFieldFormatter':function(unixDate) {\n"
+			+ "		var self = this,\n"
+			+ "			thisAltFormat = self.altFormat.toLowerCase();\n"
+			+ "		if (thisAltFormat === 'gregorian' || thisAltFormat === 'g')\n"
+			+ "			return new Date(unixDate);\n"
+			+ "		if (thisAltFormat === 'unix' || thisAltFormat === 'u')\n"
+			+ "			return unixDate;\n"
+			+ "		var dt = new Date(unixDate);\n"
+			+ "		return dt.getFullYear() + '/' + (dt.getMonth()+1) + '/' + dt.getDate();\n"
+			+ "	}\n"
+			+ "});\n";
+			scriptContent += "$('#" + containerID + "').bind('change', function() { if ($(this).val() == '') $('#" + _id + "').val(''); } );\n";
+		// scriptContent += "$('#" + containerID + "').bind('remove', function() { " + dpVarID + ".destroy(); } );\n";
+		scriptContent += "});\n</script>\n";
+
+		if (array_isset(val, 'fieldOptions') == false)
+			val['fieldOptions'] = [];
+
+		if (array_isset(val, 'fieldOptions', 'addon') == false)
+			val['fieldOptions']['addon'] = [];
+
+		if (array_isset(val, 'fieldOptions', 'addon', 'append') == false)
+			val['fieldOptions']['addon']['append'] = [];
+
+		val['fieldOptions']['addon']['append'].push({
+			'asButton' : 1,
+			'content' : "" //"<span class='input-group-text' style='padding:0'>"
+				+ "<button type='button' "
+					+ "id='btn-" + dpVarID + "-clear' "
+					+ "class='btn btn-sm' "
+					+ "onclick='clearDatepicker();' "
+					+ "data-hdn-id='" + _id + "' "
+					+ "data-cntr-id='" + containerID + "' "
+					+ "data-datepicker-id='" + dpVarID + "' "
+				+ ">x</button>"
+				//+ "</span>"
+		});
 	}
 
 	if (val['type'] == 'section') {
 		render_section();
 	} else {
-		div += "<div class='mb-3 row highlight-addon form-group field-" + _id + "'>";
-		div += "<label class='col-form-label col-md-" + labelSpan + "' for='" + _id + "'>" + val['label'] + "</label>";
-		div += "<div class='col-md-" + valueSpan + "'>";
+		content += "<div class='mb-3 row highlight-addon form-group field-" + _id + "'>";
+		content += "<label class='col-form-label col-md-" + labelSpan + "' for='" + _id + "'>" + val['label'] + "</label>";
+		content += "<div class='col-md-" + valueSpan + "'>";
 
-		if (array_isset(val, 'fieldOptions', 'addon'))
-			div += "<div class='input-group'>";
+		// if (array_isset(val, 'fieldOptions', 'addon'))
+			content += "<div class='input-group'>";
 
 		if (array_isset(val, 'fieldOptions', 'addon', 'prepend')) {
 			var v = val['fieldOptions']['addon']['prepend'];
 			if (v['content'] !== undefined) {
-				div += "<span class='input-group-text'>" + v['content'] + "</span>";
+				content += "<span class='input-group-text'"
+					+ (v['asButton'] !== undefined ? " style='padding:0;'" : "")
+					+ ">" + v['content'] + "</span>";
 			} else {
 				for (var i=0; i<v.length; i++) {
 					var vv = v[i];
-					div += "<span class='input-group-text'>" + vv['content'] + "</span>";
+					content += "<span class='input-group-text'"
+						+ (vv['asButton'] !== undefined ? " style='padding:0;'" : "")
+						+ ">" + vv['content'] + "</span>";
 				}
 			}
 		}
@@ -430,31 +530,53 @@ function createDynamicParamsFormField(
 			render_multiSelect();
 		} else if (val['type'] == 'kvp-multi') { //key-value-pair
 			render_kvpMulti();
+		} else if (['date', 'time', 'datetime'].includes(val['type'])) {
+			render_datetime();
 		}
 	}
 
 	if (array_isset(val, 'fieldOptions', 'addon', 'append')) {
 		var v = val['fieldOptions']['addon']['append'];
 		if (v['content'] !== undefined) {
-			div += "<span class='input-group-text'>" + v['content'] + "</span>";
+			content += "<span class='input-group-text'"
+				+ (v['asButton'] !== undefined ? " style='padding:0;'" : "")
+				+ ">" + v['content'] + "</span>";
 		} else {
 			for (var i=0; i<v.length; i++) {
 				var vv = v[i];
-				div += "<span class='input-group-text'>" + vv['content'] + "</span>";
+				content += "<span class='input-group-text'"
+					+ (vv['asButton'] !== undefined ? " style='padding:0;'" : "")
+					+ ">" + vv['content'] + "</span>";
 			}
 		}
 	}
 
-	if (array_isset(val, 'fieldOptions', 'addon'))
-		div += "</div>";
+	// if (array_isset(val, 'fieldOptions', 'addon'))
+		content += "</div>";
 
-	// div += "</div>";
-	// div += "<div class='col-sm-" + labelSpan + "'>";
-	div += "<div class='help-block'></div>";
-	// div += "</div>";
-	div += "</div>";
-	div += "</div>";
+	// content += "</div>";
+	// content += "<div class='col-sm-" + labelSpan + "'>";
+	content += "<div class='help-block'></div>";
+	// content += "</div>";
+	content += "</div>";
+	content += "</div>";
 
-	return "<div class='col-md-12'>" + div + "</div>";
+	return "<div class='col-md-12'>" + content + "</div>" + scriptContent;
 		// "<div class='offset-md-" + labelSpan + " col-md-" + (12 - labelSpan) + "'>"
+}
+
+function clearDatepicker(e)
+{
+	var target = $(event.target);
+
+	var hiddenid = target.data('hdn-id');
+	var containerid = target.data('cntr-id');
+	var datepickerid = target.data('datepicker-id');
+
+	$('#' + hiddenid).val('');
+	// console.log($('#' + hiddenid).val());
+	$('#' + hiddenid + '-date').val('');
+	if (containerid != hiddenid)
+		$('#' + containerid).val('');
+	// eval(datepickerid + '.clear();');
 }

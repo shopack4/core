@@ -18,5 +18,7 @@ class DateAsset extends AssetBundle
 		'yii\web\JqueryAsset',
 		// 'yii\bootstrap\BootstrapPluginAsset',
 		// 'yii\bootstrap\BootstrapAsset',
+		DatepickerThemeAsset::class,
 	];
+
 }
