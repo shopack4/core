@@ -253,7 +253,7 @@ JS;
 		return implode("\n", $contents);
 	}
 
-	public static function asHtml($model, $attribute)
+	public static function formatParamsSchemaAsTable($model, $attribute)
 	{
 		$value = Html::getAttributeValue($model, $attribute);
 		if (empty($value['rows']))
@@ -316,7 +316,7 @@ JS;
 		return implode("\n", $contents);
 	}
 
-	public static function asDynamicParamsForm($model, $attribute, ?Closure $fnGetTypeData = null)
+	public static function generateDynamicParamsForm($model, $attribute, ?Closure $fnGetTypeData = null)
 	{
 		$result = ['count' => 0, 'list' => []];
 
@@ -365,8 +365,93 @@ JS;
 		return $result;
 	}
 
-	public static function asDataTable($extraParamsData, $extraParamsSchema)
-	{
+	public static function formatParamsDataAsTable(
+		$extraParamsData,
+		$extraParamsSchema,
+		?Closure $fnGetValue = null
+	) {
+		/*
+			$extraParamsData:
+				{
+					"3": "2024/7/30",
+					"4": "26"
+				}
+
+			$extraParamsSchema:
+				{
+					"rows": [
+						{"id": "3", "name": "تاریخ صدور", "type": "date"},
+						{"id": "4", "name": "کانون مربوطه", "type": "mha:kanoon", "mandatory": "1"}
+					],
+					"lastid": 4
+				}
+		*/
+
+		if (empty($extraParamsData) || empty($extraParamsSchema))
+			return '';
+
+		if (is_string($extraParamsData))
+			$extraParamsData = json_decode($extraParamsData, true);
+
+		if (is_string($extraParamsSchema))
+			$extraParamsSchema = json_decode($extraParamsSchema, true);
+
+		//todo: find pk : ['id'] -> [pk]
+		$schemaMap = [];
+		foreach($extraParamsSchema['rows'] as $row) {
+			$schemaMap[$row['id']] = $row;
+		}
+
+		//begin table
+		$contents = [
+			Html::beginTag('table', ['class' => ['table', 'table-bordered', 'table-striped', 'w-100']]),
+		];
+
+		//header row
+		$contents[] = Html::beginTag('thead');
+		$contents[] = Html::beginTag('tr');
+		$contents[] = Html::tag('th', 'پارامتر');
+		$contents[] = Html::tag('th', 'مقدار');
+		$contents[] = Html::endTag('tr');
+		$contents[] = Html::endTag('thead');
+
+		//data rows
+		foreach ($extraParamsData as $id => $value) {
+			$contents[] = Html::beginTag('tr');
+
+			$contents[] = Html::beginTag('td');
+			$contents[] = $schemaMap[$id]['name'];
+			$contents[] = Html::endTag('td');
+
+			$contents[] = Html::beginTag('td');
+			switch ($schemaMap[$id]['type']) {
+				case 'text':
+					// $value = $row;
+					break;
+
+				case 'date':
+					$value = Yii::$app->formatter->asJalali($value);
+					break;
+
+				case 'time':
+					// $value = $row;
+					break;
+
+				default:
+					$value = $fnGetValue($value, $schemaMap[$id]);
+					break;
+			}
+			$contents[] = $value;
+			$contents[] = Html::endTag('td');
+
+			$contents[] = Html::endTag('tr');
+		}
+
+		//end table
+		$contents[] = Html::endTag('table');
+
+		//render
+		return implode("\n", $contents);
 	}
 
 }
