@@ -53,7 +53,7 @@ class MeliPayamakSmsGateway
 			[
 				'id' => self::PARAM_CONSOLE_KEY,
 				'type' => 'string',
-				'mandatory' => 1,
+				// 'mandatory' => 1,
 				'label' => 'Console API Key',
 				'style' => 'direction:ltr',
 			],
@@ -66,7 +66,7 @@ class MeliPayamakSmsGateway
 			// ],
 			[
 				'id' => self::PARAM_BODY_IDS,
-				'mandatory' => 1,
+				// 'mandatory' => 1,
 				'label' => 'Body IDs',
 				'style' => 'direction:ltr',
 				'type' => 'kvp-multi',

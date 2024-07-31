@@ -1,4 +1,4 @@
-// console.log('createDynamicParamsFormUI 1.2');
+// console.log('createDynamicParamsFormUI 2.0.0');
 
 function array_isset(arr) {
 	var i, max_i;
@@ -65,7 +65,7 @@ function createDynamicParamsFormUI(
 					else
 						_name = formName + "[" + paramName + "][" + val['id'] + "]";
 
-					out += createDynamicParamsFormField(val, _id, _name, initialData, labelSpan);
+					out += createDynamicParamsFormField(formName, val, _id, _name, initialData, labelSpan);
 				}, out);
 				paramsContainer.html(out);
 			}
@@ -93,6 +93,7 @@ function createDynamicParamsFormUI(
 }
 
 function createDynamicParamsFormField(
+	formName,
 	val,
 	_id,
 	_name,
@@ -112,24 +113,24 @@ function createDynamicParamsFormField(
 
 	var valueSpan = 12 - labelSpan;
 
-	var content = '';
+	var inputContent = '';
 	var scriptContent = '';
 
 	function render_section()
 	{
-		content += "<h4 class='form-section'>";
-		content += val['label'];
-		content += "</h4>";
+		inputContent += "<h4 class='form-section'>";
+		inputContent += val['label'];
+		inputContent += "</h4>";
 	}
 	function render_input()
 	{
-		content += "<input type='" + (val['type'] == 'password' ? 'password' : 'text') + "' class='form-control'"
+		inputContent += "<input type='" + (val['type'] == 'password' ? 'password' : 'text') + "' class='form-control'"
 			+ "id='" + _id + "' "
 			+ "name='" + _name + "'";
 		if (init_val != null)
-			content += " value='" + init_val + "'";
+			inputContent += " value='" + init_val + "'";
 		else if (val['default'] !== undefined)
-			content += " value='" + val['default'] + "'";
+			inputContent += " value='" + val['default'] + "'";
 
 		var style = '';
 		if (val['style'] !== undefined)
@@ -142,73 +143,73 @@ function createDynamicParamsFormField(
 		}
 
 		if (style != '')
-			content += " style='" + style + "'";
+			inputContent += " style='" + style + "'";
 
-		content += ">";
+		inputContent += ">";
 	}
 	function render_textArea()
 	{
-		content += "<textarea class='form-control'"
+		inputContent += "<textarea class='form-control'"
 			+ "id='" + _id + "' "
 			+ "name='" + _name + "'";
 
 		if (val['style'] !== undefined)
-			content += " style='" + val['style'] + "'";
+			inputContent += " style='" + val['style'] + "'";
 
 		if (val['rows'] !== undefined)
-			content += " rows='" + val['rows'] + "'";
+			inputContent += " rows='" + val['rows'] + "'";
 
-		content += ">";
+		inputContent += ">";
 
 		if (init_val != null)
-			content += init_val;
+			inputContent += init_val;
 		else if (val['default'] !== undefined)
-			content += val['default'];
+			inputContent += val['default'];
 
-		content += "</textarea>";
+		inputContent += "</textarea>";
 	}
 	function render_checkbox()
 	{
-		// content += "<input type='checkbox' value='1'"
+		// inputContent += "<input type='checkbox' value='1'"
 			// + "id='" + _id + "' "
 			// + "name='" + _name + "'";
 		// if ((init_val != null) && (init_val == '1'))
-			// content += " checked";
+			// inputContent += " checked";
 		// else if ((val['default'] !== undefined) && (val['default'] == true))
-			// content += " checked";
-		// content += ">";
+			// inputContent += " checked";
+		// inputContent += ">";
 
-		content += "<label class='radio-inline'>"
+		inputContent += "<label class='radio-inline'>"
 			+ "<input type='radio' value='1'"
 			// + "id='" + _id + "' "
 			+ "name='" + _name + "'";
 
 		if ((init_val != null) && (init_val == '1'))
-			content += " checked";
+			inputContent += " checked";
 		else if ((val['default'] !== undefined) && (val['default'] == 1))
-			content += " checked";
+			inputContent += " checked";
 
-		content += ">";
-		content += "بلی";
-		content += "</label>";
+		inputContent += ">";
+		inputContent += "بلی";
+		inputContent += "</label>";
 
-		content += "<label class='radio-inline'>"
+		inputContent += "<label class='radio-inline'>"
 			+ "<input type='radio' value='0'"
 			// + "id='" + _id + "' "
 			+ "name='" + _name + "'";
 
 		if ((init_val != null) && (init_val == '0'))
-			content += " checked";
+			inputContent += " checked";
 		else if ((val['default'] !== undefined) && (val['default'] == 0))
-			content += " checked";
+			inputContent += " checked";
 
-		content += ">";
-		content += "خیر";
-		content += "</label>";
+		inputContent += ">";
+		inputContent += "خیر";
+		inputContent += "</label>";
 	}
 	function render_select()
 	{
-		content += "<select class='form-control'"
+		inputContent += "<select class='form-control'"
 			+ "id='" + _id + "' "
 			+ "name='" + _name + "'"
 			+ ">";
@@ -242,8 +243,8 @@ function createDynamicParamsFormField(
 		else if (val['default'] !== undefined)
 			options = options.replace('value=\'' + val['default'] + '\'', 'value=\'' + val['default'] + '\' selected');
 
-		content += options;
-		content += "</select>";
+		inputContent += options;
+		inputContent += "</select>";
 	}
 	function render_radioList()
 	{
@@ -252,23 +253,23 @@ function createDynamicParamsFormField(
 // console.log(data);
 // console.log(initialData);
 
-		content += "<div class='form-control' style='padding-top:0; padding-bottom:0;'>";
+		inputContent += "<div class='form-control' style='padding-top:0; padding-bottom:0;'>";
 		for (var v in data) {
-			content += "<label class='radio-inline'>"
+			inputContent += "<label class='radio-inline'>"
 				+ "<input type='radio' value='" + v + "'"
 				// + "id='" + _id + "' "
 				+ "name='" + _name + "'";
 
 			if ((init_val != null) && (init_val == v))
-				content += " checked";
+				inputContent += " checked";
 			else if ((val['default'] !== undefined) && (val['default'] == v))
-				content += " checked";
+				inputContent += " checked";
 
-			content += ">";
-			content += data[v];
-			content += "</label>";
+			inputContent += ">";
+			inputContent += data[v];
+			inputContent += "</label>";
 		}
-		content += "</div>";
+		inputContent += "</div>";
 	}
 	function render_multiSelect()
 	{
@@ -278,14 +279,14 @@ function createDynamicParamsFormField(
 // console.log(initialData);
 		if (data.length > 0) { //array
 			for (i=0; i<data.length; i++) {
-				// content += "<input type='checkbox' value='" + i + "'"
+				// inputContent += "<input type='checkbox' value='" + i + "'"
 					// + "id='" + _id + "' "
 					// + "name='" + _name + "'";
 				// if ((init_val != null) && (init_val == '1'))
-					// content += " checked";
+					// inputContent += " checked";
 				// else if ((val['default'] !== undefined) && (val['default'] == true))
-					// content += " checked";
-				// content += ">";
+					// inputContent += " checked";
+				// inputContent += ">";
 
 				// options += "<option value='" + i + "'>" + data[i] + "</option>";
 			}
@@ -300,42 +301,42 @@ function createDynamicParamsFormField(
 // console.log($.inArray(v, val['default']));
 // }
 				// options += "<option value='" + v + "'>" + data[v] + "</option>";
-				content += "<div>";
-				content += "<input type='checkbox' value='1'"
+				inputContent += "<div>";
+				inputContent += "<input type='checkbox' value='1'"
 					+ "id='" + _id + "-" + v + "' "
 					+ "name='" + _name + "[" + v + "]'";
 
 				if (initialData !== undefined) {
 					if ((init_val != null) && (init_val[v] !== undefined) && (init_val[v] == '1'))
-						content += " checked";
+						inputContent += " checked";
 				} else if (val['default'] !== undefined) {
 					if ((Array.isArray(val['default'])
 								&& ((val['default'][v] !== undefined) || ($.inArray(v, val['default']) != -1)))
 							|| (val['default'] === v)
 						)
-						content += " checked";
+						inputContent += " checked";
 				}
 
-				content += ">";
-				content += "&nbsp;<label class='control-label' for='" + _id + "-" + v + "'>" + data[v] + "</label>";
-				content += "</div>";
+				inputContent += ">";
+				inputContent += "&nbsp;<label class='control-label' for='" + _id + "-" + v + "'>" + data[v] + "</label>";
+				inputContent += "</div>";
 			}
 		}
 	}
 	function render_kvpMulti()
 	{
-		content += "<table class='table table-bordered table-striped'>";
+		inputContent += "<table class='table table-bordered table-striped'>";
 		kvptypedef = val['typedef'];
 
-		content += "<tr>";
+		inputContent += "<tr>";
 		if (kvptypedef['enableField']) {
-			content += "<th>" + kvptypedef['enableField']['label'] + "</th>";
+			inputContent += "<th>" + kvptypedef['enableField']['label'] + "</th>";
 		}
-		content += "<th>" + kvptypedef['key']['label'] + "</th>";
+		inputContent += "<th>" + kvptypedef['key']['label'] + "</th>";
 		kvptypedef['value'].forEach(element => {
-			content += "<th>" + element['label'] + "</th>";
+			inputContent += "<th>" + element['label'] + "</th>";
 		});
-		content += "</tr>";
+		inputContent += "</tr>";
 
 		dataindex = 0;
 
@@ -343,7 +344,7 @@ function createDynamicParamsFormField(
 			dataindex = init_val.length;
 
 		for (i=0; i<dataindex+3; i++) {
-			content += "<tr>";
+			inputContent += "<tr>";
 
 			if (kvptypedef['enableField']) {
 				if (kvptypedef['id'])
@@ -351,48 +352,48 @@ function createDynamicParamsFormField(
 				else
 					enableFieldId = 'enable';
 
-				content += "<td>";
-				content += "<input type='checkbox' value='1'"
+				inputContent += "<td>";
+				inputContent += "<input type='checkbox' value='1'"
 					+ " id='" + _id + "-" + i + "-" + enableFieldId + "'"
 					+ " name='" + _name + "[" + i + "][" + enableFieldId + "]" + "'";
 				if (i < dataindex) {
 					if ((init_val != null) && (init_val[i][enableFieldId] !== undefined)
 							&& init_val[i][enableFieldId])
-						content += " checked";
+						inputContent += " checked";
 				} else
-					content += " checked";
-				content += ">";
-				content += "</td>";
+					inputContent += " checked";
+				inputContent += ">";
+				inputContent += "</td>";
 			}
 
-			content += "<td>";
-			content += "<input type='text' class='form-control'"
+			inputContent += "<td>";
+			inputContent += "<input type='text' class='form-control'"
 				+ " id='" + _id + "-" + i + "-key" + "'"
 				+ " name='" + _name + "[" + i + "][key]" + "'";
 			if (i < dataindex) {
 				if (init_val != null)
-					content += " value='" + init_val[i].key + "'";
+					inputContent += " value='" + init_val[i].key + "'";
 			}
-			content += ">";
-			content += "</td>";
+			inputContent += ">";
+			inputContent += "</td>";
 
 			kvptypedef['value'].forEach(element => {
-				content += "<td>";
-				content += "<input type='text' class='form-control'"
+				inputContent += "<td>";
+				inputContent += "<input type='text' class='form-control'"
 					+ " id='" + _id + "-" + i + "-value-" + element['id'] + "'"
 					+ " name='" + _name + "[" + i + "][value][" + element['id'] + "]'";
 				if (i < dataindex) {
 					if (init_val != null)
-						content += " value='" + init_val[i].value[element['id']] + "'";
+						inputContent += " value='" + init_val[i].value[element['id']] + "'";
 				}
-				content += ">";
-				content += "</td>";
+				inputContent += ">";
+				inputContent += "</td>";
 			});
 
-			content += "</tr>";
+			inputContent += "</tr>";
 		}
 
-		content += "</table>";
+		inputContent += "</table>";
 	}
 	function render_datetime()
 	{
@@ -404,7 +405,7 @@ function createDynamicParamsFormField(
 
 		containerID = "date-" + _id;
 
-		content += "<input type='text' "
+		inputContent += "<input type='text' "
 			+ "id='" + containerID + "' "
 			// + "name='" + _name + "-date' "
 			+ "readonly='readonly' "
@@ -424,11 +425,11 @@ function createDynamicParamsFormField(
 			style = val['style'];
 
 		if (style != '')
-			content += "style='" + style + "' ";
+			inputContent += "style='" + style + "' ";
 
-		content += ">\n";
+		inputContent += ">\n";
 
-		content += "<input type='hidden' "
+		inputContent += "<input type='hidden' "
 			+ "id='" + _id + "' "
 			+ "name='" + _name + "' "
 			+ strvalue
@@ -436,7 +437,6 @@ function createDynamicParamsFormField(
 
 		dpVarID = "datepicker_" + _id.replaceAll("-", "_");
 
-		scriptContent += "<script>\njQuery(function ($) {\n";
 		// scriptContent += "window.persianDatepickerDebug=true;\n";
 		scriptContent += dpVarID + "=$('#" + containerID + "').persianDatepicker({ "
 			+ "'format':'YYYY/MM/DD',"
@@ -463,8 +463,7 @@ function createDynamicParamsFormField(
 			+ "	}\n"
 			+ "});\n";
 			scriptContent += "$('#" + containerID + "').bind('change', function() { if ($(this).val() == '') $('#" + _id + "').val(''); } );\n";
-		// scriptContent += "$('#" + containerID + "').bind('remove', function() { " + dpVarID + ".destroy(); } );\n";
-		scriptContent += "});\n</script>\n";
+			// scriptContent += "$('#" + containerID + "').bind('remove', function() { " + dpVarID + ".destroy(); } );\n";
 
 		if (array_isset(val, 'fieldOptions') == false)
 			val['fieldOptions'] = [];
@@ -492,30 +491,9 @@ function createDynamicParamsFormField(
 
 	if (val['type'] == 'section') {
 		render_section();
+		templatedContent = '<div class="col-sm-12">' + templatedContent + '</div>';
 	} else {
-		content += "<div class='mb-3 row highlight-addon form-group field-" + _id + "'>";
-		content += "<label class='col-form-label col-md-" + labelSpan + "' for='" + _id + "'>" + val['label'] + "</label>";
-		content += "<div class='col-md-" + valueSpan + "'>";
-
-		// if (array_isset(val, 'fieldOptions', 'addon'))
-			content += "<div class='input-group'>";
-
-		if (array_isset(val, 'fieldOptions', 'addon', 'prepend')) {
-			var v = val['fieldOptions']['addon']['prepend'];
-			if (v['content'] !== undefined) {
-				content += "<span class='input-group-text'"
-					+ (v['asButton'] !== undefined ? " style='padding:0;'" : "")
-					+ ">" + v['content'] + "</span>";
-			} else {
-				for (var i=0; i<v.length; i++) {
-					var vv = v[i];
-					content += "<span class='input-group-text'"
-						+ (vv['asButton'] !== undefined ? " style='padding:0;'" : "")
-						+ ">" + vv['content'] + "</span>";
-				}
-			}
-		}
-
+		var inputContent = '';
 		if (['string', 'text', 'password', 'number'].includes(val['type'])) {
 			render_input();
 		} else if (['multi-string', 'multi-text'].includes(val['type'])) {
@@ -533,36 +511,108 @@ function createDynamicParamsFormField(
 		} else if (['date', 'time', 'datetime'].includes(val['type'])) {
 			render_datetime();
 		}
-	}
 
-	if (array_isset(val, 'fieldOptions', 'addon', 'append')) {
-		var v = val['fieldOptions']['addon']['append'];
-		if (v['content'] !== undefined) {
-			content += "<span class='input-group-text'"
-				+ (v['asButton'] !== undefined ? " style='padding:0;'" : "")
-				+ ">" + v['content'] + "</span>";
-		} else {
-			for (var i=0; i<v.length; i++) {
-				var vv = v[i];
-				content += "<span class='input-group-text'"
-					+ (vv['asButton'] !== undefined ? " style='padding:0;'" : "")
-					+ ">" + vv['content'] + "</span>";
+		var prepend = '';
+		var append = '';
+
+		if (array_isset(val, 'fieldOptions', 'addon', 'prepend')) {
+			var v = val['fieldOptions']['addon']['prepend'];
+			if (v['content'] !== undefined) {
+				prepend += "<span class='input-group-text'"
+					+ (v['asButton'] !== undefined ? " style='padding:0;'" : "")
+					+ ">" + v['content'] + "</span>";
+			} else {
+				for (var i=0; i<v.length; i++) {
+					var vv = v[i];
+					prepend += "<span class='input-group-text'"
+						+ (vv['asButton'] !== undefined ? " style='padding:0;'" : "")
+						+ ">" + vv['content'] + "</span>";
+				}
 			}
 		}
+
+		if (array_isset(val, 'fieldOptions', 'addon', 'append')) {
+			var v = val['fieldOptions']['addon']['append'];
+			if (v['content'] !== undefined) {
+				append += "<span class='input-group-text'"
+					+ (v['asButton'] !== undefined ? " style='padding:0;'" : "")
+					+ ">" + v['content'] + "</span>";
+			} else {
+				for (var i=0; i<v.length; i++) {
+					var vv = v[i];
+					append += "<span class='input-group-text'"
+						+ (vv['asButton'] !== undefined ? " style='padding:0;'" : "")
+						+ ">" + vv['content'] + "</span>";
+				}
+			}
+		}
+
+		var template = `
+<div class="col-sm-12">
+<div class="mb-3 row highlight-addon field-{{id}} {{required}}">
+<label class="col-form-label {{has-star}} col-md-4" for="{{id}}">{{label}}</label>
+<div class="col-md-8">
+{{input}}
+<div class='help-block'></div>
+<div class="invalid-feedback"></div>
+</div>
+</div>
+</div>
+`;
+
+		var templateWithAddon = `
+<div class="col-sm-12">
+<div class="mb-3 row highlight-addon form-group field-{{id}} {{required}}">
+<label class="col-form-label {{has-star}} col-md-4" for="{{id}}">{{label}}</label>
+<div class="col-md-8">
+<div class='input-group'>
+{{prepend}}{{input}}{{append}}
+</div>
+<div class='help-block'></div>
+<div class="invalid-feedback"></div>
+</div>
+</div>
+</div>
+`;
+
+		var templatedContent = ((prepend != '') || (append != '') ? templateWithAddon : template);
+
+		templatedContent = templatedContent.replaceAll('{{input}}', inputContent);
+		templatedContent = templatedContent.replaceAll('{{id}}', _id);
+		templatedContent = templatedContent.replaceAll('{{name}}', _name);
+		templatedContent = templatedContent.replaceAll('{{label}}', val['label']);
+
+		var isMandatory = ((val['mandatory'] !== undefined) && val['mandatory']);
+		templatedContent = templatedContent.replaceAll('{{required}}', isMandatory ? 'required' : '');
+		templatedContent = templatedContent.replaceAll('{{has-star}}', isMandatory ? 'has-star' : '');
+
+		templatedContent = templatedContent.replaceAll('{{prepend}}', prepend);
+		templatedContent = templatedContent.replaceAll('{{append}}', append);
+
+		if (isMandatory) {
+			scriptContent += "jQuery('#" + formName + "').yiiActiveForm('add', {\n";
+			scriptContent += "  'id'        : '" + _id + "',\n";
+			scriptContent += "  'name'      : '" + _name + "',\n";
+			scriptContent += "  'container' : '.field-" + _id + "',\n";
+			scriptContent += "  'input'     : '#" + _id + "',\n";
+			scriptContent += "  'error'     : '.invalid-feedback',\n";
+			scriptContent += "  'validate'  : function (attribute, value, messages, deferred, $form) {\n";
+			scriptContent += "    yii.validation.required(value, messages, {'message':'" + val['label'] + " نمی‌تواند خالی باشد.'});\n";
+			scriptContent += "  }\n";
+			scriptContent += "});\n";
+
+			scriptContent += "$('#" + _id + "').bind('remove', function() {\n";
+			scriptContent += "  jQuery('#" + formName + "').yiiActiveForm('remove', '" + _id + "');\n";
+			scriptContent += "});\n";
+		}
+
+		if (scriptContent != '')
+			scriptContent = "<script>\njQuery(function ($) {\n" + scriptContent + "});\n</script>\n";
+
+// console.log(scriptContent);
 	}
 
-	// if (array_isset(val, 'fieldOptions', 'addon'))
-		content += "</div>";
-
-	// content += "</div>";
-	// content += "<div class='col-sm-" + labelSpan + "'>";
-	content += "<div class='help-block'></div>";
-	// content += "</div>";
-	content += "</div>";
-	content += "</div>";
-
-	return "<div class='col-md-12'>" + content + "</div>" + scriptContent;
-		// "<div class='offset-md-" + labelSpan + " col-md-" + (12 - labelSpan) + "'>"
+	return templatedContent + scriptContent;
 }
 
 function clearDatepicker(e)

@@ -50,7 +50,7 @@ class FaraPayamakSmsGateway
 			[
 				'id' => self::PARAM_BODY_ID,
 				'type' => 'string',
-				'mandatory' => 1,
+				// 'mandatory' => 1,
 				'label' => 'Body ID',
 				'style' => 'direction:ltr',
 			],

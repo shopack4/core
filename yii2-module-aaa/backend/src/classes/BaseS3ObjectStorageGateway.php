@@ -47,7 +47,7 @@ abstract class BaseS3ObjectStorageGateway extends BaseObjectStorageGateway
 			[
 				'id' => self::PARAM_EndpointIsVirtualHosted,
 				'type' => 'bool',
-				'mandatory' => 1,
+				// 'mandatory' => 1,
 				'label' => 'Endpoint Is Virtual Hosted',
 			],
 			[
