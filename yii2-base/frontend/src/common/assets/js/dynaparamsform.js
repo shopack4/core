@@ -189,9 +189,11 @@ function createDynamicParamsFormField(
 		else if ((val['default'] !== undefined) && (val['default'] == 1))
 			inputContent += " checked";
 
-		inputContent += ">";
+		inputContent += "> ";
 		inputContent += "بلی";
 		inputContent += "</label>";
+
+		inputContent += " ";
 
 		inputContent += "<label class='radio-inline'>"
 			+ "<input type='radio' value='0'"
@@ -203,7 +205,7 @@ function createDynamicParamsFormField(
 		else if ((val['default'] !== undefined) && (val['default'] == 0))
 			inputContent += " checked";
 
-		inputContent += ">";
+		inputContent += "> ";
 		inputContent += "خیر";
 		inputContent += "</label>";
 	}
@@ -213,17 +215,13 @@ function createDynamicParamsFormField(
 			+ "id='" + _id + "' "
 			+ "name='" + _name + "'"
 			+ ">";
+
 		options = '';
 		if (val['allowNone'] !== undefined) {
 			options += "<option value=''>" + val['allowNone'] + "</option>";
 		}
 
 		data = val['data'];
-// console.log(val);
-// console.log(init_val);
-// console.log(data);
-// console.log(initialData);
-// console.log(typeof data);
 		if (data.length > 0) { //array
 			for (i=0; i<data.length; i++) {
 				//this is for CategoryModel::getListForDropdown -> browsers reorder array keys
@@ -242,9 +240,26 @@ function createDynamicParamsFormField(
 			options = options.replace('value=\'' + init_val + '\'', 'value=\'' + init_val + '\' selected');
 		else if (val['default'] !== undefined)
 			options = options.replace('value=\'' + val['default'] + '\'', 'value=\'' + val['default'] + '\' selected');
+		else
+			scriptContent += "$('#" + _id + "').val('')\n";
 
 		inputContent += options;
 		inputContent += "</select>";
+
+		if (isMandatory == false) {
+			val['fieldOptions']['addon']['append'].push({
+				'asButton' : 1,
+				'content' : "<button type='button' "
+						+ "id='btn-" + _id + "-clear' "
+						+ "class='btn btn-sm' "
+						+ "onclick='clearDynaSelect(event);' "
+						+ "data-id='" + _id + "' "
+					+ ">"
+					+ "<span class='fa fa-times'></span>"
+					+ "</button>"
+			});
+		}
+
 	}
 	function render_radioList()
 	{
@@ -465,34 +480,47 @@ function createDynamicParamsFormField(
 			scriptContent += "$('#" + containerID + "').bind('change', function() { if ($(this).val() == '') $('#" + _id + "').val(''); } );\n";
 			// scriptContent += "$('#" + containerID + "').bind('remove', function() { " + dpVarID + ".destroy(); } );\n";
 
-		if (array_isset(val, 'fieldOptions') == false)
-			val['fieldOptions'] = [];
-
-		if (array_isset(val, 'fieldOptions', 'addon') == false)
-			val['fieldOptions']['addon'] = [];
-
-		if (array_isset(val, 'fieldOptions', 'addon', 'append') == false)
-			val['fieldOptions']['addon']['append'] = [];
-
-		val['fieldOptions']['addon']['append'].push({
-			'asButton' : 1,
-			'content' : "" //"<span class='input-group-text' style='padding:0'>"
-				+ "<button type='button' "
-					+ "id='btn-" + dpVarID + "-clear' "
-					+ "class='btn btn-sm' "
-					+ "onclick='clearDatepicker();' "
-					+ "data-hdn-id='" + _id + "' "
-					+ "data-cntr-id='" + containerID + "' "
-					+ "data-datepicker-id='" + dpVarID + "' "
-				+ ">x</button>"
-				//+ "</span>"
-		});
+		if (isMandatory == false) {
+			val['fieldOptions']['addon']['append'].push({
+				'asButton' : 1,
+				'content' : "<button type='button' "
+						+ "id='btn-" + dpVarID + "-clear' "
+						+ "class='btn btn-sm' "
+						+ "onclick='clearDynaDatepicker(event);' "
+						+ "data-hdn-id='" + _id + "' "
+						+ "data-cntr-id='" + containerID + "' "
+						// + "data-datepicker-id='" + dpVarID + "' "
+					+ ">"
+					+ "<span class='fa fa-times'></span>"
+					+ "</button>"
+			});
+		}
 	}
 
 	if (val['type'] == 'section') {
 		render_section();
 		templatedContent = '<div class="col-sm-12">' + templatedContent + '</div>';
 	} else {
+		//prepare addons
+		if (array_isset(val, 'fieldOptions') == false)
+			val['fieldOptions'] = [];
+
+		if (array_isset(val, 'fieldOptions', 'addon') == false)
+			val['fieldOptions']['addon'] = [];
+
+		if (array_isset(val, 'fieldOptions', 'addon', 'prepend') == false)
+			val['fieldOptions']['addon']['prepend'] = [];
+		else if (val['fieldOptions']['addon']['prepend'].length === undefined) //convert to array
+			val['fieldOptions']['addon']['prepend'] = [val['fieldOptions']['addon']['prepend']];
+
+		if (array_isset(val, 'fieldOptions', 'addon', 'append') == false)
+			val['fieldOptions']['addon']['append'] = [];
+		else if (val['fieldOptions']['addon']['append'].length === undefined) //convert to array
+			val['fieldOptions']['addon']['append'] = [val['fieldOptions']['addon']['append']];
+
+		var isMandatory = ((val['mandatory'] !== undefined) && val['mandatory']);
+
+		//render
 		var inputContent = '';
 		if (['string', 'text', 'password', 'number'].includes(val['type'])) {
 			render_input();
@@ -521,7 +549,7 @@ function createDynamicParamsFormField(
 				prepend += "<span class='input-group-text'"
 					+ (v['asButton'] !== undefined ? " style='padding:0;'" : "")
 					+ ">" + v['content'] + "</span>";
-			} else {
+			} else if (v.length > 0) {
 				for (var i=0; i<v.length; i++) {
 					var vv = v[i];
 					prepend += "<span class='input-group-text'"
@@ -537,7 +565,7 @@ function createDynamicParamsFormField(
 				append += "<span class='input-group-text'"
 					+ (v['asButton'] !== undefined ? " style='padding:0;'" : "")
 					+ ">" + v['content'] + "</span>";
-			} else {
+			} else if (v.length > 0) {
 				for (var i=0; i<v.length; i++) {
 					var vv = v[i];
 					append += "<span class='input-group-text'"
@@ -582,7 +610,6 @@ function createDynamicParamsFormField(
 		templatedContent = templatedContent.replaceAll('{{name}}', _name);
 		templatedContent = templatedContent.replaceAll('{{label}}', val['label']);
 
-		var isMandatory = ((val['mandatory'] !== undefined) && val['mandatory']);
 		templatedContent = templatedContent.replaceAll('{{required}}', isMandatory ? 'required' : '');
 		templatedContent = templatedContent.replaceAll('{{has-star}}', isMandatory ? 'has-star' : '');
 
@@ -615,16 +642,27 @@ function createDynamicParamsFormField(
 	return templatedContent + scriptContent;
 }
 
-function clearDatepicker(e)
+function clearDynaSelect(event)
 {
-	var target = $(event.target);
+	if (!event) event = window.event;
+	var sender = event.srcElement || event.target;
+	var target = $(sender);
+
+	var inputId = target.data('id');
+	$('#' + inputId).val('');
+}
+
+function clearDynaDatepicker(event)
+{
+	if (!event) event = window.event;
+	var sender = event.srcElement || event.target;
+	var target = $(sender);
 
 	var hiddenid = target.data('hdn-id');
 	var containerid = target.data('cntr-id');
-	var datepickerid = target.data('datepicker-id');
+	// var datepickerid = target.data('datepicker-id');
 
 	$('#' + hiddenid).val('');
-	// console.log($('#' + hiddenid).val());
 	$('#' + hiddenid + '-date').val('');
 	if (containerid != hiddenid)
 		$('#' + containerid).val('');

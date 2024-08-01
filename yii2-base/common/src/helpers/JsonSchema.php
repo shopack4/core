@@ -70,6 +70,7 @@ class JsonField
 class JsonSchema
 {
 	const TYPE_number		= 'num';
+	const TYPE_uuid			= 'uuid';
 	const TYPE_string		= 'str';
 	const TYPE_boolean	= 'bool';
 	const TYPE_select		= 'select';

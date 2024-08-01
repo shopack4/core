@@ -8,6 +8,7 @@ namespace shopack\base\common\rest;
 use Yii;
 use Ramsey\Uuid\Uuid;
 use shopack\base\common\helpers\ArrayHelper;
+use shopack\base\common\helpers\JsonSchema;
 use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\helpers\StringHelper;
 use shopack\base\common\validators\JsonValidator;
@@ -290,33 +291,43 @@ trait ActiveRecordTrait
 						if (isset($pkField)) {
 							$pkFieldName = $pkField[0];
 
-							if (empty($columnValue['lastid'])) {
-								// $oldAttrValue = $this->oldAttributes[$column] ?? null;
-
-								// if (isset($oldAttrValue['lastid']))
-								// 	$lastid = $oldAttrValue['lastid'];
-								// else
-									$lastid = 0;
-
-								foreach ($columnValue['rows'] as $row) {
-									if (($row[$pkFieldName] ?? 0) > $lastid)
-										$lastid = $row[$pkFieldName];
+							if ($pkField['type'] == JsonSchema::TYPE_uuid) {
+								//apply id for new rows
+								foreach ($columnValue['rows'] as $k => $row) {
+									if (empty($row[$pkFieldName])) {
+										$row[$pkFieldName] = str_replace('-', '', strtolower(Uuid::uuid4()->toString()));
+										$columnValue['rows'][$k] = $row;
+									}
 								}
-								// $columnValue['lastid'] = $lastid;
-							} else
-								$lastid = $columnValue['lastid'];
+							} else { //if ($pkField['type'] == JsonSchema::TYPE_number)
+								if (empty($columnValue['lastid'])) {
+									// $oldAttrValue = $this->oldAttributes[$column] ?? null;
 
-							//apply id for new rows
-							foreach ($columnValue['rows'] as $k => $row) {
-								if (empty($row[$pkFieldName])) {
-									++$lastid;
+									// if (isset($oldAttrValue['lastid']))
+									// 	$lastid = $oldAttrValue['lastid'];
+									// else
+										$lastid = 0;
 
-									$row[$pkFieldName] = $lastid;
-									$columnValue['rows'][$k] = $row;
+									foreach ($columnValue['rows'] as $row) {
+										if (($row[$pkFieldName] ?? 0) > $lastid)
+											$lastid = $row[$pkFieldName];
+									}
+									// $columnValue['lastid'] = $lastid;
+								} else
+									$lastid = $columnValue['lastid'];
+
+								//apply id for new rows
+								foreach ($columnValue['rows'] as $k => $row) {
+									if (empty($row[$pkFieldName])) {
+										++$lastid;
+
+										$row[$pkFieldName] = $lastid;
+										$columnValue['rows'][$k] = $row;
+									}
 								}
-							}
 
-							$columnValue['lastid'] = $lastid;
+								$columnValue['lastid'] = $lastid;
+							} //pk:num
 						}
 
 						//remove array key

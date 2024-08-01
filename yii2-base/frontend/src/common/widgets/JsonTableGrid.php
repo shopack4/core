@@ -135,7 +135,7 @@ JS;
 
 			$contents[] = Html::tag('th', $label);
 		}
-		$contents[] = Html::tag('th', "<a id='addjsrow-{$this->options['id']}' href='#'>[+]</a>");
+		$contents[] = Html::tag('th', "<button id='addjsrow-{$this->options['id']}' type='button' class='btn btn-sm btn-success'><span class='fa fa-plus'></span></button>");
 		$contents[] = Html::endTag('tr');
 		$contents[] = Html::endTag('thead');
 
@@ -165,7 +165,9 @@ JS;
 				$formField = null;
 
 				if (isset($field['pk'])) {
-					$formField = Html::tag('div', $dataValues['id'] ?? '[جدید]');
+					$formField = Html::tag('div', $dataValues['id'] ?? '[جدید]', [
+						'style' => ['word-break' => 'break-all'],
+					]);
 
 					if (isset($dataValues['id'])) {
 						$formField .= Html::hiddenInput($fieldName, $dataValues['id'], [
@@ -222,8 +224,7 @@ JS;
 			}
 
 			$contents[] = Html::tag('td', $dataValues !== null || $asTemplate
-				? "<a id='remjsrow-{$rowId}' href='#'>[-]</a>"
-				// ? "<a id='remjsrow' href='#' data-row-id='{$rowId}'>[-]</a>"
+				? "<button id='remjsrow-{$rowId}' type='button' class='btn btn-sm btn-danger'><span class='fa fa-minus'></span></button>"
 				: '');
 
 			$contents[] = Html::endTag('tr');
