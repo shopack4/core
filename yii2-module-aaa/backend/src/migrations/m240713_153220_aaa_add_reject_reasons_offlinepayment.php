@@ -23,11 +23,15 @@ ALTER TABLE `tbl_AAA_OfflinePayment`
 SQL
 		);
 
-		$this->execute(<<<SQL
-ALTER TABLE `tbl_AAA_OfflinePayment`
-	ADD UNIQUE INDEX `ofpUniqueMD5` (`ofpUniqueMD5`) USING BTREE;
-SQL
-    );
+    //todo: fix this
+    /*
+      SQLSTATE[HY000]: General error: 1901 Function or expression 'if(`ofpStatus` = 'A',md5(concat_ws('_',ifnull(`ofpTrackNumber`,'-'),ifnull(`ofpReferenceNumber`,'-'),`ofpStatus`)),replace(`ofpUUID`,'-',''))' cannot be used in the GENERATED ALWAYS AS clause of `ofpUniqueMD5`
+    */
+// 		$this->execute(<<<SQL
+// ALTER TABLE `tbl_AAA_OfflinePayment`
+// 	ADD UNIQUE INDEX `ofpUniqueMD5` (`ofpUniqueMD5`) USING BTREE;
+// SQL
+//     );
 
 		$this->execute("DROP TRIGGER IF EXISTS `trg_updatelog_tbl_AAA_OfflinePayment`;");
     $this->execute(<<<SQL

@@ -284,6 +284,9 @@ JS;
 		$contents[] = Html::beginTag('thead');
 		$contents[] = Html::beginTag('tr');
 		foreach ($jsonSchema_fields as $field) {
+			if (isset($field['pk']))
+				continue;
+
 			$label = $fnGetLabel($field['label'] ?? $field[0]);
 			$contents[] = Html::tag('th', $label);
 		}
@@ -295,6 +298,9 @@ JS;
 			$contents[] = Html::beginTag('tr');
 
 			foreach ($jsonSchema_fields as $field) {
+				if (isset($field['pk']))
+					continue;
+
 				$contents[] = Html::beginTag('td');
 				if (isset($row[$field[0]])) {
 					if ($field['type'] == jsonSchema::TYPE_boolean) {

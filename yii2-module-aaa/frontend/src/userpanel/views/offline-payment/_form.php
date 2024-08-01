@@ -64,7 +64,6 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 					'accept' => 'image/png, image/gif, image/jpg, image/jpeg',
 				],
 			],
-			'توجه: فقط فرمت jpeg با حداکثر حجم 2 مگابایت پذیرفته خواهد بود.',
 		]);
 	?>
 

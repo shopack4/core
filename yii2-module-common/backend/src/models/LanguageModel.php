@@ -13,7 +13,7 @@ class LanguageModel extends CommonActiveRecord
 
 	public static function tableName()
 	{
-		return '{{%cmn_Language}}';
+		return '{{%CMN_Language}}';
 	}
 
 	public function behaviors()

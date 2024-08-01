@@ -71,6 +71,13 @@ class OfflinePaymentModel extends RestClientActiveRecord
 		];
 	}
 
+	public function attributeHints()
+	{
+		return [
+			'ofpImageFileID' => 'توجه: فقط فرمت jpeg با حداکثر حجم 2 مگابایت پذیرفته خواهد بود.',
+		];
+	}
+
 	public function isSoftDeleted()
   {
     return ($this->ofpStatus == enuOfflinePaymentStatus::Removed);
