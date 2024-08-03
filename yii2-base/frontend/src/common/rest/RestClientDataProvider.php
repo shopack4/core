@@ -5,12 +5,12 @@
 
 namespace shopack\base\frontend\common\rest;
 
+use Yii;
 use yii\data\BaseDataProvider;
 use yii\base\InvalidParamException;
 use yii\base\InvalidConfigException;
 use shopack\base\frontend\common\rest\RestClientQueryInterface;
 use shopack\base\frontend\common\rest\Pagination;
-use Yii;
 
 /**
  * Class DataProvider

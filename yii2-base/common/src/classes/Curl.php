@@ -142,7 +142,8 @@ class Curl {
 
     curl_setopt($CurlObject, CURLOPT_URL, $Url);
 
-    $postFields = $this->bodyParams;
+    //
+    $postFields = []; //$this->bodyParams;
 
     //body params
     if (empty($this->bodyParams) == false

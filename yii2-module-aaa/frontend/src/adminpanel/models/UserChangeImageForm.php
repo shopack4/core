@@ -47,12 +47,12 @@ class UserChangeImageForm extends Model
 
     //--
     list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/user/update-image',
-      HttpHelper::METHOD_POST,
-      [
-        'id' => $this->userID,
-      ],
-      [],
-      $files,
+      /* $method */     HttpHelper::METHOD_POST,
+      /* $urlParams */  [
+                          'id' => $this->userID,
+                        ],
+      /* $bodyParams */ [],
+      /* $formFiles */  $files,
     );
 
     HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);

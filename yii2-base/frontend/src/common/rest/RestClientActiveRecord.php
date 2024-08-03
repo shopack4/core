@@ -5,10 +5,10 @@
 
 namespace shopack\base\frontend\common\rest;
 
-use shopack\base\common\helpers\ArrayHelper;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\BaseActiveRecord;
+use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\helpers\Json;
 use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\validators\JsonValidator;
@@ -295,11 +295,11 @@ abstract class RestClientActiveRecord extends BaseActiveRecord
       if (empty($uploadeFiles) == false) {
         if (is_array($uploadeFiles['name'])) {
           foreach ($uploadeFiles['name'] as $fieldName => $name) {
-            $full_path = $uploadeFiles['full_path'][$fieldName];
-            $type      = $uploadeFiles['type'][$fieldName];
-            $tmp_name  = $uploadeFiles['tmp_name'][$fieldName];
-            $error     = $uploadeFiles['error'][$fieldName];
-            $size      = $uploadeFiles['size'][$fieldName];
+            // $full_path = $uploadeFiles['full_path'][$fieldName];
+            // $type      = $uploadeFiles['type'][$fieldName];
+            // $tmp_name  = $uploadeFiles['tmp_name'][$fieldName];
+            // $error     = $uploadeFiles['error'][$fieldName];
+            // $size      = $uploadeFiles['size'][$fieldName];
 
             $fileData = new FileData();
             $fileData->name      = $name;
