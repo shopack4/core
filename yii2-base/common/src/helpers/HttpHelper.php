@@ -15,7 +15,6 @@ use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use shopack\base\common\helpers\Json;
 use shopack\base\common\classes\Curl;
-use shopack\base\frontend\common\rest\UnserializerInterface;
 
 class HttpHelper
 {
