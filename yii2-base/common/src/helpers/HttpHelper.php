@@ -33,11 +33,11 @@ class HttpHelper
   // public static $provider = self::PROVIDER_CURL;
   public static $provider = self::PROVIDER_GUZZLE;
 
-  public static $unserializers = [
-    'application/json' => [
-      'class' => 'shopack\base\frontend\common\rest\JsonUnserializer'
-    ]
-  ];
+  // public static $unserializers = [
+  //   'application/json' => [
+  //     'class' => 'shopack\base\frontend\common\rest\JsonUnserializer'
+  //   ]
+  // ];
 
   static function callApi(
     $url,
@@ -462,30 +462,30 @@ class HttpHelper
     return $response;
   }
 
-  protected static function _unserializeResponseBody(ResponseInterface $response)
-  {
-    $body = (string) $response->getBody();
-    $contentType = $response->getHeaderLine('Content-type');
+  // protected static function _unserializeResponseBody(ResponseInterface $response)
+  // {
+  //   $body = (string) $response->getBody();
+  //   $contentType = $response->getHeaderLine('Content-type');
 
-    try {
-      if (false !== stripos($contentType, 'application/json')
-        && isset(self::$unserializers['application/json'])
-      ) {
-        /** @var UnserializerInterface $unserializer */
-        $unserializer = \Yii::createObject(self::$unserializers['application/json']);
-        if ($unserializer instanceof UnserializerInterface) {
-          return $unserializer->unserialize($body, false);
-        }
-      }
+  //   try {
+  //     if (false !== stripos($contentType, 'application/json')
+  //       && isset(self::$unserializers['application/json'])
+  //     ) {
+  //       /** @var UnserializerInterface $unserializer */
+  //       $unserializer = \Yii::createObject(self::$unserializers['application/json']);
+  //       if ($unserializer instanceof UnserializerInterface) {
+  //         return $unserializer->unserialize($body, false);
+  //       }
+  //     }
 
-      return $body;
+  //     return $body;
 
-    } catch (InvalidArgumentException|InvalidParamException $e) {
-      return $body;
+  //   } catch (InvalidArgumentException|InvalidParamException $e) {
+  //     return $body;
 
-    } catch (InvalidParamException $e) {
-      return $body;
-    }
-  }
+  //   } catch (InvalidParamException $e) {
+  //     return $body;
+  //   }
+  // }
 
 }
