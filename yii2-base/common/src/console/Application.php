@@ -20,7 +20,7 @@ class Application extends \yii\console\Application
 	{
 		$commands = parent::coreCommands();
 
-		$commands =array_replace_recursive($commands, [
+		$commands = array_replace_recursive($commands, [
 			'migrate' => \shopack\base\common\console\controllers\MigrateController::class,
 		]);
 

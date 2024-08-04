@@ -6,15 +6,14 @@
 namespace shopack\base\backend\controller;
 
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
-use yii\base\InvalidConfigException;
-use yii\data\ActiveDataProvider;
+use yii\web\ServerErrorHttpException;
+use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\helpers\ExceptionHelper;
 use shopack\base\backend\helpers\PrivHelper;
-use shopack\base\common\helpers\ArrayHelper;
-use yii\web\ServerErrorHttpException;
 
 abstract class BaseCrudController extends BaseRestController
 {

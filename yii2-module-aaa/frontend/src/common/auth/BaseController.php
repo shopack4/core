@@ -36,6 +36,7 @@ class BaseController extends \shopack\base\frontend\common\classes\BaseControlle
 	public function runAction($id, $params = [])
 	{
 		try {
+
 			return parent::runAction($id, $params);
 
 		} catch (\Throwable $th) {
