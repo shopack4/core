@@ -7,7 +7,6 @@ namespace shopack\aaa\backend\models;
 
 use Yii;
 use yii\db\Expression;
-use yii\web\UnauthorizedHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use yii\web\HttpException;
 use shopack\base\common\helpers\Json;
@@ -136,7 +135,7 @@ class ApprovalRequestModel extends AAAActiveRecord
     list ($normalizedInput, $inputType) = GeneralHelper::checkLoginPhrase($emailOrMobile, false);
 
     // if ($inputType != $type)
-    //   throw new UnauthorizedHttpException('input type is not correct');
+    //   throw new UnprocessableEntityHttpException('input type is not correct');
 
     //flag expired
     //-----------------------------------
@@ -282,7 +281,7 @@ SQL;
       else if ($inputType == enuApprovalRequestKeyType::Mobile)
         $code = strval(rand(123456, 987654));
       else
-        throw new UnauthorizedHttpException('invalid input type {$inputType}');
+        throw new UnprocessableEntityHttpException('invalid input type {$inputType}');
 
       $cfgPath = implode('.', [
         'AAA',
@@ -383,10 +382,10 @@ SQL;
       ->all();
 
     if (empty($models))
-      throw new UnauthorizedHttpException('invalid ' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile'));
+      throw new UnprocessableEntityHttpException('invalid ' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile'));
 
     if (count($models) > 1)
-      throw new UnauthorizedHttpException('more than one request found');
+      throw new UnprocessableEntityHttpException('more than one request found');
 
     $approvalRequestModel = $models[0];
 
@@ -396,7 +395,7 @@ SQL;
       // $approvalRequestModel->aprStatus = enuApprovalRequestStatus::Expired;
       // $approvalRequestModel->save();
 
-      // throw new UnauthorizedHttpException('code expired');
+      // throw new UnprocessableEntityHttpException('code expired');
     } else {
       $settings = Yii::$app->params['settings'];
       $cfgPath = implode('.', [
@@ -444,10 +443,10 @@ SQL;
       ->all();
 
     if (empty($models))
-      throw new UnauthorizedHttpException('invalid ' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile') . ' and/or code');
+      throw new UnprocessableEntityHttpException('invalid ' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile') . ' and/or code');
 
     if (count($models) > 1)
-      throw new UnauthorizedHttpException('more than one request found');
+      throw new UnprocessableEntityHttpException('more than one request found');
 
     $approvalRequestModel = $models[0];
 
@@ -461,20 +460,20 @@ SQL;
       $approvalRequestModel->aprStatus = enuApprovalRequestStatus::Expired;
       $approvalRequestModel->save();
 
-      throw new UnauthorizedHttpException('incorrect key type');
+      throw new UnprocessableEntityHttpException('incorrect key type');
     }
 
     if ($approvalRequestModel->aprStatus == enuApprovalRequestStatus::Applied)
-      throw new UnauthorizedHttpException('this code applied before');
+      throw new UnprocessableEntityHttpException('this code applied before');
 
     if ($approvalRequestModel->aprStatus != enuApprovalRequestStatus::Sent)
-      throw new UnauthorizedHttpException('code not sent to the client');
+      throw new UnprocessableEntityHttpException('code not sent to the client');
 
     if ($approvalRequestModel->IsExpired) {
       $approvalRequestModel->aprStatus = enuApprovalRequestStatus::Expired;
       $approvalRequestModel->save();
 
-      throw new UnauthorizedHttpException('code expired');
+      throw new UnprocessableEntityHttpException('code expired');
     }
 
     //accept

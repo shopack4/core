@@ -8,7 +8,6 @@ namespace shopack\aaa\backend\models;
 use Yii;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
-use yii\web\UnauthorizedHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\Json;
 use shopack\base\common\helpers\HttpHelper;
@@ -399,10 +398,10 @@ SQL;
 	public function doCancel()
 	{
 		if ($this->vchType != enuVoucherType::Invoice)
-			throw new UnauthorizedHttpException('نوع سند باید صورتحساب باشد.');
+			throw new UnprocessableEntityHttpException('نوع سند باید صورتحساب باشد.');
 
 		if (in_array($this->vchStatus, [enuVoucherStatus::New, enuVoucherStatus::WaitForPayment]) == false)
-			throw new UnauthorizedHttpException('وضعیت سفارش / صورتحساب باید جدید یا منتظر پرداخت باشد.');
+			throw new UnprocessableEntityHttpException('وضعیت سفارش / صورتحساب باید جدید یا منتظر پرداخت باشد.');
 
 		try {
 			if (empty($this->vchTotalPaid) == false) {
@@ -441,7 +440,7 @@ SQL;
 	public function doReprocess()
 	{
 		if ($this->vchType != enuVoucherType::Invoice)
-			throw new UnauthorizedHttpException('نوع سند باید صورتحساب باشد.');
+			throw new UnprocessableEntityHttpException('نوع سند باید صورتحساب باشد.');
 
 		return $this->processVoucher();
 	}

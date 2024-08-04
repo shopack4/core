@@ -8,7 +8,6 @@ namespace shopack\aaa\backend\models;
 use Yii;
 use yii\base\Model;
 use yii\web\UnprocessableEntityHttpException;
-use yii\web\UnauthorizedHttpException;
 use shopack\base\common\helpers\PhoneHelper;
 use shopack\base\common\helpers\GeneralHelper;
 use shopack\base\backend\helpers\AuthHelper;
@@ -37,7 +36,7 @@ class LoginByMobileForm extends Model
 	public function process()
 	{
     if ($this->validate() == false)
-      throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+      throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
 		$normalizedMobile = PhoneHelper::normalizePhoneNumber($this->mobile);
 		if (!$normalizedMobile)
@@ -127,7 +126,7 @@ class LoginByMobileForm extends Model
 			];
 		}
 
-		throw new UnauthorizedHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
+		throw new UnprocessableEntityHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
 	}
 
 }

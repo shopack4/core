@@ -8,7 +8,7 @@ namespace shopack\aaa\frontend\common\auth;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\web\NotFoundHttpException;
-use yii\web\BadRequestHttpException;
+use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\Url;
 use shopack\base\frontend\common\helpers\Html;
 
@@ -192,7 +192,7 @@ abstract class BaseCrudController extends BaseController
       $formName = '_form';
 
     if ($model->isSoftDeleted())
-      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+      throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
 		$formPosted = $model->load(Yii::$app->request->post());
     $this->actionUpdate_afterLoadModel($model, $formPosted);
@@ -235,7 +235,7 @@ abstract class BaseCrudController extends BaseController
   public function actionDelete($id)
   {
     if (empty($_POST['confirmed']))
-      throw new BadRequestHttpException('دستور حذف باید تایید شده باشد');
+      throw new UnprocessableEntityHttpException('دستور حذف باید تایید شده باشد');
 
 		$model = $this->findModel($id);
     $done = $model->delete();
@@ -251,7 +251,7 @@ abstract class BaseCrudController extends BaseController
   public function actionUndelete($id)
   {
     if (empty($_POST['confirmed']))
-      throw new BadRequestHttpException('دستور بازگردانی باید تایید شده باشد');
+      throw new UnprocessableEntityHttpException('دستور بازگردانی باید تایید شده باشد');
 
 		$model = $this->findModel($id);
     $done = $model->undelete();

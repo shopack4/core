@@ -6,13 +6,8 @@
 namespace shopack\aaa\backend\controllers;
 
 use Yii;
-use yii\web\NotFoundHttpException;
-use yii\web\UnprocessableEntityHttpException;
-use yii\data\ActiveDataProvider;
-use shopack\base\common\helpers\ExceptionHelper;
+use yii\web\ForbiddenHttpException;
 use shopack\base\backend\controller\BaseCrudController;
-use shopack\base\backend\helpers\PrivHelper;
-use shopack\aaa\backend\models\MessageModel;
 
 class MessageController extends BaseCrudController
 {
@@ -41,7 +36,7 @@ class MessageController extends BaseCrudController
 										'aaa/message/crud' => '0100',
 										'filter' => function($query) {
 											if (Yii::$app->user->isGuest)
-												throw new \yii\web\ForbiddenHttpException("not allowed for guest");
+												throw new ForbiddenHttpException("not allowed for guest");
 											$query->andWhere(['msgUsrID' => Yii::$app->user->id]);
 										},
 									],

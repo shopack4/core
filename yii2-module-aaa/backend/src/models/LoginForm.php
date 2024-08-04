@@ -6,12 +6,11 @@
 namespace shopack\aaa\backend\models;
 
 use yii\base\Model;
+use yii\web\UnprocessableEntityHttpException;
+use shopack\base\common\helpers\GeneralHelper;
 use shopack\base\common\validators\GroupRequiredValidator;
 use shopack\base\backend\helpers\AuthHelper;
-use yii\web\UnprocessableEntityHttpException;
-use yii\web\UnauthorizedHttpException;
 use shopack\aaa\common\enums\enuUserStatus;
-use shopack\base\common\helpers\GeneralHelper;
 
 class LoginForm extends Model
 {
@@ -103,7 +102,7 @@ class LoginForm extends Model
   public function login()
   {
     if ($this->validate('input') == false)
-      throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+      throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
     list ($normalizedInput, $inputType) = GeneralHelper::recognizeLoginPhrase($this->input);
 
@@ -125,13 +124,13 @@ class LoginForm extends Model
       if (!$user) {
         $this->addError('', "Incorrect {$this->inputName} or password.");
 
-        throw new UnauthorizedHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
+        throw new UnprocessableEntityHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
       }
 
       if ($user->validatePassword($this->password) == false) {
         $this->addError('', "Incorrect {$this->inputName} or Password.");
 
-        throw new UnauthorizedHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
+        throw new UnprocessableEntityHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
       }
 
       list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin(
@@ -148,7 +147,7 @@ class LoginForm extends Model
       ];
     }
 
-    throw new UnauthorizedHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
+    throw new UnprocessableEntityHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
   }
 
 }

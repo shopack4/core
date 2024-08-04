@@ -5,9 +5,8 @@
 
 namespace shopack\aaa\frontend\adminpanel\controllers;
 
-use shopack\aaa\frontend\adminpanel\models\UserChangeImageForm;
 use Yii;
-use yii\web\BadRequestHttpException;
+use shopack\aaa\frontend\adminpanel\models\UserChangeImageForm;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\rest\RestClientDataProvider;
 use shopack\aaa\frontend\common\auth\BaseCrudController;
@@ -15,6 +14,7 @@ use shopack\aaa\frontend\common\models\UserModel;
 use shopack\aaa\frontend\common\models\UserSearchModel;
 use shopack\aaa\frontend\adminpanel\models\PasswordResetForm;
 use shopack\aaa\frontend\adminpanel\models\UserSendMessageForm;
+use yii\web\UnprocessableEntityHttpException;
 
 class UserController extends BaseCrudController
 {
@@ -107,7 +107,7 @@ class UserController extends BaseCrudController
 		$model = $this->findModel($id);
 
     if ($model->isSoftDeleted())
-      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+      throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
     $model = new PasswordResetForm();
 		$model->userID = $id;

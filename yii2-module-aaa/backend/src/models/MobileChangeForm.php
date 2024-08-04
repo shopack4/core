@@ -7,9 +7,8 @@
 
 use Yii;
 use yii\base\Model;
-use yii\web\UnauthorizedHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\UnprocessableEntityHttpException;
-use shopack\base\backend\helpers\AuthHelper;
 use shopack\aaa\backend\models\ApprovalRequestModel;
 use shopack\base\common\helpers\PhoneHelper;
 
@@ -27,12 +26,12 @@ class MobileChangeForm extends Model
   public function process()
   {
     if (Yii::$app->user->isGuest)
-      throw new UnauthorizedHttpException("This process is not for guest.");
+      throw new ForbiddenHttpException("This process is not for guest.");
 
     $this->mobile = strtolower(trim($this->mobile));
 
     if ($this->validate() == false)
-      throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+      throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
     $mobile = PhoneHelper::normalizePhoneNumber($this->mobile);
 

@@ -29,8 +29,7 @@ class HttpHelper
   const PROVIDER_CURL   = 'curl';
   const PROVIDER_GUZZLE = 'guzzle';
 
-  // public static $provider = self::PROVIDER_CURL;
-  public static $provider = self::PROVIDER_GUZZLE;
+  public static $provider = (YII_ENV_DEV ? self::PROVIDER_GUZZLE : self::PROVIDER_CURL);
 
   // public static $unserializers = [
   //   'application/json' => [

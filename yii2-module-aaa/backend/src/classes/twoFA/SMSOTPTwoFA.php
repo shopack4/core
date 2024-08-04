@@ -5,11 +5,11 @@
 
 namespace shopack\aaa\backend\classes\twoFA;
 
+use yii\web\UnprocessableEntityHttpException;
 use shopack\aaa\backend\classes\twoFA\BaseTwoFA;
 use shopack\aaa\backend\classes\twoFA\ITwoFA;
 use shopack\aaa\backend\models\ApprovalRequestModel;
 use shopack\aaa\backend\models\UserModel;
-use yii\web\UnprocessableEntityHttpException;
 
 class SMSOTPTwoFA
 	extends BaseTwoFA
@@ -17,10 +17,6 @@ class SMSOTPTwoFA
 {
 	public function generate($userID, ?array $args = [])
 	{
-    // if (Yii::$app->user->isGuest)
-    //   throw new UnauthorizedHttpException("This process is not for guest.");
-    // $userModel = UserModel::findOne(Yii::$app->user->id);
-
 		$userModel = UserModel::findOne($userID);
 
 		if (empty($userModel->usrMobile))
@@ -40,10 +36,6 @@ class SMSOTPTwoFA
 
 	public function validate($userID, ?array $args = [])
 	{
-    // if (Yii::$app->user->isGuest)
-    //   throw new UnauthorizedHttpException("This process is not for guest.");
-    // $userModel = UserModel::findOne(Yii::$app->user->id);
-
 		$userModel = UserModel::findOne($userID);
 
 		$code = $args['code'];

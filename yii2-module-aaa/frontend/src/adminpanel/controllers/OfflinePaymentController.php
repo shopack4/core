@@ -5,17 +5,16 @@
 
 namespace shopack\aaa\frontend\adminpanel\controllers;
 
-use shopack\aaa\frontend\adminpanel\models\OfflinePaymentRejectForm;
 use Yii;
-use yii\web\Response;
 use yii\web\BadRequestHttpException;
-use shopack\base\common\helpers\HttpHelper;
+use yii\web\UnprocessableEntityHttpException;
+use shopack\base\common\helpers\Url;
+use shopack\base\frontend\common\models\GeneralAcceptForm;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\auth\BaseCrudController;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 use shopack\aaa\frontend\common\models\OfflinePaymentSearchModel;
-use shopack\base\common\helpers\Url;
-use shopack\base\frontend\common\models\GeneralAcceptForm;
+use shopack\aaa\frontend\adminpanel\models\OfflinePaymentRejectForm;
 
 class OfflinePaymentController extends BaseCrudController
 {
@@ -32,7 +31,7 @@ class OfflinePaymentController extends BaseCrudController
 	public function old_actionApprove($id)
 	{
     if (empty($_POST['confirmed']))
-      throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
+      throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
 		if (Yii::$app->request->isAjax == false)
 			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');
@@ -130,7 +129,7 @@ class OfflinePaymentController extends BaseCrudController
 	public function OLD_actionReject($id)
 	{
     if (empty($_POST['confirmed']))
-      throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
+      throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
 		if (Yii::$app->request->isAjax == false)
 			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');

@@ -7,7 +7,7 @@ namespace shopack\aaa\backend\models;
 
 use Yii;
 use yii\base\Model;
-use yii\web\UnauthorizedHttpException;
+use yii\web\UnprocessableEntityHttpException;
 use yii\di\Instance;
 use Lcobucci\JWT\Token;
 use shopack\base\backend\auth\Jwt;
@@ -44,7 +44,7 @@ class ChallengeForm extends Model
 
     $this->getJwtComponent()->assert($token);
     // if ($this->getJwtComponent()->validate($token) == false)
-    //   throw new UnauthorizedHttpException('Invalid Token');
+    //   throw new UnprocessableEntityHttpException('Invalid Token');
 
     return $token->claims()->all();
   }
@@ -52,7 +52,7 @@ class ChallengeForm extends Model
 	public function process()
 	{
     if ($this->validate() == false)
-      throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+      throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
     $challengeToken = $this->getTokenClaims($this->token);
     /*
@@ -98,7 +98,7 @@ class ChallengeForm extends Model
       'result' => true,
     ];
 
-    // throw new UnauthorizedHttpException("could not login.");
+    // throw new UnprocessableEntityHttpException("could not login.");
   }
 
 }

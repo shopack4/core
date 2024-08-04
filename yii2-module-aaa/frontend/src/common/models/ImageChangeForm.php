@@ -7,7 +7,7 @@ namespace shopack\aaa\frontend\common\models;
 
 use Yii;
 use yii\base\Model;
-use yii\web\UnauthorizedHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use yii\web\NotFoundHttpException;
 use shopack\base\common\helpers\HttpHelper;
@@ -38,10 +38,10 @@ class ImageChangeForm extends Model
   public function process()
   {
     if (Yii::$app->user->isGuest)
-      throw new UnauthorizedHttpException("This process is not for guest.");
+      throw new ForbiddenHttpException("This process is not for guest.");
 
     // if ($this->validate() == false)
-    //   throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+    //   throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
 		$files = $this->getUploadedFilesData();
 		if (empty($files))

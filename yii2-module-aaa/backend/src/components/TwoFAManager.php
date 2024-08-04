@@ -7,9 +7,9 @@ namespace shopack\aaa\backend\components;
 
 use Yii;
 use yii\base\Component;
+use yii\web\UnprocessableEntityHttpException;
 use shopack\aaa\common\enums\enuTwoFAType;
 use shopack\aaa\backend\classes\twoFA\ITwoFA;
-use yii\web\UnauthorizedHttpException;
 
 class TwoFAManager extends Component
 {
@@ -45,7 +45,7 @@ class TwoFAManager extends Component
 
 		$result = $driver->validate($userID, $args);
 		if ($result === false)
-	    throw new UnauthorizedHttpException("Code not approved");
+	    throw new UnprocessableEntityHttpException("Code not approved");
 
 		return $result;
 	}

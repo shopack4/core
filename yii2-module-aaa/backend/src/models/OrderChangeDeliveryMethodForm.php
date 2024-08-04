@@ -8,13 +8,11 @@ namespace shopack\aaa\backend\models;
 use Yii;
 use yii\base\Model;
 use yii\web\NotFoundHttpException;
-use yii\web\UnauthorizedHttpException;
 use yii\web\UnprocessableEntityHttpException;
-use shopack\base\common\helpers\HttpHelper;
+use yii\web\ForbiddenHttpException;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuVoucherType;
 use shopack\base\backend\helpers\PrivHelper;
-use yii\web\ForbiddenHttpException;
 
 class OrderChangeDeliveryMethodForm extends Model
 {
@@ -34,10 +32,10 @@ class OrderChangeDeliveryMethodForm extends Model
 	public function process()
 	{
 		if (Yii::$app->user->isGuest)
-			throw new UnauthorizedHttpException("This process is not for guest.");
+			throw new ForbiddenHttpException("This process is not for guest.");
 
 		if ($this->validate() == false)
-			throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+			throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
 		$voucherModel = VoucherModel::find()
 			->andWhere(['vchID' => $this->vchID])
@@ -52,7 +50,7 @@ class OrderChangeDeliveryMethodForm extends Model
 			throw new ForbiddenHttpException('access denied');
 
 		if ($voucherModel->vchStatus != enuVoucherStatus::WaitForPayment)
-			throw new UnauthorizedHttpException('وضعیت سفارش باید منتظر پرداخت باشد.');
+			throw new UnprocessableEntityHttpException('وضعیت سفارش باید منتظر پرداخت باشد.');
 
 		$deliveryMethodModel = DeliveryMethodModel::findOne($this->deliveryMethod);
 		if ($deliveryMethodModel === null)

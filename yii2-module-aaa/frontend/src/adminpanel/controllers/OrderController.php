@@ -8,6 +8,7 @@ namespace shopack\aaa\frontend\adminpanel\controllers;
 use Yii;
 use yii\web\NotFoundHttpException;
 use yii\web\BadRequestHttpException;
+use yii\web\UnprocessableEntityHttpException;
 use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\frontend\common\auth\BaseController;
 use shopack\aaa\frontend\common\models\VoucherModel;
@@ -51,7 +52,7 @@ class OrderController extends BaseController
     $model = $this->findModel($id);
 
     if ($model->vchType != enuVoucherType::Invoice)
-      throw new BadRequestHttpException('Item is not invoice');
+      throw new UnprocessableEntityHttpException('Item is not invoice');
 
     return $this->render('view', [
       'model' => $model,
@@ -61,7 +62,7 @@ class OrderController extends BaseController
 	public function actionCancel($id)
 	{
     if (empty($_POST['confirmed']))
-      throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
+      throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
 		if (Yii::$app->request->isAjax == false)
 			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');
@@ -78,7 +79,7 @@ class OrderController extends BaseController
 	public function actionReprocess($id)
 	{
     if (empty($_POST['confirmed']))
-      throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
+      throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
 		if (Yii::$app->request->isAjax == false)
 			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');

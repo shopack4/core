@@ -7,22 +7,20 @@ namespace shopack\aaa\frontend\common\controllers;
 
 use Yii;
 use yii\web\NotFoundHttpException;
-use yii\web\BadRequestHttpException;
-use shopack\base\frontend\common\helpers\Html;
+use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\HttpHelper;
+use shopack\base\common\helpers\GeneralHelper;
+use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\auth\BaseController;
 use shopack\aaa\frontend\common\models\UserModel;
 use shopack\aaa\frontend\common\models\SignupForm;
 use shopack\aaa\frontend\common\models\LoginForm;
 use shopack\aaa\frontend\common\models\LoginByMobileForm;
 use shopack\aaa\frontend\common\models\ChallengeForm;
-use shopack\aaa\frontend\common\helpers\AuthHelper;
 use shopack\aaa\frontend\common\models\ApproveCodeForm;
-// use shopack\aaa\frontend\common\models\PasswordSetForm;
 use shopack\aaa\frontend\common\models\PasswordChangeForm;
 use shopack\aaa\frontend\common\models\PasswordResetByForgotCodeForm;
 use shopack\aaa\frontend\common\models\RequestForgotPasswordForm;
-use shopack\base\common\helpers\GeneralHelper;
 
 class AuthController extends BaseController
 {
@@ -525,16 +523,16 @@ class AuthController extends BaseController
 		$userModel = $this->findUserModel();
 
     if ($userModel->isSoftDeleted())
-      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+      throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
     if ($userModel->hasPassword)
-      throw new BadRequestHttpException('شما قبلا نام رمز تعیین کرده‌اید.');
+      throw new UnprocessableEntityHttpException('شما قبلا نام رمز تعیین کرده‌اید.');
 
     if (empty($userModel->usrEmailApprovedAt))
-      throw new BadRequestHttpException('لطفا ایمیل خود را تایید کنید.');
+      throw new UnprocessableEntityHttpException('لطفا ایمیل خود را تایید کنید.');
 
     if (empty($userModel->usrMobileApprovedAt))
-      throw new BadRequestHttpException('لطفا موبایل خود را تایید کنید.');
+      throw new UnprocessableEntityHttpException('لطفا موبایل خود را تایید کنید.');
 
     $model = new PasswordSetForm();
 
@@ -572,10 +570,10 @@ class AuthController extends BaseController
 		$userModel = $this->findUserModel();
 
     if ($userModel->isSoftDeleted())
-      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+      throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
     // if ($model->hasPassword == false)
-    //   throw new BadRequestHttpException('شما قبلا نام رمز تعیین نکرده‌اید.');
+    //   throw new UnprocessableEntityHttpException('شما قبلا نام رمز تعیین نکرده‌اید.');
 
     $model = new PasswordChangeForm();
     $model->hasPassword = $userModel->hasPassword;

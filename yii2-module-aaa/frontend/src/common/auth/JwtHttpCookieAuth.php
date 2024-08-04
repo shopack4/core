@@ -16,17 +16,34 @@ class JwtHttpCookieAuth extends \yii\filters\auth\AuthMethod
 
   public function authenticate($user, $request, $response)
   {
-    $authCookie = Yii::$app->user->getJwtByCookie();
-    if ($authCookie !== null) {
+    $token = Yii::$app->user->getJwtByCookie();
+    if ($token !== null) {
       if ($this->pattern !== null) {
-        if (preg_match($this->pattern, $authCookie, $matches)) {
-          $authCookie = $matches[1];
+        if (preg_match($this->pattern, $token, $matches)) {
+          $token = $matches[1];
         } else {
           return null;
         }
       }
 
-      $identity = $user->loginByAccessToken($authCookie, get_class($this));
+      //validate
+      /*
+      $parsedToken = Yii::$app->jwt->parser->parse($token);
+      $jwtPayload = $parsedToken->claims()->all();
+      $sessionid = $jwtPayload['jti'];
+      if (Yii::$app->cache->)
+      $exp = $jwtPayload['exp'];
+      if (($exp instanceof \DateTimeImmutable) == false) {
+        $exp = number_format((float)$exp, 6, '.', '');
+        $exp = \DateTimeImmutable::createFromFormat('U.u', $exp);
+      }
+      $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+      if ($now >= $exp) { //expired -> refresh token
+      }
+      */
+
+      //
+      $identity = $user->loginByAccessToken($token, get_class($this));
       if ($identity === null) {
         $this->challenge($response);
         $this->handleFailure($response);

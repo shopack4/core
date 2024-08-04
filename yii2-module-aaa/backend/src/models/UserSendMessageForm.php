@@ -5,16 +5,10 @@
 
  namespace shopack\aaa\backend\models;
 
-use Yii;
-use yii\db\Expression;
 use yii\base\Model;
-use yii\web\UnauthorizedHttpException;
 use yii\web\UnprocessableEntityHttpException;
-use yii\web\NotFoundHttpException;
-use shopack\base\common\helpers\HttpHelper;
 use shopack\aaa\backend\models\MessageModel;
 use shopack\aaa\common\enums\enuGender;
-use shopack\aaa\common\enums\enuUserStatus;
 
 class UserSendMessageForm extends Model
 {
@@ -33,7 +27,7 @@ class UserSendMessageForm extends Model
   public function process()
   {
     if ($this->validate() == false)
-      throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+      throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
     $userModel = UserModel::find()
       ->andWhere(['usrID' => $this->userID])
@@ -44,7 +38,7 @@ class UserSendMessageForm extends Model
       ->one();
 
     if (empty($userModel))
-      throw new UnauthorizedHttpException('User not found');
+      throw new UnprocessableEntityHttpException('User not found');
 
     if (empty($userModel['usrMobile']))
       throw new UnprocessableEntityHttpException('Mobile not defined');

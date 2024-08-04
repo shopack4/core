@@ -7,6 +7,8 @@ namespace shopack\aaa\frontend\userpanel\controllers;
 
 use Yii;
 use yii\web\NotFoundHttpException;
+use yii\web\BadRequestHttpException;
+use yii\web\UnprocessableEntityHttpException;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\common\enums\enuVoucherType;
 use shopack\aaa\frontend\common\auth\BaseController;
@@ -14,8 +16,6 @@ use shopack\aaa\frontend\common\models\VoucherModel;
 use shopack\aaa\frontend\common\models\VoucherSearchModel;
 use shopack\aaa\frontend\userpanel\models\OrderChangeDeliveryMethodForm;
 use shopack\aaa\frontend\userpanel\models\OrderPaymentForm;
-use shopack\base\common\helpers\HttpHelper;
-use yii\web\BadRequestHttpException;
 
 class OrderController extends BaseController
 {
@@ -156,7 +156,7 @@ class OrderController extends BaseController
 	public function actionCancel($id)
 	{
     if (empty($_POST['confirmed']))
-      throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
+      throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
 		if (Yii::$app->request->isAjax == false)
 			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');

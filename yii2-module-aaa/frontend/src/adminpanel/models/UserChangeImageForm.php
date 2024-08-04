@@ -7,7 +7,6 @@ namespace shopack\aaa\frontend\adminpanel\models;
 
 use Yii;
 use yii\base\Model;
-use yii\web\UnauthorizedHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use yii\web\NotFoundHttpException;
 use shopack\base\common\helpers\HttpHelper;
@@ -39,7 +38,7 @@ class UserChangeImageForm extends Model
   public function process()
   {
     // if ($this->validate() == false)
-    //   throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+    //   throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
 		$files = $this->getUploadedFilesData();
 		if (empty($files))

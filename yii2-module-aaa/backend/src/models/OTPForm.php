@@ -6,9 +6,8 @@
 namespace shopack\aaa\backend\models;
 
 use yii\base\Model;
-use shopack\base\backend\helpers\AuthHelper;
 use yii\web\UnprocessableEntityHttpException;
-use yii\web\UnauthorizedHttpException;
+use shopack\base\backend\helpers\AuthHelper;
 use shopack\base\common\helpers\PhoneHelper;
 use shopack\aaa\common\enums\enuUserStatus;
 
@@ -28,7 +27,7 @@ class OTPForm extends Model
 	public function process()
 	{
     if ($this->validate() == false)
-      throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+      throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
 		$normalizedMobile = PhoneHelper::normalizePhoneNumber($this->mobile);
 		if (!$normalizedMobile)
@@ -77,7 +76,7 @@ class OTPForm extends Model
 			];
 		}
 
-		throw new UnauthorizedHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
+		throw new UnprocessableEntityHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
 	}
 
 }

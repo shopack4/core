@@ -7,7 +7,6 @@ namespace shopack\aaa\frontend\common\models;
 
 use Yii;
 use yii\base\Model;
-use yii\web\UnauthorizedHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\HttpHelper;
 
@@ -41,7 +40,7 @@ class PasswordSetForm extends Model
   public function process()
   {
     if ($this->validate() == false)
-      throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+      throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
     list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/password-set',
       HttpHelper::METHOD_POST,

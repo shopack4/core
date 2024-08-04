@@ -7,19 +7,13 @@ namespace shopack\aaa\frontend\userpanel\controllers;
 
 use Yii;
 use yii\web\NotFoundHttpException;
-use yii\web\BadRequestHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\Url;
-use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\auth\BaseController;
 use shopack\aaa\frontend\common\models\VoucherModel;
-use shopack\aaa\common\enums\enuVoucherType;
-use shopack\aaa\common\enums\enuVoucherStatus;
-use shopack\aaa\frontend\common\enums\enuCheckoutStep;
+use shopack\aaa\frontend\common\models\OnlinePaymentModel;
 use shopack\aaa\frontend\userpanel\models\BasketCheckoutForm;
 use shopack\aaa\frontend\userpanel\models\BasketItemForm;
-use shopack\aaa\frontend\common\models\OnlinePaymentModel;
-use shopack\base\common\accounting\enums\enuProductType;
 
 class BasketController extends BaseController
 {
@@ -75,7 +69,7 @@ class BasketController extends BaseController
   public function actionRemoveItem($key)
   {
     if (empty($_POST['confirmed']))
-      throw new BadRequestHttpException('دستور حذف باید تایید شده باشد');
+      throw new UnprocessableEntityHttpException('دستور حذف باید تایید شده باشد');
 
 		$model = new BasketItemForm;
 		// $model->itemkey = $key;
@@ -182,7 +176,7 @@ class BasketController extends BaseController
 					break;
 
 				default:
-					throw new BadRequestHttpException('invalid step');
+					throw new UnprocessableEntityHttpException('invalid step');
 			}
 
 			return $this->render($viewName, [

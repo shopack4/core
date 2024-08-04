@@ -5,18 +5,15 @@
 
 namespace shopack\aaa\backend\models;
 
-use phpDocumentor\Reflection\DocBlock\Tag\AuthorTag;
 use Yii;
-use shopack\aaa\backend\classes\AAAActiveRecord;
 use yii\db\Expression;
-use shopack\base\common\helpers\ArrayHelper;
-use shopack\base\backend\helpers\AuthHelper;
-use yii\web\UnauthorizedHttpException;
 use yii\web\UnprocessableEntityHttpException;
+use shopack\base\common\helpers\ArrayHelper;
+use shopack\base\common\helpers\GeneralHelper;
+use shopack\aaa\backend\classes\AAAActiveRecord;
 use shopack\aaa\backend\models\UserModel;
 use shopack\aaa\backend\models\MessageModel;
 use shopack\aaa\common\enums\enuMessageStatus;
-use shopack\base\common\helpers\GeneralHelper;
 use shopack\aaa\common\enums\enuForgotPasswordRequestKeyType;
 use shopack\aaa\common\enums\enuForgotPasswordRequestMessageType;
 use shopack\aaa\common\enums\enuForgotPasswordRequestStatus;
@@ -99,7 +96,7 @@ class ForgotPasswordRequestModel extends AAAActiveRecord
     list ($normalizedInput, $inputType) = GeneralHelper::checkLoginPhrase($emailOrMobile, false);
 
     // if ($inputType != $type)
-    //   throw new UnauthorizedHttpException('input type is not correct');
+    //   throw new UnprocessableEntityHttpException('input type is not correct');
 
     //flag expired
     //-----------------------------------
@@ -220,7 +217,7 @@ SQL;
         if ($forgotPasswordRequestModel->ElapsedSeconds < $resendTTL) {
           $seconds = $resendTTL - $forgotPasswordRequestModel->ElapsedSeconds;
 
-          throw new UnauthorizedHttpException('the waiting time has not elapsed. ('
+          throw new UnprocessableEntityHttpException('the waiting time has not elapsed. ('
             . GeneralHelper::formatTimeFromSeconds($seconds) . ' remained)');
         }
 
@@ -235,7 +232,7 @@ SQL;
         ->one();
 
       if (!$userModel)
-        throw new UnauthorizedHttpException('user not found');
+        throw new UnprocessableEntityHttpException('user not found');
 
       $userID    = $userModel->usrID;
       $gender    = $userModel->usrGender;
@@ -253,7 +250,7 @@ SQL;
       else if ($inputType == enuForgotPasswordRequestKeyType::Mobile)
         $code = strval(rand(123456, 987654));
       else
-        throw new UnauthorizedHttpException("invalid input type {$inputType}");
+        throw new UnprocessableEntityHttpException("invalid input type {$inputType}");
 
       $cfgPath = implode('.', [
         'AAA',
@@ -345,10 +342,10 @@ SQL;
       ->all();
 
     if (empty($models))
-      throw new UnauthorizedHttpException('invalid ' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile') . ' and/or code');
+      throw new UnprocessableEntityHttpException('invalid ' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile') . ' and/or code');
 
     if (count($models) > 1)
-      throw new UnauthorizedHttpException('more than one request found');
+      throw new UnprocessableEntityHttpException('more than one request found');
 
     $forgotPasswordRequestModel = $models[0];
 
@@ -358,7 +355,7 @@ SQL;
       // $forgotPasswordRequestModel->fprStatus = enuForgotPasswordRequestStatus::Expired;
       // $forgotPasswordRequestModel->save();
 
-      // throw new UnauthorizedHttpException('code expired');
+      // throw new UnprocessableEntityHttpException('code expired');
     } else {
       $settings = Yii::$app->params['settings'];
       $cfgPath = implode('.', [
@@ -404,10 +401,10 @@ SQL;
       ->all();
 
     if (empty($models))
-      throw new UnauthorizedHttpException('invalid ' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile') . ' and/or code');
+      throw new UnprocessableEntityHttpException('invalid ' . ($inputType == GeneralHelper::PHRASETYPE_EMAIL ? 'email' : 'mobile') . ' and/or code');
 
     if (count($models) > 1)
-      throw new UnauthorizedHttpException('more than one request found');
+      throw new UnprocessableEntityHttpException('more than one request found');
 
     $forgotPasswordRequestModel = $models[0];
 
@@ -421,20 +418,20 @@ SQL;
       $forgotPasswordRequestModel->fprStatus = enuForgotPasswordRequestStatus::Expired;
       $forgotPasswordRequestModel->save();
 
-      throw new UnauthorizedHttpException('incorrect key type');
+      throw new UnprocessableEntityHttpException('incorrect key type');
     }
 
     if ($forgotPasswordRequestModel->fprStatus == enuForgotPasswordRequestStatus::Applied)
-      throw new UnauthorizedHttpException('this code applied before');
+      throw new UnprocessableEntityHttpException('this code applied before');
 
     if ($forgotPasswordRequestModel->fprStatus != enuForgotPasswordRequestStatus::Sent)
-      throw new UnauthorizedHttpException('code not sent to the client');
+      throw new UnprocessableEntityHttpException('code not sent to the client');
 
     if ($forgotPasswordRequestModel->IsExpired) {
       $forgotPasswordRequestModel->fprStatus = enuForgotPasswordRequestStatus::Expired;
       $forgotPasswordRequestModel->save();
 
-      throw new UnauthorizedHttpException('code expired');
+      throw new UnprocessableEntityHttpException('code expired');
     }
 
     //accept

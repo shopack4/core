@@ -6,13 +6,10 @@
 namespace shopack\base\backend\helpers;
 
 use Yii;
-use shopack\base\backend\helpers\PrivHelper;
-use shopack\base\common\helpers\PhoneHelper;
-use yii\web\UnauthorizedHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
+use shopack\base\backend\helpers\PrivHelper;
 use shopack\base\common\helpers\ArrayHelper;
-use shopack\aaa\backend\models\UserModel;
 use shopack\aaa\backend\models\SessionModel;
 use shopack\aaa\backend\models\RoleModel;
 use shopack\aaa\common\enums\enuRole;
@@ -132,7 +129,7 @@ class AuthHelper
     $sessionModel = new SessionModel();
     $sessionModel->ssnUserID = $user->usrID;
     if ($sessionModel->save() == false)
-      throw new UnauthorizedHttpException(implode("\n", $sessionModel->getFirstErrors()));
+      throw new UnprocessableEntityHttpException(implode("\n", $sessionModel->getFirstErrors()));
 
     //privs
     //-----------------------

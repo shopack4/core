@@ -6,16 +6,11 @@
 namespace shopack\aaa\backend\controllers;
 
 use Yii;
-use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
-use yii\web\UnauthorizedHttpException;
 use shopack\base\common\helpers\ExceptionHelper;
 use shopack\base\backend\controller\BaseRestController;
 use shopack\base\backend\helpers\AuthHelper;
-use shopack\base\backend\helpers\PrivHelper;
-use shopack\base\backend\helpers\RESTfulHelper;
-use shopack\aaa\backend\models\UserModel;
 use shopack\aaa\backend\models\SignupForm;
 use shopack\aaa\backend\models\LoginForm;
 use shopack\aaa\backend\models\LoginByMobileForm;
@@ -24,9 +19,7 @@ use shopack\aaa\backend\models\ApprovalRequestModel;
 use shopack\aaa\backend\models\ChallengeForm;
 use shopack\aaa\backend\models\ForgotPasswordRequestModel;
 use shopack\aaa\backend\models\PasswordResetByForgotCodeForm;
-// use shopack\aaa\backend\models\PasswordSetForm;
 use shopack\aaa\backend\models\PasswordChangeForm;
-use shopack\base\common\helpers\GeneralHelper;
 
 class AuthController extends BaseRestController
 {

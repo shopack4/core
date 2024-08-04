@@ -7,7 +7,6 @@ namespace shopack\aaa\backend\models;
 
 use yii\base\Model;
 use yii\web\UnprocessableEntityHttpException;
-use yii\web\UnauthorizedHttpException;
 use shopack\base\common\helpers\PhoneHelper;
 use shopack\aaa\backend\models\UserModel;
 use shopack\base\common\helpers\GeneralHelper;
@@ -45,7 +44,7 @@ class SignupForm extends Model
   public function signup()
   {
     if ($this->validate() == false)
-      throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+      throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
     $model = new UserModel();
 

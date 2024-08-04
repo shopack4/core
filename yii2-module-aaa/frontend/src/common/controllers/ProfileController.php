@@ -65,7 +65,7 @@ class ProfileController extends BaseController
 		$model = $this->findUserModel();
 
     if ($model->isSoftDeleted())
-      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+      throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
 		$formPosted = $model->load(Yii::$app->request->post());
 		$done = false;
@@ -111,7 +111,7 @@ class ProfileController extends BaseController
 
 		$userModel = $this->findUserModel();
     if ($userModel->isSoftDeleted())
-      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+      throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
     $model = new ImageChangeForm();
 
@@ -167,7 +167,7 @@ class ProfileController extends BaseController
 		$userModel = $this->findUserModel();
 
     if ($userModel->isSoftDeleted())
-      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+      throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
     $model = new EmailChangeForm();
 
@@ -216,7 +216,7 @@ class ProfileController extends BaseController
   public function actionResendEmailApproval()
   {
     if (empty($_POST['confirmed']))
-      throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
+      throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
     if (Yii::$app->request->isAjax == false)
 			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');
@@ -227,10 +227,10 @@ class ProfileController extends BaseController
 		$userModel = $this->findUserModel();
 
     if ($userModel->isSoftDeleted())
-      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+      throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
     if (empty($userModel->usrEmail))
-      throw new BadRequestHttpException('ایمیل خالی است.');
+      throw new UnprocessableEntityHttpException('ایمیل خالی است.');
 
     list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-approval-code',
       HttpHelper::METHOD_POST,
@@ -256,7 +256,7 @@ class ProfileController extends BaseController
 
 		$userModel = $this->findUserModel();
     if ($userModel->isSoftDeleted())
-      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+      throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
     $model = new MobileChangeForm();
 
@@ -317,7 +317,7 @@ class ProfileController extends BaseController
   public function actionResendMobileApproval()
   {
     if (empty($_POST['confirmed']))
-      throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
+      throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
     if (Yii::$app->request->isAjax == false)
 			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');
@@ -328,10 +328,10 @@ class ProfileController extends BaseController
 		$userModel = $this->findUserModel();
 
     if ($userModel->isSoftDeleted())
-      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+      throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
     if (empty($userModel->usrMobile))
-      throw new BadRequestHttpException('موبایل خالی است.');
+      throw new UnprocessableEntityHttpException('موبایل خالی است.');
 
     list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-approval-code',
       HttpHelper::METHOD_POST,
@@ -361,26 +361,26 @@ class ProfileController extends BaseController
 
 		// $model = $this->findUserModel();
     // if ($model->isSoftDeleted())
-    //   throw new BadRequestHttpException('به دلیل حذف این کاربر، ادامه عملیات امکان پذیر نمی‌باشد.');
+    //   throw new UnprocessableEntityHttpException('به دلیل حذف این کاربر، ادامه عملیات امکان پذیر نمی‌باشد.');
 
     if (empty($input)) {
       if (Yii::$app->user->isGuest)
-        throw new BadRequestHttpException('ایمیل/موبایل وارد نشده است.');
+        throw new UnprocessableEntityHttpException('ایمیل/موبایل وارد نشده است.');
 
   		$userModel = $this->findUserModel();
 
       if ($kt == GeneralHelper::PHRASETYPE_EMAIL) {
         if (empty($userModel->usrEmail) || (empty($userModel->usrEmailApprovedAt) == false)) {
-          throw new BadRequestHttpException('این ایمیل قبلا تایید شده است.');
+          throw new UnprocessableEntityHttpException('این ایمیل قبلا تایید شده است.');
         }
         $input = $userModel->usrEmail;
       } else if ($kt == GeneralHelper::PHRASETYPE_MOBILE) {
         if (empty($userModel->usrMobile) || (empty($userModel->usrMobileApprovedAt) == false)) {
-          throw new BadRequestHttpException('این موبایل قبلا تایید شده است.');
+          throw new UnprocessableEntityHttpException('این موبایل قبلا تایید شده است.');
         }
         $input = $userModel->usrMobile;
       } else
-        throw new BadRequestHttpException('نوع ورودی نامشخص است.');
+        throw new UnprocessableEntityHttpException('نوع ورودی نامشخص است.');
     }
 
     $model = new ApproveCodeForm();
@@ -493,7 +493,7 @@ class ProfileController extends BaseController
 
 		$userModel = $this->findUserModel();
     if ($userModel->isSoftDeleted()) {
-      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+      throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
     }
 
     if (isset($userModel->usr2FA[$type])) {
@@ -570,7 +570,7 @@ class ProfileController extends BaseController
   public function actionInactive2fa($type)
   {
     if (empty($_POST['confirmed']))
-      throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
+      throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
     if (Yii::$app->request->isAjax == false)
 			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');
@@ -581,7 +581,7 @@ class ProfileController extends BaseController
 		$userModel = $this->findUserModel();
 
     if ($userModel->isSoftDeleted())
-      throw new BadRequestHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
+      throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
     list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/user/inactive-2fa',
       HttpHelper::METHOD_POST,

@@ -7,10 +7,8 @@ namespace shopack\aaa\frontend\common\models;
 
 use Yii;
 use yii\base\Model;
-use yii\web\HttpException;
-use yii\web\UnauthorizedHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\UnprocessableEntityHttpException;
-use yii\web\NotFoundHttpException;
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\HttpHelper;
 
@@ -42,10 +40,10 @@ class WalletIncreaseForm extends Model
   public function process()
   {
     if (Yii::$app->user->isGuest)
-      throw new UnauthorizedHttpException("This process is not for guest.");
+      throw new ForbiddenHttpException("This process is not for guest.");
 
     if ($this->validate() == false)
-      throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+      throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
     //--
     list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/wallet/increase',

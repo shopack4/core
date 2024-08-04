@@ -8,8 +8,6 @@ namespace shopack\aaa\backend\models;
 use Yii;
 use yii\base\Model;
 use yii\web\NotFoundHttpException;
-use yii\web\UnauthorizedHttpException;
-use yii\web\ServerErrorHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\aaa\common\enums\enuVoucherStatus;

@@ -7,7 +7,7 @@ namespace shopack\aaa\backend\models;
 
 use Yii;
 use yii\base\Model;
-use yii\web\UnauthorizedHttpException;
+use yii\web\ForbiddenHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\base\backend\helpers\AuthHelper;
 use shopack\aaa\backend\models\ApprovalRequestModel;
@@ -29,7 +29,7 @@ class Active2FAForm extends Model
   public function generate()
   {
     if (Yii::$app->user->isGuest)
-      throw new UnauthorizedHttpException("This process is not for guest.");
+      throw new ForbiddenHttpException("This process is not for guest.");
 
     if (empty($this->type))
       throw new UnprocessableEntityHttpException("Type is empty");
@@ -40,10 +40,10 @@ class Active2FAForm extends Model
   public function process()
   {
     if (Yii::$app->user->isGuest)
-      throw new UnauthorizedHttpException("This process is not for guest.");
+      throw new ForbiddenHttpException("This process is not for guest.");
 
     if ($this->validate() == false)
-      throw new UnauthorizedHttpException(implode("\n", $this->getFirstErrors()));
+      throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
     $userModel = UserModel::findOne(Yii::$app->user->id);
 
@@ -68,7 +68,7 @@ class Active2FAForm extends Model
   public static function inactive2FA($type)
   {
     if (Yii::$app->user->isGuest)
-      throw new UnauthorizedHttpException("This process is not for guest.");
+      throw new ForbiddenHttpException("This process is not for guest.");
 
     $userModel = UserModel::findOne(Yii::$app->user->id);
 

@@ -8,6 +8,7 @@ namespace shopack\aaa\frontend\adminpanel\controllers;
 use Yii;
 use yii\web\Response;
 use yii\web\BadRequestHttpException;
+use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\auth\BaseCrudController;
@@ -28,7 +29,7 @@ class UploadFileController extends BaseCrudController
 	public function actionApprove($id)
 	{
     if (empty($_POST['confirmed']))
-      throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
+      throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
 		if (Yii::$app->request->isAjax == false)
 			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');
@@ -45,7 +46,7 @@ class UploadFileController extends BaseCrudController
 	public function actionReject($id)
 	{
     if (empty($_POST['confirmed']))
-      throw new BadRequestHttpException('این عملیات باید تایید شده باشد');
+      throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
 		if (Yii::$app->request->isAjax == false)
 			throw new BadRequestHttpException('It is not possible to execute this command in a mode other than Ajax');
