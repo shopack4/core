@@ -26,7 +26,7 @@ class SessionModel extends AAAActiveRecord
   //     ['ssnStatus', 'string', 'max' => 1],
   //     ['ssnStatus', 'default', 'value' => static::STATUS_PENDING],
 
-  //     ['ssnExpireAt', 'safe'],
+  //     ['ssnTokenExpireAt', 'safe'],
 
   //     ['ssnCreatedAt', 'safe'],
   //     // ['ssnCreatedBy', 'integer'],

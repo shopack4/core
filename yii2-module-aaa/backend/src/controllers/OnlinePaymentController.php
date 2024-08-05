@@ -244,8 +244,11 @@ HTML;
 			Yii::$app->request->getBodyParams(),
 		);
 
+		$onlinePaymentModel = null;
+
 		try {
-			$onlinePaymentModel = Yii::$app->paymentManager->approveOnlinePayment($paymentkey, $pgwResponse);
+			$onlinePaymentModel = Yii::$app->paymentManager->approveOnlinePayment(
+				$paymentkey, $pgwResponse);
 
       if ($onlinePaymentModel->onpStatus == enuOnlinePaymentStatus::Error) {
 				if (empty($onlinePaymentModel->onpResult['error']) == false) {
@@ -260,17 +263,10 @@ HTML;
 			}
 
 		} catch (\Throwable $th) {
-			if (empty($onlinePaymentModel)) {
-				$onlinePaymentModel = OnlinePaymentModel::find()
-					->joinWith('gateway')
-					->joinWith('voucher')
-					->andWhere(['onpUUID' => $paymentkey])
-					->one();
-			}
+			if ($onlinePaymentModel == null)
+				throw $th;
 
 			$onlinePaymentModel->addError('', $th->getMessage());
-
-			//throw $th;
 		}
 
 		//---

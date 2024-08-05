@@ -6,10 +6,10 @@
 namespace shopack\aaa\frontend\common\components;
 
 use Yii;
+use yii\web\ForbiddenHttpException;
 use yii\web\User as BaseUser;
 use shopack\base\common\helpers\Json;
 use shopack\base\frontend\common\helpers\PrivHelper;
-use yii\web\ForbiddenHttpException;
 
 class User extends BaseUser
 {

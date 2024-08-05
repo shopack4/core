@@ -321,15 +321,22 @@ HTML;
   /**
    * $pgwResponse: array|null response data back from payment gateway
    */
-  public function approveOnlinePayment($paymentkey, $pgwResponse) : OnlinePaymentModel
+  public function approveOnlinePayment(
+    OnlinePaymentModel|string $paymentkey,
+    $pgwResponse
+  ) : OnlinePaymentModel
   {
     $fnGetConstQouted = function($value) { return "'{$value}'"; };
 
-    $onlinePaymentModel = OnlinePaymentModel::find()
-      ->with('gateway')
-      ->with('voucher')
-      ->andWhere(['onpUUID' => $paymentkey])
-      ->one();
+    if (is_string($paymentkey)) {
+      $onlinePaymentModel = OnlinePaymentModel::find()
+        ->with('gateway')
+        ->with('voucher')
+        ->andWhere(['onpUUID' => $paymentkey])
+        ->one();
+    } else {
+      $onlinePaymentModel = $paymentkey;
+    }
 
     if ($onlinePaymentModel == null) {
       Yii::error('The requested online payment does not exist.', __METHOD__);

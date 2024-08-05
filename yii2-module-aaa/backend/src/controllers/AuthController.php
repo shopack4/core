@@ -44,6 +44,7 @@ class AuthController extends BaseRestController
 			'password-reset-by-forgot-code',
 			'challenge',
 			'challenge-timer-info',
+			'refresh-token',
 		];
 
 		// $behaviors['verbs'] = [
@@ -293,6 +294,18 @@ class AuthController extends BaseRestController
 		return [
 			'result' => true,
 		];
+	}
+
+	public function actionRefreshToken()
+	{
+		//todo: implement this
+
+
+
+
+
+
+		throw new \Exception('not implemented yet!');
 	}
 
 }

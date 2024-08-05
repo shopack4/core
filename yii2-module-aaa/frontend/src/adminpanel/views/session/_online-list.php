@@ -36,7 +36,7 @@ use shopack\aaa\common\enums\enuSessionStatus;
           return Html::a($model->user->displayName(), ['/aaa/user/view', 'id' => $model->ssnUserID]);
         },
       ],
-      'ssnExpireAt:jalaliWithTime',
+      'ssnTokenExpireAt:jalaliWithTime',
       [
         'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
         'enumClass' => enuSessionStatus::class,

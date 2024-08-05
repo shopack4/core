@@ -25,13 +25,20 @@ class JwtHttpBearerAuth extends BaseJwtHttpBearerAuth
 		}
 		catch (\Throwable $th)
 		{
-			$rememberMe = $token->claims()->get('rmmbr');
+			// ssnSessionExpireAt
+			// ssnOldJwt
+			// ssnRefreshedAt
+			// ssnRefreshCount
+			// ssnLockedAt
+			// ssnLockedBy
 
-			if ($rememberMe) {
+			// $rememberMe = $token->claims()->get('rmmbr');
+			// if ($rememberMe) {
+			// }
 
-			}
+			//UnauthorizedHttpException : 401
 
-			throw $th;
+			throw $th; // -> client must call auth/refresh-token if 401 raised
 		}
 
 		return $token;

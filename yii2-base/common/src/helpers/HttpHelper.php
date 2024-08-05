@@ -449,8 +449,7 @@ class HttpHelper
 
     } catch (ConnectException|RequestException $e) {
       $profile and Yii::endProfile($rawQuery, $loggingCategory);
-      throw new ServerErrorHttpException(get_class($e).': url='. $options['base_uri'] .' '. $e->getMessage(), 500);
-
+      throw new ServerErrorHttpException(get_class($e) . ': url=' . $url . ' ' . $e->getMessage(), 500);
     }
 
     $header = $response->getHeader('WWW-Authenticate');

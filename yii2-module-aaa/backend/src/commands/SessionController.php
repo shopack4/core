@@ -32,7 +32,7 @@ class SessionController extends Controller
   public function actionRemoveExpired()
   {
     //do not use `=` in condition for sleegy
-    $count = SessionModel::deleteAll('ssnExpireAt < NOW()');
+    $count = SessionModel::deleteAll('ssnTokenExpireAt < NOW()');
 
     $this->log("deleted count: {$count}");
 

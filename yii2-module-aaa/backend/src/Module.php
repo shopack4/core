@@ -43,6 +43,8 @@ class Module
 						'POST login' => 'login',
 						'GET,POST logout' => 'logout',
 
+						'POST refresh-token' => 'refresh-token',
+
 						'POST login-by-mobile' => 'login-by-mobile',
 
 						'POST challenge' => 'challenge',

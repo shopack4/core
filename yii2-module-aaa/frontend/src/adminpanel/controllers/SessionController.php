@@ -21,7 +21,7 @@ class SessionController extends BaseController
 		$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
 		$dataProvider->query
-			->andWhere(['>=', 'ssnExpireAt', new Expression('NOW()')])
+			->andWhere(['>=', 'ssnTokenExpireAt', new Expression('NOW()')])
 		;
 
     $viewParams = [

@@ -5,6 +5,7 @@
 
 namespace shopack\base\backend\helpers;
 
+use DateTimeImmutable;
 use Yii;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
@@ -40,9 +41,12 @@ class AuthHelper
 		}
 
 		$settings = Yii::$app->params['settings'];
-		$expireTTL = ArrayHelper::getValue($settings['AAA']['jwt'], 'ttl', 5 * 60);
+
+		$tokenExpireTTL		= ArrayHelper::getValue($settings['AAA']['jwt'], 'token-ttl',		 5 * 60);
+		$sessionExpireTTL	= ArrayHelper::getValue($settings['AAA']['jwt'], 'session-ttl',	24 * 3600);
+
 		$now = new \DateTimeImmutable();
-		$expire = $now->modify("+{$expireTTL} second");
+		$tokenExpire = $now->modify("+{$tokenExpireTTL} second");
 
 		$challenge = null;
 		if ($challengeNeeded !== self::CHALLENGE_NONE) {
@@ -70,7 +74,7 @@ class AuthHelper
 				$challengeToken = Yii::$app->jwt->getBuilder()
 					// ->identifiedBy($sessionModel->ssnID)
 					->issuedAt($now)
-					->expiresAt($expire)
+					->expiresAt($tokenExpire)
 					// ->withClaim('privs', $privs)
 					->withClaim('uid', $user->usrID)
 				;
@@ -157,14 +161,17 @@ class AuthHelper
 			PrivHelper::digestPrivs($privs);
 		}
 
-		//token
 		//-----------------------
+		$sessionExpireAt = $now->modify("+{$sessionExpireTTL} second");
+
+		//token
 		$token = Yii::$app->jwt->getBuilder()
 			->identifiedBy($sessionModel->ssnID) //Yii::$app->session->id) // Configures the id (jti claim)
 			->issuedAt($now)
-			->expiresAt($expire)
+			->expiresAt($tokenExpire)
 			->withClaim('privs', $privs)
 			->withClaim('uid', $user->usrID)
+			->withClaim('lexp', self::convertDate($sessionExpireAt))
 		;
 
 		if (empty($user->usrEmail) == false)			$token->withClaim('email', $user->usrEmail);
@@ -193,10 +200,10 @@ class AuthHelper
 				$token->withClaim('mustApprove', implode(',', $mustApprove));
 		}
 
-		$token = $token->getToken(
-			Yii::$app->jwt->getConfiguration()->signer(),
-			Yii::$app->jwt->getConfiguration()->signingKey()
-		);
+		$signer = Yii::$app->jwt->getConfiguration()->signer();
+		$signingKey = Yii::$app->jwt->getConfiguration()->signingKey();
+
+		$token = $token->getToken($signer, $signingKey);
 		$token = $token->toString();
 
 		//update session
@@ -204,7 +211,20 @@ class AuthHelper
 		$sessionModel->ssnStatus = ($user->usrStatus == enuUserStatus::NewForLoginByMobile
 			? enuSessionStatus::ForLoginByMobile
 			: enuSessionStatus::Active);
-		$sessionModel->ssnExpireAt = new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$expireTTL} SECOND)"); //$expire->format('Y-m-d H:i:s');
+
+		$sessionModel->ssnTokenExpireAt = new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$tokenExpireTTL} SECOND)"); //$tokenExpire->format('Y-m-d H:i:s');
+
+		$sessionModel->ssnSessionExpireAt = new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$sessionExpireTTL} SECOND)");
+
+		$ipv4 = $_SERVER['REMOTE_ADDR'] ?? null;
+		if ($ipv4 != null) {
+			$ipv4 = ip2long($ipv4);
+		}
+		$sessionModel->ssnIPv4 = $ipv4;
+
+		$sessionModel->ssnInfo = array_filter([
+			'user-agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+		]);
 
 		$sessionModel->save();
 
@@ -229,6 +249,15 @@ class AuthHelper
 			throw new NotFoundHttpException("Could not log out");
 
 		Yii::$app->user->accessToken = null;
+	}
+
+	private static function convertDate(DateTimeImmutable $date)
+	{
+		if ($date->format('u') === '000000') {
+			return (int) $date->format('U');
+		}
+
+		return (float) $date->format('U.u');
 	}
 
 }
