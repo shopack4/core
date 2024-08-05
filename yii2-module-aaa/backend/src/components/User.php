@@ -6,6 +6,7 @@
 namespace shopack\aaa\backend\components;
 
 use Yii;
+use yii\web\ForbiddenHttpException;
 use yii\web\User as BaseUser;
 use shopack\base\backend\helpers\PrivHelper;
 
@@ -29,6 +30,12 @@ class User extends BaseUser
 	public function hasPriv($path, $priv='1')
 	{
 		return PrivHelper::hasPriv($path, $priv);
+	}
+
+	public function assertIsNotGuest()
+	{
+		if ($this->isGuest)
+			throw new ForbiddenHttpException('guest not allowed');
 	}
 
 }

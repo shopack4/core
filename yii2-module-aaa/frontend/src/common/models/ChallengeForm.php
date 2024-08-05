@@ -10,6 +10,7 @@ use yii\base\Model;
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\base\frontend\common\helpers\Html;
+use yii\web\ForbiddenHttpException;
 
 class ChallengeForm extends Model
 {
@@ -113,7 +114,7 @@ HTML;
       $token = $resultData['token'];
       $user = UserModel::findIdentityByAccessToken($token);
       if ($user == null)
-        throw new \yii\web\ForbiddenHttpException('Invalid token');
+        throw new ForbiddenHttpException('Invalid token');
 
       return Yii::$app->user->login($user, 3600*24*30); //$this->rememberMe ? 3600*24*30 : 0);
     }

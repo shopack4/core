@@ -31,8 +31,7 @@ class OrderChangeDeliveryMethodForm extends Model
 
 	public function process()
 	{
-		if (Yii::$app->user->isGuest)
-			throw new ForbiddenHttpException("This process is not for guest.");
+		Yii::$app->user->assertIsNotGuest();
 
 		if ($this->validate() == false)
 			throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));

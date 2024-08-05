@@ -222,6 +222,10 @@ class RestClientQuery
       $this->httpClientExtraConfig
     );
 
+    if (defined('YII_DEV_LOCAL_PROXY')) {
+      $httpClientConfig['proxy'] = constant('YII_DEV_LOCAL_PROXY');
+    }
+
     $this->httpClient = new Client($httpClientConfig);
 
     if (Yii::$app->isJustForMe)

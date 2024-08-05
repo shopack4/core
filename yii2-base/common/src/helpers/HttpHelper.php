@@ -383,6 +383,10 @@ class HttpHelper
 
     $clientConfig['headers'] = $headers;
 
+    if (defined('YII_DEV_LOCAL_PROXY')) {
+      $clientConfig['proxy'] = constant('YII_DEV_LOCAL_PROXY');
+    }
+
     $client = new \GuzzleHttp\Client($clientConfig);
 
     $response = self::_guzzleRequest($client, $method, $url, $callOptions);

@@ -7,7 +7,6 @@
 
 use Yii;
 use yii\base\Model;
-use yii\web\ForbiddenHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\aaa\backend\models\ApprovalRequestModel;
 use shopack\base\common\helpers\PhoneHelper;
@@ -25,8 +24,7 @@ class MobileChangeForm extends Model
 
   public function process()
   {
-    if (Yii::$app->user->isGuest)
-      throw new ForbiddenHttpException("This process is not for guest.");
+    Yii::$app->user->assertIsNotGuest();
 
     $this->mobile = strtolower(trim($this->mobile));
 

@@ -7,9 +7,7 @@
 
 use Yii;
 use yii\base\Model;
-use yii\web\ForbiddenHttpException;
 use yii\web\UnprocessableEntityHttpException;
-use shopack\base\backend\helpers\AuthHelper;
 use shopack\aaa\backend\models\ApprovalRequestModel;
 use shopack\base\common\helpers\GeneralHelper;
 
@@ -26,8 +24,7 @@ class EmailChangeForm extends Model
 
   public function process()
   {
-    if (Yii::$app->user->isGuest)
-      throw new ForbiddenHttpException("This process is not for guest.");
+    Yii::$app->user->assertIsNotGuest();
 
     $this->email = strtolower(trim($this->email));
 

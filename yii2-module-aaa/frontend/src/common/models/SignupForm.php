@@ -8,6 +8,7 @@ namespace shopack\aaa\frontend\common\models;
 use Yii;
 use yii\base\Model;
 use shopack\base\common\helpers\HttpHelper;
+use yii\web\ForbiddenHttpException;
 
 class SignupForm extends Model
 {
@@ -75,7 +76,7 @@ class SignupForm extends Model
       $token = $resultData['token'];
       $user = UserModel::findIdentityByAccessToken($token);
       if ($user == null)
-        throw new \yii\web\ForbiddenHttpException('Invalid token');
+        throw new ForbiddenHttpException('Invalid token');
 
       return Yii::$app->user->login($user, 3600*24*30); //$this->rememberMe ? 3600*24*30 : 0);
     }

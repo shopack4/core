@@ -30,8 +30,7 @@ class BasketController extends BaseRestController
 {
 	public function actionGetCurrent($recheckItems = false)
 	{
-		if (Yii::$app->user->isGuest)
-			throw new ForbiddenHttpException('guest not allowed');
+		Yii::$app->user->assertIsNotGuest();
 
 		// $recheckItems = $_POST['recheckItems'] ?? false;
 

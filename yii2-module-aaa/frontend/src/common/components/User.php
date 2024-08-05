@@ -9,6 +9,7 @@ use Yii;
 use yii\web\User as BaseUser;
 use shopack\base\common\helpers\Json;
 use shopack\base\frontend\common\helpers\PrivHelper;
+use yii\web\ForbiddenHttpException;
 
 class User extends BaseUser
 {
@@ -57,6 +58,13 @@ class User extends BaseUser
 
 	public function validateJwtPayload($jwtPayload)
 	{
+		//checking expire datetime moved to the backend
+		return true;
+
+
+
+
+
 		if (empty($jwtPayload))
 			return false;
 
@@ -96,6 +104,12 @@ class User extends BaseUser
 	public function hasPriv($path, $priv='1')
 	{
 		return PrivHelper::hasPriv($path, $priv);
+	}
+
+	public function assertIsNotGuest()
+	{
+		if ($this->isGuest)
+			throw new ForbiddenHttpException('guest not allowed');
 	}
 
 }

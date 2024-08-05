@@ -40,8 +40,7 @@ class OrderPaymentForm extends Model
 		if ($this->callbackUrl == '')	$this->callbackUrl = null;
 
 		//validation
-		if (Yii::$app->user->isGuest)
-			throw new ForbiddenHttpException("This process is not for guest.");
+		Yii::$app->user->assertIsNotGuest();
 
 		if ($this->validate() == false)
 			throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
