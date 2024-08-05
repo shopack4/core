@@ -300,7 +300,15 @@ class AuthController extends BaseRestController
 	{
 		//todo: implement this
 
+		$token = Yii::$app->request->getBodyParams()['token']; //token must be provided in body
 
+
+		// ssnSessionExpireAt
+		// ssnOldJwt
+		// ssnRefreshedAt
+		// ssnRefreshCount
+		// ssnLockedAt
+		// ssnLockedBy
 
 
 

@@ -25,13 +25,6 @@ class JwtHttpBearerAuth extends BaseJwtHttpBearerAuth
 		}
 		catch (\Throwable $th)
 		{
-			// ssnSessionExpireAt
-			// ssnOldJwt
-			// ssnRefreshedAt
-			// ssnRefreshCount
-			// ssnLockedAt
-			// ssnLockedBy
-
 			// $rememberMe = $token->claims()->get('rmmbr');
 			// if ($rememberMe) {
 			// }
