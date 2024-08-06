@@ -8,6 +8,7 @@ namespace shopack\base\backend\auth;
 use bizley\jwt\Jwt as BaseJwt;
 use Lcobucci\JWT\ClaimsFormatter;
 use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Token;
 
 class Jwt extends BaseJwt
 {
@@ -23,6 +24,20 @@ class Jwt extends BaseJwt
 				new \Lcobucci\JWT\Validation\Constraint\ValidAt(\Lcobucci\Clock\FrozenClock::fromUTC()),
 			];
 		};
+	}
+
+	public function sanityCheck($jwt): bool
+	{
+		$configuration = $this->getConfiguration();
+		$token = $jwt instanceof Token ? $jwt : $this->parse($jwt);
+
+		$signer = $jwt->getConfiguration()->signer();
+		$signingKey = $jwt->getConfiguration()->signingKey();
+		$constraints = [
+			new \Lcobucci\JWT\Validation\Constraint\SignedWith($signer, $signingKey),
+		];
+
+		return $configuration->validator()->validate($token, ...$constraints);
 	}
 
 	// public function getBuilder(?ClaimsFormatter $claimFormatter = null): Builder

@@ -133,7 +133,7 @@ class LoginForm extends Model
         throw new UnprocessableEntityHttpException("could not login. \n" . implode("\n", $this->getFirstErrors()));
       }
 
-      list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin(
+      list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::login(
         $user,
         $this->rememberMe,
         $inputType,

@@ -68,7 +68,7 @@ class OTPForm extends Model
 		$result = ApprovalRequestModel::acceptCode($normalizedMobile, $this->code);
 		$userModel = $result['userModel'];
 		if ($userModel) {
-			list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($userModel);
+			list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::login($userModel);
 
 			return [
 				'token' => $token,

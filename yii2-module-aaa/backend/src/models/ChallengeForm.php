@@ -83,7 +83,7 @@ class ChallengeForm extends Model
     if (array_key_exists('rmmbr', $challengeToken)) {
       $userModel = UserModel::findOne($userID);
 
-      list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin(
+      list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::login(
         $userModel,
         $challengeToken['rmmbr']
       );

@@ -86,7 +86,7 @@ class AuthController extends BaseRestController
 
 		//login
 		//-----------------------
-		list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($model->user, $model->rememberMe);
+		list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::login($model->user, $model->rememberMe);
 
 		return [
 			'token' => $token,
@@ -302,20 +302,12 @@ class AuthController extends BaseRestController
 		if (YII_ENV_PROD)
 			throw new \Exception('not implemented yet!');
 
+		//do not change to `->getBodyParam('token');` : raise an exception if no token is provided
+		$token = Yii::$app->request->getBodyParams()['token'];
 
-		$token = Yii::$app->request->getBodyParams()['token']; //token must be provided in body
-
-
-		// ssnSessionExpireAt
-		// ssnOldJwt
-		// ssnRefreshedAt
-		// ssnRefreshCount
-		// ssnLockedAt
-		// ssnLockedBy
-
-
-
-
+		return [
+			'token' => AuthHelper::refreshToken($token),
+		];
 	}
 
 }

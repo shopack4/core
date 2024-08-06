@@ -96,7 +96,7 @@ class LoginByMobileForm extends Model
 			// 	true
 			// );
 
-			// list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin($user, false, $inputType, AuthHelper::CHALLENGE_ENABLE_WITHOUT_SMS, ['otp' => 'sms']);
+			// list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::login($user, false, $inputType, AuthHelper::CHALLENGE_ENABLE_WITHOUT_SMS, ['otp' => 'sms']);
 
 			// return array_merge([
 			// 	// 'token' => $token,
@@ -112,7 +112,7 @@ class LoginByMobileForm extends Model
 		$result = ApprovalRequestModel::acceptCode($normalizedMobile, $this->code);
 		$userModel = $result['userModel'];
 		if ($userModel) {
-			list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::doLogin(
+			list ($token, $mustApprove, $sessionModel, $challenge) = AuthHelper::login(
 				$userModel,
 				$this->rememberMe,
 				GeneralHelper::PHRASETYPE_MOBILE,

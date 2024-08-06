@@ -28,7 +28,7 @@ class AuthHelper
 	/**
 	 * @return: [$token, $mustApprove, $sessionModel, $challenge]
 	 */
-	static function doLogin(
+	static function login(
 		$user,
 		bool $rememberMe = false,
 		$inputType = null,
@@ -249,6 +249,24 @@ class AuthHelper
 			throw new NotFoundHttpException("Could not log out");
 
 		Yii::$app->user->accessToken = null;
+	}
+
+	public static function refreshToken($refresh_token)
+	{
+		$token = Yii::$app->jwt->parse($refresh_token);
+		Yii::$app->jwt->validate($token);
+
+		$sessionModel = SessionModel::findOne([
+			'ssnID' => $token->claims()->get('jti')
+		]);
+
+		// ssnSessionExpireAt
+		// ssnOldJwt
+		// ssnRefreshedAt
+		// ssnRefreshCount
+		// ssnLockedAt
+		// ssnLockedBy
+
 	}
 
 	private static function convertDate(DateTimeImmutable $date)
