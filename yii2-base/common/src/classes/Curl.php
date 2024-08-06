@@ -115,10 +115,7 @@ class Curl {
     //Url
     $Url = $this->url; //baseUrl . $this->api;
 
-    //justForMe
     if ($this->isLocalApiServer) {
-      // $this->urlParams['caller-address'] = Url::to(['/'], true);
-
       if (Yii::$app->isJustForMe)
         $this->urlParams['justForMe'] = 1;
     }

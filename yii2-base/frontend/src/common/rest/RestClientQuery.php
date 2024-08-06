@@ -19,6 +19,7 @@ use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use shopack\base\common\helpers\Json;
 use shopack\base\common\helpers\LanguageHelper;
+use shopack\base\common\helpers\Url;
 use shopack\base\frontend\common\rest\RestClientQueryInterface;
 use shopack\base\frontend\common\rest\RestClientActiveRecord;
 
@@ -210,7 +211,10 @@ class RestClientQuery
         $this->requestHeaders['Authorization'] = 'Bearer ' . $jwt;
     }
 
+    $this->requestHeaders['Origin'] = rtrim(Url::to(['/'], true), '/\\');
+
     $httpClientConfig = array_merge([
+
         // \GuzzleHttp\RequestOptions::CONNECT_TIMEOUT => 10, //seconds
         // \GuzzleHttp\RequestOptions::TIMEOUT => 10, //seconds
 

@@ -30,7 +30,8 @@ class HttpHelper
   const PROVIDER_GUZZLE = 'guzzle';
 
   // public static $provider = self::PROVIDER_CURL;
-  public static $provider = (YII_ENV_DEV ? self::PROVIDER_GUZZLE : self::PROVIDER_CURL);
+  public static $provider = self::PROVIDER_GUZZLE;
+  // public static $provider = (YII_ENV_DEV ? self::PROVIDER_GUZZLE : self::PROVIDER_CURL);
 
   // public static $unserializers = [
   //   'application/json' => [
@@ -86,11 +87,34 @@ class HttpHelper
       ->setOptions($options)
     ;
 
-    list ($resultStatus, $response) = $curl->execute();
+    list ($resultStatus, $responseData) = $curl->execute();
+
+    return self::formatResponse($resultStatus, $responseData);
+  }
+
+  protected static function formatResponse($resultStatus, $responseData)
+  {
     $resultData = [];
 
+    if (is_string($responseData)) {
+      //json null
+      if (strcasecmp($responseData, 'null') == 0)
+        $responseData = null;
+
+      //convert $responseData string to json array
+      if (empty($responseData) == false) {
+        $org = $responseData;
+        $responseData = Json::decode($responseData);
+        if ($responseData === null) {
+          $responseData = [
+            'message' => $org,
+          ];
+        }
+      }
+    }
+
     /*
-      $response:
+      $responseData:
       {
         "name": "Unauthorized",
         "message": "{\"0\":\"THE_WAITING_TIME_HAS_NOT_ELAPSED\",\"ttl\":67,\"remained\":\"1:7\"}",
@@ -108,14 +132,14 @@ class HttpHelper
         ]
     */
     if ($resultStatus < 200 || $resultStatus >= 300) {
-      if (isset($response['message'])) {
+      if (isset($responseData['message'])) {
         try {
-          $json = Json::decode($response['message']);
+          $json = Json::decode($responseData['message']);
         } catch (\Throwable $th) { }
 
         if (empty($json))
           $resultData = [
-            'message' => $response['message']
+            'message' => $responseData['message']
           ];
         else
           $resultData = [
@@ -129,7 +153,7 @@ class HttpHelper
     }
 
     /*
-      $response:
+      $responseData:
       {
         "message": {
           "0": "CODE_SENT",
@@ -146,9 +170,9 @@ class HttpHelper
           "remained": "2:0"
         ]
     */
-    else if (isset($response['message'])) {
-      $message = (array)$response['message'];
-      unset($response['message']);
+    else if (isset($responseData['message'])) {
+      $message = (array)$responseData['message'];
+      unset($responseData['message']);
 
       $resultData = [
         'message' => array_shift($message),
@@ -157,12 +181,12 @@ class HttpHelper
       if (empty($message == false))
         $resultData = array_merge($resultData, $message);
 
-      if (empty($response) == false)
-        $resultData = array_merge($resultData, $response);
+      if (empty($responseData) == false)
+        $resultData = array_merge($resultData, $responseData);
     }
 
     /*
-      $response:
+      $responseData:
       {
         totalCount: 100,
         rows: [
@@ -194,16 +218,16 @@ class HttpHelper
         ],
       ]
     */
-    else if (isset($response['rows'])) {
-      $resultData = $response;
+    else if (isset($responseData['rows'])) {
+      $resultData = $responseData;
     }
 
-    else if (isset($response['data'])) {
-      $resultData = $response;
+    else if (isset($responseData['data'])) {
+      $resultData = $responseData;
     }
 
     else
-      $resultData = $response;
+      $resultData = $responseData;
 
     return [$resultStatus, $resultData];
   }
@@ -281,10 +305,7 @@ class HttpHelper
     } else
       $clientConfig['base_uri'] = $url;
 
-    //justForMe
     if ($isLocalApiServer) {
-      // $urlParams['caller-address'] = Url::to(['/'], true);
-
       if (Yii::$app->isJustForMe)
         $urlParams['justForMe'] = 1;
     }
@@ -394,17 +415,19 @@ class HttpHelper
 
     $response = self::_guzzleRequest($client, $method, $url, $callOptions);
 
-    $statusCode = $response->getStatusCode();
+    $resultStatus = $response->getStatusCode();
     // $responseData = self::_unserializeResponseBody($response);
     $responseData = (string)$response->getBody();
 
+    return self::formatResponse($resultStatus, $responseData);
+
     // if ($response === false) {
-    //   $statusCode = (-1) * curl_errno($CurlObject);
+    //   $resultStatus = (-1) * curl_errno($CurlObject);
     //   $response = [
     //     'message' => curl_error($CurlObject),
     //   ];
     // } else {
-      // $statusCode = curl_getinfo($CurlObject, CURLINFO_RESPONSE_CODE);
+      // $resultStatus = curl_getinfo($CurlObject, CURLINFO_RESPONSE_CODE);
 
       if (is_string($responseData)) {
         //json null
@@ -424,7 +447,7 @@ class HttpHelper
       }
     // }
 
-    return [$statusCode, $responseData];
+    return [$resultStatus, $responseData];
   }
 
   protected static function _guzzleRequest($client, $method, $url, array $options)
