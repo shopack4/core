@@ -117,7 +117,7 @@ class Curl {
 
     //justForMe
     if ($this->isLocalApiServer) {
-      $this->urlParams['caller-address'] = Url::to(['/'], true);
+      // $this->urlParams['caller-address'] = Url::to(['/'], true);
 
       if (Yii::$app->isJustForMe)
         $this->urlParams['justForMe'] = 1;
@@ -197,6 +197,8 @@ class Curl {
     $headers = [];
 
     if ($this->isLocalApiServer) {
+      $headers[] = 'Origin: ' . rtrim(Url::to(['/'], true), '/\\');
+
       $headers[] = 'Accept: application/json';
       // $headers[] = 'Content-Type: application/json';
 
@@ -217,6 +219,12 @@ class Curl {
     }
 
     $b = curl_setopt($CurlObject, CURLOPT_HTTPHEADER, $headers);
+
+    if (defined('YII_DEV_LOCAL_PROXY')) {
+      $proxy = parse_url(constant('YII_DEV_LOCAL_PROXY'));
+      curl_setopt($CurlObject, CURLOPT_PROXY,     $proxy['host']);
+      curl_setopt($CurlObject, CURLOPT_PROXYPORT, $proxy['port'] ?? 80);
+    }
 
     //execute
     $response = curl_exec($CurlObject);

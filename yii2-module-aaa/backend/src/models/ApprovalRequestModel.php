@@ -326,13 +326,10 @@ SQL;
       'code' => $code,
     ];
 
-    if (isset($_GET['caller-address'])) {
-      $panelAddress = $_GET['caller-address'];
-
-      if (str_ends_with($panelAddress, '/'))
-        $panelAddress = substr($panelAddress, 0, strlen($panelAddress) - 1);
-
-      $msgInfo['panel-address'] = $panelAddress;
+    $request_origin = Yii::$app->request->getOrigin();
+    if ($request_origin != null) {
+      $request_origin = rtrim($request_origin, '/\\');
+      $msgInfo['panel-address'] = $request_origin;
     }
 
     if ($inputType == enuApprovalRequestKeyType::Email) {

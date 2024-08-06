@@ -29,6 +29,7 @@ class HttpHelper
   const PROVIDER_CURL   = 'curl';
   const PROVIDER_GUZZLE = 'guzzle';
 
+  // public static $provider = self::PROVIDER_CURL;
   public static $provider = (YII_ENV_DEV ? self::PROVIDER_GUZZLE : self::PROVIDER_CURL);
 
   // public static $unserializers = [
@@ -282,7 +283,7 @@ class HttpHelper
 
     //justForMe
     if ($isLocalApiServer) {
-      $urlParams['caller-address'] = Url::to(['/'], true);
+      // $urlParams['caller-address'] = Url::to(['/'], true);
 
       if (Yii::$app->isJustForMe)
         $urlParams['justForMe'] = 1;
@@ -362,6 +363,8 @@ class HttpHelper
     $headers = [];
 
     if ($isLocalApiServer) {
+      $headers['Origin'] = rtrim(Url::to(['/'], true), '/\\');
+
       $headers['Accept'] = 'application/json';
       // $headers[] = 'Content-Type: application/json';
 
