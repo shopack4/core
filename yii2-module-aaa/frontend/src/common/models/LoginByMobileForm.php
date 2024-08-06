@@ -26,6 +26,7 @@ class LoginByMobileForm extends Model
 
   public function rules()
   {
+    $bodyParams = Yii::$app->request->getBodyParams();
 		$formName = strtolower($this->formName());
 
     return [
@@ -35,8 +36,8 @@ class LoginByMobileForm extends Model
       // ['resend', 'safe'],
       ['code', 'string'],
       ['code', 'required',
-        'when' => function ($model) {
-          return (($model->step == self::STEP_CODE) && (($_POST['resend'] ?? 0) == 0));
+        'when' => function ($model) use($bodyParams) {
+          return (($model->step == self::STEP_CODE) && (($bodyParams['resend'] ?? 0) == 0));
         },
         'whenClient' => "function (attribute, value) {
           return (($('#{$formName}-step').val() == '" . self::STEP_CODE . "') && ($('#resend').val() == 0));
@@ -62,7 +63,8 @@ class LoginByMobileForm extends Model
     if ($this->validate() == false)
       return false;
 
-    if (($this->step == self::STEP_CODE) && ($_POST['resend'] == 1)) {
+    $bodyParams = Yii::$app->request->getBodyParams();
+    if (($this->step == self::STEP_CODE) && ($bodyParams['resend'] == 1)) {
       list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-approval-code',
         HttpHelper::METHOD_POST,
         [],

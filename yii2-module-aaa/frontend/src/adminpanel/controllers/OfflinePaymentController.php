@@ -30,7 +30,9 @@ class OfflinePaymentController extends BaseCrudController
 	/*
 	public function old_actionApprove($id)
 	{
-    if (empty($_POST['confirmed']))
+		$bodyParams = Yii::$app->request->getBodyParams();
+
+    if (empty($bodyParams['confirmed']))
       throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
 		if (Yii::$app->request->isAjax == false)
@@ -128,7 +130,9 @@ class OfflinePaymentController extends BaseCrudController
 	/*
 	public function OLD_actionReject($id)
 	{
-    if (empty($_POST['confirmed']))
+		$bodyParams = Yii::$app->request->getBodyParams();
+
+    if (empty($bodyParams['confirmed']))
       throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
 		if (Yii::$app->request->isAjax == false)

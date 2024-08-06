@@ -128,7 +128,7 @@ abstract class BaseAccountingController extends BaseRestController
 	/*
 	public function getSecureData()
 	{
-		$allData = $_POST;
+		$allData = Yii::$app->request->getBodyParams();
 
 		$service = $allData['service'];
 		if (empty($service))

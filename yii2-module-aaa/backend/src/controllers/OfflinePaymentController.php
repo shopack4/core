@@ -205,8 +205,10 @@ class OfflinePaymentController extends BaseRestController
 	{
 		PrivHelper::checkPriv('aaa/offline-payment/reject');
 
+		$bodyParams = Yii::$app->request->getBodyParams();
+
 		$model = $this->findModel($id);
-		$model->doReject($_POST['reasons'] ?? null, $_POST['comment'] ?? null);
+		$model->doReject($bodyParams['reasons'] ?? null, $bodyParams['comment'] ?? null);
 
 		return [
 			'result' => true,

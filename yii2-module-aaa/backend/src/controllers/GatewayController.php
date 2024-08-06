@@ -117,7 +117,7 @@ class GatewayController extends BaseCrudController
 
 		$params = [
 			'get' => $_GET,
-			'post' => $_POST,
+			'post' => Yii::$app->request->getBodyParams(),
 		];
 
 		$gatewayClass->log(

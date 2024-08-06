@@ -10,6 +10,7 @@ use shopack\base\common\helpers\StringHelper;
 use shopack\aaa\frontend\common\auth\BaseCrudController;
 use shopack\aaa\frontend\common\models\GeoStateModel;
 use shopack\aaa\frontend\common\models\GeoStateSearchModel;
+use Yii;
 
 class GeoStateController extends BaseCrudController
 {
@@ -38,7 +39,9 @@ class GeoStateController extends BaseCrudController
 
 	public function actionDepdropList($p=null, $sel=null)
   {
-    $parentID = (isset($_POST['depdrop_parents']) ? end($_POST['depdrop_parents']) : $p);
+		$bodyParams = Yii::$app->request->getBodyParams();
+
+    $parentID = (isset($bodyParams['depdrop_parents']) ? end($bodyParams['depdrop_parents']) : $p);
 
 		$out = [
 			'output' => [],

@@ -101,8 +101,10 @@ class VoucherController extends BaseRestController
 
 	public function actionGetOrCreateOpenInvoice()
 	{
-		$memberID		= $_POST['memberID'] ?? Yii::$app->user->id;
-		$invoiceID	= $_POST['invoiceID'] ?? null;
+		$bodyParams = Yii::$app->request->getBodyParams();
+
+		$memberID		= $bodyParams['memberID'] ?? Yii::$app->user->id;
+		$invoiceID	= $bodyParams['invoiceID'] ?? null;
 
 		if (($memberID != Yii::$app->user->id)
 				&& (PrivHelper::hasPriv('aaa/voucher/crud', '1000') == false))

@@ -234,7 +234,8 @@ abstract class BaseCrudController extends BaseController
 
   public function actionDelete($id)
   {
-    if (empty($_POST['confirmed']))
+		$bodyParams = Yii::$app->request->getBodyParams();
+    if (empty($bodyParams['confirmed']))
       throw new UnprocessableEntityHttpException('دستور حذف باید تایید شده باشد');
 
 		$model = $this->findModel($id);
@@ -250,7 +251,8 @@ abstract class BaseCrudController extends BaseController
 
   public function actionUndelete($id)
   {
-    if (empty($_POST['confirmed']))
+		$bodyParams = Yii::$app->request->getBodyParams();
+    if (empty($bodyParams['confirmed']))
       throw new UnprocessableEntityHttpException('دستور بازگردانی باید تایید شده باشد');
 
 		$model = $this->findModel($id);

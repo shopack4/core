@@ -30,7 +30,9 @@ class GatewayController extends BaseCrudController
 
   public function actionPluginList($p=null, $sel=null)
   {
-    $type = (isset($_POST['depdrop_parents']) ? end($_POST['depdrop_parents']) : $p);
+		$bodyParams = Yii::$app->request->getBodyParams();
+
+    $type = (isset($bodyParams['depdrop_parents']) ? end($bodyParams['depdrop_parents']) : $p);
 		// return $this->renderJson(['output' => Yii::$app->shopack->gateway->getList($type), 'selected' => $sel]);
 
     Yii::$app->response->format = Response::FORMAT_JSON;

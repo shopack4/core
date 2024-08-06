@@ -158,7 +158,7 @@ class AsanPardakhtSoapPaymentGateway
 		$password = $this->extensionModel->gtwPluginParameters[self::PARAM_PASSWORD];
 		$merchant_id = $this->extensionModel->gtwPluginParameters[self::PARAM_MERCHANT_ID];
 
-		// $ReturningParams = $_POST['ReturningParams'];
+		// $ReturningParams = Yii::$app->request->getBodyParam('ReturningParams');
 		$ReturningParams = $pgwResponse['ReturningParams'];
 		$ReturningParams = $this->decrypt($ReturningParams);
 		$RetArr = explode(",", $ReturningParams);
@@ -463,7 +463,9 @@ class AsanPardakhtSoapPaymentGateway
 
 public function successinvoice()
 {
-	$ReturningParams = $_POST['ReturningParams'];
+	$bodyParams = Yii::$app->request->getBodyParams();
+
+	$ReturningParams = $bodyParams['ReturningParams'];
 	$ReturningParams = decrypt($ReturningParams);
 	$RetArr = explode(",", $ReturningParams);
 	$Amount = $RetArr[0];
@@ -533,7 +535,9 @@ public function successinvoice()
 
 public function gotobank()
 {
-	if (isset($_POST['payment'])) {
+	$bodyParams = Yii::$app->request->getBodyParams();
+
+	if (isset($bodyParams['payment'])) {
 			$code = $read_profile['tbl_profile_code'];
 			$price = $membership;
 			$orderId = rand();
@@ -572,7 +576,9 @@ public function gotobank()
 
 public function success()
 {
-	$ReturningParams = $_POST['ReturningParams'];
+	$bodyParams = Yii::$app->request->getBodyParams();
+
+	$ReturningParams = $bodyParams['ReturningParams'];
 	$ReturningParams = decrypt($ReturningParams);
 	$RetArr = explode(",", $ReturningParams);
 	$Amount = $RetArr[0];

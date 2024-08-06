@@ -12,12 +12,14 @@ class DepDrop extends \kartik\widgets\DepDrop
 {
 	public function init()
 	{
+		$bodyParams = Yii::$app->request->getBodyParams();
+
 		$isModal = Yii::$app->request->isAjax;
 		if ($isModal) {
 			if (isset($_GET['ajax_popupSize']))
 				$ajax_popupSize = $_GET['ajax_popupSize'];
-			else if (isset($_POST['ajax_popupSize']))
-				$ajax_popupSize = $_POST['ajax_popupSize'];
+			else if (isset($bodyParams['ajax_popupSize']))
+				$ajax_popupSize = $bodyParams['ajax_popupSize'];
 			else
 				$ajax_popupSize = 'sm';
 

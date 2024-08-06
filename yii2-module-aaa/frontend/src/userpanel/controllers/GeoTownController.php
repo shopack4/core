@@ -7,12 +7,15 @@ namespace shopack\aaa\frontend\userpanel\controllers;
 
 use shopack\aaa\frontend\common\auth\BaseController;
 use shopack\aaa\frontend\common\models\GeoTownModel;
+use Yii;
 
 class GeoTownController extends BaseController
 {
 	public function actionDepdropList($p=null, $sel=null)
   {
-    $parentID = (isset($_POST['depdrop_parents']) ? end($_POST['depdrop_parents']) : $p);
+    $bodyParams = Yii::$app->request->getBodyParams();
+
+		$parentID = (isset($bodyParams['depdrop_parents']) ? end($bodyParams['depdrop_parents']) : $p);
 
 		$out = [
 			'output' => [],

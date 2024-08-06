@@ -76,8 +76,7 @@ class BaseRestController extends BaseController
 
 	public function getSecureData()
 	{
-		// $allData = array_merge($_GET, $_POST);
-		$allData = $_POST;
+		$allData = Yii::$app->request->getBodyParams();
 
 		$service = $allData['service'];
 		if (empty($service))

@@ -82,7 +82,9 @@ class GeoCityOrVillageController extends BaseCrudController
 
 	public function actionDepdropList($p=null, $sel=null)
   {
-    $parentID = (isset($_POST['depdrop_parents']) ? end($_POST['depdrop_parents']) : $p);
+		$bodyParams = Yii::$app->request->getBodyParams();
+
+    $parentID = (isset($bodyParams['depdrop_parents']) ? end($bodyParams['depdrop_parents']) : $p);
 
 		$out = [
 			'output' => [],

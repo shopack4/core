@@ -32,7 +32,8 @@ class BasketController extends BaseRestController
 	{
 		Yii::$app->user->assertIsNotGuest();
 
-		// $recheckItems = $_POST['recheckItems'] ?? false;
+		// $bodyParams = Yii::$app->request->getBodyParams();
+		// $recheckItems = $bodyParams['recheckItems'] ?? false;
 
 		// $data = $this->getSecureData();
 

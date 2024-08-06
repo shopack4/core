@@ -155,7 +155,9 @@ class OrderController extends BaseController
 
 	public function actionCancel($id)
 	{
-    if (empty($_POST['confirmed']))
+    $bodyParams = Yii::$app->request->getBodyParams();
+
+    if (empty($bodyParams['confirmed']))
       throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
 		if (Yii::$app->request->isAjax == false)

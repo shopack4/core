@@ -7,7 +7,9 @@
 
 <form id="callbackform" action="<?= $done ?>" method="post">
 	<?php
-		foreach ($_POST as $k => $v) {
+		$bodyParams = Yii::$app->request->getBodyParams();
+
+		foreach ($bodyParams as $k => $v) {
 			if ($k != 'done') {
 				echo '<input type="hidden" name="'
 					. htmlentities($k)

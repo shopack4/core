@@ -270,7 +270,7 @@ class VoucherModel extends AAAActiveRecord
 		$orgVchTotalAmount    = $voucherModel->vchTotalAmount ?? 0;
 
 		//---------------------------------
-		// $allData = $_POST;
+		// $allData = Yii::$app->request->getBodyParams();
 		// $service = $allData['service'];
 
 		$newServiceItems = [];

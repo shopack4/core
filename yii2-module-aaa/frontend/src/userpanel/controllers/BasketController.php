@@ -68,7 +68,8 @@ class BasketController extends BaseController
 
   public function actionRemoveItem($key)
   {
-    if (empty($_POST['confirmed']))
+    $bodyParams = Yii::$app->request->getBodyParams();
+    if (empty($bodyParams['confirmed']))
       throw new UnprocessableEntityHttpException('دستور حذف باید تایید شده باشد');
 
 		$model = new BasketItemForm;

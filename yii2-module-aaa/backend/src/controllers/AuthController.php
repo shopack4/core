@@ -296,9 +296,12 @@ class AuthController extends BaseRestController
 		];
 	}
 
+	//todo: implement this
 	public function actionRefreshToken()
 	{
-		//todo: implement this
+		if (YII_ENV_PROD)
+			throw new \Exception('not implemented yet!');
+
 
 		$token = Yii::$app->request->getBodyParams()['token']; //token must be provided in body
 
@@ -313,7 +316,6 @@ class AuthController extends BaseRestController
 
 
 
-		throw new \Exception('not implemented yet!');
 	}
 
 }

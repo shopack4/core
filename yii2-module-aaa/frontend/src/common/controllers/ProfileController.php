@@ -215,7 +215,8 @@ class ProfileController extends BaseController
 
   public function actionResendEmailApproval()
   {
-    if (empty($_POST['confirmed']))
+		$bodyParams = Yii::$app->request->getBodyParams();
+    if (empty($bodyParams['confirmed']))
       throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
     if (Yii::$app->request->isAjax == false)
@@ -316,7 +317,8 @@ class ProfileController extends BaseController
 
   public function actionResendMobileApproval()
   {
-    if (empty($_POST['confirmed']))
+		$bodyParams = Yii::$app->request->getBodyParams();
+    if (empty($bodyParams['confirmed']))
       throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
     if (Yii::$app->request->isAjax == false)
@@ -569,7 +571,8 @@ class ProfileController extends BaseController
 
   public function actionInactive2fa($type)
   {
-    if (empty($_POST['confirmed']))
+		$bodyParams = Yii::$app->request->getBodyParams();
+    if (empty($bodyParams['confirmed']))
       throw new UnprocessableEntityHttpException('این عملیات باید تایید شده باشد');
 
     if (Yii::$app->request->isAjax == false)

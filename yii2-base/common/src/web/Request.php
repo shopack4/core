@@ -27,16 +27,15 @@ class Request extends \yii\web\Request
 	 */
 	public static function GetOrPost($key, $def=null)
 	{
-		// php 7:
-		// return $_POST[$key] ?? $_GET[$key] ?? $def;
+		$bodyParams = Yii::$app->request->getBodyParams();
 
 		if (!is_array($key))
 			$key = [$key];
 
 		foreach ($key as $k)
 		{
-			if (isset($_POST[$k]))
-				return $_POST[$k];
+			if (isset($bodyParams[$k]))
+				return $bodyParams[$k];
 
 			if (isset($_GET[$k]))
 				return $_GET[$k];

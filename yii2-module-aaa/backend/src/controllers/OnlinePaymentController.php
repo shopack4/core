@@ -306,7 +306,7 @@ HTML;
 
 		// $params = [
 		// 	'get' => $_GET,
-		// 	'post' => $_POST,
+		// 	'post' => Yii::$app->request->getBodyParams(),
 		// ];
 
 		// $onlinePaymentClass->log(
