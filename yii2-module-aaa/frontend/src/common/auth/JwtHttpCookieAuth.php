@@ -28,7 +28,7 @@ class JwtHttpCookieAuth extends \yii\filters\auth\AuthMethod
 
       //validate
       /*
-      $parsedToken = Yii::$app->jwt->parser->parse($token);
+      $parsedToken = Yii::$app->jwt->parse($token);
       $jwtPayload = $parsedToken->claims()->all();
       $sessionid = $jwtPayload['jti'];
       if (Yii::$app->cache->)

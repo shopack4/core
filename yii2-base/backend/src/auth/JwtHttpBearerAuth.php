@@ -7,6 +7,7 @@ namespace shopack\base\backend\auth;
 
 use bizley\jwt\JwtHttpBearerAuth as BaseJwtHttpBearerAuth;
 use Lcobucci\JWT\Token;
+use yii\web\UnauthorizedHttpException;
 
 class JwtHttpBearerAuth extends BaseJwtHttpBearerAuth
 {
@@ -17,14 +18,11 @@ class JwtHttpBearerAuth extends BaseJwtHttpBearerAuth
 
 	public function processToken(string $data): ?Token
 	{
-		$token = $this->getJwtComponent()->parse($data);
-
 		try
 		{
-			$this->getJwtComponent()->assert($token);
-		}
-		catch (\Throwable $th)
-		{
+			$token = $this->getJwtComponent()->parse($data);
+			// $this->getJwtComponent()->assert($token);
+		} catch (\Throwable $th) {
 			// $rememberMe = $token->claims()->get('rmmbr');
 			// if ($rememberMe) {
 			// }

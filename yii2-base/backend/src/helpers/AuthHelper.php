@@ -18,6 +18,7 @@ use shopack\aaa\common\enums\enuSessionStatus;
 use shopack\aaa\common\enums\enuTwoFAType;
 use shopack\aaa\backend\models\SessionModel;
 use shopack\aaa\backend\models\RoleModel;
+use shopack\base\backend\auth\Jwt;
 
 class AuthHelper
 {
@@ -253,12 +254,19 @@ class AuthHelper
 
 	public static function refreshToken($refresh_token)
 	{
-		$token = Yii::$app->jwt->parse($refresh_token);
-		Yii::$app->jwt->validate($token);
+		$token = Yii::$app->jwt->parse($refresh_token, Jwt::VALIDATE_SANITY);
 
+		// Yii::$app->jwt->sanityCheck($token);
+
+		$sessionID = $token->claims()->get('jti');
 		$sessionModel = SessionModel::findOne([
-			'ssnID' => $token->claims()->get('jti')
+			'ssnID' => $sessionID,
 		]);
+
+		if ($sessionModel == null)
+			throw new NotFoundHttpException("Session not found");
+
+		$sessionExp = $token->claims()->get('lexp');
 
 		// ssnSessionExpireAt
 		// ssnOldJwt

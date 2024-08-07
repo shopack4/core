@@ -150,7 +150,7 @@ class UserModel extends RestClientActiveRecord
     // $jwtPayload = base64_decode($parts[1]);
     // $jwtPayload = Json::decode($jwtPayload);
 
-    $parsedToken = Yii::$app->jwt->parser->parse($token);
+    $parsedToken = Yii::$app->jwt->parse($token);
     $jwtPayload = $parsedToken->claims()->all();
 
     //validate
