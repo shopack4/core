@@ -119,10 +119,10 @@ class AuthHelper
 					$challengeToken->withClaim('ssid', $user->usrSSID);
 				}
 
-				$challengeToken = $challengeToken->getToken(
-					Yii::$app->jwt->getConfiguration()->signer(),
-					Yii::$app->jwt->getConfiguration()->signingKey()
-				);
+				$signer = Yii::$app->jwt->getConfiguration()->signer();
+				$signingKey = Yii::$app->jwt->getConfiguration()->signingKey();
+
+				$challengeToken = $challengeToken->getToken($signer, $signingKey);
 				$challengeToken = $challengeToken->toString();
 
 				return [null, false, null, $challengeToken];

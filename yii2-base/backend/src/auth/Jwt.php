@@ -22,10 +22,13 @@ class Jwt extends BaseJwt
 		parent::init();
 
 		$this->validationConstraints = function (\bizley\jwt\Jwt $jwt) {
-			$signer = $jwt->getConfiguration()->signer();
-			$signingKey = $jwt->getConfiguration()->signingKey();
+			$configuration = $jwt->getConfiguration();
+
+			$signer = $configuration->signer();
+			$verificationKey = $configuration->verificationKey();
+
 			return [
-				new \Lcobucci\JWT\Validation\Constraint\SignedWith($signer, $signingKey),
+				new \Lcobucci\JWT\Validation\Constraint\SignedWith($signer, $verificationKey),
 				new \Lcobucci\JWT\Validation\Constraint\ValidAt(\Lcobucci\Clock\FrozenClock::fromUTC()),
 			];
 		};
@@ -36,10 +39,11 @@ class Jwt extends BaseJwt
 		$configuration = $this->getConfiguration();
 		$token = $jwt instanceof Token ? $jwt : $this->parse($jwt);
 
-		$signer = $this->getConfiguration()->signer();
-		$signingKey = $this->getConfiguration()->signingKey();
+		$signer = $configuration->signer();
+		$verificationKey = $configuration->verificationKey();
+
 		$constraints = [
-			new \Lcobucci\JWT\Validation\Constraint\SignedWith($signer, $signingKey),
+			new \Lcobucci\JWT\Validation\Constraint\SignedWith($signer, $verificationKey),
 		];
 
 		if ($configuration->validator()->validate($token, ...$constraints) == false)

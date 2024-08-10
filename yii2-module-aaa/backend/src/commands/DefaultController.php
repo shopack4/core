@@ -50,12 +50,12 @@ class DefaultController extends Controller
     	echo "[" . date('Y/m/d H:i:s') . "][{$type}] {$message}\n";
   }
 
-	public function actionNewKeys()
+	public function actionNewKeys($alg='sha256', $size=2048)
 	{
 		$config = [
-			"digest_alg" => "sha256",
-			"default_md" => "sha256",
-			"private_key_bits" => 2048,
+			"digest_alg" => $alg,
+			"default_md" => $alg,
+			"private_key_bits" => $size,
 			"private_key_type" => OPENSSL_KEYTYPE_RSA,
 		];
 
@@ -66,14 +66,52 @@ class DefaultController extends Controller
 		openssl_pkey_export($res, $privkey, null, $config);
 
 		// Get public key
-		$pubkey = openssl_pkey_get_details($res);
-		$pubkey = $pubkey['key'];
+		$info = openssl_pkey_get_details($res);
+		$pubkey = $info['key'];
 
 		$this->log("************ Private key: ************");
 		$this->log($privkey . "\n");
 
 		$this->log("************ Public key: ************");
 		$this->log($pubkey . "\n");
+
+		$type = $info['type'];
+
+		if ($type == OPENSSL_KEYTYPE_RSA)
+			$keytype = 'rsa';
+		else if ($type == OPENSSL_KEYTYPE_DSA)
+			$keytype = 'dsa';
+		else if ($type == OPENSSL_KEYTYPE_DH)
+			$keytype = 'dh';
+		else if ($type == OPENSSL_KEYTYPE_EC)
+			$keytype = 'ec';
+
+		if (isset($keytype)) {
+			$typeInfo = $info[$keytype];
+
+			$this->log("************ key info ({$keytype}): ************");
+			$out = "{\n";
+			foreach ($typeInfo as $k => $v) {
+				$out .= "\t\"{$k}\": \"" . base64_encode($v) . "\"\n";
+			}
+			$out .= "}\n";
+			$this->log($out . "\n");
+		}
+
+		/*
+       rsa -> jedt
+			-------------
+			   n : n
+			   e : e
+			   d : d
+			   p : p
+			   q : q
+			dmp1 : dp
+			dmq1 : dq
+			iqmp : di
+			     : kty => "RSA"
+			     : kid => ???
+		*/
 
     return ExitCode::OK;
 	}

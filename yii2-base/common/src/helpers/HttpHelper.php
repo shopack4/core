@@ -94,6 +94,13 @@ class HttpHelper
 
   protected static function formatResponse($resultStatus, $responseData)
   {
+    if (YII_DEBUG) {
+      Yii::info([
+        'status' => $resultStatus,
+        'data' => $responseData,
+      ], __METHOD__);
+    }
+
     $resultData = [];
 
     if (is_string($responseData)) {
@@ -104,7 +111,15 @@ class HttpHelper
       //convert $responseData string to json array
       if (empty($responseData) == false) {
         $org = $responseData;
-        $responseData = Json::decode($responseData);
+
+        try {
+          $responseData = Json::decode($responseData);
+        } catch (\Throwable $th) {
+          //throw $th;
+          Yii::error($th, __METHOD__);
+          $responseData = null;
+        }
+
         if ($responseData === null) {
           $responseData = [
             'message' => $org,
