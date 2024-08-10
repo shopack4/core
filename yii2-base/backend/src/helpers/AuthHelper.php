@@ -272,12 +272,51 @@ class AuthHelper
 		// $sessionExp = $token->claims()->get(Jwt::KEY_LONG_EXPIRATION);
 		Yii::$app->jwt->assertSessionExpiration($token);
 
+		$dtNow = (new \DateTime('now', new \DateTimeZone('UTC')));
+		$nowSeconds = $dtNow->getTimestamp();
+
+		//is locked before?
+		if (empty($sessionModel->ssnLockedAt) == false) {
+			$dtLockedAt = new \DateTime($sessionModel->ssnLockedAt, new \DateTimeZone('UTC'));
+			$lockedAtSeconds = $dtLockedAt->getTimestamp();
+			$seconds = $nowSeconds - $lockedAtSeconds;
+
+			if ($seconds <= 5) {
+				//wait for unlock
+			} else {
+				//re-lock
+			}
+		}
+
+		$instanceID = Yii::$app->getInstanceID();
+
+		// lock / re-lock
+		$sessionModel->ssnLockedAt = new \yii\db\Expression('NOW()');
+		$sessionModel->ssnLockedBy = $instanceID;
+		$sessionModel->save();
+
+		try {
+			//regenerate jwt
+
+			//store old and new jwt
+
+			//unlock
+			$sessionModel->ssnLockedAt = null;
+			$sessionModel->ssnLockedBy = null;
+
+			//save
+			$sessionModel->save();
+
+		} catch (\Throwable $th) {
+			throw $th;
+		}
+
+		// ssnTokenExpireAt
 		// ssnSessionExpireAt
 		// ssnOldJwt
 		// ssnRefreshedAt
 		// ssnRefreshCount
 		// ssnLockedAt
-		// ssnLockedBy
 
 	}
 
