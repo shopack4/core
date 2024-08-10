@@ -110,7 +110,7 @@ trait SessionModelTrait
         enuColumnInfo::selectable => true,
       ],
       'ssnRefreshCount' => [
-        enuColumnInfo::type       => 'integer',
+        enuColumnInfo::type       => 'safe', //-> accepted dbexpression 'integer',
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
@@ -124,7 +124,7 @@ trait SessionModelTrait
         enuColumnInfo::selectable => true,
       ],
       'ssnLockedBy' => [
-        enuColumnInfo::type       => ['string', 'max' => 64],
+        enuColumnInfo::type       => 'safe', //-> accepted dbexpression ['string', 'max' => 64],
         enuColumnInfo::validator  => null,
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,

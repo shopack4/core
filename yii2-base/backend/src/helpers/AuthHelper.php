@@ -6,6 +6,7 @@
 namespace shopack\base\backend\helpers;
 
 use DateTimeImmutable;
+use Lcobucci\JWT\Token\RegisteredClaims;
 use Yii;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
@@ -166,7 +167,7 @@ class AuthHelper
 		$sessionExpireAt = $now->modify("+{$sessionExpireTTL} second");
 
 		//token
-		$token = Yii::$app->jwt->getBuilder()
+		$tokenBuilder = Yii::$app->jwt->getBuilder()
 			->identifiedBy($sessionModel->ssnID) //Yii::$app->session->id) // Configures the id (jti claim)
 			->issuedAt($now)
 			->expiresAt($tokenExpire)
@@ -175,17 +176,21 @@ class AuthHelper
 			->withClaim(Jwt::KEY_LONG_EXPIRATION, self::convertDate($sessionExpireAt))
 		;
 
-		if (empty($user->usrEmail) == false)			$token->withClaim('email', $user->usrEmail);
-		if (empty($user->usrMobile) == false)			$token->withClaim('mobile', $user->usrMobile);
-		if (empty($user->usrFirstName) == false)	$token->withClaim('firstName', $user->usrFirstName);
-		if (empty($user->usrLastName) == false)		$token->withClaim('lastName', $user->usrLastName);
+		if (empty($user->usrEmail) == false)
+			$tokenBuilder->withClaim('email', $user->usrEmail);
+		if (empty($user->usrMobile) == false)
+			$tokenBuilder->withClaim('mobile', $user->usrMobile);
+		if (empty($user->usrFirstName) == false)
+			$tokenBuilder->withClaim('firstName', $user->usrFirstName);
+		if (empty($user->usrLastName) == false)
+			$tokenBuilder->withClaim('lastName', $user->usrLastName);
 
 		if ($rememberMe)
-			$token->withClaim('rmmbr', 1);
+			$tokenBuilder->withClaim('rmmbr', 1);
 
 		if (empty($additionalInfo) == false) {
 			foreach ($additionalInfo as $k => $v) {
-				$token->withClaim($k, $v);
+				$tokenBuilder->withClaim($k, $v);
 			}
 		}
 
@@ -198,17 +203,17 @@ class AuthHelper
 				$mustApprove[] = 'mobile';
 
 			if (empty($mustApprove) == false)
-				$token->withClaim('mustApprove', implode(',', $mustApprove));
+				$tokenBuilder->withClaim('mustApprove', implode(',', $mustApprove));
 		}
 
 		$signer = Yii::$app->jwt->getConfiguration()->signer();
 		$signingKey = Yii::$app->jwt->getConfiguration()->signingKey();
 
-		$token = $token->getToken($signer, $signingKey);
-		$token = $token->toString();
+		$token = $tokenBuilder->getToken($signer, $signingKey);
+		$tokenString = $token->toString();
 
 		//update session
-		$sessionModel->ssnJWT = $token;
+		$sessionModel->ssnJWT = $tokenString;
 		$sessionModel->ssnStatus = ($user->usrStatus == enuUserStatus::NewForLoginByMobile
 			? enuSessionStatus::ForLoginByMobile
 			: enuSessionStatus::Active);
@@ -230,7 +235,7 @@ class AuthHelper
 		$sessionModel->save();
 
 		//-----------------------
-		return [$token, $mustApprove, $sessionModel, $challenge];
+		return [$tokenString, $mustApprove, $sessionModel, $challenge];
 	}
 
 	static function logout()
@@ -252,7 +257,7 @@ class AuthHelper
 		Yii::$app->user->accessToken = null;
 	}
 
-	public static function refreshToken($refresh_token)
+	public static function refreshToken(string $refresh_token)
 	{
 		$token = Yii::$app->jwt->parse($refresh_token, Jwt::VALIDATE_SANITY);
 
@@ -293,31 +298,84 @@ class AuthHelper
 		// lock / re-lock
 		$sessionModel->ssnLockedAt = new \yii\db\Expression('NOW()');
 		$sessionModel->ssnLockedBy = $instanceID;
-		$sessionModel->save();
+		if ($sessionModel->save() == false)
+			throw new UnprocessableEntityHttpException(implode("\n", $sessionModel->getFirstErrors()));
 
 		try {
+			//compute token expire
+			$settings = Yii::$app->params['settings'];
+			$tokenExpireTTL = ArrayHelper::getValue($settings['AAA']['jwt'], 'token-ttl', 5 * 60);
+			$now = new \DateTimeImmutable();
+			$tokenExpire = $now->modify("+{$tokenExpireTTL} second");
+
+			$ssnSessionExpireAt = new \DateTimeImmutable($sessionModel->ssnSessionExpireAt, new \DateTimeZone('UTC'));
+
+			if ($tokenExpire > $ssnSessionExpireAt)
+				$tokenExpire = $ssnSessionExpireAt;
+
 			//regenerate jwt
+			$tokenBuilder = Yii::$app->jwt->getBuilder();
+			foreach ($token->claims()->all() as $k => $v) {
+				switch ($k) {
+					case RegisteredClaims::AUDIENCE:
+						$tokenBuilder->permittedFor($v);
+						break;
+					case RegisteredClaims::EXPIRATION_TIME:
+						$tokenBuilder->expiresAt($tokenExpire);
+						break;
+					case RegisteredClaims::ID:
+						$tokenBuilder->identifiedBy($v);
+						break;
+					case RegisteredClaims::ISSUED_AT:
+						$tokenBuilder->issuedAt($v);
+						break;
+					case RegisteredClaims::ISSUER:
+						$tokenBuilder->issuedBy($v);
+						break;
+					case RegisteredClaims::NOT_BEFORE:
+						$tokenBuilder->canOnlyBeUsedAfter($v);
+						break;
+					case RegisteredClaims::SUBJECT:
+						$tokenBuilder->relatedTo($v);
+						break;
+
+					default:
+						$tokenBuilder->withClaim($k, $v);
+						break;
+				}
+			}
+
+			$signer = Yii::$app->jwt->getConfiguration()->signer();
+			$signingKey = Yii::$app->jwt->getConfiguration()->signingKey();
+
+			$newToken = $tokenBuilder->getToken($signer, $signingKey);
+			$tokenString = $newToken->toString();
 
 			//store old and new jwt
+			$sessionModel->ssnOldJwt = $refresh_token;
+			$sessionModel->ssnJWT = $tokenString;
+			$sessionModel->ssnTokenExpireAt = $tokenExpire->format('Y-m-d H:i:s');
 
+			//unlock
+			$sessionModel->ssnLockedAt = new \yii\db\Expression('NULL');
+			$sessionModel->ssnLockedBy = new \yii\db\Expression('NULL');
+
+			//save
+			$sessionModel->ssnRefreshedAt = new \yii\db\Expression('NOW()');
+			$sessionModel->ssnRefreshCount = new \yii\db\Expression('IFNULL(ssnRefreshCount, 0) + 1');
+			if ($sessionModel->save() == false)
+				throw new UnprocessableEntityHttpException(implode("\n", $sessionModel->getFirstErrors()));
+
+			return $tokenString;
+
+		} catch (\Throwable $th) {
 			//unlock
 			$sessionModel->ssnLockedAt = null;
 			$sessionModel->ssnLockedBy = null;
-
-			//save
 			$sessionModel->save();
 
-		} catch (\Throwable $th) {
 			throw $th;
 		}
-
-		// ssnTokenExpireAt
-		// ssnSessionExpireAt
-		// ssnOldJwt
-		// ssnRefreshedAt
-		// ssnRefreshCount
-		// ssnLockedAt
-
 	}
 
 	private static function convertDate(DateTimeImmutable $date)
