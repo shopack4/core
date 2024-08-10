@@ -172,7 +172,7 @@ class AuthHelper
 			->expiresAt($tokenExpire)
 			->withClaim('privs', $privs)
 			->withClaim('uid', $user->usrID)
-			->withClaim('lexp', self::convertDate($sessionExpireAt))
+			->withClaim(Jwt::KEY_LONG_EXPIRATION, self::convertDate($sessionExpireAt))
 		;
 
 		if (empty($user->usrEmail) == false)			$token->withClaim('email', $user->usrEmail);
@@ -256,17 +256,21 @@ class AuthHelper
 	{
 		$token = Yii::$app->jwt->parse($refresh_token, Jwt::VALIDATE_SANITY);
 
-		// Yii::$app->jwt->sanityCheck($token);
+		if (YII_ENV_PROD && (Yii::$app->jwt->verifyTokenExpiration($token) == false)) {
+			throw new UnprocessableEntityHttpException('The token is still alive');
+		}
 
 		$sessionID = $token->claims()->get('jti');
 		$sessionModel = SessionModel::findOne([
 			'ssnID' => $sessionID,
 		]);
 
-		if ($sessionModel == null)
-			throw new NotFoundHttpException("Session not found");
+		if ($sessionModel == null) {
+			throw new NotFoundHttpException("The session not found");
+		}
 
-		$sessionExp = $token->claims()->get('lexp');
+		// $sessionExp = $token->claims()->get(Jwt::KEY_LONG_EXPIRATION);
+		Yii::$app->jwt->assertSessionExpiration($token);
 
 		// ssnSessionExpireAt
 		// ssnOldJwt

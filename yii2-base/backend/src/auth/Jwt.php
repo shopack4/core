@@ -13,6 +13,8 @@ use yii\web\UnauthorizedHttpException;
 
 class Jwt extends BaseJwt
 {
+	public const KEY_LONG_EXPIRATION	= 'lexp';
+
 	public const VALIDATE_NONE		= '-';
 	public const VALIDATE_SANITY	= 's';
 	public const VALIDATE_FULL		= 'f';
@@ -34,10 +36,11 @@ class Jwt extends BaseJwt
 		};
 	}
 
-	public function sanityCheck($jwt)
+	public function verifySignature($jwt)
 	{
+		$token = $jwt instanceof Token ? $jwt : $this->parse($jwt, false);
+
 		$configuration = $this->getConfiguration();
-		$token = $jwt instanceof Token ? $jwt : $this->parse($jwt);
 
 		$signer = $configuration->signer();
 		$verificationKey = $configuration->verificationKey();
@@ -46,10 +49,54 @@ class Jwt extends BaseJwt
 			new \Lcobucci\JWT\Validation\Constraint\SignedWith($signer, $verificationKey),
 		];
 
-		if ($configuration->validator()->validate($token, ...$constraints) == false)
+		return $configuration->validator()->validate($token, ...$constraints);
+	}
+	public function assertSignature($jwt)
+	{
+		if ($this->verifySignature($jwt) === false)
 			throw new UnauthorizedHttpException('Invalid token sign');
+	}
 
-		return $token;
+	public function verifyTokenExpiration($jwt)
+	{
+		$token = $jwt instanceof Token ? $jwt : $this->parse($jwt, false);
+
+		$configuration = $this->getConfiguration();
+
+		$constraints = [
+			new \Lcobucci\JWT\Validation\Constraint\ValidAt(\Lcobucci\Clock\FrozenClock::fromUTC()),
+		];
+
+		return $configuration->validator()->validate($token, ...$constraints);
+	}
+	public function assertTokenExpiration($jwt)
+	{
+		if ($this->verifyTokenExpiration($jwt) === false)
+			throw new UnauthorizedHttpException('The token expired');
+	}
+
+	public function verifySessionExpiration($jwt)
+	{
+		$token = $jwt instanceof Token ? $jwt : $this->parse($jwt, false);
+
+		$exp = $token->claims()->get(self::KEY_LONG_EXPIRATION);
+
+		if (empty($exp))
+			return false;
+
+		if (($exp instanceof \DateTimeImmutable) == false) {
+			$exp = number_format((float)$exp, 6, '.', '');
+			$exp = \DateTimeImmutable::createFromFormat('U.u', $exp);
+		}
+
+		$now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+
+		return ($now < $exp);
+	}
+	public function assertSessionExpiration($jwt)
+	{
+		if ($this->verifySessionExpiration($jwt) === false)
+			throw new UnauthorizedHttpException('the Session expired');
 	}
 
 	/**
@@ -60,7 +107,7 @@ class Jwt extends BaseJwt
 		$token = parent::parse($jwt);
 
 		if ($validate == self::VALIDATE_SANITY) {
-			$this->sanityCheck($token);
+			$this->assertSignature($token);
 		} else if ($validate == self::VALIDATE_FULL) {
 			$this->assert($token);
 		}
