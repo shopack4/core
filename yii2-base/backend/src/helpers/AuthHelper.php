@@ -20,6 +20,8 @@ use shopack\aaa\common\enums\enuTwoFAType;
 use shopack\aaa\backend\models\SessionModel;
 use shopack\aaa\backend\models\RoleModel;
 use shopack\base\backend\auth\Jwt;
+use yii\web\ServerErrorHttpException;
+use yii\web\UnauthorizedHttpException;
 
 class AuthHelper
 {
@@ -265,6 +267,8 @@ class AuthHelper
 			throw new UnprocessableEntityHttpException('The token is still alive');
 		}
 
+		Yii::$app->jwt->assertSessionExpiration($token);
+
 		$sessionID = $token->claims()->get('jti');
 		$sessionModel = SessionModel::findOne([
 			'ssnID' => $sessionID,
@@ -274,107 +278,154 @@ class AuthHelper
 			throw new NotFoundHttpException("The session not found");
 		}
 
-		// $sessionExp = $token->claims()->get(Jwt::KEY_LONG_EXPIRATION);
-		Yii::$app->jwt->assertSessionExpiration($token);
+		if ($sessionModel->ssnJWT != $refresh_token) {
+			//is this refreshed before?
+			if ($sessionModel->ssnOldJwt == $refresh_token)
+				return [
+					'ph' => 1,
+					'token' => $sessionModel->ssnJWT,
+				];
+
+			throw new UnauthorizedHttpException('Invalid token');
+		}
 
 		$dtNow = (new \DateTime('now', new \DateTimeZone('UTC')));
 		$nowSeconds = $dtNow->getTimestamp();
 
 		//is locked before?
-		if (empty($sessionModel->ssnLockedAt) == false) {
-			$dtLockedAt = new \DateTime($sessionModel->ssnLockedAt, new \DateTimeZone('UTC'));
-			$lockedAtSeconds = $dtLockedAt->getTimestamp();
-			$seconds = $nowSeconds - $lockedAtSeconds;
+		if (Yii::$app->mutex->isAcquired("session.refresh.{$sessionID}")) {
+			$i = 0;
+			while (empty($sessionModel->ssnLockedAt) && (($i++) < 10))
+				$sessionModel->refresh();
 
-			if ($seconds <= 5) {
-				//wait for unlock
-			} else {
-				//re-lock
+			if (empty($sessionModel->ssnLockedAt))
+				Yii::$app->mutex->release("session.refresh.{$sessionID}");
+			else {
+				$dtLockedAt = new \DateTime($sessionModel->ssnLockedAt, new \DateTimeZone('UTC'));
+				$lockedAtSeconds = $dtLockedAt->getTimestamp();
+				$seconds = $lockedAtSeconds - $nowSeconds;
+
+				Yii::$app->mutex->release("session.refresh.{$sessionID}");
+				return [
+					'ph' => 'locked',
+					'locked' => [
+						$dtLockedAt,
+						$lockedAtSeconds,
+					],
+					'now' => [
+						$dtNow,
+						$nowSeconds,
+					],
+					's' => $seconds,
+				];
+
+				if ($seconds <= 5) {
+					//wait for unlock
+					Yii::$app->mutex->release("session.refresh.{$sessionID}");
+
+					return [
+						'ph' => 2,
+						's' => $seconds,
+						'token' => 'AAAAAAAAA',
+					];
+				}
 			}
 		}
 
 		$instanceID = Yii::$app->getInstanceID();
 
-		// lock / re-lock
-		$sessionModel->ssnLockedAt = new \yii\db\Expression('NOW()');
-		$sessionModel->ssnLockedBy = $instanceID;
-		if ($sessionModel->save() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $sessionModel->getFirstErrors()));
+		if (Yii::$app->mutex->acquire("session.refresh.{$sessionID}") == false)
+			throw new ServerErrorHttpException('error in db lock');
 
 		try {
-			//compute token expire
-			$settings = Yii::$app->params['settings'];
-			$tokenExpireTTL = ArrayHelper::getValue($settings['AAA']['jwt'], 'token-ttl', 5 * 60);
-			$now = new \DateTimeImmutable();
-			$tokenExpire = $now->modify("+{$tokenExpireTTL} second");
-
-			$ssnSessionExpireAt = new \DateTimeImmutable($sessionModel->ssnSessionExpireAt, new \DateTimeZone('UTC'));
-
-			if ($tokenExpire > $ssnSessionExpireAt)
-				$tokenExpire = $ssnSessionExpireAt;
-
-			//regenerate jwt
-			$tokenBuilder = Yii::$app->jwt->getBuilder();
-			foreach ($token->claims()->all() as $k => $v) {
-				switch ($k) {
-					case RegisteredClaims::AUDIENCE:
-						$tokenBuilder->permittedFor($v);
-						break;
-					case RegisteredClaims::EXPIRATION_TIME:
-						$tokenBuilder->expiresAt($tokenExpire);
-						break;
-					case RegisteredClaims::ID:
-						$tokenBuilder->identifiedBy($v);
-						break;
-					case RegisteredClaims::ISSUED_AT:
-						$tokenBuilder->issuedAt($v);
-						break;
-					case RegisteredClaims::ISSUER:
-						$tokenBuilder->issuedBy($v);
-						break;
-					case RegisteredClaims::NOT_BEFORE:
-						$tokenBuilder->canOnlyBeUsedAfter($v);
-						break;
-					case RegisteredClaims::SUBJECT:
-						$tokenBuilder->relatedTo($v);
-						break;
-
-					default:
-						$tokenBuilder->withClaim($k, $v);
-						break;
-				}
-			}
-
-			$signer = Yii::$app->jwt->getConfiguration()->signer();
-			$signingKey = Yii::$app->jwt->getConfiguration()->signingKey();
-
-			$newToken = $tokenBuilder->getToken($signer, $signingKey);
-			$tokenString = $newToken->toString();
-
-			//store old and new jwt
-			$sessionModel->ssnOldJwt = $refresh_token;
-			$sessionModel->ssnJWT = $tokenString;
-			$sessionModel->ssnTokenExpireAt = $tokenExpire->format('Y-m-d H:i:s');
-
-			//unlock
-			$sessionModel->ssnLockedAt = new \yii\db\Expression('NULL');
-			$sessionModel->ssnLockedBy = new \yii\db\Expression('NULL');
-
-			//save
-			$sessionModel->ssnRefreshedAt = new \yii\db\Expression('NOW()');
-			$sessionModel->ssnRefreshCount = new \yii\db\Expression('IFNULL(ssnRefreshCount, 0) + 1');
+			// lock / re-lock
+			$sessionModel->ssnLockedAt = new \yii\db\Expression('NOW()');
+			$sessionModel->ssnLockedBy = $instanceID;
 			if ($sessionModel->save() == false)
 				throw new UnprocessableEntityHttpException(implode("\n", $sessionModel->getFirstErrors()));
 
-			return $tokenString;
+			try {
+				//compute token expire
+				$settings = Yii::$app->params['settings'];
+				$tokenExpireTTL = ArrayHelper::getValue($settings['AAA']['jwt'], 'token-ttl', 5 * 60);
+				$now = new \DateTimeImmutable();
+				$tokenExpire = $now->modify("+{$tokenExpireTTL} second");
 
+				$ssnSessionExpireAt = new \DateTimeImmutable($sessionModel->ssnSessionExpireAt, new \DateTimeZone('UTC'));
+
+				if ($tokenExpire > $ssnSessionExpireAt)
+					$tokenExpire = $ssnSessionExpireAt;
+
+				//regenerate jwt
+				$tokenBuilder = Yii::$app->jwt->getBuilder();
+				foreach ($token->claims()->all() as $k => $v) {
+					switch ($k) {
+						case RegisteredClaims::AUDIENCE:
+							$tokenBuilder->permittedFor($v);
+							break;
+						case RegisteredClaims::EXPIRATION_TIME:
+							$tokenBuilder->expiresAt($tokenExpire);
+							break;
+						case RegisteredClaims::ID:
+							$tokenBuilder->identifiedBy($v);
+							break;
+						case RegisteredClaims::ISSUED_AT:
+							$tokenBuilder->issuedAt($v);
+							break;
+						case RegisteredClaims::ISSUER:
+							$tokenBuilder->issuedBy($v);
+							break;
+						case RegisteredClaims::NOT_BEFORE:
+							$tokenBuilder->canOnlyBeUsedAfter($v);
+							break;
+						case RegisteredClaims::SUBJECT:
+							$tokenBuilder->relatedTo($v);
+							break;
+
+						default:
+							$tokenBuilder->withClaim($k, $v);
+							break;
+					}
+				}
+
+				$signer = Yii::$app->jwt->getConfiguration()->signer();
+				$signingKey = Yii::$app->jwt->getConfiguration()->signingKey();
+
+				$newToken = $tokenBuilder->getToken($signer, $signingKey);
+				$tokenString = $newToken->toString();
+
+				//store old and new jwt
+				// $sessionModel->ssnOldJwt = $refresh_token;
+				// $sessionModel->ssnJWT = $tokenString;
+				// $sessionModel->ssnTokenExpireAt = $tokenExpire->format('Y-m-d H:i:s');
+
+				//unlock
+				$sessionModel->ssnLockedAt = new \yii\db\Expression('NULL');
+				$sessionModel->ssnLockedBy = new \yii\db\Expression('NULL');
+
+				//save
+				$sessionModel->ssnRefreshedAt = new \yii\db\Expression('NOW()');
+				$sessionModel->ssnRefreshCount = new \yii\db\Expression('IFNULL(ssnRefreshCount, 0) + 1');
+				if ($sessionModel->save() == false)
+					throw new UnprocessableEntityHttpException(implode("\n", $sessionModel->getFirstErrors()));
+
+				return [
+					'ph' => 3,
+					'token' => $tokenString,
+				];
+
+			} catch (\Throwable $th) {
+				//unlock
+				$sessionModel->ssnLockedAt = null;
+				$sessionModel->ssnLockedBy = null;
+				$sessionModel->save();
+
+				throw $th;
+			}
 		} catch (\Throwable $th) {
-			//unlock
-			$sessionModel->ssnLockedAt = null;
-			$sessionModel->ssnLockedBy = null;
-			$sessionModel->save();
-
 			throw $th;
+		} finally {
+			Yii::$app->mutex->release("session.refresh.{$sessionID}");
 		}
 	}
 

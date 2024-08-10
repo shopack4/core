@@ -305,9 +305,7 @@ class AuthController extends BaseRestController
 		//do not change to `->getBodyParam('token');` : raise an exception if no token is provided
 		$token = Yii::$app->request->getBodyParams()['token'];
 
-		return [
-			'token' => AuthHelper::refreshToken($token),
-		];
+		return AuthHelper::refreshToken($token);
 	}
 
 }
