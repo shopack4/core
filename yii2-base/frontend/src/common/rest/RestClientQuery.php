@@ -22,6 +22,7 @@ use shopack\base\common\helpers\LanguageHelper;
 use shopack\base\common\helpers\Url;
 use shopack\base\frontend\common\rest\RestClientQueryInterface;
 use shopack\base\frontend\common\rest\RestClientActiveRecord;
+use yii\web\UnauthorizedHttpException;
 
 /**
  * Class RestClientQuery
@@ -664,10 +665,12 @@ class RestClientQuery
 
     $header = $response->getHeader('WWW-Authenticate');
     if (empty($header) == false) {
-      Yii::$app->user->logout();
-      Yii::$app->response->redirect(Yii::$app->getHomeUrl());
-      Yii::$app->response->send();
-      die();
+      throw new UnauthorizedHttpException('failed');
+
+      // Yii::$app->user->logout();
+      // Yii::$app->response->redirect(Yii::$app->getHomeUrl());
+      // Yii::$app->response->send();
+      // die();
     }
 
     return $response;
