@@ -5,29 +5,37 @@
 
 namespace shopack\base\backend\helpers;
 
-use DateTimeImmutable;
-use Lcobucci\JWT\Token\RegisteredClaims;
 use Yii;
+use yii\web\UnauthorizedHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
+use DateTimeImmutable;
+use Lcobucci\JWT\Token\RegisteredClaims;
 use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\helpers\GeneralHelper;
 use shopack\base\backend\helpers\PrivHelper;
+use shopack\base\backend\auth\Jwt;
 use shopack\aaa\common\enums\enuRole;
 use shopack\aaa\common\enums\enuUserStatus;
 use shopack\aaa\common\enums\enuSessionStatus;
 use shopack\aaa\common\enums\enuTwoFAType;
 use shopack\aaa\backend\models\SessionModel;
 use shopack\aaa\backend\models\RoleModel;
-use shopack\base\backend\auth\Jwt;
-use yii\web\ServerErrorHttpException;
-use yii\web\UnauthorizedHttpException;
 
 class AuthHelper
 {
 	public const CHALLENGE_NONE               = 0;
 	public const CHALLENGE_ENABLE             = 1;
 	public const CHALLENGE_ENABLE_WITHOUT_SMS = 2;
+
+	private static function convertDate(DateTimeImmutable $date)
+	{
+		if ($date->format('u') === '000000') {
+			return (int) $date->format('U');
+		}
+
+		return (float) $date->format('U.u');
+	}
 
 	/**
 	 * @return: [$token, $mustApprove, $sessionModel, $challenge]
@@ -275,7 +283,7 @@ class AuthHelper
 
 		//retry in 10 seconds
 		if (Yii::$app->mutex->acquire($dbLockKey, 10) == false) {
-			throw new UnauthorizedHttpException('lock not released');
+			throw new UnprocessableEntityHttpException('lock not released');
 		}
 
 		try {
@@ -297,7 +305,7 @@ class AuthHelper
 
 			if ($sessionModel->ssnJWT != $refresh_token) {
 
-				//is this refreshed before in max 5 seconds?
+				//has this been refreshed in the last 5 seconds?
 
 				$dtRefreshedAt = new \DateTime($sessionModel->ssnRefreshedAt, new \DateTimeZone('UTC'));
 				$refreshedAtSeconds = $dtRefreshedAt->getTimestamp();
@@ -307,23 +315,21 @@ class AuthHelper
 					if ($seconds <= 5) {
 						return [
 							'ph' => '1',
-
-							'refreshed' => [
-								$dtRefreshedAt,
-								$refreshedAtSeconds,
-							],
-							'now' => [
-								$dtNow,
-								$nowSeconds,
-							],
-							's' => $seconds,
-
+							// 'refreshed' => [
+							// 	$dtRefreshedAt,
+							// 	$refreshedAtSeconds,
+							// ],
+							// 'now' => [
+							// 	$dtNow,
+							// 	$nowSeconds,
+							// ],
+							// 's' => $seconds,
 							'token' => $sessionModel->ssnJWT,
 						];
 					}
 
 					//jwt expired more than 5 seconds ago
-					throw new UnauthorizedHttpException('Token is dead. Login again');
+					throw new UnauthorizedHttpException('RELOGIN:Token is dead');
 				}
 			}
 
@@ -418,15 +424,6 @@ class AuthHelper
 		} finally {
 			Yii::$app->mutex->release($dbLockKey);
 		}
-	}
-
-	private static function convertDate(DateTimeImmutable $date)
-	{
-		if ($date->format('u') === '000000') {
-			return (int) $date->format('U');
-		}
-
-		return (float) $date->format('U.u');
 	}
 
 }
