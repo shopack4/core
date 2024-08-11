@@ -9,8 +9,6 @@ class m240805_104352_aaa_add_lockedat_and_some_fields_to_tbl_session extends Mig
 {
 	public function safeUp()
 	{
-		throw new \Exception('not completed yet!');
-
     $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_Session`
 	ADD COLUMN `ssnIPv4` INT UNSIGNED NULL DEFAULT NULL AFTER `ssnUserID`,
@@ -26,16 +24,6 @@ ALTER TABLE `tbl_AAA_Session`
 SQL
 		);
     $this->alterColumn('tbl_AAA_Session', 'ssnInfo', $this->json());
-
-    $this->execute(<<<SQL
-
-SQL
-		);
-
-    $this->execute(<<<SQL
-
-SQL
-		);
 
     $this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_Session;");
     $this->execute(<<<SQL
