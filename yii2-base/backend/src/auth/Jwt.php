@@ -106,10 +106,14 @@ class Jwt extends BaseJwt
 	{
 		$token = parent::parse($jwt);
 
-		if ($validate == self::VALIDATE_SANITY) {
-			$this->assertSignature($token);
-		} else if ($validate == self::VALIDATE_FULL) {
-			$this->assert($token);
+		try {
+			if ($validate == self::VALIDATE_SANITY) {
+				$this->assertSignature($token);
+			} else if ($validate == self::VALIDATE_FULL) {
+				$this->assert($token);
+			}
+		} catch (\Throwable $th) {
+			throw new UnauthorizedHttpException('token validation failed', 0, $th);
 		}
 
 		return $token;

@@ -37,6 +37,7 @@ use shopack\aaa\common\enums\enuSessionStatus;
         },
       ],
       'ssnTokenExpireAt:jalaliWithTime',
+      'ssnSessionExpireAt:jalaliWithTime',
       [
         'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
         'enumClass' => enuSessionStatus::class,

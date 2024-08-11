@@ -23,7 +23,7 @@ class SessionModel extends RestClientActiveRecord
 			'ssnInfo'							=> Yii::t('app', 'Info'),
 			'ssnJWT'							=> Yii::t('app', 'JWT'),
 			'ssnJWTMD5'						=> Yii::t('app', 'JWT MD5'),
-			'ssnTokenExpireAt'		=> Yii::t('aaa', 'Expire At'),
+			'ssnTokenExpireAt'		=> Yii::t('aaa', 'Token Expire At'),
 			'ssnSessionExpireAt'	=> Yii::t('app', 'Session Expire At'),
 			'ssnOldJwt'						=> Yii::t('app', 'Old Jwt'),
 			'ssnRefreshedAt'			=> Yii::t('app', 'Refreshed At'),

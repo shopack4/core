@@ -57,7 +57,11 @@ class AuthHelper
 		$tokenExpireTTL		= ArrayHelper::getValue($settings['AAA']['jwt'], 'token-ttl',		 5 * 60);
 		$sessionExpireTTL	= ArrayHelper::getValue($settings['AAA']['jwt'], 'session-ttl',	24 * 3600);
 
-		$now = new \DateTimeImmutable();
+		// $qry = "SELECT UTC_TIMESTAMP(6) as _now;";
+		// $result = Yii::$app->db->createCommand($qry)->queryOne();
+		// $now = new \DateTimeImmutable($result['_now'], new \DateTimeZone('UTC'));
+		$now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+
 		$tokenExpire = $now->modify("+{$tokenExpireTTL} second");
 
 		$challenge = null;
@@ -228,9 +232,11 @@ class AuthHelper
 			? enuSessionStatus::ForLoginByMobile
 			: enuSessionStatus::Active);
 
-		$sessionModel->ssnTokenExpireAt = new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$tokenExpireTTL} SECOND)"); //$tokenExpire->format('Y-m-d H:i:s');
+		$sessionModel->ssnTokenExpireAt = new \yii\db\Expression("FROM_UNIXTIME({$tokenExpire->getTimestamp()})");
+		//new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$tokenExpireTTL} SECOND)"); //$tokenExpire->format('Y-m-d H:i:s');
 
-		$sessionModel->ssnSessionExpireAt = new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$sessionExpireTTL} SECOND)");
+		$sessionModel->ssnSessionExpireAt = new \yii\db\Expression("FROM_UNIXTIME({$sessionExpireAt->getTimestamp()})");
+		//new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$sessionExpireTTL} SECOND)");
 
 		$ipv4 = $_SERVER['REMOTE_ADDR'] ?? null;
 		if ($ipv4 != null) {
@@ -295,32 +301,32 @@ class AuthHelper
 			if ($sessionModel == null)
 				throw new NotFoundHttpException("The session not found");
 
-			// $dtNow = (new \DateTime('now', new \DateTimeZone('UTC')));
-			// $qry = "SELECT UTC_TIMESTAMP() as _now;";
-			$qry = "SELECT NOW() as _now;";
-			$result = Yii::$app->db->createCommand($qry)->queryOne();
-			$dtNow = new \DateTime($result['_now'], new \DateTimeZone('UTC'));
+			// $qry = "SELECT NOW() as _now;";
+			// $qry = "SELECT UTC_TIMESTAMP(6) as _now;";
+			// $result = Yii::$app->db->createCommand($qry)->queryOne();
+			// $now = new \DateTimeImmutable($result['_now'], new \DateTimeZone('UTC'));
+			$now = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
 
-			$nowSeconds = $dtNow->getTimestamp();
+			$nowSeconds = $now->getTimestamp();
 
 			if ($sessionModel->ssnJWT != $refresh_token) {
 
 				//has this been refreshed in the last 5 seconds?
 
-				$dtRefreshedAt = new \DateTime($sessionModel->ssnRefreshedAt, new \DateTimeZone('UTC'));
+				$dtRefreshedAt = new \DateTimeImmutable($sessionModel->ssnRefreshedAt, new \DateTimeZone('UTC'));
 				$refreshedAtSeconds = $dtRefreshedAt->getTimestamp();
 				$seconds = $nowSeconds - $refreshedAtSeconds;
 
 				if ($sessionModel->ssnOldJwt == $refresh_token) {
 					if ($seconds <= 5) {
 						return [
-							'ph' => '1',
+							'ph' => 'od',
 							// 'refreshed' => [
 							// 	$dtRefreshedAt,
 							// 	$refreshedAtSeconds,
 							// ],
 							// 'now' => [
-							// 	$dtNow,
+							// 	$now,
 							// 	$nowSeconds,
 							// ],
 							// 's' => $seconds,
@@ -344,7 +350,7 @@ class AuthHelper
 			//compute token expire
 			$settings = Yii::$app->params['settings'];
 			$tokenExpireTTL = ArrayHelper::getValue($settings['AAA']['jwt'], 'token-ttl', 5 * 60);
-			$now = new \DateTimeImmutable();
+			// $now = new \DateTimeImmutable();
 			$tokenExpire = $now->modify("+{$tokenExpireTTL} second");
 
 			$ssnSessionExpireAt = new \DateTimeImmutable($sessionModel->ssnSessionExpireAt, new \DateTimeZone('UTC'));
@@ -393,7 +399,7 @@ class AuthHelper
 			//store old and new jwt
 			$sessionModel->ssnOldJwt = $refresh_token;
 			$sessionModel->ssnJWT = $tokenString;
-			$sessionModel->ssnTokenExpireAt = $tokenExpire->format('Y-m-d H:i:s');
+			$sessionModel->ssnTokenExpireAt = new \yii\db\Expression("FROM_UNIXTIME({$tokenExpire->getTimestamp()})");
 
 			//unlock
 			$sessionModel->ssnLockedAt = new \yii\db\Expression('NULL');
@@ -407,7 +413,7 @@ class AuthHelper
 					throw new UnprocessableEntityHttpException(implode("\n", $sessionModel->getFirstErrors()));
 
 				return [
-					'ph' => 'renew now',
+					'ph' => 'rn',
 					'token' => $tokenString,
 				];
 

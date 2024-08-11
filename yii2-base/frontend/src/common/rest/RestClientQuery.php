@@ -206,9 +206,11 @@ class RestClientQuery
     else {
       // if (Yii::$app->request->cookies->has('token'))
       // $headers[] = 'Authorization Bearer ' . Yii::$app->request->cookies->get('token');
-      $jwt = Yii::$app->user->getJwtByCookie();
-      if ($jwt !== null)
-        $this->requestHeaders['Authorization'] = 'Bearer ' . $jwt;
+      if (Yii::$app->user->isGuest == false) {
+        $jwt = Yii::$app->user->identity->accessToken; //getJwtByCookie();
+        if ($jwt !== null)
+          $this->requestHeaders['Authorization'] = 'Bearer ' . $jwt;
+      }
     }
 
     $this->requestHeaders['Origin'] = rtrim(Url::to(['/'], true), '/\\');

@@ -8,6 +8,7 @@ namespace shopack\aaa\frontend\common\auth;
 use Yii;
 use yii\filters\VerbFilter;
 use shopack\aaa\frontend\common\auth\JwtHttpCookieAuth;
+use yii\web\UnauthorizedHttpException;
 
 class BaseController extends \shopack\base\frontend\common\classes\BaseController
 {
@@ -40,6 +41,12 @@ class BaseController extends \shopack\base\frontend\common\classes\BaseControlle
 			return parent::runAction($id, $params);
 
 		} catch (\Throwable $th) {
+			if ($th instanceof UnauthorizedHttpException) {
+
+//redirect to refresh-token
+
+			}
+
 			if ($th->getMessage() == 'Your request was made with invalid or expired JSON Web Token.')
 				return $this->redirect(\Yii::$app->user->loginUrl);
 
