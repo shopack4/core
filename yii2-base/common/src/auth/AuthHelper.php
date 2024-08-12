@@ -9,7 +9,6 @@ use shopack\base\common\helpers\HttpHelper;
 
 class AuthHelper
 {
-
 	public static function refreshToken($token)
   {
     list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/refresh-token',

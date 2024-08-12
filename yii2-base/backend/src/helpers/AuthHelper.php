@@ -28,14 +28,14 @@ class AuthHelper
 	public const CHALLENGE_ENABLE             = 1;
 	public const CHALLENGE_ENABLE_WITHOUT_SMS = 2;
 
-	private static function convertDate(DateTimeImmutable $date)
-	{
-		if ($date->format('u') === '000000') {
-			return (int) $date->format('U');
-		}
+	// private static function convertDate(DateTimeImmutable $date)
+	// {
+	// 	if ($date->format('u') === '000000') {
+	// 		return (int) $date->format('U');
+	// 	}
 
-		return (float) $date->format('U.u');
-	}
+	// 	return (float) $date->format('U.u');
+	// }
 
 	/**
 	 * @return: [$token, $mustApprove, $sessionModel, $challenge]
@@ -91,6 +91,7 @@ class AuthHelper
 					// ->identifiedBy($sessionModel->ssnID)
 					->issuedAt($now)
 					->expiresAt($tokenExpire)
+					->withClaim(Jwt::KEY_LONG_EXPIRATION, $tokenExpire)
 					// ->withClaim('privs', $privs)
 					->withClaim('uid', $user->usrID)
 				;
@@ -182,12 +183,13 @@ class AuthHelper
 
 		//token
 		$tokenBuilder = Yii::$app->jwt->getBuilder()
-			->identifiedBy($sessionModel->ssnID) //Yii::$app->session->id) // Configures the id (jti claim)
+			->identifiedBy($sessionModel->ssnID)
 			->issuedAt($now)
 			->expiresAt($tokenExpire)
+			->withClaim(Jwt::KEY_LONG_EXPIRATION, $sessionExpireAt)
+			// ->withClaim(Jwt::KEY_LONG_EXPIRATION, self::convertDate($sessionExpireAt))
 			->withClaim('privs', $privs)
 			->withClaim('uid', $user->usrID)
-			->withClaim(Jwt::KEY_LONG_EXPIRATION, self::convertDate($sessionExpireAt))
 		;
 
 		if (empty($user->usrEmail) == false)

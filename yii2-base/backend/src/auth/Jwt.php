@@ -8,7 +8,11 @@ namespace shopack\base\backend\auth;
 use bizley\jwt\Jwt as BaseJwt;
 use Lcobucci\JWT\ClaimsFormatter;
 use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Encoding\ChainedFormatter;
+use Lcobucci\JWT\Encoding\MicrosecondBasedDateConversion;
+use Lcobucci\JWT\Encoding\UnifyAudience;
 use Lcobucci\JWT\Token;
+use shopack\base\common\auth\JwtDateTimeFormatter;
 use yii\web\UnauthorizedHttpException;
 
 class Jwt extends BaseJwt
@@ -119,19 +123,25 @@ class Jwt extends BaseJwt
 		return $token;
 	}
 
-	// public function getBuilder(?ClaimsFormatter $claimFormatter = null): Builder
-	// {
-	// 	$builder = parent::getBuilder($claimFormatter);
+	public function getBuilder(?ClaimsFormatter $claimFormatter = null): Builder
+	{
+		// if (empty($claimFormatter))
+		// 	$claimFormatter = ChainedFormatter::default();
 
-	// 	$now = new \DateTimeImmutable();
-	// 	$expire = $now->modify("+{$this->ttl} second");
+		// foreach ($claimFormatter->formatters as $k => $formatter)
+		// {
+		// 	if (is_a($formatter, MicrosecondBasedDateConversion::class)) {
+		// 		$formatter = new JwtDateTimeFormatter();
+		// 		$claimFormatter->formatters[$k] = $formatter;
+		// 	}
+		// }
 
-	// 	$builder
-	// 		->issuedAt($now)
-	// 		->expiresAt($expire)
-	// 		;
+		$claimFormatter = new ChainedFormatter(
+			new UnifyAudience(),
+			new JwtDateTimeFormatter()
+		);
 
-	// 	return $builder;
-	// }
+		return parent::getBuilder($claimFormatter);
+	}
 
 }

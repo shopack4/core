@@ -232,6 +232,8 @@ trait ActiveRecordTrait
 	protected function checkColumnsBeforeSave($insert)
 	{
 		$JsonValidator_class = JsonValidator::class;
+
+		$dirtyAttributes = $this->getDirtyAttributes();
 		$columnsInfo = $this->getColumnsInfo();
 
 		foreach ($columnsInfo as $column => $colInfo) {
@@ -243,8 +245,12 @@ trait ActiveRecordTrait
 				&& ($colInfo[enuColumnInfo::default] == 'uuid')
 				&& (empty($columnValue) || $columnValue == 'uuid')
 			) {
-				$columnValue = strtolower(Uuid::uuid4()->toString());
+				$this->$column = strtolower(Uuid::uuid4()->toString());
+				continue;
 			}
+
+			if (isset($dirtyAttributes[$column]) == false)
+				continue;
 
 			//json
 			if (isset($colInfo[enuColumnInfo::type])
@@ -340,7 +346,7 @@ trait ActiveRecordTrait
 
 					$columnValue = ArrayHelper::FilterRecursive($columnValue);
 				}
-			}
+			} //json
 
 			//
 			if (is_string($columnValue)) {
