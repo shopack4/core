@@ -66,14 +66,17 @@ class Module
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/session'],
 					'pluralize' => false,
+					'tokens' => [
+						'{key}' => '<key:{_uuid}>',
+					],
 					'patterns' => [
 						'GET,HEAD' => 'index',
-						// 'GET,HEAD {uuid}'		=> 'view',
-						// 'POST'							=> 'create',
-						// 'PUT,PATCH {uuid}'	=> 'update',
-						// 'DELETE item/{key}'		=> 'remove-item',
-						// '{uuid}'						=> 'options',
-						// ''									=> 'options',
+						// 'GET,HEAD {key}'			=> 'view',
+						// 'POST'								=> 'create',
+						// 'PUT,PATCH {key}'		=> 'update',
+						// 'DELETE item/{key}'	=> 'remove-item',
+						// '{key}'							=> 'options',
+						// ''										=> 'options',
 					],
 				],
 				[
@@ -173,7 +176,9 @@ class Module
 					'pluralize' => false,
 
 					'tokens' => [
-						'{paymentkey}' => '<paymentkey:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}>',
+						// '{action}' => '<action:[a-zA-Z-]+>',
+						'{action}' => '<action:(info|verify)>',
+						'{paymentkey}' => '<paymentkey:{_uuid}>',
 					],
 
 					'extraPatterns' => [
@@ -182,6 +187,7 @@ class Module
 						'pay/{paymentkey}' => 'pay',
 						// 'pay' => 'pay',
 
+						'callback/{action}/{paymentkey}' => 'callback',
 						'callback/{paymentkey}' => 'callback',
 						'callback' => 'callback',
 					]
@@ -204,19 +210,17 @@ class Module
 					// 'prefix' => 'v1',
 					'controller' => [$this->id . '/basket'],
 					'pluralize' => false,
-
 					'tokens' => [
-						'{key}' => '<key:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}>',
+						'{key}' => '<key:{_uuid}>',
 					],
-
 					'patterns' => [
-						// 'GET,HEAD'					=> 'index',
-						// 'GET,HEAD {uuid}'		=> 'view',
-						// 'POST'							=> 'create',
-						// 'PUT,PATCH {uuid}'	=> 'update',
-						// 'DELETE item/{key}'		=> 'remove-item',
-						// '{uuid}'						=> 'options',
-						// ''									=> 'options',
+						// 'GET,HEAD'						=> 'index',
+						// 'GET,HEAD {key}'			=> 'view',
+						// 'POST'								=> 'create',
+						// 'PUT,PATCH {key}'		=> 'update',
+						// 'DELETE item/{key}'	=> 'remove-item',
+						// '{key}'							=> 'options',
+						// ''										=> 'options',
 					],
 
 					'extraPatterns' => [

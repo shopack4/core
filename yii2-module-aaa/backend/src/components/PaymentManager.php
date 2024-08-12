@@ -84,6 +84,7 @@ class PaymentManager extends Component
     //3: prepare gateway
     $backendCallback = Url::to([
       '/aaa/online-payment/callback',
+      'action' => 'verify',
       'paymentkey' => $onlinePaymentModel->onpUUID,
     ], true);
 

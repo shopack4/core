@@ -237,8 +237,10 @@ HTML;
 	}
 
 	//accepts all http methods
-	public function actionCallback($paymentkey)
-  {
+	public function actionCallback(
+		$paymentkey,
+		$action = 'verify'
+	) {
 		$pgwResponse = array_merge(
 			Yii::$app->request->getQueryParams(),
 			Yii::$app->request->getBodyParams(),

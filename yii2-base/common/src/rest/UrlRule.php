@@ -20,6 +20,23 @@ class UrlRule extends \yii\rest\UrlRule
 		''								=> 'options',
 	];
 
+	public $predefinedTokens = [
+		'{_id}' => '\\d[\\d,]*',
+		'{_uuid}' => '('
+				. '\{[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\}'
+			. '|'
+				. '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+			. '|'
+				. '\{[0-9a-f]{8}[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{12}\}'
+			. '|'
+				. '[0-9a-f]{8}[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{4}[0-9a-f]{12}'
+			. ')',
+	];
+
+	public $tokens = [
+		'{id}' => '<id:{_id}>',
+	];
+
 	protected function createRule($pattern, $prefix, $action)
 	{
 		$verbs = 'GET|HEAD|POST|PUT|PATCH|DELETE|UNDELETE|OPTIONS';
@@ -32,7 +49,10 @@ class UrlRule extends \yii\rest\UrlRule
 
 		$config = $this->ruleConfig;
 		$config['verb'] = $verbs;
-		$config['pattern'] = rtrim($prefix . '/' . strtr($pattern, $this->tokens), '/');
+
+		$pattern = rtrim($prefix . '/' . strtr($pattern, $this->tokens), '/');
+		$config['pattern'] = rtrim(strtr($pattern, $this->predefinedTokens), '/');
+
 		$config['route'] = $action;
 		$config['suffix'] = $this->suffix;
 

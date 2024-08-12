@@ -215,7 +215,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'label' => Yii::t('aaa', 'Callback Url'),
             'format' => 'raw',
             'valueColOptions' => ['class' => ['dir-ltr', 'latin-text']],
-            'value' => Url::to(['/aaa/payment/callback'], true) . '/{ONP-ID}',
+            'value' => Url::to(['/aaa/payment/callback'], true) . '/(verify)/{ONP-UUID}',
           ]);
         }
 
