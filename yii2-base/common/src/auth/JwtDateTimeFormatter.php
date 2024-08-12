@@ -13,6 +13,7 @@ class JwtDateTimeFormatter implements ClaimsFormatter
 {
 	public function formatClaims(array $claims): array
 	{
+		//KEY_LONG_EXPIRATION
 		$keys = array_merge(RegisteredClaims::DATE_CLAIMS, ['lexp']);
 
 		foreach ($keys as $claim) {

@@ -299,7 +299,7 @@ class AuthHelper
 	{
 		$token = Yii::$app->jwt->parse($refresh_token, Jwt::VALIDATE_SANITY);
 
-		if (Yii::$app->jwt->verifyTokenExpiration($token) == false) {
+		if (Yii::$app->jwt->verifyTokenExpiration($token)) {
 			throw new UnprocessableEntityHttpException('The token is still alive');
 		}
 
