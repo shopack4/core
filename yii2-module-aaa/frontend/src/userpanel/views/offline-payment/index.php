@@ -16,7 +16,7 @@ $this->params['breadcrumbs'][] = $this->title;
   <div class='card'>
 		<div class='card-header'>
 			<div class="float-end">
-        <?php echo OfflinePaymentModel::canCreate() ? Html::createButton(null, [
+        <?= OfflinePaymentModel::canCreate() ? Html::createButton(null, [
           'justForMe' => $justForMe ?? $_GET['justForMe'] ?? null
         ]) : ''; ?>
 			</div>

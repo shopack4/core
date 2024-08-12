@@ -469,7 +469,7 @@ HTML;
       </div>
       <div class='card-body'>
         <?php
-          echo $model->deliveryMethod->dlvName . ' : '
+          echo Html::encode($model->deliveryMethod->dlvName) . ' : '
             . (empty($model->vchDeliveryAmount) ? 'بدون هزینه' : Yii::$app->formatter->asToman($model->vchDeliveryAmount));
         ?>
       </div>

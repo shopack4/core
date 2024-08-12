@@ -6,6 +6,7 @@
 namespace shopack\base\backend\auth;
 
 use bizley\jwt\Jwt as BaseJwt;
+use DateTimeImmutable;
 use Lcobucci\JWT\ClaimsFormatter;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
@@ -83,19 +84,19 @@ class Jwt extends BaseJwt
 	{
 		$token = $jwt instanceof Token ? $jwt : $this->parse($jwt, false);
 
-		$exp = $token->claims()->get(self::KEY_LONG_EXPIRATION);
+		$sessionExp = $token->claims()->get(self::KEY_LONG_EXPIRATION);
 
-		if (empty($exp))
+		if (empty($sessionExp))
 			return false;
 
-		if (($exp instanceof \DateTimeImmutable) == false) {
-			$exp = number_format((float)$exp, 6, '.', '');
-			$exp = \DateTimeImmutable::createFromFormat('U.u', $exp);
+		if (($sessionExp instanceof \DateTimeImmutable) == false) {
+			$sessionExp = number_format((float)$sessionExp, 6, '.', '');
+			$sessionExp = \DateTimeImmutable::createFromFormat('U.u', $sessionExp);
 		}
 
 		$now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
-		return ($now < $exp);
+		return ($now < $sessionExp);
 	}
 	public function assertSessionExpiration($jwt)
 	{
@@ -109,6 +110,14 @@ class Jwt extends BaseJwt
 	public function parse(string $jwt, $validate = self::VALIDATE_FULL): Token
 	{
 		$token = parent::parse($jwt);
+
+		// $sessionExp = $token->claims()->get(self::KEY_LONG_EXPIRATION);
+		// if ((empty($sessionExp) == false) && is_numeric($sessionExp)) {
+		// 	$normalizedTimestamp = number_format((float) $sessionExp, self::MICROSECOND_PRECISION, '.', '');
+		// 	$date = DateTimeImmutable::createFromFormat('U.u', $normalizedTimestamp);
+		// 	if ($date !== false)
+		//todo: set claim
+		// }
 
 		try {
 			if ($validate == self::VALIDATE_SANITY) {
