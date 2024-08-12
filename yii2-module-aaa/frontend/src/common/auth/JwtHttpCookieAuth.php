@@ -8,6 +8,7 @@ namespace shopack\aaa\frontend\common\auth;
 use DateTime;
 use Yii;
 use yii\web\ForbiddenHttpException;
+use shopack\base\common\auth\AuthHelper;
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\aaa\frontend\common\models\UserModel;
@@ -43,7 +44,7 @@ class JwtHttpCookieAuth extends \yii\filters\auth\AuthMethod
       $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
       if ($now >= $exp) { //expired -> refresh token
-        $newToken = $this->refreshToken($token);
+        $newToken = AuthHelper::refreshToken($token);
 
         if (($newToken == false) || ($newToken == null)) {
           //relogin
@@ -52,18 +53,18 @@ class JwtHttpCookieAuth extends \yii\filters\auth\AuthMethod
           $this->handleFailure($response);
           return null;
 
-        } else {
-          //use new token
-          $token = $newToken;
+        } //else
 
-          $user = UserModel::findIdentityByAccessToken($token);
-          if ($user == null)
-            throw new ForbiddenHttpException('Invalid token');
+        //use new token
+        $token = $newToken;
 
-          Yii::$app->user->login($user, 3600*24*30); //$this->rememberMe ? 3600*24*30 : 0);
+        $user = UserModel::findIdentityByAccessToken($token);
+        if ($user == null)
+          throw new ForbiddenHttpException('Invalid token');
 
-          return $user;
-        }
+        Yii::$app->user->login($user, 3600*24*30); //$this->rememberMe ? 3600*24*30 : 0);
+
+        return $user;
       }
 
       //
@@ -77,25 +78,6 @@ class JwtHttpCookieAuth extends \yii\filters\auth\AuthMethod
     }
 
     return null;
-  }
-
-  public function refreshToken($token)
-  {
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/refresh-token',
-      HttpHelper::METHOD_POST,
-      [],
-      [
-        'token' => $token,
-      ]
-    );
-
-    if ($resultStatus == 401)
-      return null; //relogin
-
-    if ($resultStatus < 200 || $resultStatus >= 300)
-      return false; //retry
-
-    return $resultData['token'] ?? false;
   }
 
   // public function challenge($response)

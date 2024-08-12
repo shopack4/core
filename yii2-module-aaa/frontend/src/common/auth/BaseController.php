@@ -7,12 +7,12 @@ namespace shopack\aaa\frontend\common\auth;
 
 use Yii;
 use yii\filters\VerbFilter;
+use yii\web\HttpException;
+use yii\web\ForbiddenHttpException;
+use yii\web\UnauthorizedHttpException;
+use shopack\base\common\auth\AuthHelper;
 use shopack\aaa\frontend\common\auth\JwtHttpCookieAuth;
 use shopack\aaa\frontend\common\models\UserModel;
-use shopack\base\common\helpers\HttpHelper;
-use yii\web\ForbiddenHttpException;
-use yii\web\HttpException;
-use yii\web\UnauthorizedHttpException;
 
 class BaseController extends \shopack\base\frontend\common\classes\BaseController
 {
@@ -62,7 +62,7 @@ class BaseController extends \shopack\base\frontend\common\classes\BaseControlle
 		}
 
 		if ($refreshToken) {
-			$newToken = $this->refreshToken(Yii::$app->user->identity->accessToken);
+			$newToken = AuthHelper::refreshToken(Yii::$app->user->identity->accessToken);
 
 			if (($newToken == false) || ($newToken == null)) {
 				return $this->redirect(\Yii::$app->user->loginUrl);
@@ -81,24 +81,5 @@ class BaseController extends \shopack\base\frontend\common\classes\BaseControlle
 			return parent::runAction($id, $params);
 		}
 	}
-
-  public function refreshToken($token)
-  {
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/refresh-token',
-      HttpHelper::METHOD_POST,
-      [],
-      [
-        'token' => $token,
-      ]
-    );
-
-    if ($resultStatus == 401)
-      return null; //relogin
-
-    if ($resultStatus < 200 || $resultStatus >= 300)
-      return false; //retry
-
-    return $resultData['token'] ?? false;
-  }
 
 }
