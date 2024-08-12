@@ -503,17 +503,6 @@ trait UserModelTrait
 		return $this->hasOne($className, ['ctvID' => 'usrCityOrVillageID']);
 	}
 
-  public function getBirthCityOrVillage() {
-		$className = get_called_class();
-
-		if (str_contains($className, '\\backend\\'))
-			$className = '\shopack\aaa\backend\models\GeoCityOrVillageModel';
-		else
-			$className = '\shopack\aaa\frontend\common\models\GeoCityOrVillageModel';
-
-		return $this->hasOne($className, ['ctvID' => 'usrBirthCityID']);
-	}
-
   public function getTown() {
 		$className = get_called_class();
 
@@ -523,6 +512,17 @@ trait UserModelTrait
 			$className = '\shopack\aaa\frontend\common\models\GeoTownModel';
 
 		return $this->hasOne($className, ['twnID' => 'usrTownID']);
+	}
+
+  public function getBirthCityOrVillage() {
+		$className = get_called_class();
+
+		if (str_contains($className, '\\backend\\'))
+			$className = '\shopack\aaa\backend\models\GeoCityOrVillageModel';
+		else
+			$className = '\shopack\aaa\frontend\common\models\GeoCityOrVillageModel';
+
+		return $this->hasOne($className, ['ctvID' => 'usrBirthCityID']);
 	}
 
   public function getRole() {

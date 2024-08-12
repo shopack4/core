@@ -39,6 +39,13 @@ use shopack\aaa\common\enums\enuSessionStatus;
       'ssnTokenExpireAt:jalaliWithTime',
       'ssnSessionExpireAt:jalaliWithTime',
       [
+        'attribute' => 'Issuer',
+        'label' => 'مرجع',
+        'value' => function($model) {
+          return $model->ssnInfo['origin'] ?? null;
+        },
+      ],
+      [
         'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
         'enumClass' => enuSessionStatus::class,
         'attribute' => 'ssnStatus',

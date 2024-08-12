@@ -100,7 +100,7 @@ class AuthController extends BaseRestController
 		$model = new LoginForm();
 
 		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("Username and Password not provided");
+			throw new NotFoundHttpException("Mandatory informations not provided");
 
 		return $model->login();
 	}
@@ -114,7 +114,7 @@ class AuthController extends BaseRestController
 		$model = new LoginByMobileForm();
 
 		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("Username and Password not provided");
+			throw new NotFoundHttpException("Mandatory informations not provided");
 
 		return $model->process();
 	}
@@ -296,12 +296,8 @@ class AuthController extends BaseRestController
 		];
 	}
 
-	//todo: implement this
 	public function actionRefreshToken()
 	{
-		if (YII_ENV_PROD)
-			throw new \Exception('not implemented yet!');
-
 		//do not change to `->getBodyParam('token');` : raise an exception if no token is provided
 		$token = Yii::$app->request->getBodyParams()['token'];
 

@@ -14,6 +14,7 @@ use Lcobucci\JWT\Encoding\MicrosecondBasedDateConversion;
 use Lcobucci\JWT\Encoding\UnifyAudience;
 use Lcobucci\JWT\Token;
 use shopack\base\common\auth\JwtDateTimeFormatter;
+use Yii;
 use yii\web\UnauthorizedHttpException;
 
 class Jwt extends BaseJwt
@@ -151,6 +152,15 @@ class Jwt extends BaseJwt
 		);
 
 		return parent::getBuilder($claimFormatter);
+	}
+
+	public function parseFromRequest($validate = self::VALIDATE_FULL): ?Token
+	{
+		$authHeader = Yii::$app->request->getHeaders()->get('Authorization');
+		if ($authHeader !== null && preg_match('/^Bearer\s+(.*?)$/', $authHeader, $matches))
+			return $this->parse($matches[1], $validate);
+
+		return null;
 	}
 
 }

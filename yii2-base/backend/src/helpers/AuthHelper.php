@@ -47,6 +47,17 @@ class AuthHelper
 		$challengeNeeded = self::CHALLENGE_NONE,
 		?Array $additionalInfo = []
 	) {
+		try {
+			$token = Yii::$app->jwt->parseFromRequest(Jwt::VALIDATE_SANITY);
+			if ($token) {
+				$sessionID = $token->claims()->get(\Lcobucci\JWT\Token\RegisteredClaims::ID);
+				if ($sessionID) {
+					$rowsAffected = SessionModel::deleteAll(['ssnID' => $sessionID]);
+					Yii::info("{$rowsAffected} sessions deleted before login");
+				}
+			}
+		} catch (\Throwable $th) { ; }
+
 		if ($user->usrStatus == enuUserStatus::NewForLoginByMobile) {
 			$user->usrStatus = enuUserStatus::Active;
 			$user->save();
@@ -95,6 +106,10 @@ class AuthHelper
 					// ->withClaim('privs', $privs)
 					->withClaim('uid', $user->usrID)
 				;
+
+				$origin = Yii::$app->request->getOrigin();
+				if (empty($origin) == false)
+					$challengeToken->issuedBy($origin);
 
 				// if (empty($user->usrEmail) == false)
 				//   $challengeToken->withClaim('email', $user->usrEmail);
@@ -192,6 +207,10 @@ class AuthHelper
 			->withClaim('uid', $user->usrID)
 		;
 
+		$origin = Yii::$app->request->getOrigin();
+		if (empty($origin) == false)
+			$tokenBuilder->issuedBy($origin);
+
 		if (empty($user->usrEmail) == false)
 			$tokenBuilder->withClaim('email', $user->usrEmail);
 		if (empty($user->usrMobile) == false)
@@ -248,6 +267,7 @@ class AuthHelper
 
 		$sessionModel->ssnInfo = array_filter([
 			'user-agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+			'origin' => $origin,
 		]);
 
 		$sessionModel->save();
@@ -279,13 +299,13 @@ class AuthHelper
 	{
 		$token = Yii::$app->jwt->parse($refresh_token, Jwt::VALIDATE_SANITY);
 
-		if (YII_ENV_PROD && (Yii::$app->jwt->verifyTokenExpiration($token) == false)) {
+		if (Yii::$app->jwt->verifyTokenExpiration($token) == false) {
 			throw new UnprocessableEntityHttpException('The token is still alive');
 		}
 
 		Yii::$app->jwt->assertSessionExpiration($token);
 
-		$sessionID = $token->claims()->get('jti');
+		$sessionID = $token->claims()->get(\Lcobucci\JWT\Token\RegisteredClaims::ID);
 
 		$dbLockKey = "session.refresh.{$sessionID}";
 

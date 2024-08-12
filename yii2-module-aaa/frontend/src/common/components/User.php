@@ -15,7 +15,7 @@ class User extends BaseUser
 {
 	public $identityClass = \shopack\aaa\frontend\common\models\UserModel::class;
 	public $enableAutoLogin = true;
-	public $loginUrl = ['aaa/auth/login'];
+	public $loginUrl = ['/aaa/auth/login'];
 	public $autoRenewCookie = false;
 
 	public $identityCookie = [

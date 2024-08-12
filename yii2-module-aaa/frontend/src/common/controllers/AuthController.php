@@ -173,8 +173,8 @@ class AuthController extends BaseController
 
   public function actionLogin($donelink = null)
   {
-    if (Yii::$app->user->isGuest == false)
-      return $this->redirect($donelink ?? Yii::$app->getHomeUrl());
+    // if (Yii::$app->user->isGuest == false)
+    //   return $this->redirect($donelink ?? Yii::$app->getHomeUrl());
 
     $resultStatus = 200;
     $resultData = null;

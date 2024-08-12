@@ -102,14 +102,43 @@ class UserModel extends AAAActiveRecord
 
   public function save($runValidation = true, $attributeNames = null)
   {
+    $passwordChanged = false;
+
     if (empty($this->usrPassword) == false) {
       $this->usrPasswordHash = Yii::$app->security->generatePasswordHash($this->usrPassword);
       $this->usrPasswordCreatedAt = new Expression('NOW()');
       if ($this->usrMustChangePassword)
         $this->usrMustChangePassword = null;
+
+      $passwordChanged = !$this->isNewRecord;
     }
 
-    return parent::save($runValidation, $attributeNames);
+    $result = parent::save($runValidation, $attributeNames);
+
+    if ($result && $passwordChanged) {
+      if (Yii::$app->user->id == $this->usrID) {
+        $token = Yii::$app->user->accessToken;
+        if (empty($token))
+          return $result;
+
+        $sessionID = $token->claims()->get(\Lcobucci\JWT\Token\RegisteredClaims::ID);
+        if (empty($sessionID))
+          return $result;
+
+        //delete other sessions
+        $condition = ['!=', 'ssnID', $sessionID];
+      } else {
+        //delete all user sessions
+        $condition = ['ssnUserID' => $this->usrID];
+      }
+
+      try {
+        $rowsAffected = SessionModel::deleteAll($condition);
+        Yii::info("{$rowsAffected} sessions deleted after change passsword");
+      } catch (\Throwable $th) { ; }
+    }
+
+    return $result;
   }
 
   public function slotAfterInsert()

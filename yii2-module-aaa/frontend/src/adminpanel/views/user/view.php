@@ -71,7 +71,7 @@ $this->params['breadcrumbs'][] = $this->title;
           PopoverX::end();
         ?>
 			</div>
-      <div class='card-title'><?= Html::encode($this->title) ?></div>
+      <div class='card-title'><?= /*Html::encode(*/$this->title ?></div>
 			<div class="clearfix"></div>
 		</div>
 
