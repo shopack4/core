@@ -7,11 +7,11 @@ namespace shopack\aaa\backend\extensions\gateways\payment;
 
 use Yii;
 use yii\web\UnprocessableEntityHttpException;
-use GuzzleHttp\Client;
 use shopack\base\common\helpers\Json;
 use shopack\aaa\common\enums\enuPaymentGatewayType;
 use shopack\aaa\backend\classes\BasePaymentGateway;
 use shopack\aaa\backend\classes\IPaymentGateway;
+use shopack\base\common\classes\GuzzleHttpClient;
 
 class BankSamanPaymentGateway
 	extends BasePaymentGateway
@@ -62,7 +62,7 @@ class BankSamanPaymentGateway
 
 	protected function callApi($method, $url, $urlparams = [], $data = []): array
 	{
-		$client = new Client([
+		$httpClient = new GuzzleHttpClient([
 			'curl' => [CURLOPT_SSL_CIPHER_LIST => 'DEFAULT@SECLEVEL=1'],
 		]);
 
@@ -78,7 +78,7 @@ class BankSamanPaymentGateway
 			}
 		}
 
-		$response = $client->request($method, $url, [
+		$response = $httpClient->request($method, $url, [
 			'json' => $data,
 			'headers' => [
 				'Content-Type' => 'application/json',

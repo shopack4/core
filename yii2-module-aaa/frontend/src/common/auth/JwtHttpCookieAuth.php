@@ -32,6 +32,7 @@ class JwtHttpCookieAuth extends \yii\filters\auth\AuthMethod
       }
 
       //validate
+      /*
       $parsedToken = Yii::$app->jwt->parse($token);
       $jwtPayload = $parsedToken->claims()->all();
 
@@ -66,6 +67,7 @@ class JwtHttpCookieAuth extends \yii\filters\auth\AuthMethod
 
         return $user;
       }
+      */
 
       //
       $identity = $user->loginByAccessToken($token, get_class($this));

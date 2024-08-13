@@ -6,12 +6,15 @@
 namespace shopack\base\common\auth;
 
 use shopack\base\common\helpers\HttpHelper;
+use Yii;
 
 class AuthHelper
 {
 	public static function refreshToken($token)
   {
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/refresh-token',
+		$apiRefreshTokenAddress = Yii::$app->params['apiRefreshTokenAddress'] ?? null;
+
+    list ($resultStatus, $resultData) = HttpHelper::callApi($apiRefreshTokenAddress,
       HttpHelper::METHOD_POST,
       [],
       [

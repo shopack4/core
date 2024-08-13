@@ -206,8 +206,6 @@ class Curl {
       if (Yii::$app->request->headers->has('Authorization'))
         $headers[] = 'Authorization: ' . Yii::$app->request->headers->get('Authorization');
       else if (method_exists(Yii::$app->user, 'getJwtByCookie')) {
-        // if (Yii::$app->request->cookies->has('token'))
-        // $headers[] = 'Authorization Bearer ' . Yii::$app->request->cookies->get('token');
         $jwt = Yii::$app->user->getJwtByCookie();
         if ($jwt !== null) {
           $headers[] = 'Authorization: Bearer ' . $jwt;

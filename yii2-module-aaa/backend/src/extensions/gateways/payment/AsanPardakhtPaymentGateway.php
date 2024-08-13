@@ -7,11 +7,11 @@ namespace shopack\aaa\backend\extensions\gateways\payment;
 
 use Yii;
 use yii\web\UnprocessableEntityHttpException;
-use GuzzleHttp\Client;
 use shopack\base\common\helpers\Json;
 use shopack\aaa\common\enums\enuPaymentGatewayType;
 use shopack\aaa\backend\classes\BasePaymentGateway;
 use shopack\aaa\backend\classes\IPaymentGateway;
+use shopack\base\common\classes\GuzzleHttpClient;
 
 //https://github.com/shetabit/multipay/blob/master/src/Drivers/Saman/Saman.php
 
@@ -71,7 +71,7 @@ class AsanPardakhtPaymentGateway
 
 	protected function callApi($method, $url, $urlparams = [], $data = []): array
 	{
-		$client = new Client(['base_uri' => self::URL_APISERVER]);
+		$httpClient = new GuzzleHttpClient(['base_uri' => self::URL_APISERVER]);
 
 		if (empty($urlparams) == false) {
 			$idx = 0;
@@ -94,7 +94,7 @@ class AsanPardakhtPaymentGateway
 			$headers['pwd'] = $this->extensionModel->gtwPluginParameters[self::PARAM_PASSWORD];
 		// }
 
-		$response = $client->request($method, $url, [
+		$response = $httpClient->request($method, $url, [
 			"json" => $data,
 			"headers" => $headers,
 			"http_errors" => false,

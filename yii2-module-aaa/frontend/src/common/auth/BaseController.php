@@ -40,6 +40,13 @@ class BaseController extends \shopack\base\frontend\common\classes\BaseControlle
 
 	public function runAction($id, $params = [])
 	{
+		return parent::runAction($id, $params);
+
+
+
+
+
+
 		$refreshToken = false;
 
 		try {

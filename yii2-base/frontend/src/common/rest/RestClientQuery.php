@@ -12,11 +12,11 @@ use yii\base\InvalidParamException;
 use yii\base\InvalidArgumentException;
 use yii\web\HttpException;
 use yii\web\ServerErrorHttpException;
-use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
+use shopack\base\common\classes\GuzzleHttpClient;
 use shopack\base\common\helpers\Json;
 use shopack\base\common\helpers\LanguageHelper;
 use shopack\base\common\helpers\Url;
@@ -202,17 +202,16 @@ class RestClientQuery
     if (empty($currentLanguage) == false)
       $this->requestHeaders = ['Accept-Language' => $currentLanguage];
 
-    if (Yii::$app->request->headers->has('Authorization'))
-      $this->requestHeaders['Authorization'] = Yii::$app->request->headers->get('Authorization');
-    else {
-      // if (Yii::$app->request->cookies->has('token'))
-      // $headers[] = 'Authorization Bearer ' . Yii::$app->request->cookies->get('token');
-      if (Yii::$app->user->isGuest == false) {
-        $jwt = Yii::$app->user->identity->accessToken; //getJwtByCookie();
-        if ($jwt !== null)
-          $this->requestHeaders['Authorization'] = 'Bearer ' . $jwt;
-      }
-    }
+    //moved to client
+    // if (Yii::$app->request->headers->has('Authorization'))
+    //   $this->requestHeaders['Authorization'] = Yii::$app->request->headers->get('Authorization');
+    // else {
+    //   if (Yii::$app->user->isGuest == false) {
+    //     $jwt = Yii::$app->user->identity->accessToken; //getJwtByCookie();
+    //     if ($jwt !== null)
+    //       $this->requestHeaders['Authorization'] = 'Bearer ' . $jwt;
+    //   }
+    // }
 
     $this->requestHeaders['Origin'] = rtrim(Url::to(['/'], true), '/\\');
 
@@ -233,7 +232,7 @@ class RestClientQuery
       $httpClientConfig['proxy'] = constant('YII_DEV_LOCAL_PROXY');
     }
 
-    $this->httpClient = new Client($httpClientConfig);
+    $this->httpClient = new GuzzleHttpClient($httpClientConfig);
 
     if (Yii::$app->isJustForMe)
       $this->addUrlParameter('justForMe', 1);
@@ -633,6 +632,10 @@ class RestClientQuery
    */
   private function _request($method, $url, array $options)
   {
+    return $this->httpClient->{$method}($url, $options);
+
+    /*
+    // moved to GuzzleHttpClient:
     $rawQuery = $url;
     if (empty($options['query']) == false) {
       $rawQuery .= '?';
@@ -654,26 +657,14 @@ class RestClientQuery
       $profile and Yii::endProfile($rawQuery, $loggingCategory);
       $response = $e->getResponse();
 
-    } catch (ConnectException $e) {
+    } catch (ConnectException|RequestException $e) {
       $profile and Yii::endProfile($rawQuery, $loggingCategory);
       $this->_throwServerError($e);
 
-    } catch (RequestException $e) {
-      $profile and Yii::endProfile($rawQuery, $loggingCategory);
-      $this->_throwServerError($e);
-    }
-
-    $header = $response->getHeader('WWW-Authenticate');
-    if (empty($header) == false) {
-      throw new UnauthorizedHttpException('failed');
-
-      // Yii::$app->user->logout();
-      // Yii::$app->response->redirect(Yii::$app->getHomeUrl());
-      // Yii::$app->response->send();
-      // die();
     }
 
     return $response;
+    */
   }
 
   /**
@@ -681,12 +672,14 @@ class RestClientQuery
    * @param \Exception $e
    * @throws ServerErrorHttpException
    */
+  /*
   private function _throwServerError(\Exception $e)
   {
     $uri = (string) $this->httpClient->getConfig('base_uri');
 
     throw new ServerErrorHttpException(get_class($e).': url='.$uri .' '. $e->getMessage(), 500);
   }
+  */
 
   /**
    * Unserialize and create models
