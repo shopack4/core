@@ -32,8 +32,8 @@ class HttpHelper
 	const PROVIDER_CURL   = 'curl';
 	const PROVIDER_GUZZLE = 'guzzle';
 
-	public static $provider = self::PROVIDER_CURL;
-	// public static $provider = self::PROVIDER_GUZZLE;
+	// public static $provider = self::PROVIDER_CURL;
+	public static $provider = self::PROVIDER_GUZZLE;
 	// public static $provider = (YII_ENV_DEV ? self::PROVIDER_GUZZLE : self::PROVIDER_CURL);
 
 	// public static $unserializers = [
@@ -325,6 +325,24 @@ class HttpHelper
 
 	protected static function formatResponse($resultStatus, $responseHeaders, $responseData)
 	{
+		if ((empty($responseHeaders) == false) && is_string($responseHeaders)) {
+			$h = explode("\n", $responseHeaders);
+			$responseHeaders = [];
+			foreach ($h as $i => $v) {
+				if ($i == 0) {
+					$responseHeaders[] = $v;
+				} else {
+					$parts = explode(':', $v);
+
+					$headerKey = trim(array_shift($parts));
+					if (isset($responseHeaders[$headerKey]) == false)
+						$responseHeaders[$headerKey] = [];
+
+					$responseHeaders[$headerKey][] = trim(implode(':', $parts));
+				}
+			}
+		}
+
 		if (YII_DEBUG) {
 			Yii::info([
 				'status' => $resultStatus,

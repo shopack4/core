@@ -238,20 +238,6 @@ class Curl {
 
       $header_size = curl_getinfo($CurlObject, CURLINFO_HEADER_SIZE);
       $responseHeaders = trim(substr($response, 0, $header_size));
-
-      if (empty($responseHeaders) == false) {
-        $h = explode("\n", $responseHeaders);
-        $responseHeaders = [];
-        foreach ($h as $i => $v) {
-          if ($i == 0)
-            $responseHeaders[] = $v;
-          else {
-            $parts = explode(':', $v);
-            $responseHeaders[strtolower(trim(array_shift($parts)))] = trim(implode(':', $parts));
-          }
-        }
-      }
-
       $responseData = trim(substr($response, $header_size));
 
       //json null
