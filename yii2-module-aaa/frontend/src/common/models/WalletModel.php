@@ -64,9 +64,9 @@ class WalletModel extends RestClientActiveRecord
 			return false;
 
 		try {
-			list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/wallet/ensure-i-have-default-wallet', HttpHelper::METHOD_POST);
+			$apiResponse = HttpHelper::callApi('aaa/wallet/ensure-i-have-default-wallet', HttpHelper::METHOD_POST);
 
-			return ($resultStatus >= 200 && $resultStatus < 300);
+			return ($apiResponse['status'] >= 200 && $apiResponse['status'] < 300);
 
 		} catch (\Throwable $th) {}
 

@@ -45,7 +45,7 @@ class UserChangeImageForm extends Model
 			throw new NotFoundHttpException('nothing to do');
 
     //--
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/user/update-image',
+    $apiResponse = HttpHelper::callApi('aaa/user/update-image',
       /* $method */     HttpHelper::METHOD_POST,
       /* $urlParams */  [
                           'id' => $this->userID,
@@ -54,9 +54,9 @@ class UserChangeImageForm extends Model
       /* $formFiles */  $files,
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
   }
 
 }

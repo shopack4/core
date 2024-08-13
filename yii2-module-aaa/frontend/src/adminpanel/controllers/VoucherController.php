@@ -28,21 +28,4 @@ class VoucherController extends BaseCrudController
 		return $behaviors;
 	}
 
-  // public function actionWebhook($gtwUUID, $command)
-  // {
-  //   Yii::$app->response->format = Response::FORMAT_JSON;
-
-  //   $requert = Yii::$app->request;
-
-  //   $result = HttpHelper::callApi('aaa/voucher/webhook', $requert->method,
-  //     array_merge($requert->queryParams, [
-  //       'gtwUUID' => $gtwUUID,
-  //       'command' => $command,
-  //     ]),
-  //     $requert->post()
-  //   );
-
-  //   return $result;
-  // }
-
 }

@@ -100,8 +100,7 @@ class BasketController extends BaseRestController
 
 					$data = RsaPublic::model($parentModule->servicesPublicKeys[$service])->encrypt($data);
 
-					list ($resultStatus, $resultData) = HttpHelper::callApi(
-						"{$service}/accounting/recheck-basket-items",
+					$apiResponse = HttpHelper::callApi("{$service}/accounting/recheck-basket-items",
 						HttpHelper::METHOD_POST,
 						[],
 						[
@@ -111,8 +110,8 @@ class BasketController extends BaseRestController
 					);
 
 					//todo: complete by return values from recheck-basket-items
-					if ($resultStatus < 200 || $resultStatus >= 300) {
-						// HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+					if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300) {
+						// HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 					} else {
 
 						//add to $newItems

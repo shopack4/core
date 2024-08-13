@@ -45,7 +45,7 @@ class ImageChangeForm extends Model
 			throw new NotFoundHttpException('nothing to do');
 
     //--
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/user/update-image',
+    $apiResponse = HttpHelper::callApi('aaa/user/update-image',
       HttpHelper::METHOD_POST,
       [
         'id' => Yii::$app->user->id,
@@ -54,9 +54,9 @@ class ImageChangeForm extends Model
       $files,
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
   }
 
 }

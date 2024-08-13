@@ -43,7 +43,7 @@ class PasswordResetForm extends Model
     if ($this->validate() == false)
       throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/user/password-reset',
+    $apiResponse = HttpHelper::callApi('aaa/user/password-reset',
       HttpHelper::METHOD_POST,
       [
         'id' => $this->userID,
@@ -53,9 +53,9 @@ class PasswordResetForm extends Model
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
   }
 
 }

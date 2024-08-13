@@ -50,7 +50,7 @@ class MobileChangeForm extends Model
       throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
     // if (empty($this->aprid)) {
-      list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/user/mobile-change',
+      $apiResponse = HttpHelper::callApi('aaa/user/mobile-change',
         HttpHelper::METHOD_POST,
         [],
         [
@@ -58,11 +58,11 @@ class MobileChangeForm extends Model
         ]
       );
 
-			HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+			HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-      // $this->aprid = intval($resultData['aprid']);
+      // $this->aprid = intval($apiResponse['data']['aprid']);
 
-      return true; //[$resultStatus, $resultData['result']];
+      return true;
     // }
 
 

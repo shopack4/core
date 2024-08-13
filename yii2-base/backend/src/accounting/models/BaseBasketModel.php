@@ -229,7 +229,7 @@ class BaseBasketModel extends Model
 			// ]);
 			// $data = RsaPrivate::model($parentModule->servicePrivateKey)->encrypt($data);
 
-			list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/get-current',
+			$apiResponse = HttpHelper::callApi('aaa/basket/get-current',
 				HttpHelper::METHOD_POST,
 				[
 					// 'recheckItems' => true,
@@ -240,13 +240,13 @@ class BaseBasketModel extends Model
 				]
 			);
 
-			HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+			HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-			if ((empty($resultData['vchItems']) == false) && (is_array($resultData['vchItems']) == false)) {
-				$resultData['vchItems'] = Json::decode($resultData['vchItems'], true);
+			if ((empty($apiResponse['data']['vchItems']) == false) && (is_array($apiResponse['data']['vchItems']) == false)) {
+				$apiResponse['data']['vchItems'] = Json::decode($apiResponse['data']['vchItems'], true);
 			}
 
-			self::$_lastPreVoucher = $resultData;
+			self::$_lastPreVoucher = $apiResponse['data'];
 		}
 
 		return self::$_lastPreVoucher;
@@ -268,7 +268,7 @@ class BaseBasketModel extends Model
 		]);
 		$data = RsaPrivate::model($parentModule->servicePrivateKey)->encrypt($data);
 
-		list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/set-current',
+		$apiResponse = HttpHelper::callApi('aaa/basket/set-current',
 			HttpHelper::METHOD_POST,
 			[],
 			[
@@ -277,9 +277,9 @@ class BaseBasketModel extends Model
 			]
 		);
 
-		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-		return $resultData;
+		return $apiResponse['data'];
 	}
 
 	public static function updateOpenInvoice(array $invoiceVoucher)
@@ -298,7 +298,7 @@ class BaseBasketModel extends Model
 		]);
 		$data = RsaPrivate::model($parentModule->servicePrivateKey)->encrypt($data);
 
-		list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/voucher/update-open-invoice',
+		$apiResponse = HttpHelper::callApi('aaa/voucher/update-open-invoice',
 			HttpHelper::METHOD_POST,
 			[],
 			[
@@ -307,9 +307,9 @@ class BaseBasketModel extends Model
 			]
 		);
 
-		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-		return $resultData;
+		return $apiResponse['data'];
 	}
 
 	public static function updatePrevoucher(array $prevoucher)
@@ -346,7 +346,7 @@ class BaseBasketModel extends Model
 	public static function getOrCreateOpenInvoice($memberID, $invoiceID = null)
 	{
 		if (self::$_openInvoiceVoucher == null) {
-			list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/voucher/get-or-create-open-invoice',
+			$apiResponse = HttpHelper::callApi('aaa/voucher/get-or-create-open-invoice',
 				HttpHelper::METHOD_POST,
 				[],
 				[
@@ -355,13 +355,13 @@ class BaseBasketModel extends Model
 				]
 			);
 
-			HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+			HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-			if ((empty($resultData['vchItems']) == false) && (is_array($resultData['vchItems']) == false)) {
-				$resultData['vchItems'] = Json::decode($resultData['vchItems'], true);
+			if ((empty($apiResponse['data']['vchItems']) == false) && (is_array($apiResponse['data']['vchItems']) == false)) {
+				$apiResponse['data']['vchItems'] = Json::decode($apiResponse['data']['vchItems'], true);
 			}
 
-			self::$_openInvoiceVoucher = $resultData;
+			self::$_openInvoiceVoucher = $apiResponse['data'];
 		}
 
 		return self::$_openInvoiceVoucher;

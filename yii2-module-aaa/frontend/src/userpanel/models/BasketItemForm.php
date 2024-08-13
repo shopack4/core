@@ -57,8 +57,7 @@ class BasketItemForm extends Model //RestClientActiveRecord
 		$service = $parts[0];
 		$key = $parts[1];
 
-		list ($resultStatus, $resultData) = HttpHelper::callApi(
-			$service . '/accounting/remove-basket-item',
+		$apiResponse = HttpHelper::callApi($service . '/accounting/remove-basket-item',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -66,9 +65,9 @@ class BasketItemForm extends Model //RestClientActiveRecord
       ]
     );
 
-		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
 	}
 
 }

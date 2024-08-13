@@ -14,7 +14,7 @@ class AuthHelper
   {
 		$apiRefreshTokenAddress = Yii::$app->params['apiRefreshTokenAddress'] ?? null;
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi($apiRefreshTokenAddress,
+    $apiResponse = HttpHelper::callApi($apiRefreshTokenAddress,
       HttpHelper::METHOD_POST,
       [],
       [
@@ -22,13 +22,13 @@ class AuthHelper
       ]
     );
 
-    if ($resultStatus == 401)
+    if ($apiResponse['status'] == 401)
       return null; //relogin
 
-    if ($resultStatus < 200 || $resultStatus >= 300)
+    if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300)
       return false; //retry
 
-    return $resultData['token'] ?? false;
+    return $apiResponse['data']['token'] ?? false;
   }
 
 }

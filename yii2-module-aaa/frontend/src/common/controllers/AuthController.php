@@ -442,12 +442,12 @@ class AuthController extends BaseController
 
   public function actionLogout()
   {
-    $result = HttpHelper::callApi('aaa/auth/logout',
+    $apiResponse = HttpHelper::callApi('aaa/auth/logout',
       HttpHelper::METHOD_POST
     );
 
-    if (isset($result['error']['message']))
-      throw new \Exception($result['error']['message']);
+    if (isset($resultData['error']['message']))
+      throw new \Exception($resultData['error']['message']);
 
     Yii::$app->user->logout();
 

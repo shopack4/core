@@ -61,7 +61,7 @@ class OrderPaymentForm extends Model
 
 		$callbackUrl = Url::to(['/aaa/order/view', 'id' => $this->vchID, 'checkpaid' => 1], true);
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/voucher/order-payment',
+    $apiResponse = HttpHelper::callApi('aaa/voucher/order-payment',
       HttpHelper::METHOD_POST,
       [
 				'id' => $this->vchID,
@@ -73,9 +73,9 @@ class OrderPaymentForm extends Model
 			]
     );
 
-		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return $resultData;
+    return $apiResponse['data'];
 	}
 
 }

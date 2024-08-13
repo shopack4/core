@@ -32,8 +32,8 @@ class HttpHelper
 	const PROVIDER_CURL   = 'curl';
 	const PROVIDER_GUZZLE = 'guzzle';
 
-	// public static $provider = self::PROVIDER_CURL;
-	public static $provider = self::PROVIDER_GUZZLE;
+	public static $provider = self::PROVIDER_CURL;
+	// public static $provider = self::PROVIDER_GUZZLE;
 	// public static $provider = (YII_ENV_DEV ? self::PROVIDER_GUZZLE : self::PROVIDER_CURL);
 
 	// public static $unserializers = [
@@ -124,7 +124,7 @@ class HttpHelper
 			}
 		}
 
-		list ($resultStatus, $responseData) = $fnCallApi(self::$provider);
+		list ($resultStatus, $responseHeaders, $responseData) = $fnCallApi(self::$provider);
 
 		$refreshToken = (($resultStatus == 401)
 			&& $isLocalApiServer
@@ -142,10 +142,14 @@ class HttpHelper
 
 			$options['headers']['authorization'] = 'Bearer ' . $newToken;
 
-			list ($resultStatus, $responseData) = $fnCallApi(self::$provider);
+			list ($resultStatus, $responseHeaders, $responseData) = $fnCallApi(self::$provider);
 		}
 
-		return [$resultStatus, $responseData];
+		return [
+			'status'	=> $resultStatus,
+			'headers'	=> $responseHeaders,
+			'data'		=> $responseData
+		];
 	}
 
 	protected static function callApi_curl(
@@ -164,9 +168,9 @@ class HttpHelper
 			->setOptions($options)
 		;
 
-		list ($resultStatus, $responseData) = $curl->execute();
+		list ($resultStatus, $responseHeaders, $responseData) = $curl->execute();
 
-		return self::formatResponse($resultStatus, $responseData);
+		return self::formatResponse($resultStatus, $responseHeaders, $responseData);
 	}
 
 	protected static function callApi_guzzle(
@@ -313,44 +317,18 @@ class HttpHelper
 
 		$resultStatus = $response->getStatusCode();
 		// $responseData = self::_unserializeResponseBody($response);
+		$responseHeaders = $response->getHeaders();
 		$responseData = (string)$response->getBody();
 
-		return self::formatResponse($resultStatus, $responseData);
-
-		// if ($response === false) {
-		//   $resultStatus = (-1) * curl_errno($CurlObject);
-		//   $response = [
-		//     'message' => curl_error($CurlObject),
-		//   ];
-		// } else {
-			// $resultStatus = curl_getinfo($CurlObject, CURLINFO_RESPONSE_CODE);
-
-			if (is_string($responseData)) {
-				//json null
-				if (strcasecmp($responseData, 'null') == 0)
-					$responseData = null;
-
-				//convert $responseData string to json array
-				if (empty($responseData) == false) {
-					$org = $responseData;
-					$responseData = Json::decode($responseData);
-					if ($responseData === null) {
-						$responseData = [
-							'message' => $org,
-						];
-					}
-				}
-			}
-		// }
-
-		return [$resultStatus, $responseData];
+		return self::formatResponse($resultStatus, $responseHeaders, $responseData);
 	}
 
-	protected static function formatResponse($resultStatus, $responseData)
+	protected static function formatResponse($resultStatus, $responseHeaders, $responseData)
 	{
 		if (YII_DEBUG) {
 			Yii::info([
 				'status' => $resultStatus,
+				'headers' => $responseHeaders,
 				'data' => $responseData,
 			], __METHOD__);
 		}
@@ -498,22 +476,19 @@ class HttpHelper
 		else
 			$resultData = $responseData;
 
-		return [$resultStatus, $resultData];
+		return [$resultStatus, $responseHeaders, $resultData];
 	}
 
-	public static function formatResultIfFailed(
-		$messageCategory,
-		$resultStatus,
-		$resultData
-	) {
-		if ($resultStatus < 200 || $resultStatus >= 300) {
-			$message = $resultData['message'];
+	public static function formatApiResponseIfFailed($apiResponse, $messageCategory)
+	{
+		if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300) {
+			$message = $apiResponse['data']['message'];
 
 			if (is_array($message)) {
 				$msg = array_shift($message);
 				$message = Yii::t($messageCategory, $msg, $message);
 			} else {
-				$message = Yii::t($messageCategory, $message, $resultData);
+				$message = Yii::t($messageCategory, $message, $apiResponse['data']);
 			}
 
 			return $message;
@@ -522,19 +497,12 @@ class HttpHelper
 		return null;
 	}
 
-	public static function throwResultIfFailed(
-		$messageCategory,
-		$resultStatus,
-		$resultData
-	) {
-		$message = self::formatResultIfFailed(
-			$messageCategory,
-			$resultStatus,
-			$resultData
-		);
+	public static function throwApiResponseIfFailed($apiResponse, $messageCategory)
+	{
+		$message = self::formatApiResponseIfFailed($apiResponse, $messageCategory);
 
 		if (empty($message) == false) {
-			throw new \yii\web\HttpException($resultStatus, $message);
+			throw new \yii\web\HttpException($apiResponse['status'], $message);
 		}
 	}
 

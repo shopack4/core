@@ -93,12 +93,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
         $fnShowKindSchema = function($kind, $prop) use($model, &$attributes) {
           if ($model->canViewColumn($prop)) {
-            $result = HttpHelper::callApi("aaa/gateway/plugin-{$kind}-schema", HttpHelper::METHOD_GET, [
+            $apiResponse = HttpHelper::callApi("aaa/gateway/plugin-{$kind}-schema", HttpHelper::METHOD_GET, [
               'key' => $model->gtwPluginName,
             ]);
 
-            if ($result && $result[0] == 200) {
-              $list = $result[1];
+            if ($apiResponse['status'] == 200) {
+              $list = $apiResponse['data'];
 
               if (empty($list) == false) {
                 $tableRows = [];
@@ -220,11 +220,11 @@ $this->params['breadcrumbs'][] = $this->title;
         }
 
         //webhooks
-        $result = HttpHelper::callApi('aaa/gateway/plugin-webhooks-schema', HttpHelper::METHOD_GET, [
+        $apiResponse = HttpHelper::callApi('aaa/gateway/plugin-webhooks-schema', HttpHelper::METHOD_GET, [
           'key' => $model->gtwPluginName,
         ]);
-        if ($result && $result[0] == 200) {
-          $list = $result[1];
+        if ($apiResponse['status'] == 200) {
+          $list = $apiResponse['data'];
 
           if (isset($list)) {
             $tableRows = [];

@@ -85,27 +85,26 @@ class ModirPayamakSmsGateway
 			];
 
 			/******************************************************/
-			list ($resultStatus, $resultData) = HttpHelper::callApi(
-				self::URL_WEBSERVICE_SENDSMS,
+			$apiResponse = HttpHelper::callApi(self::URL_WEBSERVICE_SENDSMS,
 				HttpHelper::METHOD_POST,
 				[],
 				$params,
 				[],
 				[
 					CURLOPT_HTTPHEADER => ['Accept: application/json'],
-					CURLOPT_HEADER => 0,
+					// CURLOPT_HEADER => 0,
 					// CURLOPT_TIMEOUT => 30,
 					CURLOPT_FOLLOWLOCATION => 1,
 					CURLOPT_RETURNTRANSFER => true,
 				]
 			);
 
-			if ($resultStatus < 200 || $resultStatus >= 300 || is_array($resultData))
-				return new SmsSendResult(false, $resultData[1] ?? null, $resultData[0] ?? null);
+			if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300 || is_array($apiResponse['data']))
+				return new SmsSendResult(false, $apiResponse['data'][1] ?? null, $apiResponse['data'][0] ?? null);
 
 			// $result = Json::decode($result);
 
-			return new SmsSendResult(true, null, $resultData);
+			return new SmsSendResult(true, null, $apiResponse['data']);
 
 		} catch(\Exception $exp) {
 			Yii::error($exp, __METHOD__);

@@ -39,7 +39,7 @@ class LoginForm extends Model
     if ($this->validate() == false)
       return false;
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/login',
+    $apiResponse = HttpHelper::callApi('aaa/auth/login',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -49,8 +49,8 @@ class LoginForm extends Model
       ]
     );
 
-    if (isset($resultData['token'])) {
-      $token = $resultData['token'];
+    if (isset($apiResponse['data']['token'])) {
+      $token = $apiResponse['data']['token'];
       $user = UserModel::findIdentityByAccessToken($token);
       if ($user == null)
         throw new ForbiddenHttpException('Invalid token');
@@ -58,12 +58,12 @@ class LoginForm extends Model
       return Yii::$app->user->login($user, 3600*24*30); //$this->rememberMe ? 3600*24*30 : 0);
     }
 
-    // if (isset($resultData['challenge'])) {
-    //   $this->challenge = $resultData['challenge'];
+    // if (isset($apiResponse['data']['challenge'])) {
+    //   $this->challenge = $apiResponse['data']['challenge'];
     //   return 'challenge';
     // }
 
-    return [$resultStatus, $resultData];
+    return [$apiResponse['status'], $apiResponse['data']];
   }
 
 }

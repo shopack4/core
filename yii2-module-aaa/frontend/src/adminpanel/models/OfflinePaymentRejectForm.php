@@ -39,7 +39,7 @@ class OfflinePaymentRejectForm extends Model
     if ($this->validate() == false)
       throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/offline-payment/reject',
+    $apiResponse = HttpHelper::callApi('aaa/offline-payment/reject',
       HttpHelper::METHOD_POST,
       [
         'id' => $this->ofpID,
@@ -50,9 +50,9 @@ class OfflinePaymentRejectForm extends Model
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
   }
 
 }

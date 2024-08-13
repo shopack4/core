@@ -96,23 +96,22 @@ class AsanakSmsGateway
 			];
 
 			/******************************************************/
-			list ($resultStatus, $resultData) = HttpHelper::callApi(
-				self::URL_WEBSERVICE_SENDSMS,
+			$apiResponse = HttpHelper::callApi(self::URL_WEBSERVICE_SENDSMS,
 				HttpHelper::METHOD_POST,
 				[],
 				$params,
 				[],
 				[
 					CURLOPT_HTTPHEADER => ['Accept: application/json'],
-					CURLOPT_HEADER => 0,
+					// CURLOPT_HEADER => 0,
 					// CURLOPT_TIMEOUT => 30,
 					CURLOPT_FOLLOWLOCATION => 1,
 				]
 			);
 
-			if ($resultStatus < 200 || $resultStatus >= 300
-					|| empty($resultData['refID']))
-				return new SmsSendResult(false, $resultData['message'] ?? null);
+			if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300
+					|| empty($apiResponse['data']['refID']))
+				return new SmsSendResult(false, $apiResponse['data']['message'] ?? null);
 
 			// $result = Json::decode($result);
 

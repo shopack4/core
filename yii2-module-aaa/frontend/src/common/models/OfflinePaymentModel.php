@@ -111,16 +111,16 @@ class OfflinePaymentModel extends RestClientActiveRecord
 		if (empty($id))
 			throw new NotFoundHttpException('Invalid id');
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/offline-payment/accept',
+    $apiResponse = HttpHelper::callApi('aaa/offline-payment/accept',
       HttpHelper::METHOD_POST,
       [
         'id' => $id,
       ]
     );
 
-		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
 	}
 
 	// public static function doReject($id)
@@ -128,16 +128,16 @@ class OfflinePaymentModel extends RestClientActiveRecord
 	// 	if (empty($id))
 	// 		throw new NotFoundHttpException('Invalid id');
 
-  //   list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/offline-payment/reject',
+  //   $apiResponse = HttpHelper::callApi('aaa/offline-payment/reject',
   //     HttpHelper::METHOD_POST,
   //     [
   //       'id' => $id,
   //     ]
   //   );
 
-	// 	HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+	// 	HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-  //   return true; //[$resultStatus, $resultData['result']];
+  //   return true;
 	// }
 
 }

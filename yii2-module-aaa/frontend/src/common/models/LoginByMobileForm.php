@@ -65,16 +65,16 @@ class LoginByMobileForm extends Model
 
     $bodyParams = Yii::$app->request->getBodyParams();
     if (($this->step == self::STEP_CODE) && ($bodyParams['resend'] == 1)) {
-      list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-approval-code',
+      $apiResponse = HttpHelper::callApi('aaa/auth/request-approval-code',
         HttpHelper::METHOD_POST,
         [],
         [
           'input' => $this->mobile,
         ]
       );
-      $resultData = $resultData['result'];
+      $apiResponse['data'] = $apiResponse['data']['result'];
     } else {
-      list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/login-by-mobile',
+      $apiResponse = HttpHelper::callApi('aaa/auth/login-by-mobile',
         HttpHelper::METHOD_POST,
         [],
         [
@@ -85,15 +85,15 @@ class LoginByMobileForm extends Model
         ]
       );
 
-      // if ($resultStatus == 200) {
+      // if ($apiResponse['status'] == 200) {
       //   return [
-      //     'resultStatus' => $resultStatus,
-      //     'resultData' => $resultData,
+      //     'resultStatus' => $apiResponse['status'],
+      //     'resultData' => $apiResponse['data'],
       //     // 'next' => self::STEP_CODE,
       //   ];
       // }
     // } else {
-    //   list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/challenge',
+    //   $apiResponse = HttpHelper::callApi('aaa/auth/challenge',
     //     HttpHelper::METHOD_POST,
     //     [],
     //     [
@@ -104,12 +104,12 @@ class LoginByMobileForm extends Model
     //   );
     }
     // $timerInfo = [
-    //   'ttl' => $resultData['ttl'],
-    //   'remained' => $resultData['remained'],
+    //   'ttl' => $apiResponse['data']['ttl'],
+    //   'remained' => $apiResponse['data']['remained'],
     // ];
 
-    if (isset($resultData['token'])) {
-      $token = $resultData['token'];
+    if (isset($apiResponse['data']['token'])) {
+      $token = $apiResponse['data']['token'];
       $user = UserModel::findIdentityByAccessToken($token);
       if ($user == null)
         throw new ForbiddenHttpException('Invalid token');
@@ -117,16 +117,17 @@ class LoginByMobileForm extends Model
       return Yii::$app->user->login($user, 3600*24*30); //$this->rememberMe ? 3600*24*30 : 0);
     }
 
-    if (isset($resultData['challenge'])) {
-      return $resultData;
+    if (isset($apiResponse['data']['challenge'])) {
+      return $apiResponse['data'];
     }
 
     $res = [
-      'resultStatus' => $resultStatus,
-      'resultData' => $resultData,
+      'resultStatus' => $apiResponse['status'],
+      // 'resultHeaders' => $resultHeaders,
+      'resultData' => $apiResponse['data'],
     ];
 
-    if (($this->step == self::STEP_MOBILE) && ($resultStatus == 200)) {
+    if (($this->step == self::STEP_MOBILE) && ($apiResponse['status'] == 200)) {
       $res['next'] = self::STEP_CODE;
     }
 
@@ -135,7 +136,7 @@ class LoginByMobileForm extends Model
 
   public function getTimerInfo()
   {
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/challenge-timer-info',
+    $apiResponse = HttpHelper::callApi('aaa/auth/challenge-timer-info',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -143,9 +144,9 @@ class LoginByMobileForm extends Model
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return $resultData['result'];
+    return $apiResponse['data']['result'];
   }
 
 }

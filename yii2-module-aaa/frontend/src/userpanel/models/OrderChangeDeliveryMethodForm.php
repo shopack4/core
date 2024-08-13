@@ -58,7 +58,7 @@ class OrderChangeDeliveryMethodForm extends Model
     if ($this->validate() == false)
       throw new HttpException(400, implode("\n", $this->getFirstErrors()));
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/voucher/order-change-delivery-method',
+    $apiResponse = HttpHelper::callApi('aaa/voucher/order-change-delivery-method',
       HttpHelper::METHOD_POST,
       [
 				'id' => $this->vchID,
@@ -68,9 +68,9 @@ class OrderChangeDeliveryMethodForm extends Model
 			]
     );
 
-		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
 	}
 
 }

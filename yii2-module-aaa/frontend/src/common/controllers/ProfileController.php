@@ -233,7 +233,7 @@ class ProfileController extends BaseController
     if (empty($userModel->usrEmail))
       throw new UnprocessableEntityHttpException('ایمیل خالی است.');
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-approval-code',
+    $apiResponse = HttpHelper::callApi('aaa/auth/request-approval-code',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -241,7 +241,7 @@ class ProfileController extends BaseController
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
 		return $this->renderJson([
 			'status' => 'Ok',
@@ -335,7 +335,7 @@ class ProfileController extends BaseController
     if (empty($userModel->usrMobile))
       throw new UnprocessableEntityHttpException('موبایل خالی است.');
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-approval-code',
+    $apiResponse = HttpHelper::callApi('aaa/auth/request-approval-code',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -343,7 +343,7 @@ class ProfileController extends BaseController
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
 		return $this->renderJson([
 			'status' => 'Ok',
@@ -586,7 +586,7 @@ class ProfileController extends BaseController
     if ($userModel->isSoftDeleted())
       throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/user/inactive-2fa',
+    $apiResponse = HttpHelper::callApi('aaa/user/inactive-2fa',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -594,7 +594,7 @@ class ProfileController extends BaseController
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
 		return $this->renderJson([
 			'status' => 'Ok',

@@ -33,7 +33,7 @@ class RequestForgotPasswordForm extends Model
     if ($this->validate() == false)
       throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-forgot-password',
+    $apiResponse = HttpHelper::callApi('aaa/auth/request-forgot-password',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -41,9 +41,9 @@ class RequestForgotPasswordForm extends Model
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
   }
 
 }

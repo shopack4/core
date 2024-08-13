@@ -43,7 +43,7 @@ class ApproveCodeForm extends Model
     if ($this->validate() == false)
       return false;
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/accept-approval',
+    $apiResponse = HttpHelper::callApi('aaa/auth/accept-approval',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -52,27 +52,27 @@ class ApproveCodeForm extends Model
       ]
     );
 
-    // if (isset($resultData['keyType']))
-    //   $this->keyType = $resultData['keyType'];
+    // if (isset($apiResponse['data']['keyType']))
+    //   $this->keyType = $apiResponse['data']['keyType'];
 
-    if ($resultStatus < 200 || $resultStatus >= 300) {
-      return [$resultStatus, $resultData];
-			// HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300) {
+      return [$apiResponse['status'], $apiResponse['data']];
+			// HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
     }
 
     //check result['token'] -> set cookie
-    if (array_key_exists('token', $resultData)) {
-      if ($resultData['token'] == null) {
+    if (array_key_exists('token', $apiResponse['data'])) {
+      if ($apiResponse['data']['token'] == null) {
         Yii::$app->user->logout();
       }
     }
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
   }
 
   public function getTimerInfo()
   {
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/challenge-timer-info',
+    $apiResponse = HttpHelper::callApi('aaa/auth/challenge-timer-info',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -80,14 +80,14 @@ class ApproveCodeForm extends Model
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return $resultData['result'];
+    return $$apiResponse['data']['result'];
   }
 
   public function resend()
   {
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-approval-code',
+    $apiResponse = HttpHelper::callApi('aaa/auth/request-approval-code',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -95,9 +95,9 @@ class ApproveCodeForm extends Model
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return [$resultStatus, $resultData['result']];
+    return [$apiResponse['status'], $apiResponse['data']['result']];
   }
 
 }

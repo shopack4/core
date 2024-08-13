@@ -13,8 +13,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
 $model        = $params['model'] ?? null;
 $timerInfo    = $params['timerInfo'] ?? null;
-$resultStatus = $params['resultStatus'] ?? null;
-$resultData   = $params['resultData'] ?? null;
+// $resultStatus = $params['resultStatus'] ?? null;
+// $resultData   = $params['resultData'] ?? null;
 $message      = $params['message'] ?? null;
 $keyType      = $params['keyType'] ?? null;
 ?>

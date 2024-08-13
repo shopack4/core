@@ -38,7 +38,7 @@ class Active2FAForm extends Model
     if ($this->validate() == false)
       throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/user/active-2fa',
+    $apiResponse = HttpHelper::callApi('aaa/user/active-2fa',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -47,14 +47,14 @@ class Active2FAForm extends Model
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
   }
 
   public function generate()
   {
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/user/generate-2fa-activation-code',
+    $apiResponse = HttpHelper::callApi('aaa/user/generate-2fa-activation-code',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -62,9 +62,9 @@ class Active2FAForm extends Model
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return [$resultStatus, $resultData];
+    return [$apiResponse['status'], $apiResponse['data']];
   }
 
 }

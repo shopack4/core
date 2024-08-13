@@ -107,8 +107,7 @@ class VoucherModel extends AAAActiveRecord
 
 			$data = RsaPublic::model($parentModule->servicesPublicKeys[$service])->encrypt($data);
 
-			list ($resultStatus, $resultData) = HttpHelper::callApi(
-				"{$service}/accounting/process-voucher-items",
+			$apiResponse = HttpHelper::callApi("{$service}/accounting/process-voucher-items",
 				HttpHelper::METHOD_POST,
 				[],
 				[
@@ -117,11 +116,11 @@ class VoucherModel extends AAAActiveRecord
 				]
 			);
 
-			if ($resultStatus < 200 || $resultStatus >= 300) {
-				HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+			if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300) {
+				HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 				++$errorCount;
 			} else {
-				foreach ($resultData as $resKey => $resVal) {
+				foreach ($apiResponse['data'] as $resKey => $resVal) {
 					foreach ($org_vchItems as $orgKey => $orgVal) {
 						if ($orgVal['key'] == $resKey) {
 							if (isset($resVal['ok'])) {
@@ -219,7 +218,7 @@ class VoucherModel extends AAAActiveRecord
 		else
 			$data = RsaPublic::model(Yii::$app->controller->module->servicesPublicKeys[$service])->encrypt($data);
 
-		list ($resultStatus, $resultData) = HttpHelper::callApi($service . "/service/process-voucher-item",
+		$apiResponse = HttpHelper::callApi($service . "/service/process-voucher-item",
 			HttpHelper::METHOD_POST,
 			[],
 			[
@@ -229,7 +228,7 @@ class VoucherModel extends AAAActiveRecord
 			]
 		);
 
-		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 	}
 */
 

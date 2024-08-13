@@ -62,7 +62,7 @@ class SignupForm extends Model
     if ($this->validate() == false)
       return false;
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/signup',
+    $apiResponse = HttpHelper::callApi('aaa/auth/signup',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -72,8 +72,8 @@ class SignupForm extends Model
       ]
     );
 
-    if (isset($resultData['token'])) {
-      $token = $resultData['token'];
+    if (isset($apiResponse['data']['token'])) {
+      $token = $apiResponse['data']['token'];
       $user = UserModel::findIdentityByAccessToken($token);
       if ($user == null)
         throw new ForbiddenHttpException('Invalid token');
@@ -81,7 +81,7 @@ class SignupForm extends Model
       return Yii::$app->user->login($user, 3600*24*30); //$this->rememberMe ? 3600*24*30 : 0);
     }
 
-    return [$resultStatus, $resultData];
+    return [$apiResponse['status'], $apiResponse['data']];
   }
 
 }

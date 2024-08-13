@@ -14,8 +14,8 @@ use shopack\base\common\helpers\GeneralHelper;
 	<?php
 		$model        = $params['model'];
 		$timerInfo    = $params['timerInfo'] ?? null;
-		$resultStatus = $params['resultStatus'] ?? null;
-		$resultData   = $params['resultData'] ?? null;
+		// $resultStatus = $params['resultStatus'] ?? null;
+		// $resultData   = $params['resultData'] ?? null;
 		$message      = $params['message'] ?? null;
 
 		$form = ActiveForm::begin([
@@ -128,13 +128,5 @@ JS;
 	<?php
 		$builder->render();
 		$form->endForm(); //ActiveForm::end();
-
-// var_dump([
-// 	'timerInfo'    => $timerInfo,
-// 	'resultStatus' => $resultStatus,
-// 	'resultData'   => $resultData,
-// 	'message'      => $message,
-// ]);
-
 	?>
 </div>

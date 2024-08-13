@@ -44,7 +44,7 @@ class WalletIncreaseForm extends Model
       throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
     //--
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/wallet/increase',
+    $apiResponse = HttpHelper::callApi('aaa/wallet/increase',
       HttpHelper::METHOD_POST,
       [
         'id' => $this->walletID,
@@ -56,9 +56,9 @@ class WalletIncreaseForm extends Model
 			]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return $resultData;
+    return $apiResponse['data'];
   }
 
 }

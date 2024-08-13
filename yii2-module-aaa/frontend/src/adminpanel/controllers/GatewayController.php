@@ -44,13 +44,13 @@ class GatewayController extends BaseCrudController
       ];
     }
 
-    $result = HttpHelper::callApi('aaa/gateway/plugin-list', HttpHelper::METHOD_GET, [
+    $apiResponse = HttpHelper::callApi('aaa/gateway/plugin-list', HttpHelper::METHOD_GET, [
       'type' => $type,
     ]);
 
 		$pluginList = [];
-    if ($result[0] == 200) {
-			foreach ($result[1] as $k => $v) {
+    if ($apiResponse['status'] == 200) {
+			foreach ($apiResponse['data'] as $k => $v) {
         $pluginList[] = [
           'id' => $k,
           'name' => $v['title']
@@ -68,12 +68,12 @@ class GatewayController extends BaseCrudController
   {
     Yii::$app->response->format = Response::FORMAT_JSON;
 
-    $result = HttpHelper::callApi("aaa/gateway/plugin-{$type}-schema", HttpHelper::METHOD_GET, [
+    $apiResponse = HttpHelper::callApi("aaa/gateway/plugin-{$type}-schema", HttpHelper::METHOD_GET, [
       'key' => $key,
     ]);
 
-    if ($result[0] == 200) {
-      $list = $result[1];
+    if ($apiResponse['status'] == 200) {
+      $list = $apiResponse['data'];
       array_walk($list, function (&$item) {
         if (isset($item['label']))
           $item['label'] = Yii::t('aaa', $item['label']);
@@ -90,7 +90,7 @@ class GatewayController extends BaseCrudController
       });
 
       return [
-        'count' => count($result[1]),
+        'count' => count($apiResponse['data']),
         'list' => $list,
       ];
     }
@@ -117,19 +117,19 @@ class GatewayController extends BaseCrudController
   {
     Yii::$app->response->format = Response::FORMAT_JSON;
 
-    $result = HttpHelper::callApi('aaa/gateway/plugin-webhooks-schema', HttpHelper::METHOD_GET, [
+    $apiResponse = HttpHelper::callApi('aaa/gateway/plugin-webhooks-schema', HttpHelper::METHOD_GET, [
       'key' => $key,
     ]);
 
-    if ($result[0] == 200) {
-      $list = $result[1];
+    if ($apiResponse['status'] == 200) {
+      $list = $apiResponse['data'];
       array_walk($list, function (&$item) {
         if (isset($item['label']))
           $item['label'] = Yii::t('aaa', $item['label']);
       });
 
       return [
-        'count' => count($result[1]),
+        'count' => count($apiResponse['data']),
         'list' => $list,
       ];
     }
@@ -143,7 +143,7 @@ class GatewayController extends BaseCrudController
 
     $requert = Yii::$app->request;
 
-    $result = HttpHelper::callApi('aaa/gateway/webhook', $requert->method,
+    $apiResponse = HttpHelper::callApi('aaa/gateway/webhook', $requert->method,
       array_merge($requert->queryParams, [
         'gtwUUID' => $gtwUUID,
         'command' => $command,
@@ -151,22 +151,7 @@ class GatewayController extends BaseCrudController
       $requert->post()
     );
 
-    return $result;
-
-    // if ($result[0] == 200) {
-    //   $list = $result[1];
-    //   array_walk($list, function (&$item) {
-    //     if (isset($item['label']))
-    //       $item['label'] = Yii::t('aaa', $item['label']);
-    //   });
-
-    //   return [
-    //     'count' => count($result[1]),
-    //     'list' => $list,
-    //   ];
-    // }
-
-    // return [];
+    return $apiResponse;
   }
 
 }

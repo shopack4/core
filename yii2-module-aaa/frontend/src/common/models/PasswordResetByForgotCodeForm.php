@@ -44,7 +44,7 @@ class PasswordResetByForgotCodeForm extends Model
     if ($this->validate() == false)
       throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/password-reset-by-forgot-code',
+    $apiResponse = HttpHelper::callApi('aaa/auth/password-reset-by-forgot-code',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -54,17 +54,17 @@ class PasswordResetByForgotCodeForm extends Model
       ]
     );
 
-    if ($resultStatus < 200 || $resultStatus >= 300) {
-      return [$resultStatus, $resultData];
-			// HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300) {
+      return [$apiResponse['status'], $apiResponse['data']];
+			// HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
     }
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
   }
 
   public function getTimerInfo()
   {
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/forgot-password-timer-info',
+    $apiResponse = HttpHelper::callApi('aaa/auth/forgot-password-timer-info',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -72,14 +72,14 @@ class PasswordResetByForgotCodeForm extends Model
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return $resultData['result'];
+    return $apiResponse['data']['result'];
   }
 
   public function resend()
   {
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-forgot-password',
+    $apiResponse = HttpHelper::callApi('aaa/auth/request-forgot-password',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -87,9 +87,9 @@ class PasswordResetByForgotCodeForm extends Model
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return [$resultStatus, $resultData['result']];
+    return [$apiResponse['status'], $apiResponse['data']['result']];
   }
 
 }

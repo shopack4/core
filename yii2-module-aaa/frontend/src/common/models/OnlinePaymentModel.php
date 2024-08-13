@@ -66,7 +66,7 @@ class OnlinePaymentModel extends RestClientActiveRecord
 
 	public static function getAllowedTypes()
 	{
-		list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/online-payment/get-allowed-types',
+		$apiResponse = HttpHelper::callApi('aaa/online-payment/get-allowed-types',
 			HttpHelper::METHOD_GET,
 			[
 				// 'service' => $service,
@@ -74,11 +74,11 @@ class OnlinePaymentModel extends RestClientActiveRecord
 			]
 		);
 
-		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
 		$types = [];
 
-		foreach ($resultData as $t) {
+		foreach ($apiResponse['data'] as $t) {
 			$types[$t] = enuPaymentGatewayType::getLabel($t);
 		}
 

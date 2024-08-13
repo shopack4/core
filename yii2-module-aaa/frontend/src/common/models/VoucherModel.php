@@ -106,16 +106,16 @@ class VoucherModel extends RestClientActiveRecord
 		if (empty($id))
 			throw new NotFoundHttpException('Invalid id');
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/voucher/cancel',
+    $apiResponse = HttpHelper::callApi('aaa/voucher/cancel',
       HttpHelper::METHOD_POST,
       [
         'id' => $id,
       ]
     );
 
-		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
 	}
 
 	public static function doReprocess($id)
@@ -123,16 +123,16 @@ class VoucherModel extends RestClientActiveRecord
 		if (empty($id))
 			throw new NotFoundHttpException('Invalid id');
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/voucher/reprocess',
+    $apiResponse = HttpHelper::callApi('aaa/voucher/reprocess',
       HttpHelper::METHOD_POST,
       [
         'id' => $id,
       ]
     );
 
-		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
 	}
 
 }

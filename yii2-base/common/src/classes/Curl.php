@@ -221,28 +221,49 @@ class Curl {
       curl_setopt($CurlObject, CURLOPT_PROXYPORT, $proxy['port'] ?? 80);
     }
 
+    curl_setopt($CurlObject, CURLOPT_HEADER, 1);
+
     //execute
     $response = curl_exec($CurlObject);
     // die('>>' . var_dump($res) . '<<');
 
     if ($response === false) {
-      $statusCode = (-1) * curl_errno($CurlObject);
-      $response = [
+      $resultStatus = (-1) * curl_errno($CurlObject);
+      $responseHeaders = null;
+      $responseData = [
         'message' => curl_error($CurlObject),
       ];
     } else {
-      $statusCode = curl_getinfo($CurlObject, CURLINFO_RESPONSE_CODE);
+      $resultStatus = curl_getinfo($CurlObject, CURLINFO_RESPONSE_CODE);
+
+      $header_size = curl_getinfo($CurlObject, CURLINFO_HEADER_SIZE);
+      $responseHeaders = trim(substr($response, 0, $header_size));
+
+      if (empty($responseHeaders) == false) {
+        $h = explode("\n", $responseHeaders);
+        $responseHeaders = [];
+        foreach ($h as $i => $v) {
+          if ($i == 0)
+            $responseHeaders[] = $v;
+          else {
+            $parts = explode(':', $v);
+            $responseHeaders[strtolower(trim(array_shift($parts)))] = trim(implode(':', $parts));
+          }
+        }
+      }
+
+      $responseData = trim(substr($response, $header_size));
 
       //json null
-      if (strcasecmp($response, 'null') == 0)
-        $response = null;
+      if (strcasecmp($responseData, 'null') == 0)
+        $responseData = null;
 
       //convert $response string to json array
-      if (empty($response) == false) {
-        $org = $response;
-        $response = Json::decode($response);
-        if ($response === null) {
-          $response = [
+      if (empty($responseData) == false) {
+        $org = $responseData;
+        $responseData = Json::decode($responseData);
+        if ($responseData === null) {
+          $responseData = [
             'message' => $org,
           ];
         }
@@ -252,7 +273,7 @@ class Curl {
     //close connection
     curl_close($CurlObject);
 
-    return [$statusCode, $response];
+    return [$resultStatus, $responseHeaders, $responseData];
   }
 
 }

@@ -129,7 +129,7 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 			// ]);
 			// $data = RsaPrivate::model($parentModule->servicePrivateKey)->encrypt($data);
 
-			list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/get-current',
+			$apiResponse = HttpHelper::callApi('aaa/basket/get-current',
 				HttpHelper::METHOD_POST,
 				[
 					'recheckItems' => true,
@@ -140,13 +140,13 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 				]
 			);
 
-			HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+			HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-			if ((empty($resultData['vchItems']) == false) && (is_array($resultData['vchItems']) == false)) {
-				$resultData['vchItems'] = Json::decode($resultData['vchItems'], true);
+			if ((empty($apiResponse['data']['vchItems']) == false) && (is_array($apiResponse['data']['vchItems']) == false)) {
+				$apiResponse['data']['vchItems'] = Json::decode($apiResponse['data']['vchItems'], true);
 			}
 
-			self::$_lastPreVoucher = $resultData;
+			self::$_lastPreVoucher = $apiResponse['data'];
 		}
 
 		return self::$_lastPreVoucher;
@@ -244,8 +244,8 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 
 	public function checkout()
 	{
-		// list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/accounting/finalize-basket',
-		list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/basket/checkout',
+		// $apiResponse = HttpHelper::callApi('aaa/accounting/finalize-basket',
+		$apiResponse = HttpHelper::callApi('aaa/basket/checkout',
 			HttpHelper::METHOD_POST,
 			[],
 			[
@@ -256,9 +256,9 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 			]
 		);
 
-		HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-		return $resultData;
+		return $apiResponse['data'];
 	}
 
 }

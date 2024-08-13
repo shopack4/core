@@ -29,7 +29,7 @@ class GatewayController extends BaseController
 
     $requert = Yii::$app->request;
 
-    $result = HttpHelper::callApi('aaa/gateway/webhook', $requert->method,
+    $apiResponse = HttpHelper::callApi('aaa/gateway/webhook', $requert->method,
       array_merge($requert->queryParams, [
         'gtwUUID' => $gtwUUID,
         'command' => $command,
@@ -37,7 +37,7 @@ class GatewayController extends BaseController
       $requert->post()
     );
 
-    return $result;
+    return $apiResponse;
   }
 
 }

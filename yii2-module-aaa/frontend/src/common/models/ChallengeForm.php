@@ -98,7 +98,7 @@ HTML;
     // $parts[2] = 'aaaa';
     // $this->token = implode('.', $parts);
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/challenge',
+    $apiResponse = HttpHelper::callApi('aaa/auth/challenge',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -108,10 +108,10 @@ HTML;
       ]
     );
 
-    // HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    // HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    if (isset($resultData['token'])) {
-      $token = $resultData['token'];
+    if (isset($apiResponse['data']['token'])) {
+      $token = $apiResponse['data']['token'];
       $user = UserModel::findIdentityByAccessToken($token);
       if ($user == null)
         throw new ForbiddenHttpException('Invalid token');
@@ -119,7 +119,7 @@ HTML;
       return Yii::$app->user->login($user, 3600*24*30); //$this->rememberMe ? 3600*24*30 : 0);
     }
 
-    return [$resultStatus, $resultData];
+    return [$apiResponse['status'], $apiResponse['data']];
   }
 
   public function getTimerInfo()
@@ -127,7 +127,7 @@ HTML;
 		$challengeData = $this->challengeData();
     $key = $challengeData['email'] ?? $challengeData['mobile'] ?? $challengeData['ssid'];
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/challenge-timer-info',
+    $apiResponse = HttpHelper::callApi('aaa/auth/challenge-timer-info',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -135,9 +135,9 @@ HTML;
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return $resultData['result'];
+    return $apiResponse['data']['result'];
   }
 
   public function resend()
@@ -146,7 +146,7 @@ HTML;
 		$challengeData = $this->challengeData();
     $key = $challengeData['email'] ?? $challengeData['mobile'] ?? $challengeData['ssid'];
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/request-approval-code',
+    $apiResponse = HttpHelper::callApi('aaa/auth/request-approval-code',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -154,9 +154,9 @@ HTML;
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return [$resultStatus, $resultData['result']];
+    return [$apiResponse['status'], $apiResponse['data']['result']];
   }
 
 }

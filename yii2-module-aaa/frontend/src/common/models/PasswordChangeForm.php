@@ -52,7 +52,7 @@ class PasswordChangeForm extends Model
     if ($this->validate() == false)
       throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
-    list ($resultStatus, $resultData) = HttpHelper::callApi('aaa/auth/password-change',
+    $apiResponse = HttpHelper::callApi('aaa/auth/password-change',
       HttpHelper::METHOD_POST,
       [],
       [
@@ -61,9 +61,9 @@ class PasswordChangeForm extends Model
       ]
     );
 
-    HttpHelper::throwResultIfFailed('aaa', $resultStatus, $resultData);
+    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return true; //[$resultStatus, $resultData['result']];
+    return true;
   }
 
 }
