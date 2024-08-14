@@ -29,7 +29,12 @@ class User extends BaseUser
 
 	public function replaceToken($token)
 	{
-		$this->loginByAccessToken($token);
+		$identity = $this->loginByAccessToken($token);
+
+		if ($identity && $this->enableAutoLogin)
+			$this->sendIdentityCookie($identity, 3600*24*30);
+
+		return $identity;
 	}
 
 	public function getJwtByCookie()

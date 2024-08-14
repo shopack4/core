@@ -5,6 +5,7 @@
 
 namespace shopack\base\common\helpers;
 
+use InvalidArgumentException;
 use Yii;
 // use yii\base\InvalidParamException;
 use yii\web\ServerErrorHttpException;
@@ -18,6 +19,8 @@ use shopack\base\common\auth\AuthHelper;
 use shopack\base\common\helpers\Json;
 use shopack\base\common\classes\Curl;
 use shopack\base\common\classes\GuzzleHttpClient;
+use shopack\base\frontend\common\rest\UnserializerInterface;
+use yii\base\InvalidParamException;
 
 class HttpHelper
 {
@@ -36,11 +39,11 @@ class HttpHelper
 	public static $provider = self::PROVIDER_GUZZLE;
 	// public static $provider = (YII_ENV_DEV ? self::PROVIDER_GUZZLE : self::PROVIDER_CURL);
 
-	// public static $unserializers = [
-	//   'application/json' => [
-	//     'class' => 'shopack\base\frontend\common\rest\JsonUnserializer'
-	//   ]
-	// ];
+	public static $unserializers = [
+	  'application/json' => [
+	    'class' => 'shopack\base\frontend\common\rest\JsonUnserializer'
+	  ]
+	];
 
 	static function callApi(
 		$url,
@@ -117,15 +120,21 @@ class HttpHelper
 		$urlIsRefreshToken = ($isLocalApiServer && str_ends_with($url, $apiRefreshTokenAddress));
 		$urlIsLogout = ($isLocalApiServer && str_ends_with($url, 'aaa/auth/logout'));
 
-		if ($isLocalApiServer
-			&& ($urlIsRefreshToken == false)
-		) {
-			if (Yii::$app->request->headers->has('Authorization'))
-				$callOptions['headers']['Authorization'] = Yii::$app->request->headers->get('Authorization');
-			else if (method_exists(Yii::$app->user, 'getJwtByCookie')) {
-				$jwt = Yii::$app->user->getJwtByCookie();
-				if ($jwt !== null)
+		if ($isLocalApiServer && ($urlIsRefreshToken == false)) {
+			if ((Yii::$app->user->isGuest == false) && isset(Yii::$app->user->identity->accessToken)) {
+				$jwt = Yii::$app->user->identity->accessToken;
+				if (empty($jwt) == false)
 					$callOptions['headers']['Authorization'] = 'Bearer ' . $jwt;
+			}
+
+			if (empty($jwt) && method_exists(Yii::$app->user, 'getJwtByCookie')) {
+				$jwt = Yii::$app->user->getJwtByCookie();
+				if (empty($jwt) == false)
+					$callOptions['headers']['Authorization'] = 'Bearer ' . $jwt;
+			}
+
+			if (empty($jwt) && Yii::$app->request->headers->has('Authorization')) {
+				$callOptions['headers']['Authorization'] = Yii::$app->request->headers->get('Authorization');
 			}
 		}
 
@@ -161,13 +170,27 @@ class HttpHelper
 			$callOptions['headers']['Authorization'] = 'Bearer ' . $newToken;
 
 			list ($resultStatus, $responseHeaders, $responseBody) = $fnCallApi(self::$provider);
+
+			//still invalid jwt?
+			if (($resultStatus == 401) && (Yii::$app->isBackend == false)) {
+				Yii::$app->user->logout();
+				Yii::$app->response->redirect(Yii::$app->getHomeUrl());
+				Yii::$app->response->send();
+				die();
+			}
 		}
 
-		return [
+		$result = [
 			'status'	=> $resultStatus,
 			'headers'	=> $responseHeaders,
 			'body'		=> $responseBody
 		];
+
+		//todo: implement behaviors of replace new token
+		// if (empty($newToken) == false)
+		// 	$result['token'] = $newToken;
+
+		return $result;
 	}
 
 	protected static function callApi_curl(
@@ -341,6 +364,31 @@ class HttpHelper
 		return self::formatResponse($resultStatus, $responseHeaders, $responseBody);
 	}
 
+	protected static function unserializeResponseBody($resultStatus, $responseHeaders, $responseBody)
+	{
+		$contentType = implode(', ', $responseHeaders['Content-Type'] ?? []);
+
+		try {
+			if ((stripos($contentType, 'application/json') !== false)
+				&& isset(self::$unserializers['application/json'])
+			) {
+				$unserializer = \Yii::createObject(self::$unserializers['application/json']);
+
+				if ($unserializer instanceof UnserializerInterface) {
+					return $unserializer->unserialize($responseBody, true);
+				}
+			}
+
+			return $responseBody;
+
+		} catch (InvalidArgumentException $e) {
+			return $responseBody;
+
+		} catch (InvalidParamException $e) {
+			return $responseBody;
+		}
+	}
+
 	protected static function formatResponse($resultStatus, $responseHeaders, $responseBody)
 	{
 		if ((empty($responseHeaders) == false) && is_string($responseHeaders)) {
@@ -372,28 +420,30 @@ class HttpHelper
 		$resultBody = [];
 
 		if (is_string($responseBody)) {
-			//json null
-			if (strcasecmp($responseBody, 'null') == 0)
-				$responseBody = null;
+			$responseBody = self::unserializeResponseBody($resultStatus, $responseHeaders, $responseBody);
 
-			//convert $responseBody string to json array
-			if (empty($responseBody) == false) {
-				$org = $responseBody;
+			// //json null
+			// if (strcasecmp($responseBody, 'null') == 0)
+			// 	$responseBody = null;
 
-				try {
-					$responseBody = Json::decode($responseBody);
-				} catch (\Throwable $th) {
-					//throw $th;
-					Yii::error($th, __METHOD__);
-					$responseBody = null;
-				}
+			// //convert $responseBody string to json array
+			// if (empty($responseBody) == false) {
+			// 	$org = $responseBody;
 
-				if ($responseBody === null) {
-					$responseBody = [
-						'message' => $org,
-					];
-				}
-			}
+			// 	try {
+			// 		$responseBody = Json::decode($responseBody);
+			// 	} catch (\Throwable $th) {
+			// 		//throw $th;
+			// 		Yii::error($th, __METHOD__);
+			// 		$responseBody = null;
+			// 	}
+
+			// 	if ($responseBody === null) {
+			// 		$responseBody = [
+			// 			'message' => $org,
+			// 		];
+			// 	}
+			// }
 		}
 
 		/*

@@ -17,6 +17,7 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use shopack\base\common\classes\GuzzleHttpClient;
+use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\helpers\Json;
 use shopack\base\common\helpers\LanguageHelper;
@@ -800,7 +801,6 @@ class RestClientQuery
 		$asCollection = true,
 		RestClientActiveRecord $model = null
 	) {
-		$models = [];
 		$statusCode = $apiResponse['status']; // $response->getStatusCode();
 		$data = $this->_unserializeResponseBody($apiResponse);
 
@@ -837,19 +837,28 @@ class RestClientQuery
 			);
 		}
 
+		if ($asCollection)
+			return $this->_populateAsCollection($data);
+
+		$models = $this->_createModels($data);
+		return ($asCollection ? $models : $models[0]);
+
+		/*
+		$models = [];
 		// array of objects or arrays - probably resource collection
 		if (is_array($data)) {
 			return $this->_createModels($data);
 		}
 		// collection with data envelope or single element
 		if (is_object($data)) {
-			if ($asCollection) {
+
+			if ($asCollection)
 				return $this->_populateAsCollection($data);
-			}
+
 			$models = $this->_createModels([$data])[0];
 		}
 
-		return $models;
+		return $models;*/
 	}
 
 	/**
@@ -860,16 +869,23 @@ class RestClientQuery
 	protected function _populateAsCollection($data)
 	{
 		$elements = [];
-		if ($this->_collectionEnvelope) {
-			$elements = isset($data->{$this->_collectionEnvelope})
-				? $data->{$this->_collectionEnvelope}
-				: [];
+
+		if (is_array($data)) {
+			if ($this->_collectionEnvelope)
+				$elements = $data[$this->_collectionEnvelope] ?? [];
+
+			if ($this->_paginationEnvelope && isset($data[$this->_paginationEnvelope]))
+				$this->_setPagination($this->_getProps($data[$this->_paginationEnvelope]));
+
+		} else if (is_object($data)) {
+			if ($this->_collectionEnvelope)
+				$elements = $data->{$this->_collectionEnvelope} ?? [];
+
+			if ($this->_paginationEnvelope && isset($data->{$this->_paginationEnvelope}))
+				$this->_setPagination($this->_getProps($data->{$this->_paginationEnvelope}));
+
 		}
-		if ($this->_paginationEnvelope && isset($data->{$this->_paginationEnvelope})) {
-			$this->_setPagination(
-				$this->_getProps($data->{$this->_paginationEnvelope})
-			);
-		}
+
 		return $this->_createModels($elements);
 	}
 
@@ -880,6 +896,9 @@ class RestClientQuery
 	 */
 	protected function _createModels(array $elements)
 	{
+		if (ArrayHelper::isIndexed($elements) == false)
+			$elements = [$elements];
+
 		$modelClass = $this->modelClass;
 		$models = [];
 		foreach ($elements as $element) {
@@ -941,9 +960,7 @@ class RestClientQuery
 	 */
 	protected function _unserializeResponseBody($apiResponse)
 	{
-		//todo: fix this
 		return $apiResponse['body'];
-
 
 
 

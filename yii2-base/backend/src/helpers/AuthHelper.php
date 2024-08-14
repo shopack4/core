@@ -328,7 +328,6 @@ class AuthHelper
 			// $result = Yii::$app->db->createCommand($qry)->queryOne();
 			// $now = new \DateTimeImmutable($result['_now'], new \DateTimeZone('UTC'));
 			$now = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
-
 			$nowSeconds = $now->getTimestamp();
 
 			if ($sessionModel->ssnJWT != $refresh_token) {
