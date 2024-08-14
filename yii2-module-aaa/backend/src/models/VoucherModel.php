@@ -120,7 +120,7 @@ class VoucherModel extends AAAActiveRecord
 				HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 				++$errorCount;
 			} else {
-				foreach ($apiResponse['data'] as $resKey => $resVal) {
+				foreach ($apiResponse['body'] as $resKey => $resVal) {
 					foreach ($org_vchItems as $orgKey => $orgVal) {
 						if ($orgVal['key'] == $resKey) {
 							if (isset($resVal['ok'])) {

@@ -60,7 +60,7 @@ class MobileChangeForm extends Model
 
 			HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-      // $this->aprid = intval($apiResponse['data']['aprid']);
+      // $this->aprid = intval($apiResponse['body']['aprid']);
 
       return true;
     // }

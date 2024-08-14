@@ -6,18 +6,18 @@
 namespace shopack\base\common\helpers;
 
 use Yii;
-use yii\base\InvalidParamException;
+// use yii\base\InvalidParamException;
 use yii\web\ServerErrorHttpException;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\InvalidArgumentException;
-use GuzzleHttp\Exception\RequestException;
-use Psr\Http\Message\ResponseInterface;
+use yii\web\UnauthorizedHttpException;
+// use GuzzleHttp\Exception\ClientException;
+// use GuzzleHttp\Exception\ConnectException;
+// use GuzzleHttp\Exception\InvalidArgumentException;
+// use GuzzleHttp\Exception\RequestException;
+// use Psr\Http\Message\ResponseInterface;
 use shopack\base\common\auth\AuthHelper;
 use shopack\base\common\helpers\Json;
 use shopack\base\common\classes\Curl;
 use shopack\base\common\classes\GuzzleHttpClient;
-use yii\web\UnauthorizedHttpException;
 
 class HttpHelper
 {
@@ -45,11 +45,16 @@ class HttpHelper
 	static function callApi(
 		$url,
 		$method = Curl::METHOD_GET,
-		$urlParams = [],
-		$bodyParams = [],
-		$formFiles = [],
-		$options = []
+		$urlParams = null,
+		$bodyParams = null,
+		$formFiles = null,
+		$callOptions = null
 	) {
+		if ($urlParams === null)		$urlParams = [];
+		if ($bodyParams === null)		$bodyParams = [];
+		if ($formFiles === null)		$formFiles = [];
+		if ($callOptions === null)	$callOptions = [];
+
 		$url = ltrim(rtrim($url, '/'), '/');
 		if (empty($url))
 			throw new ServerErrorHttpException('url is not defined');
@@ -76,10 +81,10 @@ class HttpHelper
 			$isLocalApiServer,
 			$url,
 			$method,
-			$urlParams,
-			$bodyParams,
-			$formFiles,
-			$options
+			&$urlParams,
+			&$bodyParams,
+			&$formFiles,
+			&$callOptions
 		) {
 			if ($provider == self::PROVIDER_CURL) {
 				return self::callApi_curl(
@@ -89,7 +94,7 @@ class HttpHelper
 					$urlParams,
 					$bodyParams,
 					$formFiles,
-					$options
+					$callOptions
 				);
 			}
 
@@ -101,7 +106,7 @@ class HttpHelper
 					$urlParams,
 					$bodyParams,
 					$formFiles,
-					$options
+					$callOptions
 				);
 			}
 
@@ -110,25 +115,26 @@ class HttpHelper
 
 		$apiRefreshTokenAddress = Yii::$app->params['apiRefreshTokenAddress'] ?? null;
 		$urlIsRefreshToken = ($isLocalApiServer && str_ends_with($url, $apiRefreshTokenAddress));
+		$urlIsLogout = ($isLocalApiServer && str_ends_with($url, 'aaa/auth/logout'));
 
 		if ($isLocalApiServer
 			&& ($urlIsRefreshToken == false)
 		) {
 			if (Yii::$app->request->headers->has('Authorization'))
-				$options['headers']['authorization'] = Yii::$app->request->headers->get('Authorization');
+				$callOptions['headers']['Authorization'] = Yii::$app->request->headers->get('Authorization');
 			else if (method_exists(Yii::$app->user, 'getJwtByCookie')) {
 				$jwt = Yii::$app->user->getJwtByCookie();
-				if ($jwt !== null) {
-					$options['headers']['authorization'] = 'Bearer ' . $jwt;
-				}
+				if ($jwt !== null)
+					$callOptions['headers']['Authorization'] = 'Bearer ' . $jwt;
 			}
 		}
 
-		list ($resultStatus, $responseHeaders, $responseData) = $fnCallApi(self::$provider);
+		list ($resultStatus, $responseHeaders, $responseBody) = $fnCallApi(self::$provider);
 
 		$refreshToken = (($resultStatus == 401)
 			&& $isLocalApiServer
 			&& ($urlIsRefreshToken == false)
+			&& ($urlIsLogout == false)
 			&& (empty($apiRefreshTokenAddress) == false)
 			&& (Yii::$app->user->isGuest == false)
 		);
@@ -137,18 +143,30 @@ class HttpHelper
 		if ($refreshToken) {
 			$newToken = AuthHelper::refreshToken(Yii::$app->user->identity->accessToken);
 
-			if (empty($newToken))
-				throw new UnauthorizedHttpException('could not refresh token');
+			if (empty($newToken)) {
+				if (Yii::$app->isBackend)
+					throw new UnauthorizedHttpException('could not refresh token');
+				else {
+					Yii::$app->user->logout();
+					Yii::$app->response->redirect(Yii::$app->getHomeUrl());
+					Yii::$app->response->send();
+					die();
+				}
+			} else {
+				if (Yii::$app->isBackend == false) {
+					Yii::$app->user->replaceToken($newToken);
+				}
+			}
 
-			$options['headers']['authorization'] = 'Bearer ' . $newToken;
+			$callOptions['headers']['Authorization'] = 'Bearer ' . $newToken;
 
-			list ($resultStatus, $responseHeaders, $responseData) = $fnCallApi(self::$provider);
+			list ($resultStatus, $responseHeaders, $responseBody) = $fnCallApi(self::$provider);
 		}
 
 		return [
 			'status'	=> $resultStatus,
 			'headers'	=> $responseHeaders,
-			'data'		=> $responseData
+			'body'		=> $responseBody
 		];
 	}
 
@@ -168,9 +186,9 @@ class HttpHelper
 			->setOptions($options)
 		;
 
-		list ($resultStatus, $responseHeaders, $responseData) = $curl->execute();
+		list ($resultStatus, $responseHeaders, $responseBody) = $curl->execute();
 
-		return self::formatResponse($resultStatus, $responseHeaders, $responseData);
+		return self::formatResponse($resultStatus, $responseHeaders, $responseBody);
 	}
 
 	protected static function callApi_guzzle(
@@ -281,7 +299,7 @@ class HttpHelper
 		}
 
 		//headers
-		$headers = [];
+		$headers = $options['headers'] ?? [];
 
 		if ($isLocalApiServer) {
 			$headers['Origin'] = rtrim(Url::to(['/'], true), '/\\');
@@ -316,14 +334,14 @@ class HttpHelper
 		$response = $httpClient->{$method}($url, $callOptions);
 
 		$resultStatus = $response->getStatusCode();
-		// $responseData = self::_unserializeResponseBody($response);
 		$responseHeaders = $response->getHeaders();
-		$responseData = (string)$response->getBody();
+		// $responseBody = self::_unserializeResponseBody($response);
+		$responseBody = (string)$response->getBody();
 
-		return self::formatResponse($resultStatus, $responseHeaders, $responseData);
+		return self::formatResponse($resultStatus, $responseHeaders, $responseBody);
 	}
 
-	protected static function formatResponse($resultStatus, $responseHeaders, $responseData)
+	protected static function formatResponse($resultStatus, $responseHeaders, $responseBody)
 	{
 		if ((empty($responseHeaders) == false) && is_string($responseHeaders)) {
 			$h = explode("\n", $responseHeaders);
@@ -345,33 +363,33 @@ class HttpHelper
 
 		if (YII_DEBUG) {
 			Yii::info([
-				'status' => $resultStatus,
-				'headers' => $responseHeaders,
-				'data' => $responseData,
+				'status'	=> $resultStatus,
+				'headers'	=> $responseHeaders,
+				'body'		=> $responseBody,
 			], __METHOD__);
 		}
 
-		$resultData = [];
+		$resultBody = [];
 
-		if (is_string($responseData)) {
+		if (is_string($responseBody)) {
 			//json null
-			if (strcasecmp($responseData, 'null') == 0)
-				$responseData = null;
+			if (strcasecmp($responseBody, 'null') == 0)
+				$responseBody = null;
 
-			//convert $responseData string to json array
-			if (empty($responseData) == false) {
-				$org = $responseData;
+			//convert $responseBody string to json array
+			if (empty($responseBody) == false) {
+				$org = $responseBody;
 
 				try {
-					$responseData = Json::decode($responseData);
+					$responseBody = Json::decode($responseBody);
 				} catch (\Throwable $th) {
 					//throw $th;
 					Yii::error($th, __METHOD__);
-					$responseData = null;
+					$responseBody = null;
 				}
 
-				if ($responseData === null) {
-					$responseData = [
+				if ($responseBody === null) {
+					$responseBody = [
 						'message' => $org,
 					];
 				}
@@ -379,7 +397,7 @@ class HttpHelper
 		}
 
 		/*
-			$responseData:
+			$responseBody:
 			{
 				"name": "Unauthorized",
 				"message": "{\"0\":\"THE_WAITING_TIME_HAS_NOT_ELAPSED\",\"ttl\":67,\"remained\":\"1:7\"}",
@@ -397,28 +415,28 @@ class HttpHelper
 				]
 		*/
 		if ($resultStatus < 200 || $resultStatus >= 300) {
-			if (isset($responseData['message'])) {
+			if (isset($responseBody['message'])) {
 				try {
-					$json = Json::decode($responseData['message']);
+					$json = Json::decode($responseBody['message']);
 				} catch (\Throwable $th) { }
 
 				if (empty($json))
-					$resultData = [
-						'message' => $responseData['message']
+					$resultBody = [
+						'message' => $responseBody['message']
 					];
 				else
-					$resultData = [
+					$resultBody = [
 						'message' => $json
 					];
 			} else {
-				$resultData = [
+				$resultBody = [
 					'message' => 'UNKNOWN_ERROR',
 				];
 			}
 		}
 
 		/*
-			$responseData:
+			$responseBody:
 			{
 				"message": {
 					"0": "CODE_SENT",
@@ -435,23 +453,23 @@ class HttpHelper
 					"remained": "2:0"
 				]
 		*/
-		else if (isset($responseData['message'])) {
-			$message = (array)$responseData['message'];
-			unset($responseData['message']);
+		else if (isset($responseBody['message'])) {
+			$message = (array)$responseBody['message'];
+			unset($responseBody['message']);
 
-			$resultData = [
+			$resultBody = [
 				'message' => array_shift($message),
 			];
 
 			if (empty($message == false))
-				$resultData = array_merge($resultData, $message);
+				$resultBody = array_merge($resultBody, $message);
 
-			if (empty($responseData) == false)
-				$resultData = array_merge($resultData, $responseData);
+			if (empty($responseBody) == false)
+				$resultBody = array_merge($resultBody, $responseBody);
 		}
 
 		/*
-			$responseData:
+			$responseBody:
 			{
 				totalCount: 100,
 				rows: [
@@ -483,30 +501,30 @@ class HttpHelper
 				],
 			]
 		*/
-		else if (isset($responseData['rows'])) {
-			$resultData = $responseData;
+		else if (isset($responseBody['rows'])) {
+			$resultBody = $responseBody;
 		}
 
-		else if (isset($responseData['data'])) {
-			$resultData = $responseData;
+		else if (isset($responseBody['data'])) {
+			$resultBody = $responseBody;
 		}
 
 		else
-			$resultData = $responseData;
+			$resultBody = $responseBody;
 
-		return [$resultStatus, $responseHeaders, $resultData];
+		return [$resultStatus, $responseHeaders, $resultBody];
 	}
 
 	public static function formatApiResponseIfFailed($apiResponse, $messageCategory)
 	{
 		if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300) {
-			$message = $apiResponse['data']['message'];
+			$message = $apiResponse['body']['message'];
 
 			if (is_array($message)) {
 				$msg = array_shift($message);
 				$message = Yii::t($messageCategory, $msg, $message);
 			} else {
-				$message = Yii::t($messageCategory, $message, $apiResponse['data']);
+				$message = Yii::t($messageCategory, $message, $apiResponse['body']);
 			}
 
 			return $message;

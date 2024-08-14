@@ -142,11 +142,11 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 
 			HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-			if ((empty($apiResponse['data']['vchItems']) == false) && (is_array($apiResponse['data']['vchItems']) == false)) {
-				$apiResponse['data']['vchItems'] = Json::decode($apiResponse['data']['vchItems'], true);
+			if ((empty($apiResponse['body']['vchItems']) == false) && (is_array($apiResponse['body']['vchItems']) == false)) {
+				$apiResponse['body']['vchItems'] = Json::decode($apiResponse['body']['vchItems'], true);
 			}
 
-			self::$_lastPreVoucher = $apiResponse['data'];
+			self::$_lastPreVoucher = $apiResponse['body'];
 		}
 
 		return self::$_lastPreVoucher;
@@ -258,7 +258,7 @@ class BasketCheckoutForm extends Model //RestClientActiveRecord
 
 		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-		return $apiResponse['data'];
+		return $apiResponse['body'];
 	}
 
 }

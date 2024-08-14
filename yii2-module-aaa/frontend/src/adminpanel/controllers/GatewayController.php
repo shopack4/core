@@ -50,7 +50,7 @@ class GatewayController extends BaseCrudController
 
 		$pluginList = [];
     if ($apiResponse['status'] == 200) {
-			foreach ($apiResponse['data'] as $k => $v) {
+			foreach ($apiResponse['body'] as $k => $v) {
         $pluginList[] = [
           'id' => $k,
           'name' => $v['title']
@@ -73,7 +73,7 @@ class GatewayController extends BaseCrudController
     ]);
 
     if ($apiResponse['status'] == 200) {
-      $list = $apiResponse['data'];
+      $list = $apiResponse['body'];
       array_walk($list, function (&$item) {
         if (isset($item['label']))
           $item['label'] = Yii::t('aaa', $item['label']);
@@ -90,7 +90,7 @@ class GatewayController extends BaseCrudController
       });
 
       return [
-        'count' => count($apiResponse['data']),
+        'count' => count($apiResponse['body']),
         'list' => $list,
       ];
     }
@@ -122,14 +122,14 @@ class GatewayController extends BaseCrudController
     ]);
 
     if ($apiResponse['status'] == 200) {
-      $list = $apiResponse['data'];
+      $list = $apiResponse['body'];
       array_walk($list, function (&$item) {
         if (isset($item['label']))
           $item['label'] = Yii::t('aaa', $item['label']);
       });
 
       return [
-        'count' => count($apiResponse['data']),
+        'count' => count($apiResponse['body']),
         'list' => $list,
       ];
     }

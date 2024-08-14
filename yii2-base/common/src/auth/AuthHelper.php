@@ -28,7 +28,7 @@ class AuthHelper
     if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300)
       return false; //retry
 
-    return $apiResponse['data']['token'] ?? false;
+    return $apiResponse['body']['token'] ?? false;
   }
 
 }

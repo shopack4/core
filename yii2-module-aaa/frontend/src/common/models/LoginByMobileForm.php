@@ -72,7 +72,7 @@ class LoginByMobileForm extends Model
           'input' => $this->mobile,
         ]
       );
-      $apiResponse['data'] = $apiResponse['data']['result'];
+      $apiResponse['body'] = $apiResponse['body']['result'];
     } else {
       $apiResponse = HttpHelper::callApi('aaa/auth/login-by-mobile',
         HttpHelper::METHOD_POST,
@@ -88,7 +88,7 @@ class LoginByMobileForm extends Model
       // if ($apiResponse['status'] == 200) {
       //   return [
       //     'resultStatus' => $apiResponse['status'],
-      //     'resultData' => $apiResponse['data'],
+      //     'resultData' => $apiResponse['body'],
       //     // 'next' => self::STEP_CODE,
       //   ];
       // }
@@ -104,12 +104,12 @@ class LoginByMobileForm extends Model
     //   );
     }
     // $timerInfo = [
-    //   'ttl' => $apiResponse['data']['ttl'],
-    //   'remained' => $apiResponse['data']['remained'],
+    //   'ttl' => $apiResponse['body']['ttl'],
+    //   'remained' => $apiResponse['body']['remained'],
     // ];
 
-    if (isset($apiResponse['data']['token'])) {
-      $token = $apiResponse['data']['token'];
+    if (isset($apiResponse['body']['token'])) {
+      $token = $apiResponse['body']['token'];
       $user = UserModel::findIdentityByAccessToken($token);
       if ($user == null)
         throw new ForbiddenHttpException('Invalid token');
@@ -117,14 +117,14 @@ class LoginByMobileForm extends Model
       return Yii::$app->user->login($user, 3600*24*30); //$this->rememberMe ? 3600*24*30 : 0);
     }
 
-    if (isset($apiResponse['data']['challenge'])) {
-      return $apiResponse['data'];
+    if (isset($apiResponse['body']['challenge'])) {
+      return $apiResponse['body'];
     }
 
     $res = [
       'resultStatus' => $apiResponse['status'],
       // 'resultHeaders' => $resultHeaders,
-      'resultData' => $apiResponse['data'],
+      'resultData' => $apiResponse['body'],
     ];
 
     if (($this->step == self::STEP_MOBILE) && ($apiResponse['status'] == 200)) {
@@ -146,7 +146,7 @@ class LoginByMobileForm extends Model
 
     HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return $apiResponse['data']['result'];
+    return $apiResponse['body']['result'];
   }
 
 }

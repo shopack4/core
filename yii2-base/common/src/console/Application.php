@@ -14,6 +14,7 @@ class Application extends \yii\console\Application
 	use ApplicationTopModuleTrait;
 
 	public $isConsole = true;
+	public $isBackend = false;
 	public $isJustForMe = true;
 
 	public function coreCommands()

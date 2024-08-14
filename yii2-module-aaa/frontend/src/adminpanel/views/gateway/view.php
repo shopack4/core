@@ -98,7 +98,7 @@ $this->params['breadcrumbs'][] = $this->title;
             ]);
 
             if ($apiResponse['status'] == 200) {
-              $list = $apiResponse['data'];
+              $list = $apiResponse['body'];
 
               if (empty($list) == false) {
                 $tableRows = [];
@@ -224,7 +224,7 @@ $this->params['breadcrumbs'][] = $this->title;
           'key' => $model->gtwPluginName,
         ]);
         if ($apiResponse['status'] == 200) {
-          $list = $apiResponse['data'];
+          $list = $apiResponse['body'];
 
           if (isset($list)) {
             $tableRows = [];

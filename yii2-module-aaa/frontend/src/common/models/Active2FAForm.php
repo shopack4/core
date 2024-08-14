@@ -64,7 +64,7 @@ class Active2FAForm extends Model
 
     HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return [$apiResponse['status'], $apiResponse['data']];
+    return [$apiResponse['status'], $apiResponse['body']];
   }
 
 }

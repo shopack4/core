@@ -52,17 +52,17 @@ class ApproveCodeForm extends Model
       ]
     );
 
-    // if (isset($apiResponse['data']['keyType']))
-    //   $this->keyType = $apiResponse['data']['keyType'];
+    // if (isset($apiResponse['body']['keyType']))
+    //   $this->keyType = $apiResponse['body']['keyType'];
 
     if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300) {
-      return [$apiResponse['status'], $apiResponse['data']];
+      return [$apiResponse['status'], $apiResponse['body']];
 			// HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
     }
 
     //check result['token'] -> set cookie
-    if (array_key_exists('token', $apiResponse['data'])) {
-      if ($apiResponse['data']['token'] == null) {
+    if (array_key_exists('token', $apiResponse['body'])) {
+      if ($apiResponse['body']['token'] == null) {
         Yii::$app->user->logout();
       }
     }
@@ -82,7 +82,7 @@ class ApproveCodeForm extends Model
 
     HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return $$apiResponse['data']['result'];
+    return $$apiResponse['body']['result'];
   }
 
   public function resend()
@@ -97,7 +97,7 @@ class ApproveCodeForm extends Model
 
     HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return [$apiResponse['status'], $apiResponse['data']['result']];
+    return [$apiResponse['status'], $apiResponse['body']['result']];
   }
 
 }

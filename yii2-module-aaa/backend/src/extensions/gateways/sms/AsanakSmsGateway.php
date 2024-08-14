@@ -110,8 +110,8 @@ class AsanakSmsGateway
 			);
 
 			if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300
-					|| empty($apiResponse['data']['refID']))
-				return new SmsSendResult(false, $apiResponse['data']['message'] ?? null);
+					|| empty($apiResponse['body']['refID']))
+				return new SmsSendResult(false, $apiResponse['body']['message'] ?? null);
 
 			// $result = Json::decode($result);
 

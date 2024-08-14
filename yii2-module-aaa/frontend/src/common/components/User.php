@@ -27,6 +27,11 @@ class User extends BaseUser
 	//current sessions jwt token dataset
 	public ?\Lcobucci\JWT\Token\Plain $accessToken = null;
 
+	public function replaceToken($token)
+	{
+		$this->loginByAccessToken($token);
+	}
+
 	public function getJwtByCookie()
 	{
     $cookieName = $this->identityCookie['name'];

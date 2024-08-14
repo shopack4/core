@@ -176,6 +176,9 @@ class AuthController extends BaseController
     // if (Yii::$app->user->isGuest == false)
     //   return $this->redirect($donelink ?? Yii::$app->getHomeUrl());
 
+    if ($donelink && str_ends_with($donelink, 'aaa/auth/logout'))
+      $donelink = null;
+
     $resultStatus = 200;
     $resultData = null;
     $messageText = '';
@@ -234,6 +237,9 @@ class AuthController extends BaseController
     $realm = null,
     $signupIfNotExists = false
   ) {
+    if ($donelink && str_ends_with($donelink, 'aaa/auth/logout'))
+      $donelink = null;
+
     if (Yii::$app->user->isGuest == false)
       return $this->redirect($donelink ?? Yii::$app->getHomeUrl());
 

@@ -14,6 +14,7 @@ class Application extends \yii\web\Application
 	use ApplicationTopModuleTrait;
 
 	public $isConsole = false;
+	public $isBackend = false;
 	public $isJustForMe = true;
 
 }

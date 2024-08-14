@@ -230,7 +230,7 @@ class Curl {
     if ($response === false) {
       $resultStatus = (-1) * curl_errno($CurlObject);
       $responseHeaders = null;
-      $responseData = [
+      $responseBody = [
         'message' => curl_error($CurlObject),
       ];
     } else {
@@ -238,18 +238,18 @@ class Curl {
 
       $header_size = curl_getinfo($CurlObject, CURLINFO_HEADER_SIZE);
       $responseHeaders = trim(substr($response, 0, $header_size));
-      $responseData = trim(substr($response, $header_size));
+      $responseBody = trim(substr($response, $header_size));
 
       //json null
-      if (strcasecmp($responseData, 'null') == 0)
-        $responseData = null;
+      if (strcasecmp($responseBody, 'null') == 0)
+        $responseBody = null;
 
       //convert $response string to json array
-      if (empty($responseData) == false) {
-        $org = $responseData;
-        $responseData = Json::decode($responseData);
-        if ($responseData === null) {
-          $responseData = [
+      if (empty($responseBody) == false) {
+        $org = $responseBody;
+        $responseBody = Json::decode($responseBody);
+        if ($responseBody === null) {
+          $responseBody = [
             'message' => $org,
           ];
         }
@@ -259,7 +259,7 @@ class Curl {
     //close connection
     curl_close($CurlObject);
 
-    return [$resultStatus, $responseHeaders, $responseData];
+    return [$resultStatus, $responseHeaders, $responseBody];
   }
 
 }

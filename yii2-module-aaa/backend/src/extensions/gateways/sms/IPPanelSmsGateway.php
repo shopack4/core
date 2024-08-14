@@ -80,8 +80,8 @@ class IPPanelSmsGateway
 				"log"     // is logged
 			);
 
-			// if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300 || is_array($apiResponse['data']))
-			// 	return new SmsSendResult(false, $apiResponse['data'][1] ?? null, $apiResponse['data'][0] ?? null);
+			// if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300 || is_array($apiResponse['body']))
+			// 	return new SmsSendResult(false, $apiResponse['body'][1] ?? null, $apiResponse['body'][0] ?? null);
 
 			// $result = Json::decode($result);
 

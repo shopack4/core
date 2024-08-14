@@ -40,7 +40,7 @@ use yii\web\JsExpression;
 		$pluginCategories = [];
 		$apiResponse = HttpHelper::callApi('aaa/voucher/plugin-list');
 		if ($apiResponse['status'] == 200) {
-			foreach ($apiResponse['data'] as $k => $v) {
+			foreach ($apiResponse['body'] as $k => $v) {
 				$pluginCategories = array_merge($pluginCategories, [
 					$k => Yii::t('aaa', $k), //array_keys($v),
 				]);

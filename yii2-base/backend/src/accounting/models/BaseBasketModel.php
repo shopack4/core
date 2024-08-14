@@ -242,11 +242,11 @@ class BaseBasketModel extends Model
 
 			HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-			if ((empty($apiResponse['data']['vchItems']) == false) && (is_array($apiResponse['data']['vchItems']) == false)) {
-				$apiResponse['data']['vchItems'] = Json::decode($apiResponse['data']['vchItems'], true);
+			if ((empty($apiResponse['body']['vchItems']) == false) && (is_array($apiResponse['body']['vchItems']) == false)) {
+				$apiResponse['body']['vchItems'] = Json::decode($apiResponse['body']['vchItems'], true);
 			}
 
-			self::$_lastPreVoucher = $apiResponse['data'];
+			self::$_lastPreVoucher = $apiResponse['body'];
 		}
 
 		return self::$_lastPreVoucher;
@@ -279,7 +279,7 @@ class BaseBasketModel extends Model
 
 		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-		return $apiResponse['data'];
+		return $apiResponse['body'];
 	}
 
 	public static function updateOpenInvoice(array $invoiceVoucher)
@@ -309,7 +309,7 @@ class BaseBasketModel extends Model
 
 		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-		return $apiResponse['data'];
+		return $apiResponse['body'];
 	}
 
 	public static function updatePrevoucher(array $prevoucher)
@@ -357,11 +357,11 @@ class BaseBasketModel extends Model
 
 			HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-			if ((empty($apiResponse['data']['vchItems']) == false) && (is_array($apiResponse['data']['vchItems']) == false)) {
-				$apiResponse['data']['vchItems'] = Json::decode($apiResponse['data']['vchItems'], true);
+			if ((empty($apiResponse['body']['vchItems']) == false) && (is_array($apiResponse['body']['vchItems']) == false)) {
+				$apiResponse['body']['vchItems'] = Json::decode($apiResponse['body']['vchItems'], true);
 			}
 
-			self::$_openInvoiceVoucher = $apiResponse['data'];
+			self::$_openInvoiceVoucher = $apiResponse['body'];
 		}
 
 		return self::$_openInvoiceVoucher;

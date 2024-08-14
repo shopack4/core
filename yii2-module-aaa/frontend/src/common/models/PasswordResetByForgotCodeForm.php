@@ -55,7 +55,7 @@ class PasswordResetByForgotCodeForm extends Model
     );
 
     if ($apiResponse['status'] < 200 || $apiResponse['status'] >= 300) {
-      return [$apiResponse['status'], $apiResponse['data']];
+      return [$apiResponse['status'], $apiResponse['body']];
 			// HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
     }
 
@@ -74,7 +74,7 @@ class PasswordResetByForgotCodeForm extends Model
 
     HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return $apiResponse['data']['result'];
+    return $apiResponse['body']['result'];
   }
 
   public function resend()
@@ -89,7 +89,7 @@ class PasswordResetByForgotCodeForm extends Model
 
     HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-    return [$apiResponse['status'], $apiResponse['data']['result']];
+    return [$apiResponse['status'], $apiResponse['body']['result']];
   }
 
 }

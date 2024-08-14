@@ -78,7 +78,7 @@ class OnlinePaymentModel extends RestClientActiveRecord
 
 		$types = [];
 
-		foreach ($apiResponse['data'] as $t) {
+		foreach ($apiResponse['body'] as $t) {
 			$types[$t] = enuPaymentGatewayType::getLabel($t);
 		}
 
