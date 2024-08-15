@@ -84,7 +84,7 @@ class Jalali
 	public function setTimestamp($timestamp)
 	{
 		if ((int) $timestamp > 0) {
-			$this->gregorian = new \DateTime();
+			$this->gregorian = new \DateTime('now', new \DateTimeZone('UTC'));
 			$this->gregorian->setTimestamp((int) $timestamp);
 			return $this;
 		}

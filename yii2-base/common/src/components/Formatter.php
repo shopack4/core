@@ -202,18 +202,19 @@ class Formatter extends \yii\i18n\Formatter
 
 		$jdate = new Jalali();
 
+		if ($this->timeZone)
+			$timezone = new \DateTimeZone($this->timeZone);
+
 		if (is_numeric($value)) {
 			//Note that a UNIX timestamp is always in UTC by its definition
-			$timestamp = new \DateTime('@' . (int)$value); //, new \DateTimeZone('UTC'));
-
-			if ($this->timeZone) {
-				$timezone = new \DateTimeZone($this->timeZone);
-				$timestamp->setTimezone($timezone);
-			}
-		} elseif (is_string($value))
-			$timestamp = new \DateTime($value);
+			$timestamp = new \DateTime('@' . (int)$value, new \DateTimeZone('UTC'));
+		} else if (is_string($value))
+			$timestamp = new \DateTime($value, new \DateTimeZone('UTC'));
 		else
 			$timestamp = $value;
+
+		if (isset($timezone))
+			$timestamp->setTimezone($timezone);
 
 		$jdate->setGregorianDate($timestamp);
 		return $this->asPersian($jdate->getJalali()->format($format));

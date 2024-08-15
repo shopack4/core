@@ -40,22 +40,22 @@ use shopack\aaa\common\enums\enuSessionStatus;
       'ssnSessionExpireAt:jalaliWithTime',
 
       // 'ssnRefreshedAt',
-      [
-        'attribute' => 'test',
-        'label' => 'test',
-        'format' => 'raw',
-        'value' => function($model) {
-          if (empty($model->ssnRefreshedAt))
-            return null;
+      // [
+      //   'attribute' => 'test',
+      //   'label' => 'test',
+      //   'format' => 'raw',
+      //   'value' => function($model) {
+      //     if (empty($model->ssnRefreshedAt))
+      //       return null;
 
-          $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+      //     $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
-          $dtRefreshedAt = new \DateTimeImmutable($model->ssnRefreshedAt, new \DateTimeZone('UTC'));
-          return $now->format(\DateTimeInterface::RFC3339_EXTENDED)
-            . '<br>'
-            . $dtRefreshedAt->format(\DateTimeInterface::RFC3339_EXTENDED);
-        },
-      ],
+      //     $dtRefreshedAt = new \DateTimeImmutable($model->ssnRefreshedAt, new \DateTimeZone('UTC'));
+      //     return $now->format(\DateTimeInterface::RFC3339_EXTENDED)
+      //       . '<br>'
+      //       . $dtRefreshedAt->format(\DateTimeInterface::RFC3339_EXTENDED);
+      //   },
+      // ],
 
       [
         'attribute' => 'Issuer',
