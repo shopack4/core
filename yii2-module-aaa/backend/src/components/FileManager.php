@@ -473,11 +473,11 @@ class FileManager extends Component
 
 	public function processQueue($maxItemCount = 100, $uploadedFileID = 0)
   {
-		$this->internalProcessQueue($maxItemCount, $uploadedFileID, false);
-		$this->internalProcessQueue($maxItemCount, $uploadedFileID, true);
+		$this->processQueueInternal($maxItemCount, $uploadedFileID, false);
+		$this->processQueueInternal($maxItemCount, $uploadedFileID, true);
 	}
 
-	private function internalProcessQueue(
+	private function processQueueInternal(
 		$maxItemCount = 100,
 		$uploadedFileID = 0,
 		$processErrors = false

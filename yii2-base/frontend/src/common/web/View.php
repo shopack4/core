@@ -151,7 +151,7 @@ class View extends \yii\web\View
 		$profile and Yii::beginProfile($viewFile, __METHOD__);
 
 		try {
-			$output = $this->internalRenderFile($viewFile, $params, $context);
+			$output = $this->renderFileInternal($viewFile, $params, $context);
 
 			$profile and Yii::endProfile($viewFile, __METHOD__);
 
@@ -162,7 +162,7 @@ class View extends \yii\web\View
 		}
 	}
 
-	public function internalRenderFile($viewFile, $params = [], $context = null)
+	public function renderFileInternal($viewFile, $params = [], $context = null)
 	{
 		$renderModal = ArrayHelper::remove($params, 'renderModal', false);
 		$isAjax = ArrayHelper::remove($params, 'isAjax', false);

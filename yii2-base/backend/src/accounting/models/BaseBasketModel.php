@@ -492,7 +492,7 @@ class BaseBasketModel extends Model
 				)
 					continue;
 
-				return $this->internalUpdateBasketItem(
+				return $this->updateBasketItemInternal(
 					$lastPreVoucher,
 					$voucherItemIndex,
 					$voucherItem,
@@ -750,7 +750,7 @@ SQL;
 			$voucherItem = stuVoucherItem::fromArray($vItem);
 
 			if ($vItem['key'] == $this->itemKey) {
-				return $this->internalUpdateBasketItem(
+				return $this->updateBasketItemInternal(
 					$lastPreVoucher,
 					$voucherItemIndex,
 					$voucherItem,
@@ -774,7 +774,7 @@ SQL;
 	/**
 	 * return (itemKey, lastPreVoucher)
 	 */
-	public function internalUpdateBasketItem(
+	public function updateBasketItemInternal(
 										$_lastPreVoucher,
     								$_voucherItemIndex,
     stuVoucherItem  $_voucherItem,
@@ -1013,7 +1013,7 @@ SQL;
 
 	/**
 		* called by:
-		*     internalUpdateBasketItem:
+		*     updateBasketItemInternal:
 		*        addToBasket
 		*        updateBasketItem
 		*        removeBasketItem
