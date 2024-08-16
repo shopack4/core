@@ -66,7 +66,7 @@ class OfflinePaymentController extends BaseCrudController
 		$model = new GeneralAcceptForm();
 		$model->message = Yii::t('aaa', 'Are you sure you want to APPROVE this item?');
 
-		$formPosted = $model->load(Yii::$app->request->post());
+		$formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
 		$done = false;
 		if ($formPosted) {
 			try {
@@ -153,7 +153,7 @@ class OfflinePaymentController extends BaseCrudController
 		$model = new OfflinePaymentRejectForm();
 		$model->ofpID = $id;
 
-		$formPosted = $model->load(Yii::$app->request->post());
+		$formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
 		$done = false;
 		if ($formPosted)
 			$done = $model->process();

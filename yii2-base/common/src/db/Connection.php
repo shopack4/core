@@ -20,15 +20,17 @@ class Connection extends \yii\db\Connection
 
 	public function slotAfterOpen() //$event)
 	{
-		// $this->setTimeZoneToUtc();
-		$this->syncTimeZoneFromCaller();
+		if (Yii::$app->isConsole)
+			$this->setTimeZoneToUtc();
+		else
+			$this->syncTimeZoneFromCaller();
 	}
 
   protected function setTimeZoneToUtc()
 	{
 		$this->createCommand("SET time_zone = '+00:00'")->execute();
 
-		$qry = "SELECT UTC_TIMESTAMP(6) as _now;";
+		$qry = "SELECT UTC_TIMESTAMP() as _now;";
 		$result = $this->createCommand($qry)->queryOne();
 		$this->utcNow = new \DateTimeImmutable($result['_now'], new \DateTimeZone('UTC'));
 	}

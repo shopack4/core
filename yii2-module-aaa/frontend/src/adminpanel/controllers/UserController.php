@@ -112,7 +112,7 @@ class UserController extends BaseCrudController
     $model = new PasswordResetForm();
 		$model->userID = $id;
 
-		$formPosted = $model->load(Yii::$app->request->post());
+		$formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
 		$done = false;
 		if ($formPosted)
 			$done = $model->process();
@@ -142,7 +142,7 @@ class UserController extends BaseCrudController
     $model = new UserSendMessageForm;
     $model->userID = $id;
 
-		$formPosted = $model->load(Yii::$app->request->post());
+		$formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
 		$done = false;
 		if ($formPosted)
 			$done = $model->process();
@@ -188,7 +188,7 @@ class UserController extends BaseCrudController
     $model = new UserChangeImageForm();
     $model->userID = $id;
 
-    $formPosted = $model->load(Yii::$app->request->post());
+    $formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
     $done = false;
     if ($formPosted)
       $done = $model->process();

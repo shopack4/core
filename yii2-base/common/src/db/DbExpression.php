@@ -9,7 +9,7 @@ class DbExpression extends \yii\db\Expression
 {
 	public static function now()
 	{
-		return new self('NOW()');
+		return new self('CURRENT_TIMESTAMP');
 	}
 
 	public static function null()

@@ -262,10 +262,12 @@ class HttpHelper
 			$UrlParamsParts = [];
 
 			foreach ($urlParams as $k => $v) {
-				if (is_array($v))
+				if (($v === null) || ($v === ''))
+					$UrlParamsParts[$k] = null;
+				else if (is_array($v))
 					$UrlParamsParts[$k] = implode(',', $v);
-				else if ($v == '')
-					$UrlParamsParts[$k] = $k;
+				// else if ($v == '')
+				// 	$UrlParamsParts[$k] = $k;
 				else
 					$UrlParamsParts[$k] = (is_numeric($v) ? (int)$v : $v);
 			}

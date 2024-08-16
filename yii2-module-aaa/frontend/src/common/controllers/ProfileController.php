@@ -67,7 +67,7 @@ class ProfileController extends BaseController
     if ($model->isSoftDeleted())
       throw new UnprocessableEntityHttpException('این آیتم حذف شده است و قابل ویرایش نمی‌باشد.');
 
-		$formPosted = $model->load(Yii::$app->request->post());
+		$formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
 		$done = false;
 		if ($formPosted)
 			$done = $model->save();
@@ -115,7 +115,7 @@ class ProfileController extends BaseController
 
     $model = new ImageChangeForm();
 
-    $formPosted = $model->load(Yii::$app->request->post());
+    $formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
     $done = false;
     if ($formPosted)
       $done = $model->process();
@@ -171,7 +171,7 @@ class ProfileController extends BaseController
 
     $model = new EmailChangeForm();
 
-    $formPosted = $model->load(Yii::$app->request->post());
+    $formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
     $done = false;
     if ($formPosted)
       $done = $model->process();
@@ -261,7 +261,7 @@ class ProfileController extends BaseController
 
     $model = new MobileChangeForm();
 
-    $formPosted = $model->load(Yii::$app->request->post());
+    $formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
     $done = false;
     if ($formPosted)
       $done = $model->process();

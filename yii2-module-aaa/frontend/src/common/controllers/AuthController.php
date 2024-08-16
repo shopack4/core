@@ -142,7 +142,7 @@ class AuthController extends BaseController
     $challenge = null;
 
     $model = new SignupForm();
-    if ($model->load(Yii::$app->request->post())) {
+    if ($model->load(Yii::$app->request->getBodyParams()/*post*/)) {
       $result = $model->process();
 
       if ($result === true)
@@ -185,7 +185,7 @@ class AuthController extends BaseController
     $challenge = null;
 
     $model = new LoginForm();
-    if ($model->load(Yii::$app->request->post())) {
+    if ($model->load(Yii::$app->request->getBodyParams()/*post*/)) {
       $result = $model->login();
 
       if ($result === true)
@@ -261,7 +261,7 @@ class AuthController extends BaseController
     $model = new LoginByMobileForm();
     $model->signupIfNotExists = $signupIfNotExists;
 
-    if ($model->load(Yii::$app->request->post())) {
+    if ($model->load(Yii::$app->request->getBodyParams()/*post*/)) {
       $result = $model->process();
 
       if ($result === true) {
@@ -542,7 +542,7 @@ class AuthController extends BaseController
 
     $model = new PasswordSetForm();
 
-    $formPosted = $model->load(Yii::$app->request->post());
+    $formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
     $done = false;
     if ($formPosted)
       $done = $model->process();
@@ -584,7 +584,7 @@ class AuthController extends BaseController
     $model = new PasswordChangeForm();
     $model->hasPassword = $userModel->hasPassword;
 
-    $formPosted = $model->load(Yii::$app->request->post());
+    $formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
     $done = false;
     if ($formPosted)
       $done = $model->process();
@@ -615,7 +615,7 @@ class AuthController extends BaseController
 
     $message = null;
 
-    $formPosted = $model->load(Yii::$app->request->post());
+    $formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
     $done = false;
     try {
       if ($formPosted)

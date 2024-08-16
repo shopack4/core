@@ -824,7 +824,7 @@ class RestClientQuery
 			return $this->_populateAsCollection($data);
 
 		$models = $this->_createModels($data);
-		return ($asCollection ? $models : $models[0]);
+		return ($asCollection ? $models : $models[0] ?? null);
 
 		/*
 		$models = [];

@@ -455,8 +455,8 @@ SQL;
       ->andWhere(['IS', 'usrMobile', DbExpression::notNull()])
       ->andWhere(['IS', 'usrMobileApprovedAt', DbExpression::notNull()])
       ->andWhere(['!=', 'usrStatus', enuUserStatus::Removed])
-      ->andWhere(new DbExpression('MONTH(usrBirthDate) = MONTH(NOW())'))
-      ->andWhere(new DbExpression('DAY(usrBirthDate) = DAY(NOW())'))
+      ->andWhere(new DbExpression('MONTH(usrBirthDate) = MONTH(CURRENT_TIMESTAMP)'))
+      ->andWhere(new DbExpression('DAY(usrBirthDate) = DAY(CURRENT_TIMESTAMP)'))
       ->andWhere(['IS', 'msgID', DbExpression::null()])
     ;
 

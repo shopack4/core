@@ -70,7 +70,7 @@ class OrderController extends BaseController
     $model = new OrderChangeDeliveryMethodForm();
     $model->vchID = $id;
 
-		$formPosted = $model->load(Yii::$app->request->post());
+		$formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
 		$done = false;
 		if ($formPosted)
 			$done = $model->process();
@@ -112,7 +112,7 @@ class OrderController extends BaseController
     $model = new OrderPaymentForm();
     $model->vchID = $id;
 
-		$formPosted = $model->load(Yii::$app->request->post());
+		$formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
 		$done = false;
 		if ($formPosted)
 			$done = $model->process();

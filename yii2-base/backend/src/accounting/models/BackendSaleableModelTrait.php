@@ -6,10 +6,10 @@
 namespace shopack\base\backend\accounting\models;
 
 use Yii;
+use shopack\base\common\db\DbExpression;
 use shopack\base\common\accounting\enums\enuAmountType;
 use shopack\base\common\accounting\enums\enuDiscountStatus;
 use shopack\base\common\accounting\enums\enuDiscountType;
-use shopack\base\common\db\DbExpression;
 
 trait BackendSaleableModelTrait
 {
