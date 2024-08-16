@@ -235,30 +235,27 @@ class HttpHelper
 		$clientConfig = [];
 		$callOptions = [];
 
-		//set address
-		$isLocalApiServer = false;
+		// if ((str_starts_with($url, 'http://') == false)
+		// 	&& (str_starts_with($url, 'https://') == false)
+		// ) {
+		// 	$apiServerAddress = Yii::$app->params['apiServerAddress'] ?? null;
+		// 	if (empty($apiServerAddress))
+		// 		throw new ServerErrorHttpException('apiServerAddress is not defined');
 
-		if ((str_starts_with($url, 'http://') == false)
-			&& (str_starts_with($url, 'https://') == false)
-		) {
-			$apiServerAddress = Yii::$app->params['apiServerAddress'] ?? null;
-			if (empty($apiServerAddress))
-				throw new ServerErrorHttpException('apiServerAddress is not defined');
+		// 	if (str_ends_with($apiServerAddress, '/'))
+		// 		$apiServerAddress = rtrim($apiServerAddress, '/');
 
-			if (str_ends_with($apiServerAddress, '/'))
-				$apiServerAddress = rtrim($apiServerAddress, '/');
+		// 	if (str_starts_with($url, '/'))
+		// 		$url = ltrim($url, '/');
 
-			if (str_starts_with($url, '/'))
-				$url = ltrim($url, '/');
+		// 	$url = $apiServerAddress . '/' . $url;
 
-			$url = $apiServerAddress . '/' . $url;
+		// 	$clientConfig['base_uri'] = $apiServerAddress;
 
-			$clientConfig['base_uri'] = $apiServerAddress;
+		// 	$isLocalApiServer = true;
 
-			$isLocalApiServer = true;
-
-		} else
-			$clientConfig['base_uri'] = $url;
+		// } else
+		// 	$clientConfig['base_uri'] = $url;
 
 		//Url params
 		if (empty($urlParams) == false) {
