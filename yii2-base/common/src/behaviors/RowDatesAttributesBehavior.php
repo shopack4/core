@@ -7,7 +7,7 @@ namespace shopack\base\common\behaviors;
 
 use Yii;
 use yii\db\BaseActiveRecord;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use yii\base\Exception;
 use yii\behaviors\AttributesBehavior;
 
@@ -41,7 +41,7 @@ class RowDatesAttributesBehavior extends AttributesBehavior
 					if (!empty($this->owner->{$this->createdAtAttribute}))
 						return $this->owner->{$this->createdAtAttribute};
 
-					return new Expression('NOW()');
+					return DbExpression::now();
 				}
 			];
 
@@ -72,7 +72,7 @@ class RowDatesAttributesBehavior extends AttributesBehavior
 					if (empty($this->owner->getDirtyAttributes()))
 						return $this->owner->{$this->updatedAtAttribute};
 
-					return new Expression('NOW()');
+					return DbExpression::now();
 				}
 			];
 

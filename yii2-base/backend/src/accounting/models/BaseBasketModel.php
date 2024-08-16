@@ -7,7 +7,7 @@ namespace shopack\base\backend\accounting\models;
 
 use Yii;
 use yii\base\Model;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use yii\web\ServerErrorHttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\UnprocessableEntityHttpException;
@@ -509,19 +509,19 @@ class BaseBasketModel extends Model
 		//-- fetch SLB & PRD --------------------------------
 		$query = $saleableModelClass::find()
 			->select($saleableModelClass::selectableColumns())
-			->addSelect(new \yii\db\Expression("IF(slbInStockQty IS NULL, NULL, slbInStockQty - IFNULL(slbOrderedQty,0) + IFNULL(slbReturnedQty,0)) AS _saleableQtyInHand"))
+			->addSelect(new DbExpression("IF(slbInStockQty IS NULL, NULL, slbInStockQty - IFNULL(slbOrderedQty,0) + IFNULL(slbReturnedQty,0)) AS _saleableQtyInHand"))
 
 			->innerJoinWith('product')
 			->addSelect($productModelClass::selectableColumns())
-			->addSelect(new \yii\db\Expression("IF(prdInStockQty IS NULL, NULL, prdInStockQty - IFNULL(prdOrderedQty,0) + IFNULL(prdReturnedQty,0)) AS _productQtyInHand"))
+			->addSelect(new DbExpression("IF(prdInStockQty IS NULL, NULL, prdInStockQty - IFNULL(prdOrderedQty,0) + IFNULL(prdReturnedQty,0)) AS _productQtyInHand"))
 
 			->innerJoinWith('product.unit')
 			->addSelect($unitModelClass::selectableColumns())
 
-			->andWhere(['<=', 'slbAvailableFromDate', new Expression('NOW()')])
+			->andWhere(['<=', 'slbAvailableFromDate', DbExpression::now()])
 			->andWhere(['OR',
 				'slbAvailableToDate IS NULL',
-				['>=', 'slbAvailableToDate', new Expression('DATE_ADD(NOW(), INTERVAL 15 MINUTE)')],
+				['>=', 'slbAvailableToDate', new DbExpression('DATE_ADD(NOW(), INTERVAL 15 MINUTE)')],
 			])
 		;
 
@@ -621,8 +621,8 @@ class BaseBasketModel extends Model
 				$userAssetModel->uasDurationMinutes = $basketItem->saleable->product->prdDurationMinutes;
 
 				if ($basketItem->saleable->product->prdStartAtFirstUse == false) {
-					$userAssetModel->uasValidFromDate = new \yii\db\Expression('NOW()');
-					$userAssetModel->uasValidToDate   = new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$basketItem->saleable->product->prdDurationMinutes} MINUTE");
+					$userAssetModel->uasValidFromDate = DbExpression::now();
+					$userAssetModel->uasValidToDate   = new DbExpression("DATE_ADD(NOW(), INTERVAL {$basketItem->saleable->product->prdDurationMinutes} MINUTE");
 				}
 			}
 
@@ -843,21 +843,21 @@ SQL;
 
 			->innerJoinWith('saleable')
 			->addSelect($saleableModelClass::selectableColumns())
-			->addSelect(new \yii\db\Expression("IF(slbInStockQty IS NULL, NULL, slbInStockQty - IFNULL(slbOrderedQty,0) + IFNULL(slbReturnedQty,0)) AS _saleableQtyInHand"))
+			->addSelect(new DbExpression("IF(slbInStockQty IS NULL, NULL, slbInStockQty - IFNULL(slbOrderedQty,0) + IFNULL(slbReturnedQty,0)) AS _saleableQtyInHand"))
 
 			->innerJoinWith('saleable.product')
 			->addSelect($productModelClass::selectableColumns())
-			->addSelect(new \yii\db\Expression("IF(prdInStockQty IS NULL, NULL, prdInStockQty - IFNULL(prdOrderedQty,0) + IFNULL(prdReturnedQty,0)) AS _productQtyInHand"))
+			->addSelect(new DbExpression("IF(prdInStockQty IS NULL, NULL, prdInStockQty - IFNULL(prdOrderedQty,0) + IFNULL(prdReturnedQty,0)) AS _productQtyInHand"))
 
 			->innerJoinWith('saleable.product.unit')
 			->addSelect($unitModelClass::selectableColumns())
 
 			->andWhere(['uasID' => $_voucherItem->orderID])
 
-			->andWhere(['<=', 'slbAvailableFromDate', new Expression('NOW()')])
+			->andWhere(['<=', 'slbAvailableFromDate', DbExpression::now()])
 			->andWhere(['OR',
 				'slbAvailableToDate IS NULL',
-				['>=', 'slbAvailableToDate', new Expression('DATE_ADD(NOW(), INTERVAL 15 MINUTE)')],
+				['>=', 'slbAvailableToDate', new DbExpression('DATE_ADD(NOW(), INTERVAL 15 MINUTE)')],
 			])
 		;
 
@@ -1300,9 +1300,9 @@ SQL;
 
 			->leftJoin(['tmp_cpn_count' => $userAssetModelClass::find()
 				->select([
-					new \yii\db\Expression("JSON_UNQUOTE(JSON_EXTRACT(uasVoucherItemInfo, '$.couponDiscount[0].id')) AS discountID"),
+					new DbExpression("JSON_UNQUOTE(JSON_EXTRACT(uasVoucherItemInfo, '$.couponDiscount[0].id')) AS discountID"),
 					'uasVoucherID',
-					new \yii\db\Expression("COUNT(uasID) AS _discountUsedCount")
+					new DbExpression("COUNT(uasID) AS _discountUsedCount")
 				])
 				->where(['uasActorID' => $_basketItem->assetActorID]) //$currentUserID })
 				->andWhere(['IN', 'uasStatus', [enuUserAssetStatus::Pending, enuUserAssetStatus::Active, enuUserAssetStatus::Blocked]])
@@ -1313,8 +1313,8 @@ SQL;
 
 			->leftJoin(['tmp_cpn_amount' => $userAssetModelClass::find()
 				->select([
-					new \yii\db\Expression("JSON_UNQUOTE(JSON_EXTRACT(uasVoucherItemInfo, '$.couponDiscount[0].id')) AS discountID"),
-					new \yii\db\Expression("SUM(JSON_UNQUOTE(JSON_EXTRACT(uasVoucherItemInfo, '$.couponDiscount[0].amount'))) AS _discountUsedAmount")
+					new DbExpression("JSON_UNQUOTE(JSON_EXTRACT(uasVoucherItemInfo, '$.couponDiscount[0].id')) AS discountID"),
+					new DbExpression("SUM(JSON_UNQUOTE(JSON_EXTRACT(uasVoucherItemInfo, '$.couponDiscount[0].amount'))) AS _discountUsedAmount")
 				])
 				->where(['uasActorID' => $_basketItem->assetActorID]) //$currentUserID })
 				->andWhere(['IN', 'uasStatus', [enuUserAssetStatus::Pending, enuUserAssetStatus::Active, enuUserAssetStatus::Blocked]])
@@ -1326,11 +1326,11 @@ SQL;
 			->where(['dscCodeString' => $_basketItem->discountCode])
 			->andWhere(['OR',
 				'dscValidFrom IS NULL',
-				['<=', 'dscValidFrom', new \yii\db\Expression('NOW()')],
+				['<=', 'dscValidFrom', DbExpression::now()],
 			])
 			->andWhere(['OR',
 				'dscValidTo IS NULL',
-				['>=', 'dscValidTo', new \yii\db\Expression('DATE_SUB(NOW(), INTERVAL 15 MINUTE)')],
+				['>=', 'dscValidTo', new DbExpression('DATE_SUB(NOW(), INTERVAL 15 MINUTE)')],
 			])
 		;
 

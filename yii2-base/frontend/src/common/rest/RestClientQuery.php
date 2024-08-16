@@ -12,10 +12,12 @@ use yii\base\InvalidParamException;
 use yii\base\InvalidArgumentException;
 use yii\web\HttpException;
 use yii\web\ServerErrorHttpException;
+use yii\web\UnauthorizedHttpException;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
+use shopack\base\common\classes\FileData;
 use shopack\base\common\classes\GuzzleHttpClient;
 use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\helpers\HttpHelper;
@@ -24,7 +26,6 @@ use shopack\base\common\helpers\LanguageHelper;
 use shopack\base\common\helpers\Url;
 use shopack\base\frontend\common\rest\RestClientQueryInterface;
 use shopack\base\frontend\common\rest\RestClientActiveRecord;
-use yii\web\UnauthorizedHttpException;
 
 /**
  * Class RestClientQuery
@@ -70,7 +71,7 @@ class RestClientQuery
 	 */
 	public $unserializers = [
 		self::JSON_TYPE => [
-			'class' => 'shopack\base\frontend\common\rest\JsonUnserializer'
+			'class' => JsonUnserializer::class
 		]
 	];
 
@@ -421,66 +422,46 @@ class RestClientQuery
 		return $this->_populate($apiResponse, false);
 	}
 
-	/**
-	 * return : null|array of multipart attriutes
-	 */
-	protected function convertForFileDataIfHas($attributes)
+	protected function extractFileDataAttrs($attributes)
 	{
-		$hasFileData = false;
-		foreach ($attributes as $k => $v) {
-			if ($v instanceof FileData) {
-				$hasFileData = true;
-				break;
-			}
-		}
-
-		if ($hasFileData == false)
-			return false;
-
-		$multipartAttributes = [];
+		$normalAttrs = [];
+		$fileAttrs = [];
 
 		foreach ($attributes as $k => $v) {
 			if ($v instanceof FileData) {
 				if (empty($v->tmp_name) == false) {
-					$multipartAttributes[] = [
-						'name' => $k,
-						'contents' => fopen($v->tmp_name, 'r'),
-						'filename' => $v->name,
+					$fileAttrs[$k] = [
+						'tempFileName' => $v->tmp_name,
+						'fileName' => $v->name,
 					];
 				}
 			} else {
-				$multipartAttributes[] = [
-					'name' => $k,
-					'contents' => (is_array($v) && (empty($v) == false) ? json_encode($v) : $v),
-				];
+				$normalAttrs[$k] = $v;
 			}
 		}
 
-		return $multipartAttributes;
+		return [$normalAttrs, $fileAttrs];
 	}
 
-	/**
-	 * POST request
-	 * @inheritdoc
-	 */
 	public function restPost(RestClientActiveRecord $model)
 	{
 		$options = [];
 
 		$attributes = array_filter($model->getAttributes());
-		$multipartAttributes = $this->convertForFileDataIfHas($attributes);
-		if ($multipartAttributes) {
-			$options['multipart'] = $multipartAttributes;
-		} else {
-			$options['json'] = $attributes;
-		}
+		// $multipartAttributes = $this->extractFileDataAttrs($attributes);
+		// if ($multipartAttributes) {
+		// 	$options['multipart'] = $multipartAttributes;
+		// } else {
+		// 	$options['json'] = $attributes;
+		// }
+		list ($bodyParams, $formFiles) = $this->extractFileDataAttrs($attributes);
 
 		$apiResponse = $this->_request(
 			/* method     */ 'post',
 			/* url        */ $this->_getUrl('element', $model->getParentKey()),
 			/* urlParams  */ null,
-			/* bodyParams */ $options['json'] ?? null,
-			/* formFiles  */ $options['multipart'] ?? null
+			/* bodyParams */ $bodyParams,
+			/* formFiles  */ $formFiles
 			/* options    */ //$options
 		);
 
@@ -501,19 +482,20 @@ class RestClientQuery
 		$options = [];
 
 		$attributes = $model->getDirtyAttributes();
-		$multipartAttributes = $this->convertForFileDataIfHas($attributes);
-		if ($multipartAttributes) {
-			$options['multipart'] = $multipartAttributes;
-		} else {
-			$options['json'] = $attributes;
-		}
+		// $multipartAttributes = $this->extractFileDataAttrs($attributes);
+		// if ($multipartAttributes) {
+		// 	$options['multipart'] = $multipartAttributes;
+		// } else {
+		// 	$options['json'] = $attributes;
+		// }
+		list ($bodyParams, $formFiles) = $this->extractFileDataAttrs($attributes);
 
 		$apiResponse = $this->_request(
 			/* method     */ 'put',
 			/* url        */ $this->_getUrl('element', $model->getParentKey()),
 			/* urlParams  */ $this->_buildQueryParams(),
-			/* bodyParams */ $options['json'] ?? null,
-			/* formFiles  */ $options['multipart'] ?? null
+			/* bodyParams */ $bodyParams,
+			/* formFiles  */ $formFiles
 			/* options    */ //$options
 		);
 
@@ -537,19 +519,20 @@ class RestClientQuery
 
 		$options = [];
 
-		$multipartAttributes = $this->convertForFileDataIfHas($attributes);
-		if ($multipartAttributes) {
-			$options['multipart'] = $multipartAttributes;
-		} else {
-			$options['json'] = $attributes;
-		}
+		// $multipartAttributes = $this->extractFileDataAttrs($attributes);
+		// if ($multipartAttributes) {
+		// 	$options['multipart'] = $multipartAttributes;
+		// } else {
+		// 	$options['json'] = $attributes;
+		// }
+		list ($bodyParams, $formFiles) = $this->extractFileDataAttrs($attributes);
 
 		$apiResponse = $this->_request(
 			/* method     */ 'put',
 			/* url        */ $this->_getUrl('element', $id),
 			/* urlParams  */ $this->_buildQueryParams(),
-			/* bodyParams */ $options['json'] ?? null,
-			/* formFiles  */ $options['multipart'] ?? null
+			/* bodyParams */ $bodyParams,
+			/* formFiles  */ $formFiles
 			/* options    */ //$options
 		);
 

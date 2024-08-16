@@ -6,7 +6,7 @@
 namespace shopack\aaa\backend\commands;
 
 use Yii;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use yii\console\Controller;
 use yii\console\ExitCode;
 

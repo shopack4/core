@@ -26,9 +26,15 @@ class <?= $className ?> extends Migration
 {
 	public function safeUp()
 	{
+
+
+
 		throw new \Exception('not completed yet!');
 
-    $this->execute(<<<SQL
+
+
+		$this->execute(<<<SQL
+
 SQL
 		);
 

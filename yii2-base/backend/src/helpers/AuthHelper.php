@@ -21,6 +21,7 @@ use shopack\aaa\common\enums\enuSessionStatus;
 use shopack\aaa\common\enums\enuTwoFAType;
 use shopack\aaa\backend\models\SessionModel;
 use shopack\aaa\backend\models\RoleModel;
+use shopack\base\common\db\DbExpression;
 
 class AuthHelper
 {
@@ -68,12 +69,7 @@ class AuthHelper
 		$tokenExpireTTL		= ArrayHelper::getValue($settings['AAA']['jwt'], 'token-ttl',		 5 * 60);
 		$sessionExpireTTL	= ArrayHelper::getValue($settings['AAA']['jwt'], 'session-ttl',	24 * 3600);
 
-		// $qry = "SELECT UTC_TIMESTAMP(6) as _now;";
-		// $result = Yii::$app->db->createCommand($qry)->queryOne();
-		// $now = new \DateTimeImmutable($result['_now'], new \DateTimeZone('UTC'));
-		$now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
-
-		$tokenExpire = $now->modify("+{$tokenExpireTTL} second");
+		$tokenExpire = Yii::$app->db->utcNow->modify("+{$tokenExpireTTL} second");
 
 		$challenge = null;
 		if ($challengeNeeded !== self::CHALLENGE_NONE) {
@@ -100,7 +96,7 @@ class AuthHelper
 
 				$challengeToken = Yii::$app->jwt->getBuilder()
 					// ->identifiedBy($sessionModel->ssnID)
-					->issuedAt($now)
+					->issuedAt(Yii::$app->db->utcNow)
 					->expiresAt($tokenExpire)
 					->withClaim(Jwt::KEY_LONG_EXPIRATION, $tokenExpire)
 					// ->withClaim('privs', $privs)
@@ -194,12 +190,12 @@ class AuthHelper
 		}
 
 		//-----------------------
-		$sessionExpireAt = $now->modify("+{$sessionExpireTTL} second");
+		$sessionExpireAt = Yii::$app->db->utcNow->modify("+{$sessionExpireTTL} second");
 
 		//token
 		$tokenBuilder = Yii::$app->jwt->getBuilder()
 			->identifiedBy($sessionModel->ssnID)
-			->issuedAt($now)
+			->issuedAt(Yii::$app->db->utcNow)
 			->expiresAt($tokenExpire)
 			->withClaim(Jwt::KEY_LONG_EXPIRATION, $sessionExpireAt)
 			// ->withClaim(Jwt::KEY_LONG_EXPIRATION, self::convertDate($sessionExpireAt))
@@ -253,11 +249,11 @@ class AuthHelper
 			? enuSessionStatus::ForLoginByMobile
 			: enuSessionStatus::Active);
 
-		$sessionModel->ssnTokenExpireAt = new \yii\db\Expression("FROM_UNIXTIME({$tokenExpire->getTimestamp()})");
-		//new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$tokenExpireTTL} SECOND)"); //$tokenExpire->format('Y-m-d H:i:s');
+		$sessionModel->ssnTokenExpireAt = new DbExpression("FROM_UNIXTIME({$tokenExpire->getTimestamp()})");
+		//new DbExpression("DATE_ADD(NOW(), INTERVAL {$tokenExpireTTL} SECOND)"); //$tokenExpire->format('Y-m-d H:i:s');
 
-		$sessionModel->ssnSessionExpireAt = new \yii\db\Expression("FROM_UNIXTIME({$sessionExpireAt->getTimestamp()})");
-		//new \yii\db\Expression("DATE_ADD(NOW(), INTERVAL {$sessionExpireTTL} SECOND)");
+		$sessionModel->ssnSessionExpireAt = new DbExpression("FROM_UNIXTIME({$sessionExpireAt->getTimestamp()})");
+		//new DbExpression("DATE_ADD(NOW(), INTERVAL {$sessionExpireTTL} SECOND)");
 
 		$ipv4 = $_SERVER['REMOTE_ADDR'] ?? null;
 		if ($ipv4 != null) {
@@ -323,12 +319,12 @@ class AuthHelper
 			if ($sessionModel == null)
 				throw new NotFoundHttpException("The session not found");
 
-			// $qry = "SELECT NOW() as _now;";
-			// $qry = "SELECT UTC_TIMESTAMP(6) as _now;";
-			// $result = Yii::$app->db->createCommand($qry)->queryOne();
-			// $now = new \DateTimeImmutable($result['_now'], new \DateTimeZone('UTC'));
-			$now = (new \DateTimeImmutable('now', new \DateTimeZone('UTC')));
-			$nowSeconds = $now->getTimestamp();
+			if (YII_DEBUG && empty($sessionModel->ssnRefreshedAt) == false) {
+				$dtRefreshedAt = new \DateTimeImmutable($sessionModel->ssnRefreshedAt, new \DateTimeZone('UTC'));
+				$refreshedAtSeconds = $dtRefreshedAt->getTimestamp();
+			}
+
+			$nowSeconds = Yii::$app->db->utcNow->getTimestamp();
 
 			if ($sessionModel->ssnJWT != $refresh_token) {
 
@@ -347,7 +343,7 @@ class AuthHelper
 							// 	$refreshedAtSeconds,
 							// ],
 							// 'now' => [
-							// 	$now,
+							// 	Yii::$app->db->utcNow,
 							// 	$nowSeconds,
 							// ],
 							// 's' => $seconds,
@@ -363,7 +359,7 @@ class AuthHelper
 			$instanceID = Yii::$app->getInstanceID();
 
 			// lock / re-lock
-			$sessionModel->ssnLockedAt = new \yii\db\Expression('NOW()');
+			$sessionModel->ssnLockedAt = DbExpression::now();
 			$sessionModel->ssnLockedBy = $instanceID;
 			if ($sessionModel->save() == false)
 				throw new UnprocessableEntityHttpException(implode("\n", $sessionModel->getFirstErrors()));
@@ -371,8 +367,7 @@ class AuthHelper
 			//compute token expire
 			$settings = Yii::$app->params['settings'];
 			$tokenExpireTTL = ArrayHelper::getValue($settings['AAA']['jwt'], 'token-ttl', 5 * 60);
-			// $now = new \DateTimeImmutable();
-			$tokenExpire = $now->modify("+{$tokenExpireTTL} second");
+			$tokenExpire = Yii::$app->db->utcNow->modify("+{$tokenExpireTTL} second");
 
 			$ssnSessionExpireAt = new \DateTimeImmutable($sessionModel->ssnSessionExpireAt, new \DateTimeZone('UTC'));
 
@@ -420,16 +415,16 @@ class AuthHelper
 			//store old and new jwt
 			$sessionModel->ssnOldJwt = $refresh_token;
 			$sessionModel->ssnJWT = $tokenString;
-			$sessionModel->ssnTokenExpireAt = new \yii\db\Expression("FROM_UNIXTIME({$tokenExpire->getTimestamp()})");
+			$sessionModel->ssnTokenExpireAt = new DbExpression("FROM_UNIXTIME({$tokenExpire->getTimestamp()})");
 
 			//unlock
-			$sessionModel->ssnLockedAt = new \yii\db\Expression('NULL');
-			$sessionModel->ssnLockedBy = new \yii\db\Expression('NULL');
+			$sessionModel->ssnLockedAt = DbExpression::null();
+			$sessionModel->ssnLockedBy = DbExpression::null();
 
 			try {
 				//save
-				$sessionModel->ssnRefreshedAt = new \yii\db\Expression('NOW()');
-				$sessionModel->ssnRefreshCount = new \yii\db\Expression('IFNULL(ssnRefreshCount, 0) + 1');
+				$sessionModel->ssnRefreshedAt = DbExpression::now();
+				$sessionModel->ssnRefreshCount = new DbExpression('IFNULL(ssnRefreshCount, 0) + 1');
 				if ($sessionModel->save() == false)
 					throw new UnprocessableEntityHttpException(implode("\n", $sessionModel->getFirstErrors()));
 

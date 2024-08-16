@@ -6,7 +6,7 @@
 namespace shopack\aaa\backend\models;
 
 use Yii;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use yii\web\UnprocessableEntityHttpException;
 use yii\web\HttpException;
 use shopack\base\common\helpers\Json;
@@ -296,12 +296,12 @@ SQL;
       $approvalRequestModel->aprKeyType       = $inputType;
       $approvalRequestModel->aprKey           = $normalizedInput;
       $approvalRequestModel->aprCode          = $code;
-      $approvalRequestModel->aprLastRequestAt = new Expression('NOW()');
-      $approvalRequestModel->aprExpireAt      = new Expression("DATE_ADD(NOW(), INTERVAL {$expireTTL} SECOND)");
+      $approvalRequestModel->aprLastRequestAt = DbExpression::now();
+      $approvalRequestModel->aprExpireAt      = new DbExpression("DATE_ADD(NOW(), INTERVAL {$expireTTL} SECOND)");
       if ($approvalRequestModel->save() == false)
         throw new UnprocessableEntityHttpException("error in creating approval request\n" . implode("\n", $approvalRequestModel->getFirstErrors()));
     } else {
-      $approvalRequestModel->aprLastRequestAt = new Expression('NOW()');
+      $approvalRequestModel->aprLastRequestAt = DbExpression::now();
       if ($approvalRequestModel->save() == false)
         throw new UnprocessableEntityHttpException("error in updating approval request\n" . implode("\n", $approvalRequestModel->getFirstErrors()));
 
@@ -503,7 +503,7 @@ SQL;
             $sendMessage = true;
         }
 
-        $userModel->usrEmailApprovedAt = new Expression('NOW()');
+        $userModel->usrEmailApprovedAt = DbExpression::now();
 
       } else if ($approvalRequestModel->aprKeyType == enuApprovalRequestKeyType::Mobile) {
         if (empty($userModel->usrMobile)
@@ -521,7 +521,7 @@ SQL;
         }
 
         if (empty($userModel->usrMobileApprovedAt) || array_key_exists('mobileChanged', $result))
-          $userModel->usrMobileApprovedAt = new Expression('NOW()');
+          $userModel->usrMobileApprovedAt = DbExpression::now();
       }
 
       if ($userModel->save() == false)
@@ -531,7 +531,7 @@ SQL;
       if ($approvalRequestModel->aprUserID == null)
         $approvalRequestModel->aprUserID = $userModel->usrID;
       $approvalRequestModel->aprStatus = enuApprovalRequestStatus::Applied;
-      $approvalRequestModel->aprApplyAt = new Expression('NOW()');
+      $approvalRequestModel->aprApplyAt = DbExpression::now();
       if ($approvalRequestModel->save() == false)
         throw new UnprocessableEntityHttpException("could not save approval request\n" . implode("\n", $approvalRequestModel->getFirstErrors()));
 

@@ -6,6 +6,7 @@
 namespace shopack\base\backend\rest;
 
 use Yii;
+use shopack\base\common\db\DbExpression;
 
 class RestServerQuery extends \yii\db\ActiveQuery
 {
@@ -66,7 +67,7 @@ class RestServerQuery extends \yii\db\ActiveQuery
         if (isset($this->select["{$field}"]))
           unset($this->select["{$field}"]);
 
-        $this->addSelect(new \yii\db\Expression("COALESCE("
+        $this->addSelect(new DbExpression("COALESCE("
           . strtr($lngParts, [
             '__dataField__' => $dataField,
             '__field__' => $field,
@@ -74,7 +75,7 @@ class RestServerQuery extends \yii\db\ActiveQuery
           . ", {$field}) AS {$field}"));
 
         // unset($query->select["{$field}_translated"]);
-        // $query->addSelect(new \yii\db\Expression("COALESCE(JSON_UNQUOTE(JSON_EXTRACT({$dataField}, '$.{$language}.{$field}')), {$field}) AS {$field}_translated"));
+        // $query->addSelect(new DbExpression("COALESCE(JSON_UNQUOTE(JSON_EXTRACT({$dataField}, '$.{$language}.{$field}')), {$field}) AS {$field}_translated"));
       }
     }
   }
@@ -148,7 +149,7 @@ class RestServerQuery extends \yii\db\ActiveQuery
                ) AS q{$fileRelationName}",
         "q{$fileRelationName}.uquFileID = {$myTableName}.uflID AND q{$fileRelationName}.row_num = 1")
       ->leftJoin("tbl_AAA_Gateway g{$fileRelationName}", "g{$fileRelationName}.gtwID = q{$fileRelationName}.uquGatewayID")
-      ->addSelect(new \yii\db\Expression(<<<SQL
+      ->addSelect(new DbExpression(<<<SQL
 CASE JSON_UNQUOTE(JSON_EXTRACT(g{$fileRelationName}.gtwPluginParameters, '$.type'))
   WHEN 's3' THEN
     CASE WHEN IFNULL(JSON_UNQUOTE(JSON_EXTRACT(g{$fileRelationName}.gtwPluginParameters, '$.EndpointIsVirtualHosted')), 0)

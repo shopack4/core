@@ -9,6 +9,7 @@ use Yii;
 use shopack\base\common\accounting\enums\enuAmountType;
 use shopack\base\common\accounting\enums\enuDiscountStatus;
 use shopack\base\common\accounting\enums\enuDiscountType;
+use shopack\base\common\db\DbExpression;
 
 trait BackendSaleableModelTrait
 {
@@ -339,7 +340,7 @@ SQL; //$qry_slb_with_SI_dscs
       ->leftJoin(['tmp_slb_with_SI_dscs' => "({$qry_slb_with_SI_dscs})"],
         "tmp_slb_with_SI_dscs._slbID = {$saleableTableName}.slbID")
 
-      ->addSelect(new \yii\db\Expression("CONCAT('[', CONCAT_WS(','
+      ->addSelect(new DbExpression("CONCAT('[', CONCAT_WS(','
         , IF(tmp_slb_with_SF_dscs.dscID IS NULL, NULL, CONCAT(
           '{\"id\":', tmp_slb_with_SF_dscs.dscID,
           ',\"amount\":', tmp_slb_with_SF_dscs.discountAmount,
@@ -348,11 +349,11 @@ SQL; //$qry_slb_with_SI_dscs
           '}'))
         , tmp_slb_with_SI_dscs.dscIDs
         ), ']') AS discountsInfo"))
-      ->addSelect(new \yii\db\Expression("LEAST(slbBasePrice * {$qty}
+      ->addSelect(new DbExpression("LEAST(slbBasePrice * {$qty}
         , IF(tmp_slb_with_SF_dscs.discountAmount IS NULL, 0, tmp_slb_with_SF_dscs.discountAmount)
           + IF(tmp_slb_with_SI_dscs.discountAmount IS NULL, 0, tmp_slb_with_SI_dscs.discountAmount)
       ) AS discountAmount"))
-      ->addSelect(new \yii\db\Expression("(slbBasePrice * {$qty}) - LEAST(slbBasePrice * {$qty}
+      ->addSelect(new DbExpression("(slbBasePrice * {$qty}) - LEAST(slbBasePrice * {$qty}
         , IF(tmp_slb_with_SF_dscs.discountAmount IS NULL, 0, tmp_slb_with_SF_dscs.discountAmount)
           + IF(tmp_slb_with_SI_dscs.discountAmount IS NULL, 0, tmp_slb_with_SI_dscs.discountAmount)
       ) AS discountedBasePrice"))
@@ -580,7 +581,7 @@ SQL; //$qry_slb_with_SI_dscs
       ->leftJoin(['tmp_slb_with_SI_dscs' => "qry_slb_with_SI_dscs"],
         "tmp_slb_with_SI_dscs._slbID = {$saleableTableName}.slbID")
 
-      ->addSelect(new \yii\db\Expression("CONCAT('[', CONCAT_WS(','
+      ->addSelect(new DbExpression("CONCAT('[', CONCAT_WS(','
         , IF(tmp_slb_with_SF_dscs.dscID IS NULL, NULL, CONCAT(
           '{\"id\":', tmp_slb_with_SF_dscs.dscID,
           ',\"amount\":', tmp_slb_with_SF_dscs.discountAmount,
@@ -589,11 +590,11 @@ SQL; //$qry_slb_with_SI_dscs
           '}'))
         , tmp_slb_with_SI_dscs.dscIDs
         ), ']') AS discountsInfo"))
-      ->addSelect(new \yii\db\Expression("LEAST(slbBasePrice * {$qty}
+      ->addSelect(new DbExpression("LEAST(slbBasePrice * {$qty}
         , IF(tmp_slb_with_SF_dscs.discountAmount IS NULL, 0, tmp_slb_with_SF_dscs.discountAmount)
           + IF(tmp_slb_with_SI_dscs.discountAmount IS NULL, 0, tmp_slb_with_SI_dscs.discountAmount)
       ) AS discountAmount"))
-      ->addSelect(new \yii\db\Expression("(slbBasePrice * {$qty}) - LEAST(slbBasePrice * {$qty}
+      ->addSelect(new DbExpression("(slbBasePrice * {$qty}) - LEAST(slbBasePrice * {$qty}
         , IF(tmp_slb_with_SF_dscs.discountAmount IS NULL, 0, tmp_slb_with_SF_dscs.discountAmount)
           + IF(tmp_slb_with_SI_dscs.discountAmount IS NULL, 0, tmp_slb_with_SI_dscs.discountAmount)
       ) AS discountedBasePrice"))

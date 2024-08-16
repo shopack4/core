@@ -6,7 +6,7 @@
 namespace shopack\aaa\frontend\adminpanel\controllers;
 
 use Yii;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use shopack\aaa\frontend\common\auth\BaseController;
 use shopack\aaa\frontend\common\models\SessionSearchModel;
 
@@ -21,7 +21,7 @@ class SessionController extends BaseController
 		$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
 		$dataProvider->query
-			->andWhere(['>=', 'ssnSessionExpireAt', new Expression('NOW()')])
+			->andWhere(['>=', 'ssnSessionExpireAt', DbExpression::now()])
 		;
 
     $viewParams = [

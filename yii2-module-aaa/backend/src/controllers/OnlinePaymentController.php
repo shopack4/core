@@ -8,9 +8,7 @@ namespace shopack\aaa\backend\controllers;
 use Yii;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
-use yii\web\ServerErrorHttpException;
-use yii\data\ActiveDataProvider;
-use shopack\base\common\helpers\ExceptionHelper;
+use yii\web\UnprocessableEntityHttpException;
 use shopack\base\backend\controller\BaseRestController;
 use shopack\base\backend\helpers\PrivHelper;
 use shopack\aaa\common\enums\enuPaymentGatewayType;
@@ -18,8 +16,6 @@ use shopack\aaa\backend\models\OnlinePaymentModel;
 use shopack\aaa\backend\models\GatewayModel;
 use shopack\aaa\common\enums\enuGatewayStatus;
 use shopack\aaa\common\enums\enuOnlinePaymentStatus;
-use shopack\base\common\helpers\ArrayHelper;
-use shopack\aaa\common\enums\enuVoucherType;
 
 class OnlinePaymentController extends BaseRestController
 {
@@ -241,6 +237,9 @@ HTML;
 		$paymentkey,
 		$action = 'verify'
 	) {
+		if ($action != 'verify')
+			throw new UnprocessableEntityHttpException("invalid action ({$action})");
+
 		$pgwResponse = array_merge(
 			Yii::$app->request->getQueryParams(),
 			Yii::$app->request->getBodyParams(),

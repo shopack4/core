@@ -8,6 +8,7 @@ namespace shopack\base\common\helpers;
 use InvalidArgumentException;
 use Yii;
 // use yii\base\InvalidParamException;
+use yii\base\InvalidParamException;
 use yii\web\ServerErrorHttpException;
 use yii\web\UnauthorizedHttpException;
 // use GuzzleHttp\Exception\ClientException;
@@ -19,18 +20,20 @@ use shopack\base\common\auth\AuthHelper;
 use shopack\base\common\helpers\Json;
 use shopack\base\common\classes\Curl;
 use shopack\base\common\classes\GuzzleHttpClient;
-use shopack\base\frontend\common\rest\UnserializerInterface;
-use yii\base\InvalidParamException;
+use shopack\base\common\classes\JsonUnserializer;
+use shopack\base\common\classes\UnserializerInterface;
+use shopack\base\common\web\Request;
 
 class HttpHelper
 {
-	const METHOD_GET     = 'GET';
-	const METHOD_HEAD    = 'HEAD';
-	const METHOD_POST    = 'POST';
-	const METHOD_PUT     = 'PUT';
-	const METHOD_PATCH   = 'PATCH';
-	const METHOD_DELETE  = 'DELETE';
-	const METHOD_OPTIONS = 'OPTIONS';
+	const METHOD_GET			= 'GET';
+	const METHOD_HEAD			= 'HEAD';
+	const METHOD_POST			= 'POST';
+	const METHOD_PUT			= 'PUT';
+	const METHOD_PATCH		= 'PATCH';
+	const METHOD_DELETE		= 'DELETE';
+	const METHOD_UNDELETE	= 'UNDELETE';
+	const METHOD_OPTIONS	= 'OPTIONS';
 
 	const PROVIDER_CURL   = 'curl';
 	const PROVIDER_GUZZLE = 'guzzle';
@@ -41,7 +44,7 @@ class HttpHelper
 
 	public static $unserializers = [
 	  'application/json' => [
-	    'class' => 'shopack\base\frontend\common\rest\JsonUnserializer'
+	    'class' => JsonUnserializer::class
 	  ]
 	];
 
@@ -57,6 +60,8 @@ class HttpHelper
 		if ($bodyParams === null)		$bodyParams = [];
 		if ($formFiles === null)		$formFiles = [];
 		if ($callOptions === null)	$callOptions = [];
+
+		$method = strtoupper($method);
 
 		$url = ltrim(rtrim($url, '/'), '/');
 		if (empty($url))
@@ -78,6 +83,10 @@ class HttpHelper
 			//
 			if (Yii::$app->isJustForMe)
 				$urlParams['justForMe'] = 1;
+
+			$timeZone = $_COOKIE['_timezone'] ?? null;
+			if ($timeZone)
+				$callOptions['headers'][Request::HEADER_X_TIMEZONE] = $timeZone;
 		}
 
 		$fnCallApi = function($provider) use (
@@ -274,11 +283,9 @@ class HttpHelper
 		$postFields = []; //$bodyParams;
 
 		//body params
-		if (empty($bodyParams) == false
-			&& (($method == Curl::METHOD_POST) //create
-				|| ($method == Curl::METHOD_PUT) //update
-				|| ($method == Curl::METHOD_PATCH) //update
-		)) {
+		if ((empty($bodyParams) == false)
+			&& in_array($method, [self::METHOD_POST, self::METHOD_PUT, self::METHOD_PATCH])
+		) {
 			$postFields = array_merge($postFields, $bodyParams);
 		}
 
@@ -288,7 +295,7 @@ class HttpHelper
 		//form files
 		if (empty($formFiles) == false) {
 			//POST=create, PUT,PATCH=update
-			if (in_array($method, [Curl::METHOD_POST, Curl::METHOD_PUT, Curl::METHOD_PATCH]) == false) {
+			if (in_array($method, [self::METHOD_POST, self::METHOD_PUT, self::METHOD_PATCH]) == false) {
 				throw new ServerErrorHttpException('form files only allowed with post, put or patch methods.');
 			}
 
@@ -308,7 +315,7 @@ class HttpHelper
 				if ($hasFileData) {
 					$attrs[] = [
 						'name'    => $attrID,
-						'content' => (is_array($attrContent) && (empty($attrContent) == false) ? json_encode($attrContent) : $attrContent),
+						'contents' => (is_array($attrContent) && (empty($attrContent) == false) ? json_encode($attrContent) : $attrContent),
 					];
 				} else {
 					$attrs[$attrID] = (is_array($attrContent) && (empty($attrContent) == false) ? json_encode($attrContent) : $attrContent);

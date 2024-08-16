@@ -5,8 +5,10 @@
 
 namespace shopack\base\backend\auth;
 
-use bizley\jwt\Jwt as BaseJwt;
 use DateTimeImmutable;
+use Yii;
+use yii\web\UnauthorizedHttpException;
+use bizley\jwt\Jwt as BaseJwt;
 use Lcobucci\JWT\ClaimsFormatter;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Encoding\ChainedFormatter;
@@ -14,8 +16,6 @@ use Lcobucci\JWT\Encoding\MicrosecondBasedDateConversion;
 use Lcobucci\JWT\Encoding\UnifyAudience;
 use Lcobucci\JWT\Token;
 use shopack\base\common\auth\JwtDateTimeFormatter;
-use Yii;
-use yii\web\UnauthorizedHttpException;
 
 class Jwt extends BaseJwt
 {
@@ -95,9 +95,7 @@ class Jwt extends BaseJwt
 			$sessionExp = \DateTimeImmutable::createFromFormat('U.u', $sessionExp);
 		}
 
-		$now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
-
-		return ($now < $sessionExp);
+		return (Yii::$app->db->utcNow < $sessionExp);
 	}
 	public function assertSessionExpiration($jwt)
 	{

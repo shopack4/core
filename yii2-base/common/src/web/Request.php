@@ -9,15 +9,20 @@ use Yii;
 
 class Request extends \yii\web\Request
 {
+	const HEADER_X_TIMEZONE = 'X-Time-Zone';
+
 	public function init()
 	{
 		parent::init();
 
-		$timezone = $_COOKIE['_timezone'] ?? null; //$this->getCookies()->getValue("_timezone");
-		if ($timezone)
-			Yii::$app->formatter->timeZone = 'GMT' . $timezone;
+		//set time zone to formatter
+		$requestTimeZone = $this->getHeaders()->get('x-time-zone'); //self::HEADER_X_TIMEZONE);
+		$timeZone = $requestTimeZone ?? $_COOKIE['_timezone'] ?? '+00:00';
+		if (strpos($timeZone, ':') === false)
+			$timeZone = '+00:00';
+		Yii::$app->formatter->timeZone = 'GMT' . $timeZone;
 
-		//just for non POST requests:
+		//define form data parser: just for non POST requests:
 		if (empty($this->parsers['multipart/form-data']))
 			$this->parsers['multipart/form-data'] = \yii\web\MultipartFormDataParser::class;
 	}

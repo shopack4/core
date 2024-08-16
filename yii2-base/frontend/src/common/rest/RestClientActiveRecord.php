@@ -8,6 +8,7 @@ namespace shopack\base\frontend\common\rest;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\db\BaseActiveRecord;
+use shopack\base\common\classes\FileData;
 use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\helpers\Json;
 use shopack\base\common\rest\enuColumnInfo;

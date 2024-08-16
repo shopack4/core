@@ -6,7 +6,7 @@
 namespace shopack\aaa\backend\components;
 
 use Yii;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use yii\base\Component;
 use yii\web\NotFoundHttpException;
 use yii\helpers\FileHelper;
@@ -504,7 +504,7 @@ class FileManager extends Component
 			if ($processErrors) {
 				$query->andWhere(['AND',
 					['uquStatus' => enuUploadQueueStatus::Error],
-					['<', 'uquLastTryAt', new Expression("DATE_SUB(NOW(), INTERVAL {$lastTryInterval} MINUTE)")],
+					['<', 'uquLastTryAt', new DbExpression("DATE_SUB(NOW(), INTERVAL {$lastTryInterval} MINUTE)")],
 				]);
 			} else {
 				$query->andWhere(['uquStatus' => enuUploadQueueStatus::New]);
@@ -520,7 +520,7 @@ class FileManager extends Component
 			} else {
 				$query->andWhere(['OR',
 					'uquLockedAt IS NULL',
-					['<', 'uquLockedAt', new Expression('DATE_SUB(NOW(), INTERVAL 1 HOUR)')],
+					['<', 'uquLockedAt', new DbExpression('DATE_SUB(NOW(), INTERVAL 1 HOUR)')],
 					['uquLockedBy' => $instanceID],
 				]);
 			}

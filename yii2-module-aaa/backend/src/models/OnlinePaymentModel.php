@@ -6,7 +6,7 @@
 namespace shopack\aaa\backend\models;
 
 use Yii;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\aaa\backend\classes\AAAActiveRecord;
@@ -46,7 +46,7 @@ class OnlinePaymentModel extends AAAActiveRecord
 	public function insert($runValidation = true, $attributes = null)
 	{
 		if (empty($this->onpUUID))
-			$this->onpUUID = new Expression('UUID()'); //Uuid::uuid4()->toString();
+			$this->onpUUID = new DbExpression('UUID()'); //Uuid::uuid4()->toString();
 			// $this->onpUUID = Yii::$app->security->generateRandomString();
 
 		return parent::insert($runValidation, $attributes);

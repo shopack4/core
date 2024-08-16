@@ -38,24 +38,7 @@ use shopack\aaa\common\enums\enuSessionStatus;
       ],
       'ssnTokenExpireAt:jalaliWithTime',
       'ssnSessionExpireAt:jalaliWithTime',
-
-      // 'ssnRefreshedAt',
-      // [
-      //   'attribute' => 'test',
-      //   'label' => 'test',
-      //   'format' => 'raw',
-      //   'value' => function($model) {
-      //     if (empty($model->ssnRefreshedAt))
-      //       return null;
-
-      //     $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
-
-      //     $dtRefreshedAt = new \DateTimeImmutable($model->ssnRefreshedAt, new \DateTimeZone('UTC'));
-      //     return $now->format(\DateTimeInterface::RFC3339_EXTENDED)
-      //       . '<br>'
-      //       . $dtRefreshedAt->format(\DateTimeInterface::RFC3339_EXTENDED);
-      //   },
-      // ],
+      // 'ssnRefreshedAt:jalaliWithTime',
 
       [
         'attribute' => 'Issuer',

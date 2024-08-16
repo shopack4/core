@@ -31,8 +31,8 @@ class UserSendMessageForm extends Model
 
     $userModel = UserModel::find()
       ->andWhere(['usrID' => $this->userID])
-      // ->andWhere(['IS', 'usrMobile', new Expression('NOT NULL')])
-      // ->andWhere(['IS', 'usrMobileApprovedAt', new Expression('NOT NULL')])
+      // ->andWhere(['IS', 'usrMobile', DbExpression::notNull()])
+      // ->andWhere(['IS', 'usrMobileApprovedAt', DbExpression::notNull()])
       // ->andWhere(['!=', 'usrStatus', enuUserStatus::Removed])
       ->asArray()
       ->one();

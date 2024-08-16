@@ -3,7 +3,7 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-namespace shopack\base\frontend\common\rest;
+namespace shopack\base\common\classes;
 
 class FileData
 {

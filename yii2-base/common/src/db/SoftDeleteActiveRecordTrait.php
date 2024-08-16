@@ -7,7 +7,7 @@ namespace shopack\base\common\db;
 
 use Yii;
 use Closure;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use yii\web\UnprocessableEntityHttpException;
 use yii\base\NotSupportedException;
 
@@ -43,7 +43,7 @@ trait SoftDeleteActiveRecordTrait
     }
 
     $this->setAttribute($this->statusColumnName, $this->softdelete_RemovedStatus);
-    $this->setAttribute($this->softdelete_RemovedAtField, new Expression('UNIX_TIMESTAMP(NOW())'));
+    $this->setAttribute($this->softdelete_RemovedAtField, new DbExpression('UNIX_TIMESTAMP(NOW())'));
 
     if (isset(Yii::$app->user->identity) && (Yii::$app->user->getIsGuest() == false))
       $this->setAttribute($this->softdelete_RemovedByField, Yii::$app->user->id);

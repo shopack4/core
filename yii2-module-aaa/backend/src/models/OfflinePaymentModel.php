@@ -6,7 +6,7 @@
 namespace shopack\aaa\backend\models;
 
 use Yii;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\aaa\backend\classes\AAAActiveRecord;

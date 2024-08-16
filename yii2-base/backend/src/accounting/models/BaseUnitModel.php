@@ -7,7 +7,7 @@ namespace shopack\base\backend\accounting\models;
 
 // use Yii;
 // use yii\base\Model;
-// use yii\db\Expression;
+// use shopack\base\common\db\DbExpression;
 
 // class BaseUnitModel extends Model
 // {

@@ -6,7 +6,7 @@
 namespace shopack\aaa\backend\models;
 
 use Yii;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\helpers\GeneralHelper;
@@ -264,12 +264,12 @@ SQL;
       $forgotPasswordRequestModel->fprUserID        = $userID;
       $forgotPasswordRequestModel->fprRequestedBy   = $inputType;
       $forgotPasswordRequestModel->fprCode          = $code;
-      $forgotPasswordRequestModel->fprLastRequestAt = new Expression('NOW()');
-      $forgotPasswordRequestModel->fprExpireAt      = new Expression("DATE_ADD(NOW(), INTERVAL {$expireTTL} SECOND)");
+      $forgotPasswordRequestModel->fprLastRequestAt = DbExpression::now();
+      $forgotPasswordRequestModel->fprExpireAt      = new DbExpression("DATE_ADD(NOW(), INTERVAL {$expireTTL} SECOND)");
       if ($forgotPasswordRequestModel->save() == false)
         throw new UnprocessableEntityHttpException("error in creating forgot password request\n" . implode("\n", $forgotPasswordRequestModel->getFirstErrors()));
     } else {
-      $forgotPasswordRequestModel->fprLastRequestAt = new Expression('NOW()');
+      $forgotPasswordRequestModel->fprLastRequestAt = DbExpression::now();
       if ($forgotPasswordRequestModel->save() == false)
         throw new UnprocessableEntityHttpException("error in updating forgot password request\n" . implode("\n", $forgotPasswordRequestModel->getFirstErrors()));
 
@@ -437,7 +437,7 @@ SQL;
     try {
       //1: fpr
       $forgotPasswordRequestModel->fprStatus = enuForgotPasswordRequestStatus::Applied;
-      $forgotPasswordRequestModel->fprApplyAt = new Expression('NOW()');
+      $forgotPasswordRequestModel->fprApplyAt = DbExpression::now();
       if ($forgotPasswordRequestModel->save() == false)
         throw new UnprocessableEntityHttpException("could not save forgot password request\n" . implode("\n", $forgotPasswordRequestModel->getFirstErrors()));
 

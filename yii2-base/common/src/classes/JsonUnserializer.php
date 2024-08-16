@@ -3,10 +3,10 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-namespace shopack\base\frontend\common\rest;
+namespace shopack\base\common\classes;
 
 use shopack\base\common\helpers\Json;
-use shopack\base\frontend\common\rest\Unserializer;
+use shopack\base\common\classes\Unserializer;
 
 /**
  * Class JsonUnserializer

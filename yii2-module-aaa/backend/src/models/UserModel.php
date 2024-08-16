@@ -6,7 +6,7 @@
 namespace shopack\aaa\backend\models;
 
 use Yii;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use shopack\base\common\validators\JsonValidator;
 use shopack\aaa\backend\classes\AAAActiveRecord;
 use shopack\aaa\backend\models\ApprovalRequestModel;
@@ -31,6 +31,7 @@ class UserModel extends AAAActiveRecord
   public function init()
 	{
     parent::init();
+
     $this->on(AAAActiveRecord::EVENT_AFTER_INSERT, [$this, 'slotAfterInsert']);
     $this->on(AAAActiveRecord::EVENT_AFTER_UPDATE, [$this, 'slotAfterUpdate']);
 	}
@@ -92,7 +93,7 @@ class UserModel extends AAAActiveRecord
       ->select(self::selectableColumns())
     ;
 
-    $query->addSelect(new \yii\db\Expression("usrPasswordHash IS NOT NULL AND usrPasswordHash != '' AS hasPassword"));
+    $query->addSelect(new DbExpression("usrPasswordHash IS NOT NULL AND usrPasswordHash != '' AS hasPassword"));
 
     if ($withFile)
       $query->joinWith('imageFile');
@@ -106,7 +107,7 @@ class UserModel extends AAAActiveRecord
 
     if (empty($this->usrPassword) == false) {
       $this->usrPasswordHash = Yii::$app->security->generatePasswordHash($this->usrPassword);
-      $this->usrPasswordCreatedAt = new Expression('NOW()');
+      $this->usrPasswordCreatedAt = DbExpression::now();
       if ($this->usrMustChangePassword)
         $this->usrMustChangePassword = null;
 

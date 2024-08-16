@@ -6,7 +6,7 @@
 namespace shopack\aaa\backend\components;
 
 use Yii;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use yii\base\Component;
 use yii\web\NotFoundHttpException;
 use yii\web\ServerErrorHttpException;

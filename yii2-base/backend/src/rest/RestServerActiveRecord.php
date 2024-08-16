@@ -9,6 +9,7 @@ use Yii;
 use shopack\base\common\helpers\Json;
 use shopack\base\backend\rest\RestServerQuery;
 use shopack\base\common\helpers\ArrayHelper;
+use shopack\base\common\db\DbExpression;
 
 abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 	implements \shopack\base\common\rest\ActiveRecordInterface
@@ -62,7 +63,7 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 		foreach ($queryParams as $k => $v) {
 			if ($this->hasAttribute($k)) {
 				if (is_array($v) && array_key_exists('expression', $v)) {
-					$v = new \yii\db\Expression($v['expression'], $v['params'] ?? []);
+					$v = new DbExpression($v['expression'], $v['params'] ?? []);
 				}
 
 				$query->andWhere([$k => $v]);
@@ -85,7 +86,7 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 				return;
 
 			if (array_key_exists('expression', $item)) {
-				$item = new \yii\db\Expression($item['expression'], $item['params'] ?? []);
+				$item = new DbExpression($item['expression'], $item['params'] ?? []);
 			} else {
 				array_walk($item, $fnCheckExpressions);
 			}

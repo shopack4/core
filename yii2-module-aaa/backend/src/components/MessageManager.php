@@ -7,7 +7,7 @@ namespace shopack\aaa\backend\components;
 
 use Yii;
 use yii\base\Component;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use yii\web\NotFoundHttpException;
 use shopack\aaa\common\enums\enuGender;
 use shopack\aaa\common\enums\enuUserStatus;
@@ -190,7 +190,7 @@ SQL;
           ['msgStatus' => enuMessageStatus::New],
           ['AND',
             ['IN', 'msgStatus', [enuMessageStatus::FirstTry, enuMessageStatus::SecondTry]],
-            ['<', 'msgLastTryAt', new Expression("DATE_SUB(NOW(), INTERVAL {$lastTryInterval} MINUTE)")]
+            ['<', 'msgLastTryAt', new DbExpression("DATE_SUB(NOW(), INTERVAL {$lastTryInterval} MINUTE)")]
           ]
         ])
         ->orderBy('msgCreatedAt');
@@ -200,7 +200,7 @@ SQL;
 			} else {
 				// $query->andWhere(['OR',
 				// 	['msgLockedAt IS NULL'],
-				// 	['<', 'msgLockedAt', new Expression('DATE_SUB(NOW(), INTERVAL 1 HOUR)')],
+				// 	['<', 'msgLockedAt', new DbExpression('DATE_SUB(NOW(), INTERVAL 1 HOUR)')],
 				// 	['msgLockedBy' => $instanceID],
 				// ]);
 			}
@@ -216,7 +216,7 @@ SQL;
 
       $defaultSmsGateway = $this->defaultSmsGateway;
 
-      $expNow = new Expression('NOW()');
+      $expNow = DbExpression::now();
 
       foreach ($messagesModels as $messageModel) {
         if (empty($messageModel->messageTemplate->mstParamsPrefix) == false
@@ -447,17 +447,17 @@ SQL;
         [
           'msg' => MessageModel::find()
             ->andWhere(['msgTypeKey' => 'happyBirthday'])
-            ->andWhere(new Expression('DATE(msgCreatedAt) = CURDATE()'))
+            ->andWhere(new DbExpression('DATE(msgCreatedAt) = CURDATE()'))
         ],
         'msg.msgUserID = usrID'
       )
-      ->andWhere(['IS', 'usrBirthDate', new Expression('NOT NULL')])
-      ->andWhere(['IS', 'usrMobile', new Expression('NOT NULL')])
-      ->andWhere(['IS', 'usrMobileApprovedAt', new Expression('NOT NULL')])
+      ->andWhere(['IS', 'usrBirthDate', DbExpression::notNull()])
+      ->andWhere(['IS', 'usrMobile', DbExpression::notNull()])
+      ->andWhere(['IS', 'usrMobileApprovedAt', DbExpression::notNull()])
       ->andWhere(['!=', 'usrStatus', enuUserStatus::Removed])
-      ->andWhere(new Expression('MONTH(usrBirthDate) = MONTH(NOW())'))
-      ->andWhere(new Expression('DAY(usrBirthDate) = DAY(NOW())'))
-      ->andWhere(['IS', 'msgID', new Expression('NULL')])
+      ->andWhere(new DbExpression('MONTH(usrBirthDate) = MONTH(NOW())'))
+      ->andWhere(new DbExpression('DAY(usrBirthDate) = DAY(NOW())'))
+      ->andWhere(['IS', 'msgID', DbExpression::null()])
     ;
 
     $userModels = $query

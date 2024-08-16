@@ -6,7 +6,7 @@
 namespace shopack\aaa\backend\models;
 
 use Yii;
-use yii\db\Expression;
+use shopack\base\common\db\DbExpression;
 use shopack\aaa\backend\classes\AAAActiveRecord;
 
 class MessageModel extends AAAActiveRecord
@@ -38,7 +38,7 @@ class MessageModel extends AAAActiveRecord
 		$instanceID = Yii::$app->getInstanceID();
 
 		if ($this->sendNow) {
-			$this->msgLockedAt = new Expression("NOW()");
+			$this->msgLockedAt = new DbExpression("NOW()");
 			$this->msgLockedBy = $instanceID;
 		}
 

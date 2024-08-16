@@ -3,16 +3,11 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-namespace shopack\base\frontend\common\rest;
+namespace shopack\base\common\classes;
 
 use yii\base\Component;
-use shopack\base\frontend\common\rest\UnserializerInterface;
+use shopack\base\common\classes\UnserializerInterface;
 
-/**
- * Class Unserializer
- *
- * @package shopack\base\frontend\common\rest
- */
 abstract class Unserializer extends Component implements UnserializerInterface
 {
   /**
