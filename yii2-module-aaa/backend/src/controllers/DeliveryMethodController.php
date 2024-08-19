@@ -5,6 +5,7 @@
 
 namespace shopack\aaa\backend\controllers;
 
+use shopack\aaa\backend\models\DeliveryMethodModel;
 use shopack\base\backend\controller\BaseCrudController;
 
 class DeliveryMethodController extends BaseCrudController
@@ -21,7 +22,7 @@ class DeliveryMethodController extends BaseCrudController
 		return $behaviors;
 	}
 
-	public $modelClass = \shopack\aaa\backend\models\DeliveryMethodModel::class;
+	public $modelClass = DeliveryMethodModel::class;
 
 	public function permissions()
 	{

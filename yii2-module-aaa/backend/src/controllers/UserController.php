@@ -49,7 +49,7 @@ class UserController extends BaseRestController
 		$filter = $this->checkPrivAndGetFilter('aaa/user/crud', '0100', 'usrID');
 
 		$searchModel = new UserModel;
-		$query = $searchModel::find(true)
+		$query = UserModel::find(true)
 			// ->select(UserModel::selectableColumns())
 			->joinWith('role')
 			->joinWith('country')
@@ -59,7 +59,6 @@ class UserController extends BaseRestController
 			->with('createdByUser')
 			->with('updatedByUser')
 			->with('removedByUser')
-			->asArray()
 		;
 
 		$searchModel->fillQueryFromRequest($query);
@@ -77,7 +76,7 @@ class UserController extends BaseRestController
 				throw new ForbiddenHttpException('access denied');
 		}
 
-		$model = UserModel::find(true)
+		$query = UserModel::find(true)
 			// ->select(UserModel::selectableColumns())
 			->joinWith('country')
 			->joinWith('state')
@@ -90,11 +89,9 @@ class UserController extends BaseRestController
 			->with('updatedByUser')
 			->with('removedByUser')
 			->where(['usrID' => $id])
-			->asArray()
-			->one()
 		;
 
-		return $this->modelToResponse($model);
+		return $this->queryOneToResponse($query);
 	}
 
 	public function actionCreate()

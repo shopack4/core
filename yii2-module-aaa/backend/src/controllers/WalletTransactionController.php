@@ -39,15 +39,14 @@ class WalletTransactionController extends BaseRestController
 		$filter = $this->checkPrivAndGetFilter('aaa/wallet-transaction/crud', '0100', 'walOwnerUserID');
 
 		$searchModel = new WalletTransactionModel;
-		$query = $searchModel::find()
-			->select(WalletTransactionModel::selectableColumns())
+		$query = WalletTransactionModel::find()
+			// ->select(WalletTransactionModel::selectableColumns())
 			->joinWith('wallet')
 			->joinWith('voucher')
 			->joinWith('onlinePayment')
 			->with('createdByUser')
 			->with('updatedByUser')
 			->with('removedByUser')
-			->asArray()
 		;
 
 		$searchModel->fillQueryFromRequest($query);
@@ -60,8 +59,8 @@ class WalletTransactionController extends BaseRestController
 
 	public function actionView($id)
 	{
-		$model = WalletTransactionModel::find()
-			->select(WalletTransactionModel::selectableColumns())
+		$query = WalletTransactionModel::find()
+			// ->select(WalletTransactionModel::selectableColumns())
 			->joinWith('wallet')
 			->joinWith('voucher')
 			->joinWith('onlinePayment')
@@ -69,18 +68,16 @@ class WalletTransactionController extends BaseRestController
 			->with('updatedByUser')
 			->with('removedByUser')
 			->where(['wtrID' => $id])
-			->asArray()
-			->one()
 		;
 
-		if ((PrivHelper::hasPriv('aaa/wallet-transaction/crud', '0100') == false)
-			&& ($model != null)
-			&& (($model['wallet']['walOwnerUserID'] ?? null) != Yii::$app->user->id)
-		) {
-			throw new ForbiddenHttpException('access denied');
-		}
-
-		return $this->modelToResponse($model);
+		return $this->queryOneToResponse($query, function($model) {
+			if ((PrivHelper::hasPriv('aaa/wallet-transaction/crud', '0100') == false)
+				&& ($model != null)
+				&& (($model['wallet']['walOwnerUserID'] ?? null) != Yii::$app->user->id)
+			) {
+				throw new ForbiddenHttpException('access denied');
+			}
+		});
 	}
 
 	public function actionOptions()

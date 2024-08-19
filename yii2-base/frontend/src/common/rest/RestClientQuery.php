@@ -823,6 +823,7 @@ class RestClientQuery
 		if ($asCollection)
 			return $this->_populateAsCollection($data);
 
+		//todo: check if $data is empty
 		$models = $this->_createModels($data);
 		return ($asCollection ? $models : $models[0] ?? null);
 

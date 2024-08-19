@@ -50,13 +50,12 @@ class VoucherController extends BaseRestController
 		$filter = $this->checkPrivAndGetFilter('aaa/voucher/crud', '0100', 'vchOwnerUserID');
 
 		$searchModel = new VoucherModel;
-		$query = $searchModel::find()
-			->select(VoucherModel::selectableColumns())
+		$query = VoucherModel::find()
+			// ->select(VoucherModel::selectableColumns())
 			->joinWith('owner')
 			->with('createdByUser')
 			->with('updatedByUser')
 			->with('removedByUser')
-			->asArray()
 		;
 
 		$searchModel->fillQueryFromRequest($query);
@@ -69,25 +68,23 @@ class VoucherController extends BaseRestController
 
 	public function actionView($id)
 	{
-		$model = VoucherModel::find()
-			->select(VoucherModel::selectableColumns())
+		$query = VoucherModel::find()
+			// ->select(VoucherModel::selectableColumns())
 			->joinWith('owner')
 			->with('createdByUser')
 			->with('updatedByUser')
 			->with('removedByUser')
 			->where(['vchID' => $id])
-			->asArray()
-			->one()
 		;
 
-		if ((PrivHelper::hasPriv('aaa/voucher/crud', '0100') == false)
-			&& ($model != null)
-			&& ($model['vchOwnerUserID'] != Yii::$app->user->id)
-		) {
-			throw new ForbiddenHttpException('access denied');
-		}
-
-		return $this->modelToResponse($model);
+		return $this->queryOneToResponse($query, function($model) {
+			if ((PrivHelper::hasPriv('aaa/voucher/crud', '0100') == false)
+				&& ($model != null)
+				&& ($model['vchOwnerUserID'] != Yii::$app->user->id)
+			) {
+				throw new ForbiddenHttpException('access denied');
+			}
+		});
 	}
 
 	public function actionProcessVoucher($id)
@@ -125,7 +122,7 @@ class VoucherController extends BaseRestController
 		}
 
 		$model = VoucherModel::find()
-			->select(VoucherModel::selectableColumns())
+			// ->select(VoucherModel::selectableColumns())
 			->andWhere(['vchID' => $invoiceID])
 			// ->andWhere(['vchOwnerUserID' => $memberID])
 			->andWhere(['vchType' => enuVoucherType::Invoice])

@@ -25,7 +25,7 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
       get_called_class()
     ]);
 
-    return $query;
+    return $query->select(self::selectableColumns());
 	}
 
 	// public function fillGlobalSearchFromRequest(\yii\db\ActiveQuery $query, $q)

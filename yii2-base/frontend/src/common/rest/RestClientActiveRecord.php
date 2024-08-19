@@ -124,8 +124,9 @@ abstract class RestClientActiveRecord extends BaseActiveRecord
     $columnsInfo = $this->getColumnsInfo();
     foreach ($columnsInfo as $column => $info) {
       if (isset($info[enuColumnInfo::type])
-          && $info[enuColumnInfo::type] === $JsonValidator_class
-          && empty($this->$column) == false
+          && ($info[enuColumnInfo::type] === $JsonValidator_class)
+          && (empty($this->$column) == false)
+          && (is_array($this->$column) == false)
       ) {
         $this->$column = Json::decode($this->$column);
         $this->setOldAttribute($column, $this->$column);

@@ -31,13 +31,12 @@ class SessionController extends BaseRestController
 		PrivHelper::checkPriv(['aaa/session/crud' => '0100']);
 
 		$searchModel = new SessionModel;
-		$query = $searchModel::find(true)
-			->select(SessionModel::selectableColumns())
+		$query = SessionModel::find(true)
+			// ->select(SessionModel::selectableColumns())
 			->joinWith('user')
 			->with('createdByUser')
 			->with('updatedByUser')
 			->with('removedByUser')
-			->asArray()
 		;
 
 		$searchModel->fillQueryFromRequest($query);

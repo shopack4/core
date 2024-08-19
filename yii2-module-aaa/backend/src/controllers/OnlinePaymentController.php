@@ -45,8 +45,8 @@ class OnlinePaymentController extends BaseRestController
 		$filter = $this->checkPrivAndGetFilter('aaa/online-payment/crud', '0100', 'vchOwnerUserID');
 
 		$searchModel = new OnlinePaymentModel;
-		$query = $searchModel::find()
-			->select(OnlinePaymentModel::selectableColumns())
+		$query = OnlinePaymentModel::find()
+			// ->select(OnlinePaymentModel::selectableColumns())
 			->joinWith('gateway')
 			->joinWith('voucher')
 			->joinWith('voucher.owner')
@@ -54,7 +54,6 @@ class OnlinePaymentController extends BaseRestController
 			->with('createdByUser')
 			->with('updatedByUser')
 			->with('removedByUser')
-			->asArray()
 		;
 
 		$searchModel->fillQueryFromRequest($query);
@@ -67,8 +66,8 @@ class OnlinePaymentController extends BaseRestController
 
 	public function actionView($id)
 	{
-		$model = OnlinePaymentModel::find()
-			->select(OnlinePaymentModel::selectableColumns())
+		$query = OnlinePaymentModel::find()
+			// ->select(OnlinePaymentModel::selectableColumns())
 			->joinWith('gateway')
 			->joinWith('voucher')
 			->joinWith('voucher.owner')
@@ -77,18 +76,16 @@ class OnlinePaymentController extends BaseRestController
 			->with('updatedByUser')
 			->with('removedByUser')
 			->where(['onpID' => $id])
-			->asArray()
-			->one()
 		;
 
-		if ((PrivHelper::hasPriv('aaa/online-payment/crud', '0100') == false)
-			&& ($model != null)
-			&& (($model['voucher']['vchOwnerUserID'] ?? null) != Yii::$app->user->id)
-		) {
-			throw new ForbiddenHttpException('access denied');
-		}
-
-		return $this->modelToResponse($model);
+		return $this->queryOneToResponse($query, function($model) {
+			if ((PrivHelper::hasPriv('aaa/online-payment/crud', '0100') == false)
+				&& ($model != null)
+				&& (($model['voucher']['vchOwnerUserID'] ?? null) != Yii::$app->user->id)
+			) {
+				throw new ForbiddenHttpException('access denied');
+			}
+		});
 	}
 
 	/*
@@ -191,7 +188,7 @@ class OnlinePaymentController extends BaseRestController
 			foreach ($models as $model) {
 				$gtwclass = Yii::$app->controller->module->GatewayClass($model['gtwPluginName']);
 
-				$type = $gtwclass->getPaymentGatewayType();;
+				$type = $gtwclass->getPaymentGatewayType();
 
 				if (YII_ENV_PROD && ($type == enuPaymentGatewayType::DevTest))
 					continue;

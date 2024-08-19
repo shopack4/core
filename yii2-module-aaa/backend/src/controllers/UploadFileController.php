@@ -35,13 +35,12 @@ class UploadFileController extends BaseRestController
 		$filter = $this->checkPrivAndGetFilter('aaa/upload-file/crud', '0100', 'uflOwnerUserID');
 
 		$searchModel = new UploadFileModel;
-		$query = $searchModel::find()
+		$query = UploadFileModel::find()
 			// ->select(UploadFileModel::selectableColumns())
 			->joinWith('owner')
 			->with('createdByUser')
 			->with('updatedByUser')
 			->with('removedByUser')
-			->asArray()
 		;
 
 		$searchModel->fillQueryFromRequest($query);
@@ -56,18 +55,16 @@ class UploadFileController extends BaseRestController
 	{
 		PrivHelper::checkPriv(['aaa/upload-file/crud' => '0100']);
 
-		$model = UploadFileModel::find()
+		$query = UploadFileModel::find()
 			// ->select(UploadFileModel::selectableColumns())
 			->joinWith('owner')
 			->with('createdByUser')
 			->with('updatedByUser')
 			->with('removedByUser')
 			->where(['uflID' => $id])
-			->asArray()
-			->one()
 		;
 
-		return $this->modelToResponse($model);
+		return $this->queryOneToResponse($query);
 	}
 
 	public function actionCreate()

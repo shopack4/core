@@ -45,7 +45,7 @@ class UploadFileModel extends AAAActiveRecord
 
 		if ($_addFileUrl) {
 			$query
-				->select(self::selectableColumns())
+				// ->select(self::selectableColumns())
 				->addFileUrl('fullFileUrl')
 			;
 		}

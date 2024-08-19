@@ -5,13 +5,7 @@
 
 namespace shopack\aaa\backend\controllers;
 
-use Yii;
-use yii\web\NotFoundHttpException;
-use yii\web\UnprocessableEntityHttpException;
-use yii\data\ActiveDataProvider;
-use shopack\base\common\helpers\ExceptionHelper;
 use shopack\base\backend\controller\BaseCrudController;
-use shopack\base\backend\helpers\PrivHelper;
 use shopack\aaa\backend\models\GeoTownModel;
 
 class GeoTownController extends BaseCrudController
@@ -28,7 +22,7 @@ class GeoTownController extends BaseCrudController
 		return $behaviors;
 	}
 
-	public $modelClass = \shopack\aaa\backend\models\GeoTownModel::class;
+	public $modelClass = GeoTownModel::class;
 
 	public function permissions()
 	{

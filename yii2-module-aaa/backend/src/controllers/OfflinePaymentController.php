@@ -43,8 +43,8 @@ class OfflinePaymentController extends BaseRestController
 		$filter = $this->checkPrivAndGetFilter('aaa/offline-payment/crud', '0100', 'ofpOwnerUserID');
 
 		$searchModel = new OfflinePaymentModel;
-		$query = $searchModel::find()
-			->select(OfflinePaymentModel::selectableColumns())
+		$query = OfflinePaymentModel::find()
+			// ->select(OfflinePaymentModel::selectableColumns())
 			->joinWith('owner')
 			->joinWith('voucher')
 			->joinWith('imageFile')
@@ -52,7 +52,6 @@ class OfflinePaymentController extends BaseRestController
 			->with('createdByUser')
 			->with('updatedByUser')
 			->with('removedByUser')
-			->asArray()
 		;
 
 		$searchModel->fillQueryFromRequest($query);
@@ -70,8 +69,8 @@ class OfflinePaymentController extends BaseRestController
 			$justForMe = true;
 		}
 
-		$model = OfflinePaymentModel::find()
-			->select(OfflinePaymentModel::selectableColumns())
+		$query = OfflinePaymentModel::find()
+			// ->select(OfflinePaymentModel::selectableColumns())
 			->joinWith('owner')
 			->joinWith('voucher')
 			->joinWith('imageFile')
@@ -80,20 +79,12 @@ class OfflinePaymentController extends BaseRestController
 			->with('updatedByUser')
 			->with('removedByUser')
 			->where(['ofpID' => $id])
-			->asArray()
-			->one()
 		;
 
-		if ($model !== null) {
+		return $this->queryOneToResponse($query, function($model) use($justForMe) {
 			if ($justForMe && ($model['ofpOwnerUserID'] != Yii::$app->user->id))
 				throw new ForbiddenHttpException('access denied');
-
-			return $model;
-		}
-
-		throw new NotFoundHttpException('The requested item does not exist.');
-
-		// return $this->modelToResponse($model);
+		});
 	}
 
 	public function actionCreate()

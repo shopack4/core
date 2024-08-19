@@ -88,10 +88,10 @@ class UserModel extends AAAActiveRecord
 
     // $tableName = 'user'; //self::tableName();
 
-    $query
-      // ->alias($tableName)
-      ->select(self::selectableColumns())
-    ;
+    // $query
+    //   // ->alias($tableName)
+    //   ->select(self::selectableColumns())
+    // ;
 
     $query->addSelect(new DbExpression("usrPasswordHash IS NOT NULL AND usrPasswordHash != '' AS hasPassword"));
 

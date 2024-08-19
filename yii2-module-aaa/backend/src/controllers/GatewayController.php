@@ -29,7 +29,7 @@ class GatewayController extends BaseCrudController
 		return $behaviors;
 	}
 
-	public $modelClass = \shopack\aaa\backend\models\GatewayModel::class;
+	public $modelClass = GatewayModel::class;
 
 	public function permissions()
 	{

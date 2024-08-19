@@ -54,13 +54,12 @@ class WalletController extends BaseRestController
 		WalletModel::ensureIHaveDefaultWallet();
 
 		$searchModel = new WalletModel;
-		$query = $searchModel::find()
-			->select(WalletModel::selectableColumns())
+		$query = WalletModel::find()
+			// ->select(WalletModel::selectableColumns())
 			->joinWith('owner')
 			->with('createdByUser')
 			->with('updatedByUser')
 			->with('removedByUser')
-			->asArray()
 		;
 
 		$searchModel->fillQueryFromRequest($query);
@@ -73,25 +72,23 @@ class WalletController extends BaseRestController
 
 	public function actionView($id)
 	{
-		$model = WalletModel::find()
-			->select(WalletModel::selectableColumns())
+		$query = WalletModel::find()
+			// ->select(WalletModel::selectableColumns())
 			->joinWith('owner')
 			->with('createdByUser')
 			->with('updatedByUser')
 			->with('removedByUser')
 			->where(['walID' => $id])
-			->asArray()
-			->one()
 		;
 
-		if ((PrivHelper::hasPriv('aaa/wallet/crud', '0100') == false)
-			&& ($model != null)
-			&& ($model['walOwnerUserID'] != Yii::$app->user->id)
-		) {
-			throw new ForbiddenHttpException('access denied');
-		}
-
-		return $this->modelToResponse($model);
+		return $this->queryOneToResponse($query, function($model) {
+			if ((PrivHelper::hasPriv('aaa/wallet/crud', '0100') == false)
+				&& ($model != null)
+				&& ($model['walOwnerUserID'] != Yii::$app->user->id)
+			) {
+				throw new ForbiddenHttpException('access denied');
+			}
+		});
 	}
 
 	/*

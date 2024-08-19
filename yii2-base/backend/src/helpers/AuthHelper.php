@@ -326,8 +326,9 @@ class AuthHelper
 
 			$nowSeconds = Yii::$app->db->utcNow->getTimestamp();
 
-			if ($sessionModel->ssnJWT != $refresh_token) {
-
+			if ((empty($sessionModel->ssnRefreshedAt) == false)
+				&& ($sessionModel->ssnJWT != $refresh_token)
+			 ) {
 				//has this been refreshed in the last 5 seconds?
 
 				$dtRefreshedAt = new \DateTimeImmutable($sessionModel->ssnRefreshedAt, new \DateTimeZone('UTC'));

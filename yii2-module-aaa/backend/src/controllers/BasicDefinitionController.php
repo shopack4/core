@@ -5,6 +5,7 @@
 
 namespace shopack\aaa\backend\controllers;
 
+use shopack\aaa\backend\models\BasicDefinitionModel;
 use shopack\base\backend\controller\BaseCrudController;
 
 class BasicDefinitionController extends BaseCrudController
@@ -21,7 +22,7 @@ class BasicDefinitionController extends BaseCrudController
 		return $behaviors;
 	}
 
-	public $modelClass = \shopack\aaa\backend\models\BasicDefinitionModel::class;
+	public $modelClass = BasicDefinitionModel::class;
 
 	public function permissions()
 	{

@@ -35,12 +35,11 @@ class ApprovalRequestController extends BaseRestController
 		$filter = $this->checkPrivAndGetFilter('aaa/approval-request/crud', '0100', 'aprUserID');
 
 		$searchModel = new ApprovalRequestModel;
-		$query = $searchModel::find()
+		$query = ApprovalRequestModel::find()
 			// ->select(ApprovalRequestModel::selectableColumns())
 			->with('createdByUser')
 			->with('updatedByUser')
 			->with('removedByUser')
-			->asArray()
 		;
 
 		$searchModel->fillQueryFromRequest($query);
@@ -58,17 +57,15 @@ class ApprovalRequestController extends BaseRestController
 				throw new ForbiddenHttpException('access denied');
 		}
 
-		$model = ApprovalRequestModel::find()
+		$query = ApprovalRequestModel::find()
 			// ->select(ApprovalRequestModel::selectableColumns())
 			->with('createdByUser')
 			->with('updatedByUser')
 			->with('removedByUser')
 			->where(['aprUserID' => $id])
-			->asArray()
-			->one()
 		;
 
-		return $this->modelToResponse($model);
+		return $this->queryOneToResponse($query);
 	}
 
 	public function actionOptions()

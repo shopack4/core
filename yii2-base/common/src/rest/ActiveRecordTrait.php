@@ -5,6 +5,7 @@
 
 namespace shopack\base\common\rest;
 
+use Closure;
 use Yii;
 use Ramsey\Uuid\Uuid;
 use shopack\base\common\helpers\ArrayHelper;
@@ -401,6 +402,41 @@ trait ActiveRecordTrait
 				$this->$column = $def;
 			}
 		}
+	}
+
+	public function exposeAttributes()
+	{
+		$result = [];
+
+		//columns
+		$columnsInfo = $this->getColumnsInfo();
+		foreach ($columnsInfo as $column => $columnInfo) {
+			if ($this->hasAttribute($column) == false)
+				continue;
+
+			if (array_key_exists(enuColumnInfo::filter, $columnInfo)) {
+				$filter = $columnInfo[enuColumnInfo::filter];
+
+				if ($filter instanceof Closure || is_array($filter) && is_callable($filter))
+					$filter = call_user_func($filter, $this, $column);
+
+				if ($filter)
+					continue;
+			}
+
+			//store as array
+			$result[$column] = $this->$column;
+		}
+
+		//relations
+		$relations = $this->getRelatedRecords();
+		if (empty($relations) == false) {
+			foreach ($relations as $k => $v) {
+				$result[$k] = (empty($v) ? $v : $v->exposeAttributes());
+			}
+		}
+
+		return $result;
 	}
 
 }

@@ -112,7 +112,7 @@ class BasketController extends BaseController
 		}
 
 		//non-free basket
-		$formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
+		$formPosted = $model->load(Yii::$app->request->getBodyParams());
 		$done = false;
 		if ($formPosted)
 			$done = $model->saveStep();

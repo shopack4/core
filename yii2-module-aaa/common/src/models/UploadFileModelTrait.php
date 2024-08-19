@@ -10,6 +10,7 @@ use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
 use shopack\aaa\common\enums\enuUploadFileStatus;
+use Yii;
 
 /*
 'uflID',
@@ -66,6 +67,7 @@ trait UploadFileModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::filter			=> true,
       ],
       'uflOriginalFileName' => [
         enuColumnInfo::type       => ['string', 'max' => 256],
@@ -87,6 +89,7 @@ trait UploadFileModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::filter			=> true,
       ],
       'uflSize' => [
         enuColumnInfo::type       => 'integer',
@@ -115,6 +118,7 @@ trait UploadFileModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::filter			=> true,
       ],
       'uflDeleteLocalFileAfterUpload' => [
         enuColumnInfo::type       => 'boolean',
@@ -122,6 +126,7 @@ trait UploadFileModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::filter			=> true,
       ],
       'uflStatus' => [
         enuColumnInfo::isStatus   => true,

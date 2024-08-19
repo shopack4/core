@@ -42,7 +42,7 @@ class BasketController extends BaseRestController
 		// 	throw new ForbiddenHttpException('Access denied');
 
 		$model = VoucherModel::find()
-			->select(VoucherModel::selectableColumns())
+			// ->select(VoucherModel::selectableColumns())
 			->andWhere(['vchOwnerUserID' => Yii::$app->user->id])
 			->andWhere(['vchType' => enuVoucherType::Basket])
 			->andWhere(['vchStatus' => enuVoucherStatus::New])
@@ -61,6 +61,8 @@ class BasketController extends BaseRestController
 			if ($model->save() == false) {
 				throw new UnprocessableEntityHttpException('could not create new basket');
 			}
+
+			//todo: check exposable columns?
 
 			return $model;
 		}

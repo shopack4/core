@@ -508,7 +508,7 @@ class BaseBasketModel extends Model
 
 		//-- fetch SLB & PRD --------------------------------
 		$query = $saleableModelClass::find()
-			->select($saleableModelClass::selectableColumns())
+			// ->select($saleableModelClass::selectableColumns())
 			->addSelect(new DbExpression("IF(slbInStockQty IS NULL, NULL, slbInStockQty - IFNULL(slbOrderedQty,0) + IFNULL(slbReturnedQty,0)) AS _saleableQtyInHand"))
 
 			->innerJoinWith('product')
@@ -839,7 +839,7 @@ SQL;
 
 		//-- fetch SLB & PRD --------------------------------
 		$query = $userAssetModelClass::find()
-			->select($userAssetModelClass::selectableColumns())
+			// ->select($userAssetModelClass::selectableColumns())
 
 			->innerJoinWith('saleable')
 			->addSelect($saleableModelClass::selectableColumns())
@@ -1191,7 +1191,7 @@ SQL;
 		$saleableModelClass = $accountingModule->saleableModelClass;
 
 		$query = $saleableModelClass::find()
-			->select($saleableModelClass::selectableColumns())
+			// ->select($saleableModelClass::selectableColumns())
 			->andWhere(['slbID' => $_basketItem->saleable->slbID]);
 
 		$currentUserID = (Yii::$app->user->isGuest ? 0 : Yii::$app->user->id);
@@ -1296,7 +1296,7 @@ SQL;
 		}
 
 		$query = $discountModelClass::find()
-			->select($discountModelClass::selectableColumns())
+			// ->select($discountModelClass::selectableColumns())
 
 			->leftJoin(['tmp_cpn_count' => $userAssetModelClass::find()
 				->select([

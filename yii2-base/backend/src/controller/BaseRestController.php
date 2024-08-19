@@ -6,6 +6,7 @@
 namespace shopack\base\backend\controller;
 
 use Yii;
+use yii\db\QueryInterface;
 use yii\data\ActiveDataProvider;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
@@ -33,7 +34,7 @@ class BaseRestController extends BaseController
 
 	public function queryAllToResponse($query)
 	{
-		$query->asArray();
+		$query->asArray(false);
 
 		$noLimit = false;
 		if (array_key_exists('per-page', $_GET)) {
@@ -56,7 +57,15 @@ class BaseRestController extends BaseController
 			return null;
 		}
 
-		$allModels = $dataProvider->getModels();
+		$models = $dataProvider->getModels();
+
+		$allModels = [];
+
+		if (empty($models) == false) {
+			foreach ($models as $k => $model) {
+				$allModels[$k] = $this->exposeModel($model);
+			}
+		}
 
 		return [
 			'data' => $allModels,
@@ -66,13 +75,34 @@ class BaseRestController extends BaseController
 		];
   }
 
-  public function modelToResponse($model)
+	public function queryOneToResponse(QueryInterface $query, $fnCheckPermission = null)
+	{
+		$model = $query->asArray(false)->one();
+
+		if ($model == null)
+			throw new NotFoundHttpException('The requested item does not exist.');
+
+		if ($fnCheckPermission != null)
+			$fnCheckPermission($model);
+
+		return $this->exposeModel($model);
+  }
+
+  public function exposeModel($model)
   {
+		if ($model == null)
+			return [];
+
+		return $model->exposeAttributes();
+  }
+
+	public function modelToResponse($model)
+	{
 		if ($model == null)
 			throw new NotFoundHttpException('The requested item does not exist.');
 
 		return $model;
-  }
+	}
 
 	public function getSecureData()
 	{

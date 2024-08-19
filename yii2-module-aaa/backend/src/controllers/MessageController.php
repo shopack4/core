@@ -7,6 +7,7 @@ namespace shopack\aaa\backend\controllers;
 
 use Yii;
 use shopack\base\backend\controller\BaseCrudController;
+use shopack\aaa\backend\models\MessageModel;
 
 class MessageController extends BaseCrudController
 {
@@ -22,7 +23,7 @@ class MessageController extends BaseCrudController
 		return $behaviors;
 	}
 
-	public $modelClass = \shopack\aaa\backend\models\MessageModel::class;
+	public $modelClass = MessageModel::class;
 
 	public function permissions()
 	{
@@ -50,7 +51,7 @@ class MessageController extends BaseCrudController
 		return [
 			'index' => function($query) {
 				$query
-					->joinWith('user')
+					->with('user')
 					->with('createdByUser')
 					->with('updatedByUser')
 					->with('removedByUser')
@@ -58,7 +59,7 @@ class MessageController extends BaseCrudController
 			},
 			'view' => function($query) {
 				$query
-					->joinWith('user')
+					->with('user')
 					->with('createdByUser')
 					->with('updatedByUser')
 					->with('removedByUser')

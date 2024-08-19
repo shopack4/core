@@ -176,6 +176,7 @@ class Module
 					'pluralize' => false,
 
 					'tokens' => [
+						'{id}' => '<id:{_id}>',
 						// '{action}' => '<action:[a-zA-Z-]+>',
 						'{action}' => '<action:(info|verify)>',
 						'{paymentkey}' => '<paymentkey:{_uuid}>',

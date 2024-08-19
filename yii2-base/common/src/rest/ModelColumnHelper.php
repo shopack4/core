@@ -8,6 +8,7 @@ namespace shopack\base\common\rest;
 use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
+use Yii;
 
 class ModelColumnHelper
 {
@@ -75,7 +76,7 @@ class ModelColumnHelper
 		];
 	}
 
-	public static function CreatedBy()
+	public static function CreatedBy($filter = null)
 	{
 		return [
 			enuColumnInfo::type       => 'integer',
@@ -83,6 +84,9 @@ class ModelColumnHelper
 			enuColumnInfo::default    => null,
 			enuColumnInfo::required   => false,
 			enuColumnInfo::selectable => true,
+			enuColumnInfo::filter			=> $filter ?? function($model, $fieldName) {
+				return (Yii::$app->user->isGuest || ($model->$fieldName != Yii::$app->user->id));
+			},
 		];
 	}
 
@@ -97,7 +101,7 @@ class ModelColumnHelper
 		];
 	}
 
-	public static function UpdatedBy()
+	public static function UpdatedBy($filter = null)
 	{
 		return [
 			enuColumnInfo::type       => 'integer',
@@ -105,6 +109,9 @@ class ModelColumnHelper
 			enuColumnInfo::default    => null,
 			enuColumnInfo::required   => false,
 			enuColumnInfo::selectable => true,
+			enuColumnInfo::filter			=> $filter ?? function($model, $fieldName) {
+				return (Yii::$app->user->isGuest || ($model->$fieldName != Yii::$app->user->id));
+			},
 		];
 	}
 
@@ -119,7 +126,7 @@ class ModelColumnHelper
 		];
 	}
 
-	public static function RemovedBy()
+	public static function RemovedBy($filter = null)
 	{
 		return [
 			enuColumnInfo::type       => 'integer',
@@ -127,6 +134,9 @@ class ModelColumnHelper
 			enuColumnInfo::default    => null,
 			enuColumnInfo::required   => false,
 			enuColumnInfo::selectable => true,
+			enuColumnInfo::filter			=> $filter ?? function($model, $fieldName) {
+				return (Yii::$app->user->isGuest || ($model->$fieldName != Yii::$app->user->id));
+			},
 		];
 	}
 

@@ -40,7 +40,7 @@ class WalletController extends BaseCrudController
     $model = new WalletIncreaseForm;
     $model->walletID = $id;
 
-		$formPosted = $model->load(Yii::$app->request->getBodyParams()/*post*/);
+		$formPosted = $model->load(Yii::$app->request->getBodyParams());
 		$done = false;
 		if ($formPosted)
 			$done = $model->process();

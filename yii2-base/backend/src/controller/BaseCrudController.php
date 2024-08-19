@@ -47,9 +47,15 @@ abstract class BaseCrudController extends BaseRestController
 	{
 		$permissions = $this->permissions();
 
-		$permissions = $permissions[$this->action->id] ?? null;
+		if (array_key_exists($this->action->id, $permissions) == false)
+			return;
 
-		if (empty($permissions))
+		$permissions = $permissions[$this->action->id];
+
+		if ($permissions === false)
+			throw new ForbiddenHttpException('access denied');
+
+		if ($permissions === true)
 			return;
 
 		$behaviors = $this->behaviors();
@@ -57,7 +63,8 @@ abstract class BaseCrudController extends BaseRestController
 		if ((empty($behaviors[static::BEHAVIOR_AUTHENTICATOR]['except']) == false)
 			&& (in_array($this->action->id, $behaviors[static::BEHAVIOR_AUTHENTICATOR]['except']))
 		) {
-			throw new ServerErrorHttpException("action ({$this->action->id}) is set as except for jwt checking, but exists in controller's permission checking");
+			return;
+			// throw new ServerErrorHttpException("action ({$this->action->id}) is set as except for jwt checking, but exists in controller's permission checking");
 		}
 
 		$filter = ArrayHelper::remove($permissions, 'filter', null);
@@ -109,7 +116,7 @@ abstract class BaseCrudController extends BaseRestController
 
 		$query = $modelClass::find()
 			->i18nTranslate($i18ntranslate)
-			->asArray();
+		;
 
 		if (empty($query->select))
 			$query->select($modelClass::selectableColumns());
@@ -132,7 +139,7 @@ abstract class BaseCrudController extends BaseRestController
 
 		$query = $modelClass::find()
 			->i18nTranslate($i18ntranslate)
-			->asArray();
+		;
 
 		if (empty($query->select))
 			$query->select($modelClass::selectableColumns());
@@ -142,16 +149,7 @@ abstract class BaseCrudController extends BaseRestController
 
 		$this->augmentQuery($query);
 
-		$model = $query->one();
-
-		$this->checkPermission($model);
-
-		if ($model !== null)
-			return $model;
-
-		throw new NotFoundHttpException('The requested item does not exist.');
-
-		// return RESTfulHelper::modelToResponse($this->findModel($id));
+		return $this->queryOneToResponse($query, function($model) { $this->checkPermission($model); } );
 	}
 
 	public function actionCreate()
