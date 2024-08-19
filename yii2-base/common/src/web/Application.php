@@ -17,4 +17,13 @@ class Application extends \yii\web\Application
 	public $isBackend = false;
 	public $isJustForMe = true;
 
+	public function init()
+	{
+		parent::init();
+
+		//trigger db
+		if ($this->has('db'))
+			$this->db->open();
+	}
+
 }

@@ -312,12 +312,16 @@ class AuthHelper
 
 		try {
 			$sessionModel = SessionModel::find()
-				->noCache()
+				->addSelect(new DbExpression('NOW() > ssnSessionExpireAt AS sessionExpired'))
 				->andWhere(['ssnID' => $sessionID])
+				->noCache()
 				->one();
 
 			if ($sessionModel == null)
 				throw new NotFoundHttpException("The session not found");
+
+			if ($sessionModel->sessionExpired)
+				throw new NotFoundHttpException("the Session expired");
 
 			if (YII_DEBUG && empty($sessionModel->ssnRefreshedAt) == false) {
 				$dtRefreshedAt = new \DateTimeImmutable($sessionModel->ssnRefreshedAt, new \DateTimeZone('UTC'));
@@ -369,11 +373,12 @@ class AuthHelper
 			$settings = Yii::$app->params['settings'];
 			$tokenExpireTTL = ArrayHelper::getValue($settings['AAA']['jwt'], 'token-ttl', 5 * 60);
 			$tokenExpire = Yii::$app->db->utcNow->modify("+{$tokenExpireTTL} second");
-
 			$ssnSessionExpireAt = new \DateTimeImmutable($sessionModel->ssnSessionExpireAt, new \DateTimeZone('UTC'));
 
 			if ($tokenExpire > $ssnSessionExpireAt)
 				$tokenExpire = $ssnSessionExpireAt;
+
+			// $tokenExpire = new DbExpression("LEAST(ssnSessionExpireAt, DATE_ADD(NOW(), INTERVAL {$tokenExpireTTL} SECOND))");
 
 			//regenerate jwt
 			$tokenBuilder = Yii::$app->jwt->getBuilder();

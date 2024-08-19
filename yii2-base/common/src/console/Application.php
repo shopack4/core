@@ -17,6 +17,17 @@ class Application extends \yii\console\Application
 	public $isBackend = false;
 	public $isJustForMe = true;
 
+	public function init()
+	{
+		parent::init();
+
+		//trigger db
+		if ($this->has('db')) {
+			$this->db->open();
+			echo "DB Datetime: " . $this->db->utcNow->format('Y-m-d H:i:s P');
+		}
+	}
+
 	public function coreCommands()
 	{
 		$commands = parent::coreCommands();

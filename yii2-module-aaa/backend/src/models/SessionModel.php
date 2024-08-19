@@ -11,6 +11,8 @@ class SessionModel extends AAAActiveRecord
 {
   use \shopack\aaa\common\models\SessionModelTrait;
 
+  public $sessionExpired;
+
 	public static function tableName()
 	{
 		return '{{%AAA_Session}}';

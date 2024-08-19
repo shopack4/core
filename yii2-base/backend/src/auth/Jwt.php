@@ -94,18 +94,14 @@ class Jwt extends BaseJwt
 			$sessionExp = number_format((float)$sessionExp, 6, '.', '');
 			$sessionExp = \DateTimeImmutable::createFromFormat('U.u', $sessionExp);
 		}
-
-		return (Yii::$app->db->utcNow < $sessionExp);
+		return (Yii::$app->db->utcNow <= $sessionExp);
 	}
 	public function assertSessionExpiration($jwt)
 	{
 		if ($this->verifySessionExpiration($jwt) === false)
-			throw new UnauthorizedHttpException('the Session expired');
+			throw new UnauthorizedHttpException('the session expired');
 	}
 
-	/**
-	 * $validate : int (0=none, 1:sanity, 2:full)
-	 */
 	public function parse(string $jwt, $validate = self::VALIDATE_FULL): Token
 	{
 		$token = parent::parse($jwt);

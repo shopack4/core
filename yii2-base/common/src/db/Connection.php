@@ -14,7 +14,6 @@ class Connection extends \yii\db\Connection
 	public function init()
 	{
 		parent::init();
-
     $this->on(static::EVENT_AFTER_OPEN, [$this, 'slotAfterOpen']);
 	}
 

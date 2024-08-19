@@ -67,6 +67,7 @@ class Module
 					'controller' => [$this->id . '/session'],
 					'pluralize' => false,
 					'tokens' => [
+						'{id}' => '<id:{_id}>',
 						'{key}' => '<key:{_uuid}>',
 					],
 					'patterns' => [
@@ -212,6 +213,7 @@ class Module
 					'controller' => [$this->id . '/basket'],
 					'pluralize' => false,
 					'tokens' => [
+						'{id}' => '<id:{_id}>',
 						'{key}' => '<key:{_uuid}>',
 					],
 					'patterns' => [
