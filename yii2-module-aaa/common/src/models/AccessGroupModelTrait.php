@@ -57,6 +57,9 @@ trait AccessGroupModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+        enuColumnInfo::filter     => function($model, $fieldName, $isInRelation) {
+          return $isInRelation;
+        },
       ],
     ],
 		ModelColumnHelper::I18NData($this, 'agpI18NData', ['agpName']),

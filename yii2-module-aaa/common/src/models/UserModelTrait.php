@@ -78,7 +78,7 @@ trait UserModelTrait
 
   public function columnsInfo()
   {
-    $fnFilterByOwner = function($model, $fieldName) {
+    $fnFilterByOwner = function($model, $fieldName, $isInRelation) {
       return (Yii::$app->user->isGuest
         || (($model->usrID != Yii::$app->user->id)
           && (PrivHelper::hasPriv('aaa/user/crud', '0100') == false)
@@ -223,7 +223,10 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::filter     => function($model, $fieldName, $isInRelation)
+        use (&$fnFilterByOwner) {
+          return ($isInRelation || $fnFilterByOwner($model, $fieldName, $isInRelation));
+        },
       ],
       // 'hasPassword' => [
       //   enuColumnInfo::type       => 'boolean',
