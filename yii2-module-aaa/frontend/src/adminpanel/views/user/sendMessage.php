@@ -5,7 +5,7 @@
 
 use shopack\base\frontend\common\helpers\Html;
 
-$this->title = Yii::t('mha', 'Send Message To User');
+$this->title = Yii::t('aaa', 'Send Message To User');
 $this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
 $this->params['breadcrumbs'][] = ['label' => Yii::t('aaa', 'Users'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = ['label' => Yii::t('aaa', 'User') . ' ' . $model->usrID, 'url' => ['view', 'id' => $model->usrID]];

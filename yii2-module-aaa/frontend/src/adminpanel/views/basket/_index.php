@@ -34,26 +34,6 @@ use shopack\base\frontend\common\widgets\grid\GridView;
         // this bahaviour moved to gridview::run for covering initialize error
         // return ($selected_adngrpID == $model->adngrpID ? GridView::ROW_EXPANDED : GridView::ROW_COLLAPSED);
       },
-      /*[
-        {
-          "key": "e219ad40-61c0-4e10-b264-9dd31d5ffe8a",
-          "qty": 2,
-          "desc": "عضویت خانه موسیقی از 1400/10/28 تا1402/10/27 به مدت 2 سال",
-          "error": "Page not found.",
-          "slbid": 1,
-          "maxqty": 2,
-          "slbkey": "mbrshp",
-          "status": "E",
-          "userid": 52,
-          "qtystep": 0,
-          "service": "mha",
-          "slbinfo": {
-            "endDate": "2024-01-17",
-            "startDate": "2022-01-18"
-          },
-          "unitprice": 150000
-        }
-      ]*/
       'detail' => function ($model) {
         $vchItems = $model->vchItems;
         if (empty($vchItems))

@@ -28,7 +28,7 @@ class UserSendMessageForm extends Model
   public function attributeLabels()
 	{
 		return [
-			'userID'  => Yii::t('mha', 'User'),
+			'userID'  => Yii::t('aaa', 'User'),
 			'message'   => Yii::t('aaa', 'Message'),
 		];
 	}

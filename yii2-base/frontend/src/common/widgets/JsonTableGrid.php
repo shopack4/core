@@ -377,23 +377,6 @@ JS;
 		$extraParamsSchema,
 		?Closure $fnGetValue = null
 	) {
-		/*
-			$extraParamsData:
-				{
-					"3": "2024/7/30",
-					"4": "26"
-				}
-
-			$extraParamsSchema:
-				{
-					"rows": [
-						{"id": "3", "name": "تاریخ صدور", "type": "date"},
-						{"id": "4", "name": "کانون مربوطه", "type": "mha:kanoon", "mandatory": "1"}
-					],
-					"lastid": 4
-				}
-		*/
-
 		if (empty($extraParamsData) || empty($extraParamsSchema))
 			return '';
 
