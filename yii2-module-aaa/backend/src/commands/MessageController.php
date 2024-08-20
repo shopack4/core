@@ -9,12 +9,6 @@ use Yii;
 use yii\console\Controller;
 use yii\console\ExitCode;
 
-/*
-cd /home2/iranhmus/domains/api.iranhmusic.ir/public_html; /usr/local/php-8.1/bin/php yii aaa/message/process-queue 2>&1 >>logs/aaa_message_process-queue.log
-
-cd /home2/iranhmus/domains/api.iranhmusic.ir/public_html; /usr/local/php-8.1/bin/php yii aaa/message/send-birthday-greetings 2>&1 >>logs/aaa_message_send-birthday-greetings.log
-*/
-
 class MessageController extends Controller
 {
   public function log($message, $type='INFO')
@@ -35,10 +29,6 @@ class MessageController extends Controller
 
   public function actionTestSendEmail()
   {
-    /*
-    cd /home2/iranhmus/domains/api.iranhmusic.ir/public_html; /usr/local/php-8.1/bin/php yii aaa/message/test-send-email 2>&1 >>logs/aaa_test-send-email.log
-    */
-
     if (!YII_DEBUG) {
       $this->log("NOT IN DEBUG MODE");
       return;

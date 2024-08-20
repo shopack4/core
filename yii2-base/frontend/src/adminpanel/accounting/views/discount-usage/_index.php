@@ -30,19 +30,6 @@ use shopack\base\frontend\common\widgets\grid\GridView;
         'dscusgID',
       ];
 
-      // if (empty($dscusgDiscountID)) {
-      //   $columns = array_merge($columns, [
-      //     [
-      //       'class' => \iranhmusic\shopack\aaa\frontend\common\widgets\grid\MemberDataColumn::class,
-      //       'attribute' => 'dscusgDiscountID',
-      //       'format' => 'raw',
-      //       'value' => function ($model, $key, $index, $widget) {
-      //         return Html::a($model->member->displayName(), ['/aaa/member/view', 'id' => $model->dscusgDiscountID]); //, ['class' => ['btn', 'btn-sm', 'btn-outline-secondary']]);
-      //       },
-      //     ],
-      //   ]);
-      // }
-
       $columns = array_merge($columns, [
         'dscusgDiscountID',
         'dscusgDiscountSerialID',
