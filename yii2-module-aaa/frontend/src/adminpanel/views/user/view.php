@@ -155,7 +155,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     [
                       'attribute' => 'usrRoleID',
                       'label' => 'جایگاه دسترسی',
-                      'value' => $model->role->rolName,
+                      'value' => $model->role->rolName ?? null,
                     ],
                     [
                       'attribute' => 'usrPrivs',

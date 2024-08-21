@@ -78,12 +78,12 @@ class UserController extends BaseRestController
 
 		$query = UserModel::find(true)
 			// ->select(UserModel::selectableColumns())
+			->joinWith('role')
 			->joinWith('country')
 			->joinWith('state')
 			->joinWith('cityOrVillage')
 			->joinWith('town')
 			->joinWith('birthCityOrVillage')
-			->joinWith('role')
 			->joinWith('imageFile')
 			->with('createdByUser')
 			->with('updatedByUser')

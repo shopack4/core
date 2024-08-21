@@ -106,7 +106,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'attribute' => 'rolName',
             'label' => 'جایگاه دسترسی',
             'value' => function($model) {
-              return $model->role->rolName;
+              return $model->role->rolName ?? null;
             },
           ],
           [
