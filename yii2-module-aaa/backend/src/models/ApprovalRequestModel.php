@@ -166,7 +166,6 @@ SQL;
     //-----------------------------------
     $models = ApprovalRequestModel::find()
       ->addSelect([
-        '*',
         'aprExpireAt <= NOW() AS IsExpired',
         'TIME_TO_SEC(TIMEDIFF(NOW(), COALESCE(aprSentAt, aprLastRequestAt))) AS ElapsedSeconds',
       ])
@@ -365,7 +364,6 @@ SQL;
     //------------------------------
     $models = ApprovalRequestModel::find()
       ->addSelect([
-        '*',
         'aprExpireAt <= NOW() AS IsExpired',
         'TIME_TO_SEC(TIMEDIFF(NOW(), COALESCE(aprSentAt, aprLastRequestAt))) AS ElapsedSeconds',
       ])
@@ -427,7 +425,6 @@ SQL;
     //------------------------------
     $models = ApprovalRequestModel::find()
       ->addSelect([
-        '*',
         'aprExpireAt <= NOW() AS IsExpired',
       ])
       ->joinWith('user', "INNER JOIN")

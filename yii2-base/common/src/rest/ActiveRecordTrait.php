@@ -404,45 +404,4 @@ trait ActiveRecordTrait
 		}
 	}
 
-	public function exposeAttributes($isInRelation = false)
-	{
-		$result = [];
-
-		//columns
-		$columnsInfo = $this->getColumnsInfo();
-		foreach ($columnsInfo as $column => $columnInfo) {
-			if ($this->hasAttribute($column) == false)
-				continue;
-
-			$value = $this->$column;
-
-			if ($value === null)
-				continue;
-
-			if (array_key_exists(enuColumnInfo::filter, $columnInfo)) {
-				$filter = $columnInfo[enuColumnInfo::filter];
-
-				if ($filter instanceof Closure || is_array($filter) && is_callable($filter))
-					$filter = call_user_func($filter, $this, $column, $isInRelation);
-
-				if ($filter)
-					continue;
-			}
-
-			//store as array
-			$result[$column] = $value;
-		}
-
-		//relations
-		$relations = $this->getRelatedRecords();
-		if (empty($relations) == false) {
-			foreach ($relations as $k => $v) {
-				if ($v !== null)
-					$result[$k] = (empty($v) ? $v : $v->exposeAttributes(true));
-			}
-		}
-
-		return $result;
-	}
-
 }

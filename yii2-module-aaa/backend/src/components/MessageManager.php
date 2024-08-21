@@ -55,7 +55,8 @@ class MessageManager extends Component
         ->one();
 
       if ($this->defaultSmsGatewayModel == null)
-        throw new NotFoundHttpException('sms gateway not found');
+        return null;
+        // throw new NotFoundHttpException('sms gateway not found');
 		}
 
 		return $this->defaultSmsGatewayModel;
@@ -289,23 +290,35 @@ SQL;
             if (empty($messageID))
               $this->log("  Send Sms to " . $messageModel->msgTarget . ": ");
 
-            $refID = $this->sendSmsForItem(
-              $messageModel,
-              $title,
-              $body,
-              $messageModel->msgTypeKey,
-              $messageModel->msgInfo
-            );
+            if ($defaultSmsGateway === null) {
+              $this->log("  ERROR: sms gateway not defined.");
 
-            if (empty($messageID))
-              $this->log("    OK. ref: " . $refID);
+              ++$errorCount;
 
-            $msgResult[$key] = [
-              'status'  => enuMessageResultStatus::Sent,
-              'ref-id'  => $refID,
-              'sent-at' => $now,
-              'gtwid'   => $defaultSmsGateway->gtwID,
-            ];
+              $msgResult[$key] = [
+                'status' => enuMessageResultStatus::Error,
+                'message' => 'sms gateway not defined.',
+              ];
+
+            } else {
+              $refID = $this->sendSmsForItem(
+                $messageModel,
+                $title,
+                $body,
+                $messageModel->msgTypeKey,
+                $messageModel->msgInfo
+              );
+
+              if (empty($messageID))
+                $this->log("    OK. ref: " . $refID);
+
+              $msgResult[$key] = [
+                'status'  => enuMessageResultStatus::Sent,
+                'ref-id'  => $refID,
+                'sent-at' => $now,
+                'gtwid'   => $defaultSmsGateway->gtwID,
+              ];
+            }
           }
         } catch(\Throwable $exp) {
           if (empty($messageID))

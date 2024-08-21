@@ -49,8 +49,8 @@ SQL
       'altParamsPrefix',
       'altParamsSuffix',
     ], [
-			[ 'emailApproval',          'E', 'fa', 'email Approval',           "code:{{code}}\nlink:{{link}}", '{{', '}}' ],
-			[ 'emailApprovalForLogin',  'E', 'fa', 'email Approval For Login', "code:{{code}}\nlink:{{link}}", '{{', '}}' ],
+			[ 'emailApproval',          'E', 'fa', 'email Approval',           "<a href='{{panel-address}}/aaa/auth/accept-approval?input={{email}}&code={{code}}'>تایید</a>", '{{', '}}' ],
+			[ 'emailApprovalForLogin',  'E', 'fa', 'email Approval For Login', "<a href='{{panel-address}}/aaa/auth/accept-approval?input={{email}}&code={{code}}'>تایید</a>", '{{', '}}' ],
 			[ 'emailApproved',          'E', 'fa', 'email Approved',           "ایمیل شما تایید شد",          '{{', '}}' ],
 			[ 'mobileApproval',         'S', 'fa', NULL,                       "code:{{code}}",                '{{', '}}' ],
 			[ 'mobileApprovalForLogin', 'S', 'fa', NULL,                       "code:{{code}}",                '{{', '}}' ],
@@ -67,7 +67,7 @@ SQL
       'altParamsPrefix',
       'altParamsSuffix',
     ], [
-			[ 'forgotPassByEmail',   'E', 'fa', 'forgot Pass By Email',  "code:{{code}}\nemail:{{email}}",   '{{', '}}' ],
+			[ 'forgotPassByEmail',   'E', 'fa', 'forgot Pass By Email',  "<a href='{{panel-address}}/aaa/auth/password-reset-by-forgot-code?input={{email}}&code={{code}}'>تغییر رمز ورود</a>",   '{{', '}}' ],
 			[ 'passChangedByEmail',  'E', 'fa', 'pass Changed By Email', "رمز شما تغییر کرد",               '{{', '}}' ],
 			[ 'forgotPassByMobile',  'S', 'fa', NULL,                    "code:{{code}}\nmobile:{{mobile}}", '{{', '}}' ],
 			[ 'passChangedByMobile', 'S', 'fa', NULL,                    "رمز شما تغییر کرد",               '{{', '}}' ],

@@ -16,8 +16,8 @@ class enuColumnInfo //extends BaseEnum
 	const selectable	= 'selectable';
 	const filter			= 'filter';				//remove column from result in backend
 	const virtual			= 'virtual';
+	const adhoc				= 'adhoc';				//just used for export column to client
 	const search			= 'search';
 	const isStatus		= 'isStatus';
 	const jsonSchema	= 'jsonSchema';
-
 };

@@ -5,11 +5,13 @@
 
 namespace shopack\base\backend\rest;
 
+use Closure;
 use Yii;
 use shopack\base\common\helpers\Json;
 use shopack\base\backend\rest\RestServerQuery;
 use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\db\DbExpression;
+use shopack\base\common\rest\enuColumnInfo;
 
 abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 	implements \shopack\base\common\rest\ActiveRecordInterface
@@ -112,6 +114,56 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 		}
 
 		unset ($queryParams[$this->orderByKey]);
+	}
+
+	//just used for export to client
+	public function adhocColumnsInfo()
+	{
+		return [];
+	}
+
+	public function exposeAttributes($isInRelation = false)
+	{
+		$result = [];
+
+		//columns
+		$columnsInfo = $this->getColumnsInfo();
+		$adhocs = $this->adhocColumnsInfo();
+		$columnsInfo = array_merge($columnsInfo, $adhocs);
+
+		foreach ($columnsInfo as $column => $columnInfo) {
+			// if ($this->hasAttribute($column) == false)
+			// 	continue;
+
+			$value = $this->$column;
+
+			if ($value === null)
+				continue;
+
+			if (array_key_exists(enuColumnInfo::filter, $columnInfo)) {
+				$filter = $columnInfo[enuColumnInfo::filter];
+
+				if ($filter instanceof Closure || is_array($filter) && is_callable($filter))
+					$filter = call_user_func($filter, $this, $column, $isInRelation);
+
+				if ($filter)
+					continue;
+			}
+
+			//store as array
+			$result[$column] = $value;
+		}
+
+		//relations
+		$relations = $this->getRelatedRecords();
+		if (empty($relations) == false) {
+			foreach ($relations as $k => $v) {
+				if ($v !== null)
+					$result[$k] = (empty($v) ? $v : $v->exposeAttributes(true));
+			}
+		}
+
+		return $result;
 	}
 
 }

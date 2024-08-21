@@ -5,13 +5,20 @@
 
 namespace shopack\base\common\rest;
 
+use Yii;
 use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
-use Yii;
 
 class ModelColumnHelper
 {
+	public static function adhoc()
+	{
+		return [
+			enuColumnInfo::adhoc => true,
+		];
+	}
+
 	public static function UUID()
 	{
 		return [

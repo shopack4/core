@@ -138,7 +138,6 @@ SQL;
     //-----------------------------------
     $models = ForgotPasswordRequestModel::find()
       ->addSelect([
-        '*',
         'TIME_TO_SEC(TIMEDIFF(NOW(), COALESCE(fprSentAt, fprLastRequestAt))) AS ElapsedSeconds',
         'fprExpireAt <= NOW() AS IsExpired'
       ])
@@ -323,7 +322,6 @@ SQL;
     //------------------------------
     $models = ForgotPasswordRequestModel::find()
       ->addSelect([
-        '*',
         'fprExpireAt <= NOW() AS IsExpired',
         'TIME_TO_SEC(TIMEDIFF(NOW(), COALESCE(fprSentAt, fprLastRequestAt))) AS ElapsedSeconds',
       ])
@@ -382,7 +380,6 @@ SQL;
     //------------------------------
     $models = ForgotPasswordRequestModel::find()
       ->addSelect([
-        '*',
         'fprExpireAt <= NOW() AS IsExpired'
       ])
       ->joinWith('user', "INNER JOIN")

@@ -70,6 +70,14 @@ trait UserModelTrait
   public $usrPassword;
   public $hasPassword = false;
 
+  //just used for export to client
+  public function adhocColumnsInfo()
+  {
+    return [
+      'hasPassword' => ModelColumnHelper::adhoc(),
+    ];
+  }
+
   public static $primaryKey = ['usrID'];
 
 	public function primaryKeyValue() {
