@@ -9,7 +9,6 @@ use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\ActiveForm;
 use shopack\base\frontend\common\widgets\FormBuilder;
-
 ?>
 
 <div class='reject-form'>

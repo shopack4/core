@@ -470,6 +470,8 @@ return [
 	'Run' => 'اجرا',
 	// 'Message Center' => 'مرکز پیام',
 	'Get File' => 'دریافت فایل',
+	'File Not Set' => 'فایل تعیین نشده',
+	'Uploading...' => 'در حال آپلود...',
 
 	'Sms' => 'پیامک',
 	'Create Sms' => 'ایجاد پیامک',

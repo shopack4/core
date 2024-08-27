@@ -14,7 +14,6 @@ use shopack\aaa\common\enums\enuOfflinePaymentType;
 use shopack\aaa\frontend\common\models\BasicDefinitionModel;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 use shopack\base\common\helpers\ArrayHelper;
-
 ?>
 
 <?php
@@ -75,7 +74,13 @@ use shopack\base\common\helpers\ArrayHelper;
         return Html::asTable($rows);
       },
     ],
-    'ofpID',
+    [
+      'attribute' => 'ofpID',
+      'format' => 'raw',
+      'value' => function ($model, $key, $index, $widget) {
+        return Html::a($model->ofpID, ['view', 'id' => $model->ofpID]);
+      },
+    ],
     [
       'attribute' => 'ofpImageFileID',
       // 'label' => '',

@@ -25,7 +25,7 @@ use shopack\base\common\validators\JsonValidator;
 'ofpDestISBN',
 'ofpDestBankID',
 'ofpDestName',
-'ofpDueDate,
+'ofpDueDate',
 'ofpTrackNumber',
 'ofpReferenceNumber',
 'ofpAmount',

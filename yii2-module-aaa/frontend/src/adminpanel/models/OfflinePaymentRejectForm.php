@@ -29,7 +29,7 @@ class OfflinePaymentRejectForm extends Model
   public function attributeLabels()
 	{
 		return [
-      'ofpRejectReasonIDs' => Yii::t('app', 'Reasons'),
+      'ofpRejectReasonIDs' => Yii::t('app', 'Reject Reasons'),
       'ofpComment' => Yii::t('aaa', 'Comment'),
 		];
 	}

@@ -264,13 +264,16 @@ class Html extends \yii\bootstrap5\Html
 		return self::ul(explode($delimiter, $value), $ulOptions);
 	}
 
-	public static function asUploadedImage($imageFileModel, $width = '50px')
+	public static function asUploadedImage($imageFileModel, $width = null, $longMessage = false)
 	{
+		if ($width == null)
+			$width = '50px';
+
 		if (empty($imageFileModel))
-			return '';
+			return ($longMessage ? Yii::t('aaa', 'File Not Set') : '');
 
 		if (empty($imageFileModel->fullFileUrl))
-			return Yii::t('aaa', '...');
+			return ($longMessage ? Yii::t('aaa', 'Uploading...') : Yii::t('aaa', '...'));
 
 		if ($imageFileModel->isImage())
 			return Html::img($imageFileModel->fullFileUrl, ['style' => ['width' => $width]]);
