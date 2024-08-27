@@ -34,12 +34,7 @@ use shopack\aaa\frontend\common\models\UploadFileModel;
       // 'label' => '',
       'format' => 'raw',
       'value' => function ($model, $key, $index, $widget) {
-        if (empty($model->fullFileUrl))
-          return Yii::t('aaa', '...');
-        elseif ($model->isImage())
-          return Html::img($model->fullFileUrl, ['style' => ['width' => '50px']]);
-        else
-          return Html::a(Yii::t('app', 'Download'), $model->fullFileUrl);
+        return Html::asUploadedImage($model, '50x', false);
       },
     ],
   ];

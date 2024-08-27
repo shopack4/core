@@ -273,9 +273,13 @@ class Html extends \yii\bootstrap5\Html
 			return ($longMessage ? Yii::t('aaa', 'File Not Set') : '');
 
 		if (empty($imageFileModel->fullFileUrl))
-			return ($longMessage ? Yii::t('aaa', 'Uploading...') : Yii::t('aaa', '...'));
+			return ($longMessage ? Yii::t('aaa', 'Uploading...') : Html::tag('span', '...', [
+				'title' => Yii::t('aaa', 'Uploading...'),
+			]));
 
 		if ($imageFileModel->isImage()) {
+
+			//todo: make ability for show large image in mouse hover
 			return Html::a(Html::img($imageFileModel->fullFileUrl, ['style' => ['width' => $width]]),
 			$imageFileModel->fullFileUrl, [
 				'target' => 'blank',

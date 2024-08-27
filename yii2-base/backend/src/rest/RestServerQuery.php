@@ -60,10 +60,8 @@ class RestServerQuery extends \yii\db\ActiveQuery
     $lngParts = implode(',', $lngParts);
 
     //--------------------------------------
-    foreach ($modelClass::$i18nDataFields as $dataField => $fields)
-    {
-      foreach ($fields as $field)
-      {
+    foreach ($modelClass::$i18nDataFields as $dataField => $fields) {
+      foreach ($fields as $field) {
         if (isset($this->select["{$field}"]))
           unset($this->select["{$field}"]);
 
@@ -94,6 +92,10 @@ class RestServerQuery extends \yii\db\ActiveQuery
 
     $statusColumnName = $model->getStatusColumnName();
 		if ($statusColumnName) {
+
+      // https://github.com/yiisoft/yii2/pull/13607
+      // $this->hintIndex(['forceIndex', 'PRIMARY', $statusColumnName]);
+
       $pkCount = 0;
       $pkFound = 0;
       $statusFound = false;

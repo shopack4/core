@@ -35,14 +35,7 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
         // 'label' => '',
         'format' => 'raw',
         'value' => function ($model, $key, $index, $widget) {
-          if ($model->ofpImageFileID == null)
-            return '';
-          elseif (empty($model->imageFile->fullFileUrl))
-            return Yii::t('aaa', '...');
-          elseif ($model->imageFile->isImage())
-            return Html::img($model->imageFile->fullFileUrl, ['style' => ['width' => '50px']]);
-          else
-            return Html::a(Yii::t('app', 'Download'), $model->imageFile->fullFileUrl);
+          return Html::asUploadedImage($model->imageFile, '50x', false);
         },
       ],
       'ofpID',
