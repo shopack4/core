@@ -275,8 +275,12 @@ class Html extends \yii\bootstrap5\Html
 		if (empty($imageFileModel->fullFileUrl))
 			return ($longMessage ? Yii::t('aaa', 'Uploading...') : Yii::t('aaa', '...'));
 
-		if ($imageFileModel->isImage())
-			return Html::img($imageFileModel->fullFileUrl, ['style' => ['width' => $width]]);
+		if ($imageFileModel->isImage()) {
+			return Html::a(Html::img($imageFileModel->fullFileUrl, ['style' => ['width' => $width]]),
+			$imageFileModel->fullFileUrl, [
+				'target' => 'blank',
+			]);
+		}
 
 		return Html::a(Yii::t('app', 'Download'), $imageFileModel->fullFileUrl);
 	}

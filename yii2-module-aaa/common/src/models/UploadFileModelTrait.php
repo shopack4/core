@@ -37,6 +37,14 @@ trait UploadFileModelTrait
 {
   public $fullFileUrl;
 
+  //just used for export to client
+  public function adhocColumnsInfo()
+  {
+    return [
+      'fullFileUrl' => ModelColumnHelper::adhoc(),
+    ];
+  }
+
   public static $primaryKey = ['uflID'];
 
 	public function primaryKeyValue() {
