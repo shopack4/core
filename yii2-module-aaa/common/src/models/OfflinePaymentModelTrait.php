@@ -11,7 +11,7 @@ use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\rest\enuColumnSearchType;
 use shopack\aaa\common\enums\enuOfflinePaymentStatus;
 use shopack\aaa\common\enums\enuOfflinePaymentType;
-use shopack\base\common\validators\GroupRequiredValidator;
+// use shopack\base\common\validators\GroupRequiredValidator;
 use shopack\base\common\validators\JsonValidator;
 
 /*
@@ -92,7 +92,14 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::type       => ['string', 'max' => 64],
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
-				enuColumnInfo::required   => false,
+				enuColumnInfo::required   => [
+          'when' => function ($model) {
+            return ($model->ofpType == enuOfflinePaymentType::ToCart);
+          },
+					'conditions' => [
+						'ofpType:checked' => enuOfflinePaymentType::ToCart,
+					],
+				],
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
 			],
@@ -100,7 +107,14 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::type       => ['string', 'max' => 64],
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
-				enuColumnInfo::required   => false,
+				enuColumnInfo::required   => [
+          'when' => function ($model) {
+            return ($model->ofpType == enuOfflinePaymentType::ToAccountNumber);
+          },
+					'conditions' => [
+						'ofpType:checked' => enuOfflinePaymentType::ToAccountNumber,
+					],
+				],
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
 			],
@@ -108,7 +122,14 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::type       => ['string', 'max' => 64],
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
-				enuColumnInfo::required   => false,
+				enuColumnInfo::required   => [
+          'when' => function ($model) {
+            return ($model->ofpType == enuOfflinePaymentType::ToISBN);
+          },
+					'conditions' => [
+						'ofpType:checked' => enuOfflinePaymentType::ToISBN,
+					],
+				],
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
 			],
@@ -116,7 +137,24 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::type       => 'integer',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
-				enuColumnInfo::required   => false,
+				enuColumnInfo::required   => [
+          'when' => function ($model) {
+            return (in_array($model->ofpType, [
+							enuOfflinePaymentType::Pos,
+							enuOfflinePaymentType::ToCart,
+							enuOfflinePaymentType::ToAccountNumber,
+							enuOfflinePaymentType::ToISBN,
+						]));
+          },
+					'conditions' => [
+						'ofpType:checked' => [
+							enuOfflinePaymentType::Pos,
+							enuOfflinePaymentType::ToCart,
+							enuOfflinePaymentType::ToAccountNumber,
+							enuOfflinePaymentType::ToISBN,
+						],
+					],
+				],
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
@@ -124,7 +162,24 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::type       => ['string', 'max' => 64],
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
-				enuColumnInfo::required   => false,
+				enuColumnInfo::required   => [
+          'when' => function ($model) {
+            return (in_array($model->ofpType, [
+							enuOfflinePaymentType::Cash,
+							enuOfflinePaymentType::ToAccountNumber,
+							enuOfflinePaymentType::ToISBN,
+							enuOfflinePaymentType::Cheque,
+						]));
+          },
+					'conditions' => [
+						'ofpType:checked' => [
+							enuOfflinePaymentType::Cash,
+							enuOfflinePaymentType::ToAccountNumber,
+							enuOfflinePaymentType::ToISBN,
+							enuOfflinePaymentType::Cheque,
+						],
+					],
+				],
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
 			],
@@ -132,20 +187,14 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::type       => 'safe',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
-
 				enuColumnInfo::required   => [
           'when' => function ($model) {
             return ($model->ofpType == enuOfflinePaymentType::Cheque);
           },
-					//used for creating whenClient
 					'conditions' => [
 						'ofpType:checked' => enuOfflinePaymentType::Cheque,
 					],
-          // 'whenClient' => "function (attribute, value) {
-					// 	return ($('#{$fnGetFieldId('ofpType')}').val() == '{$fnGetConst(enuOfflinePaymentType::Cheque)}');
-					// }",
 				],
-
 				enuColumnInfo::selectable => true,
         // enuColumnInfo::search     => enuColumnSearchType::like,
 			],
@@ -153,7 +202,24 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::type       => ['string', 'max' => 64],
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
-				enuColumnInfo::required   => false,
+				enuColumnInfo::required   => [
+          'when' => function ($model) {
+            return (in_array($model->ofpType, [
+							enuOfflinePaymentType::Pos,
+							enuOfflinePaymentType::ToCart,
+							enuOfflinePaymentType::ToAccountNumber,
+							enuOfflinePaymentType::ToISBN,
+						]));
+          },
+					'conditions' => [
+						'ofpType:checked' => [
+							enuOfflinePaymentType::Pos,
+							enuOfflinePaymentType::ToCart,
+							enuOfflinePaymentType::ToAccountNumber,
+							enuOfflinePaymentType::ToISBN,
+						],
+					],
+				],
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
 			],
@@ -161,7 +227,24 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::type       => ['string', 'max' => 64],
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
-				enuColumnInfo::required   => false,
+				enuColumnInfo::required   => [
+          'when' => function ($model) {
+            return (in_array($model->ofpType, [
+							enuOfflinePaymentType::Pos,
+							enuOfflinePaymentType::ToCart,
+							enuOfflinePaymentType::ToAccountNumber,
+							enuOfflinePaymentType::ToISBN,
+						]));
+          },
+					'conditions' => [
+						'ofpType:checked' => [
+							enuOfflinePaymentType::Pos,
+							enuOfflinePaymentType::ToCart,
+							enuOfflinePaymentType::ToAccountNumber,
+							enuOfflinePaymentType::ToISBN,
+						],
+					],
+				],
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
 			],
@@ -248,22 +331,22 @@ trait OfflinePaymentModelTrait
 		];
 	}
 
-	public function traitExtraRules()
-  {
-    return [
-      [[
-				'ofpTrackNumber',
-				'ofpReferenceNumber',
-      ], GroupRequiredValidator::class,
-        'min' => 1,
-        'in' => [
-					'ofpTrackNumber',
-					'ofpReferenceNumber',
-				],
-        'message' => Yii::t('aaa', 'one of TrackNumber or ReferenceNumber is required'),
-      ],
-    ];
-  }
+	// public function traitExtraRules()
+  // {
+  //   return [
+  //     [[
+	// 			'ofpTrackNumber',
+	// 			'ofpReferenceNumber',
+  //     ], GroupRequiredValidator::class,
+  //       'min' => 1,
+  //       'in' => [
+	// 				'ofpTrackNumber',
+	// 				'ofpReferenceNumber',
+	// 			],
+  //       'message' => Yii::t('aaa', 'one of TrackNumber or ReferenceNumber is required'),
+  //     ],
+  //   ];
+  // }
 
 	public function getCreatedByUser() {
 		$className = get_called_class();

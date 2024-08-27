@@ -44,8 +44,6 @@ abstract class BaseCrudController extends BaseRestController
 
 	public function checkPermission($model = null, $query = null)
 	{
-		$permissions = $this->permissions();
-
 		$behaviors = $this->behaviors();
 
 		//for bypass permission, must define action with `true` value or in `except` part
@@ -56,11 +54,13 @@ abstract class BaseCrudController extends BaseRestController
 			return;
 		}
 
-		if (array_key_exists($this->action->id, $permissions) == false) {
-			throw new ForbiddenHttpException('access denied');
-		}
+		$permissions = $this->permissions();
 
-		$permission = $permissions[$this->action->id];
+		// if (array_key_exists($this->action->id, $permissions) == false) {
+		// 	throw new ForbiddenHttpException('access denied');
+		// }
+
+		$permission = ($permissions[$this->action->id] ?? false);
 
 		if ($permission === false)
 			throw new ForbiddenHttpException('access denied');

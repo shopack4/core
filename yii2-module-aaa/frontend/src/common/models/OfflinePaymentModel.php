@@ -25,13 +25,9 @@ class OfflinePaymentModel extends RestClientActiveRecord
     if (Yii::$app->id == 'userpanel') {
       $rules = array_merge($rules, [
         [[
-					// 'ofpBankOrCart',
-					'ofpTrackNumber',
-					'ofpReferenceNumber',
-					// 'ofpAmount',
-					// 'ofpPayDate',
+					// 'ofpTrackNumber',
+					// 'ofpReferenceNumber',
 					'ofpPayer',
-					// 'ofpSourceCartNumber',
 					'ofpImageFileID',
         ], 'required']
       ]);

@@ -203,7 +203,15 @@ trait ActiveRecordTrait
 									$key = array_shift($kparts);
 									$state = isset($kparts[0]) ? ' :' . $kparts[0] : '';
 
-									$clauses[] = "(\$('#{$fnGetFieldId($key)}{$state}').val() == {$fnEncloseIfString($vreq)})";
+									if (is_array($vreq)) {
+										$orClauses = [];
+										foreach ($vreq as $vr) {
+											$orClauses[] = "(\$('#{$fnGetFieldId($key)}{$state}').val() == {$fnEncloseIfString($vr)})";
+										}
+										$clauses[] = '(' . implode(' || ', $orClauses) . ')';
+									} else {
+										$clauses[] = "(\$('#{$fnGetFieldId($key)}{$state}').val() == {$fnEncloseIfString($vreq)})";
+									}
 								}
 
 								if (count($clauses) == 1)
