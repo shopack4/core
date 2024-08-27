@@ -108,6 +108,10 @@ trait BaseDiscountModelTrait
           'when' => function ($model) {
             return (($model->dscType == enuDiscountType::Coupon) && $model->dscCodeHasSerial);
           },
+					// 'conditions' => [
+          //   'dscType:checked' => enuDiscountType::Coupon,
+          //   'dscCodeHasSerial' => 1,
+          // ],
         ],
         enuColumnInfo::selectable => true,
       ],

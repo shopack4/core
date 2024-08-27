@@ -6,24 +6,21 @@
 namespace shopack\aaa\backend\controllers;
 
 use Yii;
-use yii\web\ForbiddenHttpException;
-use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
-use shopack\base\backend\controller\BaseRestController;
-use shopack\base\backend\helpers\PrivHelper;
+use shopack\base\backend\controller\BaseCrudController;
 use shopack\aaa\common\enums\enuPaymentGatewayType;
-use shopack\aaa\backend\models\OnlinePaymentModel;
-use shopack\aaa\backend\models\GatewayModel;
 use shopack\aaa\common\enums\enuGatewayStatus;
 use shopack\aaa\common\enums\enuOnlinePaymentStatus;
+use shopack\aaa\backend\models\OnlinePaymentModel;
+use shopack\aaa\backend\models\GatewayModel;
 
-class OnlinePaymentController extends BaseRestController
+class OnlinePaymentController extends BaseCrudController
 {
 	public function behaviors()
 	{
 		$behaviors = parent::behaviors();
 
-		$behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['except'] = [
+		$behaviors[static::BEHAVIOR_AUTHENTICATOR]['except'] = [
 			'callback',
 			'pay',
 			// 'devtestpaymentpage',
@@ -32,143 +29,56 @@ class OnlinePaymentController extends BaseRestController
 		return $behaviors;
 	}
 
-	protected function findModel($id)
+	public $modelClass = OnlinePaymentModel::class;
+
+	public function permissions()
 	{
-		if (($model = OnlinePaymentModel::findOne($id)) !== null)
-			return $model;
-
-		throw new NotFoundHttpException('The requested item does not exist.');
-	}
-
-	public function actionIndex()
-	{
-		$filter = $this->checkPrivAndGetFilter('aaa/online-payment/crud', '0100', 'vchOwnerUserID');
-
-		$searchModel = new OnlinePaymentModel;
-		$query = OnlinePaymentModel::find()
-			// ->select(OnlinePaymentModel::selectableColumns())
-			->joinWith('gateway')
-			->joinWith('voucher')
-			->joinWith('voucher.owner')
-			->joinWith('wallet')
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-		;
-
-		$searchModel->fillQueryFromRequest($query);
-
-		if (empty($filter) == false)
-			$query->andWhere($filter);
-
-		return $this->queryAllToResponse($query);
-	}
-
-	public function actionView($id)
-	{
-		$query = OnlinePaymentModel::find()
-			// ->select(OnlinePaymentModel::selectableColumns())
-			->joinWith('gateway')
-			->joinWith('voucher')
-			->joinWith('voucher.owner')
-			->joinWith('wallet')
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->where(['onpID' => $id])
-		;
-
-		return $this->queryOneToResponse($query, function($model) {
-			if ((PrivHelper::hasPriv('aaa/online-payment/crud', '0100') == false)
-				&& ($model != null)
-				&& (($model['voucher']['vchOwnerUserID'] ?? null) != Yii::$app->user->id)
-			) {
-				throw new ForbiddenHttpException('access denied');
-			}
-		});
-	}
-
-	/*
-	public function actionCreate()
-	{
-		PrivHelper::checkPriv(['aaa/online-payment/crud' => '1000']);
-
-		$model = new OnlinePaymentModel();
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		try {
-			if ($model->save() == false)
-				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-		} catch(\Exception $exp) {
-			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
-			throw new UnprocessableEntityHttpException($msg);
-		}
+		$checkOwner = function($model) : bool {
+			return (($model != null) && ($model['voucher']['vchOwnerUserID'] == Yii::$app->user->id));
+		};
 
 		return [
-			// 'result' => [
-				// 'message' => 'created',
-				'onpID' => $model->onpID,
-				'onpStatus' => $model->onpStatus,
-				'onpCreatedAt' => $model->onpCreatedAt,
-				'onpCreatedBy' => $model->onpCreatedBy,
-			// ],
+			'index'  => [
+										'aaa/online-payment/crud' => '0100',
+										'filter' => function($query) {
+											Yii::$app->user->assertIsNotGuest();
+											$query->andWhere(['vchOwnerUserID' => Yii::$app->user->id]);
+										},
+									],
+			'view'   => ['aaa/online-payment/crud' => '0100', 'checker' => $checkOwner],
+			// 'create' => ['aaa/online-payment/crud' => '1000', 'checker' => $checkOwner],
+			// 'update' => ['aaa/online-payment/crud' => '0010', 'checker' => $checkOwner],
+			// 'delete' => ['aaa/online-payment/crud' => '0001', 'checker' => $checkOwner],
+			// 'undelete' => ['aaa/online-payment/undelete'],
 		];
 	}
 
-	public function actionUpdate($id)
+	public function queryAugmentaters()
 	{
-		if (PrivHelper::hasPriv('aaa/online-payment/crud', '0010') == false) {
-			if (Yii::$app->user->id != $id)
-				throw new ForbiddenHttpException('access denied');
-		}
-
-		$model = $this->findModel($id);
-
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		if ($model->save() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
 		return [
-			// 'result' => [
-				// 'message' => 'updated',
-				'onpID' => $model->onpID,
-				'onpStatus' => $model->onpStatus,
-				'onpUpdatedAt' => $model->onpUpdatedAt,
-				'onpUpdatedBy' => $model->onpUpdatedBy,
-			// ],
+			'index' => function($query) {
+				$query
+					->joinWith('gateway')
+					->joinWith('voucher')
+					->joinWith('voucher.owner')
+					->joinWith('wallet')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+			'view' => function($query) {
+				$query
+					->joinWith('gateway')
+					->joinWith('voucher')
+					->joinWith('voucher.owner')
+					->joinWith('wallet')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
 		];
-	}
-
-	public function actionDelete($id)
-	{
-		if (PrivHelper::hasPriv('aaa/online-payment/crud', '0001') == false) {
-			if (Yii::$app->user->id != $id)
-				throw new ForbiddenHttpException('access denied');
-		}
-
-		$model = $this->findModel($id);
-
-		if ($model->delete() === false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
-		return [
-			// 'result' => [
-				// 'message' => 'deleted',
-				'onpID' => $model->onpID,
-				'onpStatus' => $model->onpStatus,
-				'onpRemovedAt' => $model->onpRemovedAt,
-				'onpRemovedBy' => $model->onpRemovedBy,
-			// ],
-		];
-	}
-	*/
-
-	public function actionOptions()
-	{
-		return 'options';
 	}
 
 	public function actionGetAllowedTypes()

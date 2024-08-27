@@ -10,6 +10,7 @@ use shopack\base\common\helpers\StringHelper;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\grid\GridView;
 use shopack\aaa\common\enums\enuOfflinePaymentStatus;
+use shopack\aaa\common\enums\enuOfflinePaymentType;
 use shopack\aaa\frontend\common\models\BasicDefinitionModel;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 use shopack\base\common\helpers\ArrayHelper;
@@ -101,7 +102,17 @@ use shopack\base\common\helpers\ArrayHelper;
 
   $columns = array_merge($columns, [
     'ofpAmount:toman',
-    'ofpBankOrCart',
+    [
+      'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
+      'enumClass' => enuOfflinePaymentType::class,
+      'attribute' => 'ofpType',
+    ],
+    // 'ofpDestCartNumber',
+    // 'ofpDestAccountNumber',
+    // 'ofpDestISBN',
+    // 'ofpDestBankID',
+    // 'ofpDestName',
+    // 'ofpDueDate:jalali',
     'ofpTrackNumber',
     'ofpReferenceNumber',
     'ofpPayDate:jalaliWithTime',
@@ -133,7 +144,14 @@ use shopack\base\common\helpers\ArrayHelper;
       'header' => OfflinePaymentModel::canCreate() ? Html::createButton(null, [
         'create',
         'ofpOwnerUserID' => $ofpOwnerUserID ?? $_GET['ofpOwnerUserID'] ?? null,
+      ], [
+        'data-popup-size' => 'lg',
+        'title' => Yii::t('aaa', 'Create Offline Payment'),
       ]) : Yii::t('app', 'Actions'),
+      'updateOptions' => [
+        'modal' => true,
+        'data-popup-size' => 'lg',
+      ],
       'template' => '{accept} {reject}<br>{update} {delete}{undelete}',
       'buttons' => [
         'accept' => function ($url, $model, $key) {

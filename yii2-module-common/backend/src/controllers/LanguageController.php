@@ -31,6 +31,7 @@ class LanguageController extends BaseCrudController
 			'create' => ['cmn/language/crud' => '1000'],
 			'update' => ['cmn/language/crud' => '0010'],
 			'delete' => ['cmn/language/crud' => '0001'],
+			'undelete' => ['cmn/language/undelete'],
 		];
 	}
 

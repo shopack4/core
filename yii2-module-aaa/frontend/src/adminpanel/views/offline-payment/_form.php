@@ -4,15 +4,16 @@
  */
 
 use yii\web\JsExpression;
-use shopack\base\common\helpers\Url;
-use shopack\base\frontend\common\widgets\Select2;
-use shopack\base\frontend\common\widgets\DepDrop;
+use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\frontend\common\helpers\Html;
-use shopack\base\common\helpers\HttpHelper;
+use shopack\base\frontend\common\widgets\Select2;
 use shopack\base\frontend\common\widgets\ActiveForm;
 use shopack\base\frontend\common\widgets\FormBuilder;
-use shopack\aaa\frontend\common\models\UserModel;
 use shopack\base\frontend\common\widgets\datetime\DatePicker;
+use shopack\aaa\common\enums\enuBasicDefinitionType;
+use shopack\aaa\common\enums\enuOfflinePaymentType;
+use shopack\aaa\frontend\common\models\UserModel;
+use shopack\aaa\frontend\common\models\BasicDefinitionModel;
 ?>
 
 <div class='offline-payment-form'>
@@ -20,7 +21,7 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 		$form = ActiveForm::begin([
 			'model' => $model,
 			'fieldConfig' => [
-				'labelSpan' => 3,
+				'labelSpan' => 2,
 			],
 		]);
 
@@ -113,6 +114,22 @@ JS;
 		$builder->fields([
 			// 'ofpVoucherID',
 			[
+				'ofpType',
+				'type' => FormBuilder::FIELD_RADIOLIST,
+				// 'widget' => Select2::class,
+				'data' => enuOfflinePaymentType::listData(),
+				'widgetOptions' => [
+					'inline' => true,
+					// 'options' => [
+					// 	'placeholder' => Yii::t('app', '-- Choose --'),
+					// 	'dir' => 'rtl',
+					// ],
+				]
+			],
+
+			['@cols' => 2, 'vertical' => true],
+
+			[
 				'ofpAmount',
 				'fieldOptions' => [
 					'addon' => [
@@ -122,9 +139,6 @@ JS;
 					],
 				],
 			],
-			['ofpBankOrCart'],
-			['ofpTrackNumber'],
-			['ofpReferenceNumber'],
 			[
 				'ofpPayDate',
 				'type' => FormBuilder::FIELD_WIDGET,
@@ -143,6 +157,112 @@ JS;
 			['ofpPayer'],
 			['ofpSourceCartNumber'],
 			// ['ofpWalletID'],
+			['@col-break'],
+
+			[
+				'ofpDestCartNumber',
+				'visibleConditions' => [
+					'ofpType' => [
+						enuOfflinePaymentType::ToCart,
+					],
+				],
+			],
+			[
+				'ofpDestAccountNumber',
+				'visibleConditions' => [
+					'ofpType' => [
+						enuOfflinePaymentType::ToAccountNumber,
+					],
+				],
+			],
+			[
+				'ofpDestISBN',
+				'visibleConditions' => [
+					'ofpType' => [
+						enuOfflinePaymentType::ToISBN,
+					],
+				],
+			],
+			[
+				'ofpDestBankID',
+				'visibleConditions' => [
+					'ofpType' => [
+						enuOfflinePaymentType::Pos,
+						enuOfflinePaymentType::ToCart,
+						enuOfflinePaymentType::ToAccountNumber,
+						enuOfflinePaymentType::ToISBN,
+					],
+				],
+				'type' => FormBuilder::FIELD_WIDGET,
+				'widget' => Select2::class,
+				'widgetOptions' => [
+					'data' => ArrayHelper::map(BasicDefinitionModel::find()
+						->where(['bdfType' => enuBasicDefinitionType::Bank])
+						->noLimit()
+						->asArray()
+						->all(),
+						'bdfID',
+						'bdfName'
+					),
+					'options' => [
+						'placeholder' => Yii::t('app', '-- Choose --'),
+						'dir' => 'rtl',
+					],
+				]
+			],
+
+			[
+				'ofpDueDate',
+				'visibleConditions' => [
+					'ofpType' => [
+						enuOfflinePaymentType::Cheque,
+					],
+				],
+				'type' => FormBuilder::FIELD_WIDGET,
+				'widget' => DatePicker::class,
+				'fieldOptions' => [
+					'addon' => [
+						'append' => [
+							'content' => '<i class="far fa-calendar-alt"></i>',
+						],
+					],
+				],
+			],
+			[
+				'ofpDestName',
+				'visibleConditions' => [
+					'ofpType' => [
+						enuOfflinePaymentType::Cash,
+						enuOfflinePaymentType::ToAccountNumber,
+						enuOfflinePaymentType::ToISBN,
+						enuOfflinePaymentType::Cheque,
+					],
+				],
+			],
+			[
+				'ofpTrackNumber',
+				'visibleConditions' => [
+					'ofpType' => [
+						enuOfflinePaymentType::Pos,
+						enuOfflinePaymentType::ToCart,
+						enuOfflinePaymentType::ToAccountNumber,
+						enuOfflinePaymentType::ToISBN,
+					],
+				],
+			],
+			[
+				'ofpReferenceNumber',
+				'visibleConditions' => [
+					'ofpType' => [
+						enuOfflinePaymentType::Pos,
+						enuOfflinePaymentType::ToCart,
+						enuOfflinePaymentType::ToAccountNumber,
+						enuOfflinePaymentType::ToISBN,
+					],
+				],
+			],
+
+			['@reset-cols'],
 			[
 				'ofpImageFileID',
 				'type' => FormBuilder::FIELD_FILE,

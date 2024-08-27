@@ -5,172 +5,77 @@
 
 namespace shopack\aaa\backend\controllers;
 
-use shopack\aaa\backend\models\Active2FAForm;
 use Yii;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\ExceptionHelper;
-use shopack\base\backend\controller\BaseRestController;
+use shopack\base\backend\controller\BaseCrudController;
 use shopack\base\backend\helpers\PrivHelper;
-use shopack\aaa\backend\models\UserModel;
+use shopack\aaa\backend\models\Active2FAForm;
 use shopack\aaa\backend\models\EmailChangeForm;
 use shopack\aaa\backend\models\MobileChangeForm;
-use shopack\aaa\backend\models\UpdateImageForm;
 use shopack\aaa\backend\models\PasswordResetForm;
 use shopack\aaa\backend\models\UserSendMessageForm;
+use shopack\aaa\backend\models\UpdateImageForm;
+use shopack\aaa\backend\models\UserModel;
 
-class UserController extends BaseRestController
+class UserController extends BaseCrudController
 {
-	public function behaviors()
+	public $modelClass = UserModel::class;
+
+	public function permissions()
 	{
-		$behaviors = parent::behaviors();
-		return $behaviors;
-	}
-
-	// 'GET,HEAD  users'      => 'user/index'   : return a list/overview/options of users
-	// 'GET,HEAD  users/<id>' => 'user/view'    : return the details/overview/options of a user
-	// 'POST      users'      => 'user/create'  : create a new user
-	// 'PUT,PATCH users/<id>' => 'user/update'  : update a user
-	// 'DELETE    users/<id>' => 'user/delete'  : delete a user
-	// '          users/<id>' => 'user/options' : process all unhandled verbs of a user
-	// '          users'      => 'user/options' : process all unhandled verbs of user collection
-
-	protected function findModel($id)
-	{
-		if (($model = UserModel::findOne($id)) !== null)
-			return $model;
-
-		throw new NotFoundHttpException('The requested item does not exist.');
-	}
-
-	public function actionIndex()
-	{
-		$filter = $this->checkPrivAndGetFilter('aaa/user/crud', '0100', 'usrID');
-
-		$searchModel = new UserModel;
-		$query = UserModel::find(true)
-			// ->select(UserModel::selectableColumns())
-			->joinWith('role')
-			->joinWith('country')
-			->joinWith('state')
-			->joinWith('cityOrVillage')
-			->joinWith('town')
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-		;
-
-		$searchModel->fillQueryFromRequest($query);
-
-		if (empty($filter) == false)
-			$query->andWhere($filter);
-
-		return $this->queryAllToResponse($query);
-	}
-
-	public function actionView($id)
-	{
-		if (PrivHelper::hasPriv('aaa/user/crud', '0100') == false) {
-			if (Yii::$app->user->id != $id)
-				throw new ForbiddenHttpException('access denied');
-		}
-
-		$query = UserModel::find(true)
-			// ->select(UserModel::selectableColumns())
-			->joinWith('role')
-			->joinWith('country')
-			->joinWith('state')
-			->joinWith('cityOrVillage')
-			->joinWith('town')
-			->joinWith('birthCityOrVillage')
-			->joinWith('imageFile')
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->where(['usrID' => $id])
-		;
-
-		return $this->queryOneToResponse($query);
-	}
-
-	public function actionCreate()
-	{
-		PrivHelper::checkPriv(['aaa/user/crud' => '1000']);
-
-		$model = new UserModel();
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		try {
-			if ($model->save() == false)
-				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-		} catch(\Exception $exp) {
-			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
-			throw new UnprocessableEntityHttpException($msg);
-		}
+		$checkOwner = function($model) : bool {
+			return (($model != null) && ($model['usrID'] == Yii::$app->user->id));
+		};
 
 		return [
-			// 'result' => [
-				// 'message' => 'created',
-				'usrID' => $model->usrID,
-				'usrStatus' => $model->usrStatus,
-				'usrCreatedAt' => $model->usrCreatedAt,
-				'usrCreatedBy' => $model->usrCreatedBy,
-			// ],
+			'index'  => [
+				'aaa/user/crud' => '0100',
+				'filter' => function($query) {
+					Yii::$app->user->assertIsNotGuest();
+					$query->andWhere(['usrID' => Yii::$app->user->id]);
+				},
+			],
+			'view'   => ['aaa/user/crud' => '0100', 'checker' => $checkOwner],
+			'create' => ['aaa/user/crud' => '1000'],
+			'update' => ['aaa/user/crud' => '0010', 'checker' => $checkOwner],
+			'delete' => ['aaa/user/crud' => '0001', 'checker' => $checkOwner],
+			'undelete' => ['aaa/user/undelete'],
 		];
 	}
 
-	public function actionUpdate($id)
+	public function queryAugmentaters()
 	{
-		if (PrivHelper::hasPriv('aaa/user/crud', '0010') == false) {
-			if (Yii::$app->user->id != $id)
-				throw new ForbiddenHttpException('access denied');
-		}
-
-		$model = $this->findModel($id);
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		if ($model->save() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
 		return [
-			// 'result' => [
-				// 'message' => 'updated',
-				'usrID' => $model->usrID,
-				'usrStatus' => $model->usrStatus,
-				'usrUpdatedAt' => $model->usrUpdatedAt,
-				'usrUpdatedBy' => $model->usrUpdatedBy,
-			// ],
+			'index' => function($query) {
+				$query
+					->joinWith('role')
+					->joinWith('country')
+					->joinWith('state')
+					->joinWith('cityOrVillage')
+					->joinWith('town')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+			'view' => function($query) {
+				$query
+					->joinWith('role')
+					->joinWith('country')
+					->joinWith('state')
+					->joinWith('cityOrVillage')
+					->joinWith('town')
+					->joinWith('birthCityOrVillage')
+					->joinWith('imageFile')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
 		];
-	}
-
-	public function actionDelete($id)
-	{
-		if (PrivHelper::hasPriv('aaa/user/crud', '0001') == false) {
-			if (Yii::$app->user->id != $id)
-				throw new ForbiddenHttpException('access denied');
-		}
-
-		$model = $this->findModel($id);
-		if ($model->delete() === false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
-		return [
-			// 'result' => [
-				// 'message' => 'deleted',
-				'usrID' => $model->usrID,
-				'usrStatus' => $model->usrStatus,
-				'usrRemovedAt' => $model->usrRemovedAt,
-				'usrRemovedBy' => $model->usrRemovedBy,
-			// ],
-		];
-	}
-
-	public function actionOptions()
-	{
-		return 'options';
 	}
 
 	public function actionWhoAmI()

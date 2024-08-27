@@ -13,9 +13,9 @@ use yii\base\InvalidArgumentException;
 use yii\web\HttpException;
 use yii\web\ServerErrorHttpException;
 use yii\web\UnauthorizedHttpException;
-use GuzzleHttp\Exception\ClientException;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\RequestException;
+// use GuzzleHttp\Exception\ClientException;
+// use GuzzleHttp\Exception\ConnectException;
+// use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use shopack\base\common\classes\FileData;
 use shopack\base\common\classes\GuzzleHttpClient;
@@ -50,7 +50,7 @@ class RestClientQuery
 	 * Headers for requests
 	 * @var array
 	 */
-	public $requestHeaders = [];
+	// public $requestHeaders = [];
 
 	/**
 	 * Wildcard for response headers object
@@ -79,13 +79,13 @@ class RestClientQuery
 	 * HTTP client that performs HTTP requests
 	 * @var object
 	 */
-	public $httpClient;
+	// public $httpClient;
 
 	/**
 	 * Configuration to be supplied to the HTTP client
 	 * @var array
 	 */
-	public $httpClientExtraConfig = [];
+	// public $httpClientExtraConfig = [];
 
 	/**
 	 * Model class
@@ -199,11 +199,11 @@ class RestClientQuery
 		$this->offsetKey = $modelClass::$offsetKey;
 		$this->limitKey = $modelClass::$limitKey;
 
-		$this->requestHeaders = ['Accept' => RestClientQuery::JSON_TYPE];
+		// $this->requestHeaders = ['Accept' => RestClientQuery::JSON_TYPE];
 
-		$currentLanguage = LanguageHelper::getCurrentLanguage();
-		if (empty($currentLanguage) == false)
-			$this->requestHeaders = ['Accept-Language' => $currentLanguage];
+		// $currentLanguage = LanguageHelper::getCurrentLanguage();
+		// if (empty($currentLanguage) == false)
+		// 	$this->requestHeaders = ['Accept-Language' => $currentLanguage];
 
 		//moved to client
 		// if (Yii::$app->request->headers->has('Authorization'))
@@ -216,26 +216,26 @@ class RestClientQuery
 		//   }
 		// }
 
-		$this->requestHeaders['Origin'] = rtrim(Url::to(['/'], true), '/\\');
+		// $this->requestHeaders['Origin'] = rtrim(Url::to(['/'], true), '/\\');
 
-		$httpClientConfig = array_merge([
+		// $httpClientConfig = array_merge([
 
-				// \GuzzleHttp\RequestOptions::CONNECT_TIMEOUT => 10, //seconds
-				// \GuzzleHttp\RequestOptions::TIMEOUT => 10, //seconds
+		// 		// \GuzzleHttp\RequestOptions::CONNECT_TIMEOUT => 10, //seconds
+		// 		// \GuzzleHttp\RequestOptions::TIMEOUT => 10, //seconds
 
-				/* @link http://docs.guzzlephp.org/en/latest/quickstart.html */
-				'base_uri' => $this->_getUrl('api'),
-				/* @link http://docs.guzzlephp.org/en/latest/request-options.html#headers */
-				'headers' => $this->_getRequestHeaders(),
-			],
-			$this->httpClientExtraConfig
-		);
+		// 		/* @link http://docs.guzzlephp.org/en/latest/quickstart.html */
+		// 		'base_uri' => $this->_getUrl('api'),
+		// 		/* @link http://docs.guzzlephp.org/en/latest/request-options.html#headers */
+		// 		'headers' => $this->_getRequestHeaders(),
+		// 	],
+		// 	$this->httpClientExtraConfig
+		// );
 
-		if (defined('YII_DEV_LOCAL_PROXY')) {
-			$httpClientConfig['proxy'] = constant('YII_DEV_LOCAL_PROXY');
-		}
+		// if (defined('YII_DEV_LOCAL_PROXY')) {
+		// 	$httpClientConfig['proxy'] = constant('YII_DEV_LOCAL_PROXY');
+		// }
 
-		$this->httpClient = new GuzzleHttpClient($httpClientConfig);
+		// $this->httpClient = new GuzzleHttpClient($httpClientConfig);
 
 		if (Yii::$app->isJustForMe)
 			$this->addUrlParameter('justForMe', 1);
@@ -1070,10 +1070,10 @@ class RestClientQuery
 	 * Get headers for request
 	 * @return array
 	 */
-	private function _getRequestHeaders()
-	{
-		return $this->requestHeaders ?: ['Accept' => $this->dataType];
-	}
+	// private function _getRequestHeaders()
+	// {
+	// 	return $this->requestHeaders ?: ['Accept' => $this->dataType];
+	// }
 
 	/**
 	 * Get url to collection or element of resource

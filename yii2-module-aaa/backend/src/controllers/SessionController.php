@@ -5,43 +5,56 @@
 
 namespace shopack\aaa\backend\controllers;
 
-use yii\web\NotFoundHttpException;
-use shopack\base\backend\controller\BaseRestController;
+use Yii;
+use shopack\base\backend\controller\BaseCrudController;
 use shopack\aaa\backend\models\SessionModel;
-use shopack\base\backend\helpers\PrivHelper;
 
-class SessionController extends BaseRestController
+class SessionController extends BaseCrudController
 {
-	public function behaviors()
+	public $modelClass = SessionModel::class;
+
+	public function permissions()
 	{
-		$behaviors = parent::behaviors();
-		return $behaviors;
+		$checkOwner = function($model) : bool {
+			return (($model != null) && ($model['ssnUserID'] == Yii::$app->user->id));
+		};
+
+		return [
+			'index'  => [
+										'aaa/session/crud' => '0100',
+										'filter' => function($query) {
+											Yii::$app->user->assertIsNotGuest();
+											$query->andWhere(['ssnUserID' => Yii::$app->user->id]);
+										},
+									],
+			'view'   => ['aaa/session/crud' => '0100', 'checker' => $checkOwner],
+			// 'create' => ['aaa/session/crud' => '1000', 'checker' => $checkOwner],
+			// 'update' => ['aaa/session/crud' => '0010', 'checker' => $checkOwner],
+			// 'delete' => ['aaa/session/crud' => '0001', 'checker' => $checkOwner],
+			// 'undelete' => ['aaa/session/undelete'],
+		];
 	}
 
-	protected function findModel($id)
+	public function queryAugmentaters()
 	{
-		if (($model = SessionModel::findOne($id)) !== null)
-			return $model;
-
-		throw new NotFoundHttpException('The requested item does not exist.');
-	}
-
-	public function actionIndex()
-	{
-		PrivHelper::checkPriv(['aaa/session/crud' => '0100']);
-
-		$searchModel = new SessionModel;
-		$query = SessionModel::find(true)
-			// ->select(SessionModel::selectableColumns())
-			->joinWith('user')
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-		;
-
-		$searchModel->fillQueryFromRequest($query);
-
-		return $this->queryAllToResponse($query);
+		return [
+			'index' => function($query) {
+				$query
+					->with('user')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+			'view' => function($query) {
+				$query
+					->with('user')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+		];
 	}
 
 }

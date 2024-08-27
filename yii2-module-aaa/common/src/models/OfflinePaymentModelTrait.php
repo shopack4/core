@@ -10,6 +10,7 @@ use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\rest\enuColumnSearchType;
 use shopack\aaa\common\enums\enuOfflinePaymentStatus;
+use shopack\aaa\common\enums\enuOfflinePaymentType;
 use shopack\base\common\validators\GroupRequiredValidator;
 use shopack\base\common\validators\JsonValidator;
 
@@ -18,7 +19,13 @@ use shopack\base\common\validators\JsonValidator;
 'ofpUUID',
 'ofpOwnerUserID',
 'ofpVoucherID',
-'ofpBankOrCart',
+'ofpType',
+'ofpDestCartNumber',
+'ofpDestAccountNumber',
+'ofpDestISBN',
+'ofpDestBankID',
+'ofpDestName',
+'ofpDueDate,
 'ofpTrackNumber',
 'ofpReferenceNumber',
 'ofpAmount',
@@ -73,13 +80,74 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
-			'ofpBankOrCart' => [
-				enuColumnInfo::type       => ['string', 'max' => 64],
+			'ofpType' => [
+				enuColumnInfo::type       => ['string', 'max' => 1],
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
 				enuColumnInfo::selectable => true,
+				enuColumnInfo::search     => enuColumnSearchType::exact,
+			],
+			'ofpDestCartNumber' => [
+				enuColumnInfo::type       => ['string', 'max' => 64],
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => null,
+				enuColumnInfo::required   => false,
+				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
+			],
+			'ofpDestAccountNumber' => [
+				enuColumnInfo::type       => ['string', 'max' => 64],
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => null,
+				enuColumnInfo::required   => false,
+				enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::like,
+			],
+			'ofpDestISBN' => [
+				enuColumnInfo::type       => ['string', 'max' => 64],
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => null,
+				enuColumnInfo::required   => false,
+				enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::like,
+			],
+			'ofpDestBankID' => [
+				enuColumnInfo::type       => 'integer',
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => null,
+				enuColumnInfo::required   => false,
+				enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::exact,
+			],
+			'ofpDestName' => [
+				enuColumnInfo::type       => ['string', 'max' => 64],
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => null,
+				enuColumnInfo::required   => false,
+				enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::like,
+			],
+			'ofpDueDate' => [
+				enuColumnInfo::type       => 'safe',
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => null,
+
+				enuColumnInfo::required   => [
+          'when' => function ($model) {
+            return ($model->ofpType == enuOfflinePaymentType::Cheque);
+          },
+					//used for creating whenClient
+					'conditions' => [
+						'ofpType:checked' => enuOfflinePaymentType::Cheque,
+					],
+          // 'whenClient' => "function (attribute, value) {
+					// 	return ($('#{$fnGetFieldId('ofpType')}').val() == '{$fnGetConst(enuOfflinePaymentType::Cheque)}');
+					// }",
+				],
+
+				enuColumnInfo::selectable => true,
+        // enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'ofpTrackNumber' => [
 				enuColumnInfo::type       => ['string', 'max' => 64],
@@ -272,6 +340,17 @@ trait OfflinePaymentModelTrait
 			$className = '\shopack\aaa\frontend\common\models\WalletModel';
 
 		return $this->hasOne($className, ['walID' => 'ofpWalletID']);
+	}
+
+	public function getDestBank() {
+		$className = get_called_class();
+
+		if (str_contains($className, '\\backend\\'))
+			$className = '\shopack\aaa\backend\models\BasicDefinitionModel';
+		else
+			$className = '\shopack\aaa\frontend\common\models\BasicDefinitionModel';
+
+		return $this->hasOne($className, ['bdfID' => 'ofpDestBankID']);
 	}
 
 }

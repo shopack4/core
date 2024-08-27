@@ -32,6 +32,7 @@ class GeoStateController extends BaseCrudController
 			'create' => ['aaa/geo-state/crud' => '1000'],
 			'update' => ['aaa/geo-state/crud' => '0010'],
 			'delete' => ['aaa/geo-state/crud' => '0001'],
+			'undelete' => ['aaa/geo-state/undelete'],
 		];
 	}
 

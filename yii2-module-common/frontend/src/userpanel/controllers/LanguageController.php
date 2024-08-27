@@ -12,10 +12,5 @@ use shopack\aaa\frontend\common\auth\BaseController;
 
 class LanguageController extends BaseController
 {
-  public function behaviors()
-	{
-		$behaviors = parent::behaviors();
-		return $behaviors;
-	}
 
 }

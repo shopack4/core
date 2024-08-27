@@ -6,138 +6,55 @@
 namespace shopack\aaa\backend\controllers;
 
 use Yii;
-use yii\web\NotFoundHttpException;
-use yii\web\UnprocessableEntityHttpException;
-use yii\data\ActiveDataProvider;
-use shopack\base\common\helpers\ExceptionHelper;
-use shopack\base\backend\controller\BaseRestController;
-use shopack\base\backend\helpers\PrivHelper;
+use shopack\base\backend\controller\BaseCrudController;
 use shopack\aaa\backend\models\UploadFileModel;
 
-class UploadFileController extends BaseRestController
+class UploadFileController extends BaseCrudController
 {
-	public function behaviors()
+	public $modelClass = UploadFileModel::class;
+
+	public function permissions()
 	{
-		$behaviors = parent::behaviors();
-		return $behaviors;
-	}
-
-	protected function findModel($id)
-	{
-		if (($model = UploadFileModel::findOne($id)) !== null)
-			return $model;
-
-		throw new NotFoundHttpException('The requested item does not exist.');
-	}
-
-	public function actionIndex()
-	{
-		$filter = $this->checkPrivAndGetFilter('aaa/upload-file/crud', '0100', 'uflOwnerUserID');
-
-		$searchModel = new UploadFileModel;
-		$query = UploadFileModel::find()
-			// ->select(UploadFileModel::selectableColumns())
-			->joinWith('owner')
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-		;
-
-		$searchModel->fillQueryFromRequest($query);
-
-		if (empty($filter) == false)
-			$query->andWhere($filter);
-
-		return $this->queryAllToResponse($query);
-	}
-
-	public function actionView($id)
-	{
-		PrivHelper::checkPriv(['aaa/upload-file/crud' => '0100']);
-
-		$query = UploadFileModel::find()
-			// ->select(UploadFileModel::selectableColumns())
-			->joinWith('owner')
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->where(['uflID' => $id])
-		;
-
-		return $this->queryOneToResponse($query);
-	}
-
-	public function actionCreate()
-	{
-		PrivHelper::checkPriv(['aaa/upload-file/crud' => '1000']);
-
-		$model = new UploadFileModel();
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		try {
-			if ($model->save() == false)
-				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-		} catch(\Exception $exp) {
-			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
-			throw new UnprocessableEntityHttpException($msg);
-		}
+		$checkOwner = function($model) : bool {
+			return (($model != null) && ($model['uflOwnerUserID'] == Yii::$app->user->id));
+		};
 
 		return [
-			// 'result' => [
-				// 'message' => 'created',
-				'uflID' => $model->uflID,
-				// 'uflStatus' => $model->uflStatus,
-				'uflCreatedAt' => $model->uflCreatedAt,
-				'uflCreatedBy' => $model->uflCreatedBy,
-			// ],
+			'index'  => [
+										'aaa/upload-file/crud' => '0100',
+										'filter' => function($query) {
+											Yii::$app->user->assertIsNotGuest();
+											$query->andWhere(['uflOwnerUserID' => Yii::$app->user->id]);
+										},
+									],
+			'view'   => ['aaa/upload-file/crud' => '0100', 'checker' => $checkOwner],
+			'create' => ['aaa/upload-file/crud' => '1000', 'checker' => $checkOwner],
+			'update' => ['aaa/upload-file/crud' => '0010', 'checker' => $checkOwner],
+			'delete' => ['aaa/upload-file/crud' => '0001', 'checker' => $checkOwner],
+			'undelete' => ['aaa/upload-file/undelete'],
 		];
 	}
 
-	public function actionUpdate($id)
+	public function queryAugmentaters()
 	{
-		PrivHelper::checkPriv(['aaa/upload-file/crud' => '0010']);
-
-		$model = $this->findModel($id);
-		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
-			throw new NotFoundHttpException("parameters not provided");
-
-		if ($model->save() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
 		return [
-			// 'result' => [
-				// 'message' => 'updated',
-				'uflID' => $model->uflID,
-				// 'uflStatus' => $model->uflStatus,
-				'uflUpdatedAt' => $model->uflUpdatedAt,
-				'uflUpdatedBy' => $model->uflUpdatedBy,
-			// ],
+			'index' => function($query) {
+				$query
+					->with('owner')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+			'view' => function($query) {
+				$query
+					->with('owner')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
 		];
-	}
-
-	public function actionDelete($id)
-	{
-		PrivHelper::checkPriv(['aaa/upload-file/crud' => '0001']);
-
-		$model = $this->findModel($id);
-		if ($model->delete() == false)
-			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
-
-		return [
-			// 'result' => [
-				// 'message' => 'deleted',
-				'uflID' => $model->uflID,
-				// 'uflStatus' => $model->uflStatus,
-				'uflRemovedAt' => $model->uflRemovedAt,
-				'uflRemovedBy' => $model->uflRemovedBy,
-			// ],
-		];
-	}
-
-	public function actionOptions()
-	{
-		return 'options';
 	}
 
 }

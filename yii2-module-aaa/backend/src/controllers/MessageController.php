@@ -11,18 +11,6 @@ use shopack\aaa\backend\models\MessageModel;
 
 class MessageController extends BaseCrudController
 {
-	public function behaviors()
-	{
-		$behaviors = parent::behaviors();
-
-		// $behaviors[static::BEHAVIOR_AUTHENTICATOR]['except'] = [
-		// 	'index',
-		// 	'view',
-		// ];
-
-		return $behaviors;
-	}
-
 	public $modelClass = MessageModel::class;
 
 	public function permissions()
@@ -40,9 +28,10 @@ class MessageController extends BaseCrudController
 										},
 									],
 			'view'   => ['aaa/message/crud' => '0100', 'checker' => $checkOwner],
-			'create' => ['aaa/message/crud' => '1000'],
+			'create' => ['aaa/message/crud' => '1000', 'checker' => $checkOwner],
 			'update' => ['aaa/message/crud' => '0010', 'checker' => $checkOwner],
 			'delete' => ['aaa/message/crud' => '0001', 'checker' => $checkOwner],
+			'undelete' => ['aaa/message/undelete'],
 		];
 	}
 

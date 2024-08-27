@@ -186,13 +186,32 @@ return [
 	'Online Payments' => 'پرداخت‌های آنلاین',
 	'Online Payment' => 'پرداخت آنلاین',
 
-	'Offline Payments' => 'پرداخت‌های آفلاین',
-	'Offline Payment' => 'پرداخت آفلاین',
+	// 'Offline Payments' => 'پرداخت‌های آفلاین',
+	// 'Offline Payment' => 'پرداخت آفلاین',
 
-	'Bank or Cart' => 'بانک/کارت مقصد',
+	'Offline Payments' => 'پرداخت‌های نقدی / چک',
+	'Offline Payment' => 'پرداخت نقدی / چک',
+	'Create Offline Payment' => 'ثبت پرداخت نقدی / چک',
+
+	'Membership renewal based on cash/cheque payment' => 'تمدید عضویت بر اساس پرداخت نقدی / چک',
+
+	'Cash' => 'نقد',
+	'Pos' => 'دستگاه پوز',
+	'To Cart' => 'کارت به کارت',
+	'To Account Number' => 'واریز به شماره حساب',
+	'To ISBN' => 'واریز به شماره شبا',
+	'Cheque' => 'چک',
+
+	'Dest Cart Number' => 'کارت مقصد',
+	'Dest Account Number' => 'شماره حساب مقصد',
+	'Dest ISBN' => 'شماره شبای مقصد',
+	'Dest Bank' => 'بانک مقصد',
+	'Dest Name' => 'نام مقصد',
+	'Due Date' => 'تاریخ سررسید',
+
 	'Paid at' => 'تاریخ پرداخت',
 	'Payer' => 'پرداخت کننده',
-	'Source Cart Number' => 'شماره کارت مبدا',
+	'Source Cart Number' => 'شماره کارت / حساب مبدا',
 	'Destination Wallet' => 'کیف پول مقصد',
 	'Owner' => 'مالک',
 
@@ -699,5 +718,5 @@ return [
 	'UNKNOWN_MIME_TYPE'			=> 'نوع فایل مشخص نیست. فایل: ({name})',
 	'INVALID_MIME_TYPE'			=> 'نوع فایل مجاز نیست. فایل: ({name}) نوع: ({mimeType})',
 
-	'Offline Payment Reject Reason' => 'دلیل رد پرداخت آفلاین',
+	'Offline Payment Reject Reason' => 'دلیل رد پرداخت نقدی / چک',
 ];

@@ -21,7 +21,7 @@ abstract class BaseAccountingController extends BaseRestController
 	{
 		$behaviors = parent::behaviors();
 
-		$behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['except'] = [
+		$behaviors[static::BEHAVIOR_AUTHENTICATOR]['except'] = [
 			'recheck-basket-items',
 			'process-voucher-items',
 		];

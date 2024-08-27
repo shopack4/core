@@ -10,4 +10,7 @@ return [
 	'INVALID_FILE_MAX_SIZE'	=> 'Invalide max. file size. file: ({name}) size: ({fileSize})',
 	'UNKNOWN_MIME_TYPE'			=> 'Unknown mime type. file: ({name})',
 	'INVALID_MIME_TYPE'			=> 'Invalide mime type. file: ({name}) mime: ({mimeType})',
+
+	'Offline Payments' => 'Cash / Cheque Payments',
+	'Offline Payment' => 'Cash / Cheque Payment',
 ];

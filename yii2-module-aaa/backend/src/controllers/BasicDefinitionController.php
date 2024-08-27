@@ -32,6 +32,7 @@ class BasicDefinitionController extends BaseCrudController
 			'create' => ['aaa/basic-definition/crud', '1000'],
 			'update' => ['aaa/basic-definition/crud', '0010'],
 			'delete' => ['aaa/basic-definition/crud', '0001'],
+			'undelete' => ['aaa/basic-definition/undelete'],
 		];
 	}
 

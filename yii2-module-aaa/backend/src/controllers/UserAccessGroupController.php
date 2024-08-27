@@ -10,18 +10,6 @@ use shopack\aaa\backend\models\UserAccessGroupModel;
 
 class UserAccessGroupController extends BaseCrudController
 {
-	public function behaviors()
-	{
-		$behaviors = parent::behaviors();
-
-		// $behaviors[static::BEHAVIOR_AUTHENTICATOR]['except'] = [
-		// 	'index',
-		// 	'view',
-		// ];
-
-		return $behaviors;
-	}
-
 	public $modelClass = UserAccessGroupModel::class;
 
 	public function permissions()
@@ -32,6 +20,7 @@ class UserAccessGroupController extends BaseCrudController
 			'create' => ['aaa/user-access-group/crud' => '1000'],
 			'update' => ['aaa/user-access-group/crud' => '0010'],
 			'delete' => ['aaa/user-access-group/crud' => '0001'],
+			'undelete' => ['aaa/user-access-group/undelete'],
 		];
 	}
 

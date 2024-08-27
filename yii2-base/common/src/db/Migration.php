@@ -5,6 +5,8 @@
 
 namespace shopack\base\common\db;
 
+use shopack\base\common\helpers\StringHelper;
+
 class Migration extends \yii\db\Migration
 {
 	// public function up()
@@ -43,6 +45,34 @@ class Migration extends \yii\db\Migration
 // echo "\n\n$sql\n\n";
 		$cmd->execute();
 		$this->endCommand($time);
+	}
+
+	public function queryAll($sql, $params = [])
+	{
+		$sqlOutput = $sql;
+		if ($this->maxSqlOutputLength !== null) {
+			$sqlOutput = StringHelper::truncate($sql, $this->maxSqlOutputLength, '[... hidden]');
+		}
+
+		$time = $this->beginCommand("execute SQL: $sqlOutput");
+		$result = $this->db->createCommand($sql)->bindValues($params)->queryAll();
+		$this->endCommand($time);
+
+		return $result;
+	}
+
+	public function queryOne($sql, $params = [])
+	{
+		$sqlOutput = $sql;
+		if ($this->maxSqlOutputLength !== null) {
+			$sqlOutput = StringHelper::truncate($sql, $this->maxSqlOutputLength, '[... hidden]');
+		}
+
+		$time = $this->beginCommand("execute SQL: $sqlOutput");
+		$result = $this->db->createCommand($sql)->bindValues($params)->queryOne();
+		$this->endCommand($time);
+
+		return $result;
 	}
 
 }

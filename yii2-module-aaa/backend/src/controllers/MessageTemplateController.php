@@ -32,6 +32,7 @@ class MessageTemplateController extends BaseCrudController
 			'create' => ['aaa/message-template/crud' => '1000'],
 			'update' => ['aaa/message-template/crud' => '0010'],
 			'delete' => ['aaa/message-template/crud' => '0001'],
+			'undelete' => ['aaa/message-template/undelete'],
 		];
 	}
 

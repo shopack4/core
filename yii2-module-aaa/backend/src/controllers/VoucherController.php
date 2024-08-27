@@ -5,86 +5,76 @@
 
 namespace shopack\aaa\backend\controllers;
 
-use shopack\aaa\backend\models\OrderChangeDeliveryMethodForm;
-use shopack\aaa\backend\models\OrderPaymentForm;
 use Yii;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
-use yii\data\ActiveDataProvider;
+use shopack\aaa\backend\models\OrderChangeDeliveryMethodForm;
+use shopack\aaa\backend\models\OrderPaymentForm;
 use shopack\base\common\helpers\ExceptionHelper;
-use shopack\base\backend\controller\BaseRestController;
+use shopack\base\backend\controller\BaseCrudController;
 use shopack\base\backend\helpers\PrivHelper;
 use shopack\aaa\backend\models\VoucherModel;
 use shopack\aaa\common\enums\enuVoucherStatus;
 use shopack\aaa\common\enums\enuVoucherType;
 
-class VoucherController extends BaseRestController
+class VoucherController extends BaseCrudController
 {
 	public function behaviors()
 	{
 		$behaviors = parent::behaviors();
 
-		$behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['except'] = [
+		$behaviors[static::BEHAVIOR_AUTHENTICATOR]['except'] = [
 			'process-voucher',
 		];
 
 		return $behaviors;
 	}
 
-	protected function findModel($id)
-	{
-		if (($model = VoucherModel::findOne($id)) !== null)
-			return $model;
+	public $modelClass = VoucherModel::class;
 
-		throw new NotFoundHttpException('The requested item does not exist.');
+	public function permissions()
+	{
+		$checkOwner = function($model) : bool {
+			return (($model != null) && ($model['vchOwnerUserID'] == Yii::$app->user->id));
+		};
+
+		return [
+			'index'  => [
+										'aaa/voucher/crud' => '0100',
+										'filter' => function($query) {
+											Yii::$app->user->assertIsNotGuest();
+											$query->andWhere(['vchOwnerUserID' => Yii::$app->user->id]);
+										},
+									],
+			'view'   => ['aaa/voucher/crud' => '0100', 'checker' => $checkOwner],
+			// 'create' => ['aaa/voucher/crud' => '1000', 'checker' => $checkOwner],
+			// 'update' => ['aaa/voucher/crud' => '0010', 'checker' => $checkOwner],
+			// 'delete' => ['aaa/voucher/crud' => '0001', 'checker' => $checkOwner],
+			// 'undelete' => ['aaa/voucher/undelete'],
+		];
 	}
 
-	public function actionOptions()
+	public function queryAugmentaters()
 	{
-		return 'options';
-	}
-
-	public function actionIndex()
-	{
-		$filter = $this->checkPrivAndGetFilter('aaa/voucher/crud', '0100', 'vchOwnerUserID');
-
-		$searchModel = new VoucherModel;
-		$query = VoucherModel::find()
-			// ->select(VoucherModel::selectableColumns())
-			->joinWith('owner')
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-		;
-
-		$searchModel->fillQueryFromRequest($query);
-
-		if (empty($filter) == false)
-			$query->andWhere($filter);
-
-		return $this->queryAllToResponse($query);
-	}
-
-	public function actionView($id)
-	{
-		$query = VoucherModel::find()
-			// ->select(VoucherModel::selectableColumns())
-			->joinWith('owner')
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->where(['vchID' => $id])
-		;
-
-		return $this->queryOneToResponse($query, function($model) {
-			if ((PrivHelper::hasPriv('aaa/voucher/crud', '0100') == false)
-				&& ($model != null)
-				&& ($model['vchOwnerUserID'] != Yii::$app->user->id)
-			) {
-				throw new ForbiddenHttpException('access denied');
-			}
-		});
+		return [
+			'index' => function($query) {
+				$query
+					->joinWith('owner')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+			'view' => function($query) {
+				$query
+					->joinWith('owner')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+		];
 	}
 
 	public function actionProcessVoucher($id)

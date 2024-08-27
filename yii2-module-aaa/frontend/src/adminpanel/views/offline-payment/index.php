@@ -23,7 +23,10 @@ $this->params['breadcrumbs'][] = $this->title;
 				<?= OfflinePaymentModel::canCreate() ? Html::createButton(null, [
 					'create',
 					'ofpOwnerUserID' => $ofpOwnerUserID ?? $_GET['ofpOwnerUserID'] ?? null,
-				]) : '' ?>
+				], [
+					'data-popup-size' => 'lg',
+					'title' => Yii::t('aaa', 'Create Offline Payment'),
+					]) : '' ?>
 			</div>
       <div class='card-title'><?= Html::encode($this->title) ?></div>
 			<div class="clearfix"></div>

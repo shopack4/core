@@ -32,6 +32,7 @@ class GeoTownController extends BaseCrudController
 			'create' => ['aaa/geo-town/crud' => '1000'],
 			'update' => ['aaa/geo-town/crud' => '0010'],
 			'delete' => ['aaa/geo-town/crud' => '0001'],
+			'undelete' => ['aaa/geo-town/undelete'],
 		];
 	}
 

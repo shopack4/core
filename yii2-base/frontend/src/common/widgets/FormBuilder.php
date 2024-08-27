@@ -589,16 +589,18 @@ class FormBuilder extends \yii\base\Component
 		//on-change handlers
 		if (empty($visFormFields) == false) {
 			$checkingFields = [];
-			$setCommands = [];
+			$fadeOutTimeout = 50;
+			$fadeInTimeout = 150;
+			// $setCommands = [];
+			$hideCommands = [];
+			$showCommands = [];
 			foreach ($visFormFields as $fieldName) {
 				$jsCompFieldName = StringHelper::convertToJsVarName($fieldName);
 
 				$checkingFields = ArrayHelper::merge($checkingFields, $formFields[$fieldName]['visibleConditions']);
 				$jsFormula = [];
 				$fnEncloseString = function($value) {
-					if (is_string($value))
-						return "'" . $value . "'";
-					return $value;
+					return (is_string($value) ? "'" . $value . "'" : $value);
 				};
 
 				foreach ($formFields[$fieldName]['visibleConditions'] as $k => $v) {
@@ -610,7 +612,10 @@ class FormBuilder extends \yii\base\Component
 						} else if (in_array($v[0], ['<', '<=', '>', '>=', '!=', '!=='])) {
 							$jsFormula[] = "{$jsCompCondFieldName} {$v[0]} " . $fnEncloseString($v[1]);
 						} else {
-							$jsFormula[] = "({$jsCompCondFieldName} == " . implode(") || ({$jsCompCondFieldName} == ", $fnEncloseString($v)) . ')';
+							array_walk($v, function(&$item, $key) use (&$fnEncloseString) {
+								$item = $fnEncloseString($item);
+							});
+							$jsFormula[] = "({$jsCompCondFieldName} == " . implode(") || ({$jsCompCondFieldName} == ", $v) . ')';
 						}
 					} else if (($k == 'js') || ($k == 'JS')) {
 						//deprecated
@@ -620,9 +625,22 @@ class FormBuilder extends \yii\base\Component
 					}
 				}
 				$jsFormula = '(' . implode(') && (', $jsFormula) . ')';
-				$setCommands[] = "if ({$jsFormula}) \$('#panel_{$formFields[$fieldName]['id']}').fadeIn(150); else \$('#panel_{$formFields[$fieldName]['id']}').fadeOut(50);";
+
+				// $setCommands[] = "if ({$jsFormula}) \$('#panel_{$formFields[$fieldName]['id']}').fadeIn({$fadeInTimeout}); else \$('#panel_{$formFields[$fieldName]['id']}').fadeOut({$fadeOutTimeout});";
+				$hideCommands[] = "if (!({$jsFormula})) \$('#panel_{$formFields[$fieldName]['id']}').fadeOut({$fadeOutTimeout});";
+				$showCommands[] = "if ({$jsFormula}) { \$('#panel_{$formFields[$fieldName]['id']}').fadeIn({$fadeInTimeout}); }";
 			}
-			$setCommands = implode("\n\t", $setCommands);
+			// $setCommands = implode("\n\t", $setCommands);
+			$hideCommands = implode("\n\t", $hideCommands);
+			$showCommands = implode("\n\t", $showCommands);
+
+			if ((empty($hideCommands) == false) && (empty($showCommands) == false)) {
+				$showCommands =<<<JS
+setTimeout(function() {
+	{$showCommands}
+}, {$fadeOutTimeout});
+JS;
+			}
 
 			// Html::dump($checkingFields);
 			$getCommands = [];
@@ -686,11 +704,13 @@ class FormBuilder extends \yii\base\Component
 			$js =<<<JS
 function checkPanelsVisibility() {
 	{$getCommands}
-	{$setCommands}
+	{$hideCommands}
+	{$showCommands}
 }
 {$events}
 checkPanelsVisibility();
 JS;
+// {$setCommands}
 			Yii::$app->view->registerJs($js, \yii\web\View::POS_READY);
 		}
 

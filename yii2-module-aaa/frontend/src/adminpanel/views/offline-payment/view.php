@@ -11,6 +11,7 @@ use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\PopoverX;
 use shopack\base\frontend\common\widgets\DetailView;
 use shopack\aaa\common\enums\enuOfflinePaymentStatus;
+use shopack\aaa\common\enums\enuOfflinePaymentType;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 
 $this->title = Yii::t('aaa', 'Offline Payment') . ': ' . $model->ofpID;
@@ -76,7 +77,20 @@ $this->params['breadcrumbs'][] = $this->title;
 
           'ofpOwnerUserID',
           'ofpVoucherID',
-          'ofpBankOrCart',
+          [
+            'attribute' => 'ofpType',
+            'value' => enuOfflinePaymentType::getLabel($model->ofpType),
+          ],
+          'ofpDestCartNumber',
+          'ofpDestAccountNumber',
+          'ofpDestISBN',
+          [
+            'attribute' => 'ofpDestBankID',
+            'value' => (empty($model->ofpDestBankID) ? null : $model->destBank->bdfName),
+          ],
+          'ofpDestName',
+          'ofpDueDate:jalali',
+
           'ofpTrackNumber',
           'ofpReferenceNumber',
           'ofpPayDate',

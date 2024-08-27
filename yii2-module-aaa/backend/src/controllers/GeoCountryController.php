@@ -32,6 +32,7 @@ class GeoCountryController extends BaseCrudController
 			'create' => ['aaa/geo-country/crud' => '1000'],
 			'update' => ['aaa/geo-country/crud' => '0010'],
 			'delete' => ['aaa/geo-country/crud' => '0001'],
+			'undelete' => ['aaa/geo-country/undelete'],
 		];
 	}
 

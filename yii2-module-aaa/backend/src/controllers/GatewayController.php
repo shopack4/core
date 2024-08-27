@@ -34,11 +34,12 @@ class GatewayController extends BaseCrudController
 	public function permissions()
 	{
 		return [
-			// 'index'  => ['aaa/gateway/crud' => '0100'],
-			// 'view'   => ['aaa/gateway/crud' => '0100'],
+			'index'  => ['aaa/gateway/crud' => '0100'],
+			'view'   => ['aaa/gateway/crud' => '0100'],
 			'create' => ['aaa/gateway/crud' => '1000'],
 			'update' => ['aaa/gateway/crud' => '0010'],
 			'delete' => ['aaa/gateway/crud' => '0001'],
+			'undelete' => ['aaa/gateway/undelete'],
 		];
 	}
 

@@ -219,8 +219,17 @@ class Curl {
 
     if (defined('YII_DEV_LOCAL_PROXY')) {
       $proxy = parse_url(constant('YII_DEV_LOCAL_PROXY'));
-      curl_setopt($CurlObject, CURLOPT_PROXY,     $proxy['host']);
-      curl_setopt($CurlObject, CURLOPT_PROXYPORT, $proxy['port'] ?? 80);
+
+			try {
+        $errno = null;
+        $errstr = null;
+				$fp = fsockopen($proxy['host'], $proxy['port'] ?? 80, $errno, $errstr, 0.5);
+				if ($fp) {
+					fclose($fp);
+          curl_setopt($CurlObject, CURLOPT_PROXY,     $proxy['host']);
+          curl_setopt($CurlObject, CURLOPT_PROXYPORT, $proxy['port'] ?? 80);
+				}
+			} catch (\Throwable $th) { ; }
     }
 
     curl_setopt($CurlObject, CURLOPT_HEADER, 1);

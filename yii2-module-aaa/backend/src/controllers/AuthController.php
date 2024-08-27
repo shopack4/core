@@ -27,14 +27,14 @@ class AuthController extends BaseRestController
 	{
 		$behaviors = parent::behaviors();
 
-		$behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['optional'] = [
+		$behaviors[static::BEHAVIOR_AUTHENTICATOR]['optional'] = [
 		  'signup',
 		];
 
-		// $behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['only'] = [
+		// $behaviors[static::BEHAVIOR_AUTHENTICATOR]['only'] = [
 		// ];
 
-		$behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['except'] = [
+		$behaviors[static::BEHAVIOR_AUTHENTICATOR]['except'] = [
 			'login',
 			'login-by-mobile',
 			'request-approval-code',

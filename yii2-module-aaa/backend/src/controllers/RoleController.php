@@ -10,18 +10,6 @@ use shopack\aaa\backend\models\RoleModel;
 
 class RoleController extends BaseCrudController
 {
-	public function behaviors()
-	{
-		$behaviors = parent::behaviors();
-
-		// $behaviors[static::BEHAVIOR_AUTHENTICATOR]['except'] = [
-		// 	'index',
-		// 	'view',
-		// ];
-
-		return $behaviors;
-	}
-
 	public $modelClass = RoleModel::class;
 
 	public function permissions()
@@ -32,6 +20,7 @@ class RoleController extends BaseCrudController
 			'create' => ['aaa/role/crud' => '1000'],
 			'update' => ['aaa/role/crud' => '0010'],
 			'delete' => ['aaa/role/crud' => '0001'],
+			'undelete' => ['aaa/role/undelete'],
 		];
 	}
 

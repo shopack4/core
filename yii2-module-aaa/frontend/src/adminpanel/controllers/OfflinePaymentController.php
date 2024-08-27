@@ -91,7 +91,7 @@ class OfflinePaymentController extends BaseCrudController
 							'type' => 'modal',
 							'modalPopupSize' => 'sm2',
 							'url' => Url::to($nextUrl),
-							'title' => 'تمدید عضویت بر اساس پرداخت آفلاین',
+							'title' => Yii::t('aaa', 'Membership renewal based on cash/cheque payment'),
 						],
 						// 'modalDoneFragment' => $this->modalDoneFragment,
 					]);

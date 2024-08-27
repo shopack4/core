@@ -6,83 +6,59 @@
 namespace shopack\aaa\backend\controllers;
 
 use Yii;
-use yii\web\ForbiddenHttpException;
-use yii\web\NotFoundHttpException;
-use shopack\base\backend\controller\BaseRestController;
-use shopack\base\backend\helpers\PrivHelper;
+use shopack\base\backend\controller\BaseCrudController;
 use shopack\aaa\backend\models\WalletTransactionModel;
-use shopack\aaa\backend\models\WalletModel;
 
-class WalletTransactionController extends BaseRestController
+class WalletTransactionController extends BaseCrudController
 {
-	public function behaviors()
+	public $modelClass = WalletTransactionModel::class;
+
+	public function permissions()
 	{
-		$behaviors = parent::behaviors();
+		$checkOwner = function($model) : bool {
+			return (($model != null) && ($model['wallet']['walOwnerUserID'] == Yii::$app->user->id));
+		};
 
-		// $behaviors[BaseRestController::BEHAVIOR_AUTHENTICATOR]['except'] = [
-		// 	'callback',
-		// ];
-
-		return $behaviors;
+		return [
+			'index'  => [
+										'aaa/wallet-transaction/crud' => '0100',
+										'filter' => function($query) {
+											Yii::$app->user->assertIsNotGuest();
+											$query->andWhere(['walOwnerUserID' => Yii::$app->user->id]);
+										},
+									],
+			'view'   => ['aaa/wallet-transaction/crud' => '0100', 'checker' => $checkOwner],
+			// 'create' => ['aaa/wallet-transaction/crud' => '1000', 'checker' => $checkOwner],
+			// 'update' => ['aaa/wallet-transaction/crud' => '0010', 'checker' => $checkOwner],
+			// 'delete' => ['aaa/wallet-transaction/crud' => '0001', 'checker' => $checkOwner],
+			// 'undelete' => ['aaa/wallet-transaction/undelete'],
+		];
 	}
 
-	protected function findModel($id)
+	public function queryAugmentaters()
 	{
-		if (($model = WalletTransactionModel::findOne($id)) !== null)
-			return $model;
-
-		throw new NotFoundHttpException('The requested item does not exist.');
-	}
-
-	public function actionIndex()
-	{
-		$filter = $this->checkPrivAndGetFilter('aaa/wallet-transaction/crud', '0100', 'walOwnerUserID');
-
-		$searchModel = new WalletTransactionModel;
-		$query = WalletTransactionModel::find()
-			// ->select(WalletTransactionModel::selectableColumns())
-			->joinWith('wallet')
-			->joinWith('voucher')
-			->joinWith('onlinePayment')
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-		;
-
-		$searchModel->fillQueryFromRequest($query);
-
-		if (empty($filter) == false)
-			$query->andWhere($filter);
-
-		return $this->queryAllToResponse($query);
-	}
-
-	public function actionView($id)
-	{
-		$query = WalletTransactionModel::find()
-			// ->select(WalletTransactionModel::selectableColumns())
-			->joinWith('wallet')
-			->joinWith('voucher')
-			->joinWith('onlinePayment')
-			->with('createdByUser')
-			->with('updatedByUser')
-			->with('removedByUser')
-			->where(['wtrID' => $id])
-		;
-
-		return $this->queryOneToResponse($query, function($model) {
-			if ((PrivHelper::hasPriv('aaa/wallet-transaction/crud', '0100') == false)
-				&& ($model != null)
-				&& (($model['wallet']['walOwnerUserID'] ?? null) != Yii::$app->user->id)
-			) {
-				throw new ForbiddenHttpException('access denied');
-			}
-		});
-	}
-
-	public function actionOptions()
-	{
-		return 'options';
+		return [
+			'index' => function($query) {
+				$query
+					->joinWith('wallet')
+					->joinWith('voucher')
+					->joinWith('onlinePayment')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+			'view' => function($query) {
+				$query
+					->joinWith('wallet')
+					->joinWith('voucher')
+					->joinWith('onlinePayment')
+					->with('createdByUser')
+					->with('updatedByUser')
+					->with('removedByUser')
+				;
+			},
+		];
 	}
 
 }

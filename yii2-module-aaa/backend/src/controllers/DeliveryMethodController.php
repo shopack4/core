@@ -32,6 +32,7 @@ class DeliveryMethodController extends BaseCrudController
 			'create' => ['aaa/delivery-method/crud' => '1000'],
 			'update' => ['aaa/delivery-method/crud' => '0010'],
 			'delete' => ['aaa/delivery-method/crud' => '0001'],
+			'undelete' => ['aaa/delivery-method/undelete'],
 		];
 	}
 

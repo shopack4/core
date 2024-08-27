@@ -119,11 +119,11 @@ $this->params['breadcrumbs'][] = $this->title;
             'header' => UserModel::canCreate() ? Html::createButton(null, null, [
               'data-popup-size' => 'lg',
             ]) : Yii::t('app', 'Actions'),
-            'template' => '{update} {delete}{undelete}',
             'updateOptions' => [
               'modal' => true,
               'data-popup-size' => 'lg',
             ],
+            'template' => '{update} {delete}{undelete}',
             'visibleButtons' => [
               'update' => function ($model, $key, $index) {
                 return $model->canUpdate();

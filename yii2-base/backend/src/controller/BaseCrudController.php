@@ -10,7 +10,6 @@ use yii\base\InvalidConfigException;
 use yii\web\ForbiddenHttpException;
 use yii\web\NotFoundHttpException;
 use yii\web\UnprocessableEntityHttpException;
-use yii\web\ServerErrorHttpException;
 use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\helpers\ExceptionHelper;
 use shopack\base\backend\helpers\PrivHelper;
@@ -47,41 +46,50 @@ abstract class BaseCrudController extends BaseRestController
 	{
 		$permissions = $this->permissions();
 
-		if (array_key_exists($this->action->id, $permissions) == false)
-			return;
-
-		$permissions = $permissions[$this->action->id];
-
-		if ($permissions === false)
-			throw new ForbiddenHttpException('access denied');
-
-		if ($permissions === true)
-			return;
-
 		$behaviors = $this->behaviors();
+
+		//for bypass permission, must define action with `true` value or in `except` part
 
 		if ((empty($behaviors[static::BEHAVIOR_AUTHENTICATOR]['except']) == false)
 			&& (in_array($this->action->id, $behaviors[static::BEHAVIOR_AUTHENTICATOR]['except']))
 		) {
 			return;
-			// throw new ServerErrorHttpException("action ({$this->action->id}) is set as except for jwt checking, but exists in controller's permission checking");
 		}
 
-		$filter = ArrayHelper::remove($permissions, 'filter', null);
-		$checker = ArrayHelper::remove($permissions, 'checker', null);
+		if (array_key_exists($this->action->id, $permissions) == false) {
+			throw new ForbiddenHttpException('access denied');
+		}
+
+		$permission = $permissions[$this->action->id];
+
+		if ($permission === false)
+			throw new ForbiddenHttpException('access denied');
+
+		if ($permission === true)
+			return;
+
+		// if ((empty($behaviors[static::BEHAVIOR_AUTHENTICATOR]['except']) == false)
+		// 	&& (in_array($this->action->id, $behaviors[static::BEHAVIOR_AUTHENTICATOR]['except']))
+		// ) {
+		// 	return;
+		// 	// throw new ServerErrorHttpException("action ({$this->action->id}) is set as except for jwt checking, but exists in controller's permission checking");
+		// }
+
+		$filter = ArrayHelper::remove($permission, 'filter', null);
+		$checker = ArrayHelper::remove($permission, 'checker', null);
 
 		if (empty($checker)) {
 			if (empty($filter) || ($query == null))
-				PrivHelper::checkPriv($permissions);
+				PrivHelper::checkPriv($permission);
 			else {
 				$justForMe = $_GET['justForMe'] ?? false;
 
-				if ($justForMe || (PrivHelper::hasPriv($permissions) == false)) {
+				if ($justForMe || (PrivHelper::hasPriv($permission) == false)) {
 					$filter($query);
 				}
 			}
 		} else {
-			if ((PrivHelper::hasPriv($permissions) == false)
+			if ((PrivHelper::hasPriv($permission) == false)
 				&& ($checker($model) == false)
 			) {
 				throw new ForbiddenHttpException('access denied');

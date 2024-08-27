@@ -13,6 +13,7 @@ use shopack\base\common\helpers\JsonSchema;
 use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\helpers\StringHelper;
 use shopack\base\common\validators\JsonValidator;
+use yii\helpers\Html;
 
 trait ActiveRecordTrait
 {
@@ -119,6 +120,11 @@ trait ActiveRecordTrait
 	protected static $_rules = null;
   public function rules()
   {
+		$fnEncloseIfString = function($value) {
+			return (is_string($value) ? "'" . $value . "'" : $value);
+		};
+		$fnGetFieldId = function($field) { return Html::getInputId($this, $field); };
+
 		$_class = get_called_class();
 		$isSearchModel = str_ends_with($_class, 'SearchModel');
 
@@ -165,15 +171,67 @@ trait ActiveRecordTrait
 					}
 
 					if (isset($colInfo[enuColumnInfo::required])
-							&& ($colInfo[enuColumnInfo::required] !== false)
+						&& ($colInfo[enuColumnInfo::required] !== false)
 					) {
 						$rule = [
 							$column,
 							'required'
 						];
 
-						if (is_array($colInfo[enuColumnInfo::required])) {
-							$rule = array_merge($rule, $colInfo[enuColumnInfo::required]);
+						$req = $colInfo[enuColumnInfo::required];
+
+						if (is_array($req)) {
+							if (isset($req['when'])) {
+								$rule = array_merge($rule, [
+									'when' => $req['when'],
+								]);
+							}
+
+							if (isset($req['whenClient'])) {
+								$rule = array_merge($rule, [
+									'whenClient' => $req['whenClient'],
+								]);
+							} else if (isset($req['conditions'])
+								&& (Yii::$app->isBackend == false)
+								&& (Yii::$app->isConsole == false)
+							) {
+								//create whenClient
+								$clauses = [];
+
+								foreach ($req['conditions'] as $kreq => $vreq) {
+									$kparts = explode(':', $kreq);
+									$key = array_shift($kparts);
+									$state = isset($kparts[0]) ? ' :' . $kparts[0] : '';
+
+									$clauses[] = "(\$('#{$fnGetFieldId($key)}{$state}').val() == {$fnEncloseIfString($vreq)})";
+								}
+
+								if (count($clauses) == 1)
+									$clauses = $clauses[0];
+								else
+									$clauses = '(' . implode(' && ', $clauses) . ')';
+
+								$rule = array_merge($rule, [
+									'whenClient' => "function(attribute, value) { return {$clauses}; }",
+								]);
+							}
+
+							/*
+							} else {
+								//create when and whenClient
+								$clauses = [];
+
+								foreach ($req as $kreq => $vreq) {
+									$clauses[] = "\$model->{$kreq} == {$fnEncloseIfString($vreq)}";
+								}
+
+								$clauses = '(' . implode(') && (', $clauses) . ')';
+
+								$rule = array_merge($rule, [
+									'when' => eval("function(\$model) { return {$clauses}; }"),
+								]);
+							}
+							*/
 						}
 
 						$baseRules[] = $rule;

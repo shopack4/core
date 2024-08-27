@@ -354,7 +354,17 @@ class HttpHelper
 		$clientConfig['headers'] = $headers;
 
 		if (defined('YII_DEV_LOCAL_PROXY')) {
-			$clientConfig['proxy'] = constant('YII_DEV_LOCAL_PROXY');
+      $proxy = parse_url(constant('YII_DEV_LOCAL_PROXY'));
+
+			try {
+        $errno = null;
+        $errstr = null;
+				$fp = fsockopen($proxy['host'], $proxy['port'] ?? 80, $errno, $errstr, 0.5);
+				if ($fp) {
+					fclose($fp);
+					$clientConfig['proxy'] = constant('YII_DEV_LOCAL_PROXY');
+				}
+			} catch (\Throwable $th) { ; }
 		}
 
 		$httpClient = new GuzzleHttpClient($clientConfig);

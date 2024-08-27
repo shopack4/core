@@ -9,6 +9,7 @@ use shopack\base\common\helpers\StringHelper;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\grid\GridView;
 use shopack\aaa\common\enums\enuOfflinePaymentStatus;
+use shopack\aaa\common\enums\enuOfflinePaymentType;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 ?>
 
@@ -52,7 +53,17 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
           'class' => ['text-nowrap', 'tabular-nums'],
         ],
       ],
-      'ofpBankOrCart',
+      [
+        'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
+        'enumClass' => enuOfflinePaymentType::class,
+        'attribute' => 'ofpType',
+      ],
+      // 'ofpDestCartNumber',
+      // 'ofpDestAccountNumber',
+      // 'ofpDestISBN',
+      // 'ofpDestBankID',
+      // 'ofpDestName',
+      // 'ofpDueDate:jalali',
       'ofpPayDate:jalaliWithTime',
       [
         'attribute' => 'ofpTrackNumber',
