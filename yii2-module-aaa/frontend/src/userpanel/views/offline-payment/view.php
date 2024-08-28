@@ -16,7 +16,6 @@ use shopack\aaa\frontend\common\models\BasicDefinitionModel;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 
 $this->title = Yii::t('aaa', 'Offline Payment') . ': ' . $model->ofpID;
-$this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
 $this->params['breadcrumbs'][] = ['label' => Yii::t('aaa', 'Offline Payments'), 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -51,23 +50,23 @@ $this->params['breadcrumbs'][] = $this->title;
             'enableEditMode' => false,
             'attributes' => [
               'ofpCreatedAt:jalaliWithTime',
-              [
-                'attribute' => 'ofpCreatedBy_User',
-                'format' => 'raw',
-                'value' => $model->createdByUser->actorName ?? '-',
-              ],
+              // [
+              //   'attribute' => 'ofpCreatedBy_User',
+              //   'format' => 'raw',
+              //   'value' => $model->createdByUser->actorName ?? '-',
+              // ],
               'ofpUpdatedAt:jalaliWithTime',
-              [
-                'attribute' => 'ofpUpdatedBy_User',
-                'format' => 'raw',
-                'value' => $model->updatedByUser->actorName ?? '-',
-              ],
-              'ofpRemovedAt:jalaliWithTime',
-              [
-                'attribute' => 'ofpRemovedBy_User',
-                'format' => 'raw',
-                'value' => $model->removedByUser->actorName ?? '-',
-              ],
+              // [
+              //   'attribute' => 'ofpUpdatedBy_User',
+              //   'format' => 'raw',
+              //   'value' => $model->updatedByUser->actorName ?? '-',
+              // ],
+              // 'ofpRemovedAt:jalaliWithTime',
+              // [
+              //   'attribute' => 'ofpRemovedBy_User',
+              //   'format' => 'raw',
+              //   'value' => $model->removedByUser->actorName ?? '-',
+              // ],
             ],
           ]);
 
@@ -112,11 +111,6 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => enuOfflinePaymentStatus::getLabel($model->ofpStatus),
               ],
               [
-                'attribute' => 'ofpOwnerUserID',
-                'format' => 'raw',
-                'value' => Html::a($model->owner->displayName(), Yii::$app->getModule('aaa')->createUserViewUrl($model->ofpOwnerUserID)),
-              ],
-              [
                 'attribute' => 'ofpVoucherID',
                 'format' => 'raw',
                 'value' => Html::a($model->ofpVoucherID, ['aaa/voucher/view', 'id' => $model->ofpVoucherID]),
@@ -145,12 +139,12 @@ $this->params['breadcrumbs'][] = $this->title;
               'ofpTrackNumber',
               'ofpReferenceNumber',
               'ofpSourceCartNumber',
-              'ofpComment',
               [
                 'attribute' => 'ofpRejectReasonIDs',
                 'format' => 'raw',
                 'value' => $rejectReasons,
               ],
+              'ofpComment',
             ];
 
             echo DetailView::widget([
@@ -163,48 +157,6 @@ $this->params['breadcrumbs'][] = $this->title;
           ?>
         </div>
         <div class='col-3'>
-          <?php
-            $buttons = [];
-
-            if ($model->canAccept()) {
-              $buttons[] = Html::a(Yii::t('aaa', 'Approve'), [
-                'accept',
-                'id' => $model->ofpID,
-              ], [
-                'class' => 'btn btn-sm btn-success',
-                'modal' => true,
-                'title' => Yii::t('aaa', 'Approve'),
-              ]);
-            }
-
-            if ($model->canReject()) {
-              $buttons[] = Html::a(Yii::t('aaa', 'Reject'), [
-                'reject',
-                'id' => $model->ofpID,
-              ], [
-                'class' => 'btn btn-sm btn-warning',
-                'modal' => true,
-                'title' => Yii::t('aaa', 'Reject'),
-              ]);
-            }
-
-            if (empty($buttons) == false) {
-              $titleActions = Yii::t('app', 'Actions');
-              $buttons = implode(' ', $buttons);
-
-              echo <<<HTML
-<div class='card border-default mb-3'>
-<div class='card-header'>
-  <div class='card-title'>{$titleActions}</div>
-</div>
-<div class='card-body text-center'>
-  {$buttons}
-</div>
-</div>
-HTML;
-            }
-          ?>
-
           <div class='card'>
             <div class='card-header'>
               <div class='card-title'><?= $model->getAttributeLabel('ofpImageFileID') ?></div>

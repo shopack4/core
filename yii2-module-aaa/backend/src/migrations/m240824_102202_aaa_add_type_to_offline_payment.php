@@ -141,22 +141,6 @@ SQL
 			);
 		}
 
-		$this->execute(<<<SQL
-
-SQL
-		);
-
-
-
-
-
-
-		throw new \Exception('not completed yet!');
-
-
-
-
-
 	}
 
 	public function safeDown()

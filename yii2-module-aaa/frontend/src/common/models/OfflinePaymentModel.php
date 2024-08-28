@@ -43,7 +43,7 @@ class OfflinePaymentModel extends RestClientActiveRecord
 			'ofpUUID'               => Yii::t('app', 'Key'),
 			'ofpOwnerUserID'        => Yii::$app->getModule('aaa')->getOwnerUserLabel(),
 			'ofpVoucherID'          => Yii::t('aaa', 'Voucher'),
-			'ofpType'               => Yii::t('app', 'Type'),
+			'ofpType'               => Yii::t('aaa', 'Payment Type'),
 
 			'ofpDestCartNumber'     => Yii::t('aaa', 'Dest Cart Number'),
 			'ofpDestAccountNumber'  => Yii::t('aaa', 'Dest Account Number'),
@@ -58,7 +58,7 @@ class OfflinePaymentModel extends RestClientActiveRecord
 			'ofpPayDate'        	  => Yii::t('aaa', 'Paid at'),
 			'ofpPayer'        	    => Yii::t('aaa', 'Payer'),
 			'ofpSourceCartNumber'   => Yii::t('aaa', 'Source Cart Number'),
-			'ofpImageFileID'        => Yii::t('aaa', 'Image'),
+			'ofpImageFileID'        => Yii::t('aaa', 'Document Image'),
 			'ofpWalletID'           => Yii::t('aaa', 'Destination Wallet'),
 			'ofpComment'            => Yii::t('aaa', 'Comment'),
 			'ofpRejectReasonIDs'    => Yii::t('app', 'Reject Reasons'),

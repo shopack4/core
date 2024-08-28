@@ -31,6 +31,13 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
         'class' => 'kartik\grid\SerialColumn',
       ],
       [
+        'attribute' => 'ofpID',
+        'format' => 'raw',
+        'value' => function ($model, $key, $index, $widget) {
+          return Html::a($model->ofpID, ['view', 'id' => $model->ofpID]);
+        },
+      ],
+      [
         'attribute' => 'ofpImageFileID',
         // 'label' => '',
         'format' => 'raw',
@@ -38,7 +45,6 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
           return Html::asUploadedImage($model->imageFile, '50x', false);
         },
       ],
-      'ofpID',
       [
         'attribute' => 'ofpAmount',
         'format' => 'toman',
@@ -46,6 +52,8 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
           'class' => ['text-nowrap', 'tabular-nums'],
         ],
       ],
+      'ofpPayDate:jalaliWithTime',
+      'ofpPayer',
       [
         'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
         'enumClass' => enuOfflinePaymentType::class,
@@ -57,27 +65,24 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
       // 'ofpDestBankID',
       // 'ofpDestName',
       // 'ofpDueDate:jalali',
-      'ofpPayDate:jalaliWithTime',
-      [
-        'attribute' => 'ofpTrackNumber',
-        'contentOptions' => [
-          'class' => ['small'],
-        ],
-      ],
-      [
-        'attribute' => 'ofpReferenceNumber',
-        'contentOptions' => [
-          'class' => ['small'],
-        ],
-      ],
-      'ofpPayer',
-			'ofpSourceCartNumber',
+      // [
+      //   'attribute' => 'ofpTrackNumber',
+      //   'contentOptions' => [
+      //     'class' => ['small'],
+      //   ],
+      // ],
+      // [
+      //   'attribute' => 'ofpReferenceNumber',
+      //   'contentOptions' => [
+      //     'class' => ['small'],
+      //   ],
+      // ],
+			// 'ofpSourceCartNumber',
       [
         'attribute' => 'ofpWalletID',
+        'format' => 'raw',
         'value' => function($model) {
-          if (empty($model->ofpWalletID))
-            return null;
-          return Yii::t('app', $model->wallet->walName);
+          return Html::a($model->wallet->walID . ' - ' . $model->wallet->walName, ['/aaa/wallet/view', 'id' => $model->ofpWalletID]);
         },
       ],
       [

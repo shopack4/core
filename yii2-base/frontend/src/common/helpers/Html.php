@@ -279,7 +279,7 @@ class Html extends \yii\bootstrap5\Html
 
 		if ($imageFileModel->isImage()) {
 
-			//todo: make ability for show large image in mouse hover
+			//todo: create ability to display large image on mouse hover
 			return Html::a(Html::img($imageFileModel->fullFileUrl, ['style' => ['width' => $width]]),
 			$imageFileModel->fullFileUrl, [
 				'target' => 'blank',

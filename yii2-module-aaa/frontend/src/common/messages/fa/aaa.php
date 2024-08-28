@@ -195,6 +195,7 @@ return [
 
 	'Membership renewal based on cash/cheque payment' => 'تمدید عضویت بر اساس پرداخت نقدی / چک',
 
+	'Payment Type' => 'روش پرداخت',
 	'Cash' => 'نقد',
 	'Pos' => 'دستگاه پوز',
 	'To Cart' => 'کارت به کارت',
@@ -214,6 +215,8 @@ return [
 	'Source Cart Number' => 'شماره کارت / حساب مبدا',
 	'Destination Wallet' => 'کیف پول مقصد',
 	'Owner' => 'مالک',
+
+	'Document Image' => 'تصویر سند',
 
 	'Wallets' => 'کیف‌های پول',
 	'Wallet' => 'کیف پول',

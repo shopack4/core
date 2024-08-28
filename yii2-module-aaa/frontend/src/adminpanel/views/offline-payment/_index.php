@@ -5,15 +5,15 @@
 
 /** @var yii\web\View $this */
 
-use shopack\aaa\common\enums\enuBasicDefinitionType;
+use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\helpers\StringHelper;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\grid\GridView;
+use shopack\aaa\common\enums\enuBasicDefinitionType;
 use shopack\aaa\common\enums\enuOfflinePaymentStatus;
 use shopack\aaa\common\enums\enuOfflinePaymentType;
 use shopack\aaa\frontend\common\models\BasicDefinitionModel;
 use shopack\aaa\frontend\common\models\OfflinePaymentModel;
-use shopack\base\common\helpers\ArrayHelper;
 ?>
 
 <?php
@@ -51,7 +51,7 @@ use shopack\base\common\helpers\ArrayHelper;
       'detail' => function ($model) use($rejectReasons) {
         $rows = [];
 
-        $rows[] = [$model->getAttributeLabel('ofpPayer'), $model->ofpPayer];
+        // $rows[] = [$model->getAttributeLabel('ofpPayer'), $model->ofpPayer];
         $rows[] = [$model->getAttributeLabel('ofpSourceCartNumber'), $model->ofpSourceCartNumber];
 
         if (empty($model->ofpRejectReasonIDs) == false) {
@@ -63,8 +63,7 @@ use shopack\base\common\helpers\ArrayHelper;
           }
 
           if (empty($reasons) == false) {
-            //todo: use Yii::t
-            $rows[] = ['دلایل رد', implode(' - ', $reasons)];
+            $rows[] = [$model->getAttributeLabel('ofpRejectReasonIDs'), implode(' - ', $reasons)];
           }
         }
 
@@ -107,6 +106,8 @@ use shopack\base\common\helpers\ArrayHelper;
 
   $columns = array_merge($columns, [
     'ofpAmount:toman',
+    'ofpPayDate:jalaliWithTime',
+    'ofpPayer',
     [
       'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
       'enumClass' => enuOfflinePaymentType::class,
@@ -120,7 +121,6 @@ use shopack\base\common\helpers\ArrayHelper;
     // 'ofpDueDate:jalali',
     'ofpTrackNumber',
     'ofpReferenceNumber',
-    'ofpPayDate:jalaliWithTime',
     [
       'attribute' => 'ofpWalletID',
       'format' => 'raw',
@@ -128,7 +128,6 @@ use shopack\base\common\helpers\ArrayHelper;
         return Html::a($model->wallet->walID . ' - ' . $model->wallet->walName, ['/aaa/wallet/view', 'id' => $model->ofpWalletID]);
       },
     ],
-    // 'ofpPayer',
     // 'ofpSourceCartNumber',
     [
       'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
@@ -178,13 +177,6 @@ use shopack\base\common\helpers\ArrayHelper;
             'modal' => true,
             'title' => Yii::t('aaa', 'Reject'),
           ]);
-          // return Html::confirmButton(Yii::t('aaa', 'Reject'), [
-          //   'reject',
-          //   'id' => $model->ofpID,
-          // ], Yii::t('aaa', 'Are you sure you want to REJECT this item?'), [
-          //   'class' => 'btn btn-sm btn-warning',
-          //   'ajax' => 'post',
-          // ]);
         },
       ],
 

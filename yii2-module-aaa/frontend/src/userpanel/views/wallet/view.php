@@ -5,13 +5,10 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\common\helpers\Url;
-use shopack\base\common\helpers\HttpHelper;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\DetailView;
 use shopack\base\frontend\common\widgets\PopoverX;
 use shopack\aaa\common\enums\enuWalletStatus;
-use shopack\aaa\frontend\common\models\WalletModel;
 
 $this->title = Yii::t('aaa', 'Wallet') . ': ' . $model->walID . ' - ' . $model->walName;
 $this->params['breadcrumbs'][] = ['label' => Yii::t('aaa', 'Wallets'), 'url' => ['index']];
@@ -46,23 +43,23 @@ $this->params['breadcrumbs'][] = $this->title;
             'enableEditMode' => false,
             'attributes' => [
               'walCreatedAt:jalaliWithTime',
-              [
-                'attribute' => 'walCreatedBy_User',
-                'format' => 'raw',
-                'value' => $model->createdByUser->actorName ?? '-',
-              ],
+              // [
+              //   'attribute' => 'walCreatedBy_User',
+              //   'format' => 'raw',
+              //   'value' => $model->createdByUser->actorName ?? '-',
+              // ],
               'walUpdatedAt:jalaliWithTime',
-              [
-                'attribute' => 'walUpdatedBy_User',
-                'format' => 'raw',
-                'value' => $model->updatedByUser->actorName ?? '-',
-              ],
-              'walRemovedAt:jalaliWithTime',
-              [
-                'attribute' => 'walRemovedBy_User',
-                'format' => 'raw',
-                'value' => $model->removedByUser->actorName ?? '-',
-              ],
+              // [
+              //   'attribute' => 'walUpdatedBy_User',
+              //   'format' => 'raw',
+              //   'value' => $model->updatedByUser->actorName ?? '-',
+              // ],
+              // 'walRemovedAt:jalaliWithTime',
+              // [
+              //   'attribute' => 'walRemovedBy_User',
+              //   'format' => 'raw',
+              //   'value' => $model->removedByUser->actorName ?? '-',
+              // ],
             ],
           ]);
 
