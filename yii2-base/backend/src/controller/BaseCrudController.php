@@ -130,13 +130,14 @@ abstract class BaseCrudController extends BaseRestController
 			$query->select($modelClass::selectableColumns());
 
 		$model = new $modelClass;
-		$this->checkPermission($model, $query);
 
 		$this->augmentQuery($query);
 
 		$this->fillGlobalSearchFromRequest($query, $q);
 
 		$model->fillQueryFromRequest($query);
+
+		$this->checkPermission($model, $query);
 
 		return $this->queryAllToResponse($query);
 	}

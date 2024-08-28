@@ -16,7 +16,7 @@ class MessageController extends BaseCrudController
 	public function permissions()
 	{
 		$checkOwner = function($model) : bool {
-			return (($model != null) && ($model['msgUsrID'] == Yii::$app->user->id));
+			return (($model != null) && ($model['msgUserID'] == Yii::$app->user->id));
 		};
 
 		return [
@@ -24,7 +24,7 @@ class MessageController extends BaseCrudController
 										'aaa/message/crud' => '0100',
 										'filter' => function($query) {
 											Yii::$app->user->assertIsNotGuest();
-											$query->andWhere(['msgUsrID' => Yii::$app->user->id]);
+											$query->andWhere(['msgUserID' => Yii::$app->user->id]);
 										},
 									],
 			'view'   => ['aaa/message/crud' => '0100', 'checker' => $checkOwner],

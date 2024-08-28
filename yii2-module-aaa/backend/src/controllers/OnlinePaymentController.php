@@ -155,16 +155,16 @@ HTML;
 		$onlinePaymentModel = null;
 
 		try {
-			$onlinePaymentModel = Yii::$app->paymentManager->approveOnlinePayment(
-				$paymentkey, $pgwResponse);
+			$onlinePaymentModel = Yii::$app->paymentManager->approveOnlinePayment($paymentkey, $pgwResponse);
 
       if ($onlinePaymentModel->onpStatus == enuOnlinePaymentStatus::Error) {
 				if (empty($onlinePaymentModel->onpResult['error']) == false) {
-					if (YII_DEBUG) {
+					// if (YII_DEBUG) {
 						$onlinePaymentModel->addError('', $onlinePaymentModel->onpResult['error']);
-					} else {
-						$errors = 'Payment Failed';
-					}
+						// $errors = $onlinePaymentModel->onpResult['error'];
+					// } else {
+					// 	$errors = 'Payment Failed';
+					// }
 				}
 			} else {
 				$done = $onlinePaymentModel->voucher->processVoucher();
@@ -177,6 +177,8 @@ HTML;
 			$onlinePaymentModel->addError('', $th->getMessage());
 		}
 
+		// throw new UnprocessableEntityHttpException('aaaaaaaaa (3)');
+
 		//---
 		$url = $onlinePaymentModel->onpCallbackUrl;
 		if (strpos($url, '?') === false)
@@ -185,9 +187,10 @@ HTML;
 			$url .= '&';
 		$url .= 'paymentkey=' . $paymentkey;
 
-		if (YII_DEBUG)
+		// if (YII_DEBUG)
 			$errors = $onlinePaymentModel->getErrorSummary(true);
-		if ($errors)
+
+		if (empty($errors) == false)
 			$url .= '&errors=' . urlencode(implode('\n', $errors));
 
 		$this->redirect($url);

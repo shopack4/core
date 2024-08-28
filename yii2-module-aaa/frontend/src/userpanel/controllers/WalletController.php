@@ -91,7 +91,8 @@ class WalletController extends BaseCrudController
     if ($onlinePaymentModel->voucher->vchType != enuVoucherType::Credit)
       throw new UnprocessableEntityHttpException('Incorrect Voucher type (not credit)');
 
-    $vchItems = Json::decode($onlinePaymentModel->voucher->vchItems);
+    // $vchItems = Json::decode($onlinePaymentModel->voucher->vchItems);
+    $vchItems = $onlinePaymentModel->voucher->vchItems;
     if (empty($vchItems['inc-wallet-id']))
       throw new UnprocessableEntityHttpException('Incorrect Voucher (not for wallet)');
 

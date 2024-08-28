@@ -34,7 +34,7 @@ use shopack\aaa\frontend\common\models\UploadFileModel;
       // 'label' => '',
       'format' => 'raw',
       'value' => function ($model, $key, $index, $widget) {
-        return Html::asUploadedImage($model, '50x', false);
+        return Html::asUploadedImage($model, '50px', false);
       },
     ],
   ];

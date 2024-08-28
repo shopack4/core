@@ -3,7 +3,7 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-use shopack\base\common\helpers\Json;
+use yii\data\ArrayDataProvider;
 use shopack\aaa\common\enums\enuTwoFAType;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\DetailView;
@@ -15,7 +15,6 @@ use shopack\aaa\common\enums\enuUserEducationLevel;
 use shopack\aaa\common\enums\enuUserMaritalStatus;
 use shopack\aaa\common\enums\enuUserMilitaryStatus;
 use shopack\base\frontend\common\widgets\grid\GridView;
-use yii\data\ArrayDataProvider;
 
 $this->title = Yii::t('aaa', 'My Profile');
 $this->params['breadcrumbs'][] = $this->title;
@@ -492,6 +491,15 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
         'accounts'
       ); */ ?>
+
+			<?php
+				///todo: reduce output columns and remove below comments
+        // $tabs->newAjaxTabPage(Yii::t('aaa', 'Messages'), [
+        //     '/aaa/profile/messages',
+        //   ],
+        //   'messages'
+        // );
+      ?>
 
       <?php $tabs->end(); ?>
     </div>

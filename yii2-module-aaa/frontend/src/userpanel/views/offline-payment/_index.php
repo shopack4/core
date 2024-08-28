@@ -42,7 +42,7 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
         // 'label' => '',
         'format' => 'raw',
         'value' => function ($model, $key, $index, $widget) {
-          return Html::asUploadedImage($model->imageFile, '50x', false);
+          return Html::asUploadedImage($model->imageFile, '50px', false);
         },
       ],
       [

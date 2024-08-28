@@ -373,7 +373,14 @@ class HttpHelper
 		$response = $httpClient->{$method}($url, $callOptions);
 
 		$resultStatus = $response->getStatusCode();
-		$responseHeaders = $response->getHeaders();
+
+		$_resheaders = $response->getHeaders();
+		$responseHeaders = [];
+		foreach ($_resheaders as $_k => $_v) {
+			$_k = str_replace(' ', '-', StringHelper::mb_ucwords(str_replace('-', ' ', $_k)));
+			$responseHeaders[$_k] = $_v;
+		}
+
 		// $responseBody = self::_unserializeResponseBody($response);
 		$responseBody = (string)$response->getBody();
 
@@ -425,13 +432,11 @@ class HttpHelper
 			}
 		}
 
-		if (YII_DEBUG) {
-			Yii::info([
-				'status'	=> $resultStatus,
-				'headers'	=> $responseHeaders,
-				'body'		=> $responseBody,
-			], __METHOD__);
-		}
+		Yii::debug([
+			'status'	=> $resultStatus,
+			'headers'	=> $responseHeaders,
+			'body'		=> $responseBody,
+		], __METHOD__);
 
 		$resultBody = [];
 

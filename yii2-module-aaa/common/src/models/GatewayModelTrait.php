@@ -10,6 +10,7 @@ use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
 use shopack\aaa\common\enums\enuGatewayStatus;
+use Yii;
 
 /*
 'gtwID',
@@ -77,10 +78,12 @@ trait GatewayModelTrait
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
-				enuColumnInfo::selectable => [
+				enuColumnInfo::selectable => true, /*[
 					['aaa/gateway/crud', '1000'],
 					['aaa/gateway/crud', '0010']
 				], //only for admins with create OR update permission
+				*/
+				enuColumnInfo::filter     => (Yii::$app->isBackend == false),
 			],
 			'gtwRestrictions' => [
 				enuColumnInfo::type       => JsonValidator::class,

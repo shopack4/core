@@ -20,6 +20,7 @@ use shopack\aaa\frontend\common\models\ImageChangeForm;
 use shopack\aaa\frontend\common\models\EmailChangeForm;
 use shopack\aaa\frontend\common\models\MobileChangeForm;
 use shopack\aaa\frontend\common\models\ApproveCodeForm;
+use shopack\aaa\frontend\common\models\MessageSearchModel;
 
 class ProfileController extends BaseController
 {
@@ -602,5 +603,23 @@ class ProfileController extends BaseController
 			'modalDoneFragment' => 'login',
 		]);
   }
+
+  public function actionMessages()
+	{
+    Yii::$app->isJustForMe = true;
+
+    $searchModel = new MessageSearchModel();
+		$dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+
+    $viewParams = [
+			'searchModel' => $searchModel,
+			'dataProvider' => $dataProvider,
+		];
+
+		if (Yii::$app->request->isAjax)
+			return $this->renderJson($this->renderAjax('_messages', $viewParams));
+
+    return $this->render('messages', $viewParams);
+	}
 
 }
