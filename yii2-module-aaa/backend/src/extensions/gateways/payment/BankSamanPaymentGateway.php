@@ -116,10 +116,12 @@ class BankSamanPaymentGateway
 				// 'TokenExpiryInMin'	=> ,
 				// 'HashedCardNumber'	=> ,
 			]);
-		} catch (\Exception $exp) {
+		} catch (\Throwable $exp) {
 			// echo "<div class=\"error\">{$E}</div>";
 			throw new UnprocessableEntityHttpException('Error in prepare payment (' . $exp->getMessage() . ')');
 		}
+
+		Yii::debug($result, __METHOD__ . ':' . __LINE__);
 
 		// $this->throwIfFailed($result);
 		if (!isset($result['status']) || $result['status'] != 1) {
@@ -164,6 +166,8 @@ class BankSamanPaymentGateway
 	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse)
 	{
 		$terminal_id = $this->extensionModel->gtwPluginParameters[self::PARAM_TERMINAL_ID];
+
+		Yii::debug($pgwResponse, __METHOD__ . ':' . __LINE__);
 
 		$MID								= $pgwResponse['MID'];							//شماره ترمینال
 		$State							= $pgwResponse['State'];						//وضعیت تراکنش: حروف انگلیسی
@@ -215,6 +219,8 @@ class BankSamanPaymentGateway
 			'RefNum' => $RefNum,
 			'TerminalNumber' => $terminal_id, // $MID,
 		]);
+
+		Yii::debug($verify_result, __METHOD__ . ':' . __LINE__);
 
 		// $this->throwIfFailed($verify_result);
 		if (!isset($verify_result['ResultCode']) || $verify_result['ResultCode'] != 0) {

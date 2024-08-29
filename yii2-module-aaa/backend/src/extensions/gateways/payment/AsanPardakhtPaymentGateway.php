@@ -140,6 +140,8 @@ class AsanPardakhtPaymentGateway
 			throw new UnprocessableEntityHttpException('Error in prepare payment (' . $exp->getMessage() . ')');
 		}
 
+		Yii::debug($token, __METHOD__ . ':' . __LINE__);
+
 		// if (!isset($token['status_code']) || $token['status_code'] != 200) {
 		// 	$this->throwFailed($token['status_code']);
 		// }
@@ -173,12 +175,16 @@ class AsanPardakhtPaymentGateway
 
 	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse)
 	{
+		Yii::debug($pgwResponse, __METHOD__ . ':' . __LINE__);
+
 		$merchant_id = $this->extensionModel->gtwPluginParameters[self::PARAM_MERCHANT_ID];
 
 		$result = $this->callApi('GET', self::URLTranResult, [
 			'merchantConfigurationId' => $merchant_id,
 			'localInvoiceId' => $onlinePaymentModel->onpID,
 		]);
+
+		Yii::debug($result, __METHOD__ . ':' . __LINE__);
 
 		// if (!isset($result['status_code']) || $result['status_code'] != 200) {
 		// 	$this->throwFailed($result['status_code']);
@@ -193,6 +199,8 @@ class AsanPardakhtPaymentGateway
 			'merchantConfigurationId' => (int)$merchant_id,
 			'payGateTranId' => (int)$payGateTransactionId,
 		]);
+
+		Yii::debug($verify_result, __METHOD__ . ':' . __LINE__);
 
 		// if (!isset($verify_result['status_code']) or $verify_result['status_code'] != 200) {
 		// 	$this->throwFailed($verify_result['status_code']);
