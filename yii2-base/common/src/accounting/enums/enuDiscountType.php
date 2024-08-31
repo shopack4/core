@@ -37,4 +37,4 @@ abstract class enuDiscountType extends BaseEnum
 		return null;
 	}
 
-};
+}

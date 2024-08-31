@@ -5,13 +5,15 @@
 
 namespace shopack\aaa\common\enums;
 
-use shopack\base\common\base\BaseEnum;
+use shopack\base\common\base\BaseEnumWithADR;
 
-abstract class enuMessageTemplateStatus extends BaseEnum
+abstract class enuMessageTemplateStatus extends BaseEnumWithADR
 {
-  const Active 		= 'A';
-  const Inactive 	= 'D';
-  const Removed 	= 'R';
+	// B: used in base class
+	// -----------------------------------------------------
+	// |A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|
+	// |B| | |B| | | | | | | | | | | | | |B| | | | | | | | |
+	// -----------------------------------------------------
 
 	public static $messageCategory = 'aaa';
 

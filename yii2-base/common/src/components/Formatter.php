@@ -365,7 +365,7 @@ class Formatter extends \yii\i18n\Formatter
 
 	public function asEnum($value, $enum=null)
 	{
-		return $this->asText($enum::getLabel($value));
+		return $enum::getLabelWithIcon($value);
 	}
 
 	public function asLookup($value, $data)

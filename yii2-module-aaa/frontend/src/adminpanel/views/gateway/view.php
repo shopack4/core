@@ -75,7 +75,8 @@ $this->params['breadcrumbs'][] = $this->title;
           'gtwID',
           [
             'attribute' => 'gtwStatus',
-            'value' => enuGatewayStatus::getLabel($model->gtwStatus),
+            'format' => 'raw',
+            'value' => enuGatewayStatus::getLabelWithIcon($model->gtwStatus),
           ],
           'gtwName',
           [

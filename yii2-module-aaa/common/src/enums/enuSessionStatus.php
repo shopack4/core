@@ -9,18 +9,19 @@ use shopack\base\common\base\BaseEnum;
 
 abstract class enuSessionStatus extends BaseEnum
 {
-  const Pending 					= 'P';
   const Active 						= 'A';
-  const ForLoginByMobile	= 'L';
+	// Inactive 'D'
   const Removed 					= 'R';
+  const Pending 					= 'P';
+  const ForLoginByMobile	= 'L';
 
 	public static $messageCategory = 'aaa';
 
 	public static $list = [
-		self::Pending 					=> 'Pending',
 		self::Active						=> 'Active',
-		self::ForLoginByMobile	=> 'For Login By Mobile',
 		self::Removed 					=> 'Removed',
+		self::Pending 					=> 'Pending',
+		self::ForLoginByMobile	=> 'For Login By Mobile',
 	];
 
 };

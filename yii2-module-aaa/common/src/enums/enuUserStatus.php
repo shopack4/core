@@ -5,22 +5,25 @@
 
 namespace shopack\aaa\common\enums;
 
-use shopack\base\common\base\BaseEnum;
+use shopack\base\common\base\BaseEnumWithADR;
 
-abstract class enuUserStatus extends BaseEnum
+abstract class enuUserStatus extends BaseEnumWithADR
 {
-  const Active 								= 'A';
-  const Inactive 							= 'D';
+	// B: used in base class
+	// -----------------------------------------------------
+	// |A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|
+	// |B| | |B| | | | | | | |x| | | | | |B| | | | | | | | |
+	// -----------------------------------------------------
+
   const NewForLoginByMobile 	= 'L'; //will be delete after 24 hours if not changed to others
-  const Removed 							= 'R';
 
 	public static $messageCategory = 'aaa';
 
 	public static $list = [
 		self::Active							 => 'Active',
 		self::Inactive						 => 'Inactive',
-		self::NewForLoginByMobile	 => 'For Login By Mobile',
 		self::Removed 						 => 'Removed',
+		self::NewForLoginByMobile	 => 'For Login By Mobile',
 	];
 
 };

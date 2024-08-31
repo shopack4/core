@@ -43,7 +43,10 @@ $this->params['breadcrumbs'][] = $this->title;
           'id' => StringHelper::generateRandomId(),
           'dataProvider' => $dataProvider,
           'filterModel' => $searchModel,
-
+          'rowOptions' => function ($model) {
+            if ($model->gtwStatus == enuGatewayStatus::Removed)
+              return ['class' => 'table-danger'];
+          },
           'columns' => [
             [
               'class' => 'kartik\grid\SerialColumn',

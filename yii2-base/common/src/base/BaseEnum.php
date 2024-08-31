@@ -249,6 +249,24 @@ abstract class BaseEnum extends BaseObject
 		}
 		return null;
 	}
+
+	public static function getIcon($value)
+	{
+		return null;
+	}
+
+	public static function getLabelWithIcon($value, $set = null)
+	{
+		$result = [];
+
+		$class = get_called_class();
+
+		$result[] = $class::getIcon($value);
+		$result[] = $class::getLabel($value, $set);
+
+		return implode(' ', $result);
+	}
+
 	/**
 	 * Returns the list of constants (by name) for this type.
 	 *
