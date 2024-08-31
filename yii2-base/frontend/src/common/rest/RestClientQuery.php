@@ -6,24 +6,24 @@
 namespace shopack\base\frontend\common\rest;
 
 use Yii;
-use yii\base\Component;
-use yii\base\InvalidCallException;
+// use yii\base\Component;
+// use yii\base\InvalidCallException;
 use yii\base\InvalidParamException;
 use yii\base\InvalidArgumentException;
 use yii\web\HttpException;
 use yii\web\ServerErrorHttpException;
-use yii\web\UnauthorizedHttpException;
+// use yii\web\UnauthorizedHttpException;
 // use GuzzleHttp\Exception\ClientException;
 // use GuzzleHttp\Exception\ConnectException;
 // use GuzzleHttp\Exception\RequestException;
 use Psr\Http\Message\ResponseInterface;
 use shopack\base\common\classes\FileData;
-use shopack\base\common\classes\GuzzleHttpClient;
+// use shopack\base\common\classes\GuzzleHttpClient;
 use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\base\common\helpers\Json;
-use shopack\base\common\helpers\LanguageHelper;
-use shopack\base\common\helpers\Url;
+// use shopack\base\common\helpers\LanguageHelper;
+// use shopack\base\common\helpers\Url;
 use shopack\base\frontend\common\rest\RestClientQueryInterface;
 use shopack\base\frontend\common\rest\RestClientActiveRecord;
 

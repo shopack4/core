@@ -6,7 +6,6 @@
 namespace shopack\aaa\frontend\common\models;
 
 use Yii;
-use shopack\base\common\helpers\Json;
 use shopack\base\frontend\common\rest\RestClientActiveRecord;
 use shopack\aaa\common\enums\enuUserStatus;
 

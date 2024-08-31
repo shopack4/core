@@ -17,8 +17,8 @@ class UserSearchModel extends UserModel
 {
 	use \shopack\base\common\db\SearchModelTrait;
 
-	public $sessionCount;
-	public $lastActivity;
+	// public $sessionCount;
+	// public $lastActivity;
 
 	// public function attributeLabels()
 	// {

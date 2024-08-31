@@ -6,11 +6,8 @@
 namespace shopack\aaa\backend\models;
 
 use Yii;
-use shopack\base\common\db\DbExpression;
-use yii\web\NotFoundHttpException;
-use yii\web\UnprocessableEntityHttpException;
-use shopack\aaa\backend\classes\AAAActiveRecord;
 use shopack\aaa\common\enums\enuOfflinePaymentStatus;
+use shopack\aaa\backend\classes\AAAActiveRecord;
 use shopack\aaa\backend\models\WalletModel;
 
 class OfflinePaymentModel extends AAAActiveRecord

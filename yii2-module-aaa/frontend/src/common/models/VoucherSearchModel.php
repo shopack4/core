@@ -14,17 +14,6 @@ class VoucherSearchModel extends VoucherModel
 {
 	use \shopack\base\common\db\SearchModelTrait;
 
-	// public $vchOwnerUserID;
-
-	// public function attributeLabels()
-	// {
-	// 	return ArrayHelper::merge(parent::attributeLabels(), [
-	// 		'usrssnLoginDateTime' => 'آخرین ورود',
-	// 		'loginDateTime' => 'آخرین ورود',
-	// 		'online' => 'آنلاین',
-	// 	]);
-	// }
-
 	public function scenarios()
 	{
 		// bypass scenarios() implementation in the parent class

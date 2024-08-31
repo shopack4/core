@@ -5,6 +5,7 @@
 
 namespace shopack\aaa\frontend\adminpanel\models;
 
+use shopack\aaa\frontend\common\models\OfflinePaymentModel;
 use Yii;
 use yii\base\Model;
 use yii\web\UnprocessableEntityHttpException;
@@ -39,20 +40,11 @@ class OfflinePaymentRejectForm extends Model
     if ($this->validate() == false)
       throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
-    $apiResponse = HttpHelper::callApi('aaa/offline-payment/reject',
-      HttpHelper::METHOD_POST,
-      [
-        'id' => $this->ofpID,
-      ],
-      [
-        'reasons' => json_encode($this->ofpRejectReasonIDs ?? []),
-        'comment' => $this->ofpComment,
-      ]
+    return OfflinePaymentModel::doReject(
+      $this->ofpID,
+      json_encode($this->ofpRejectReasonIDs ?? []),
+      $this->ofpComment,
     );
-
-    HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
-
-    return true;
   }
 
 }

@@ -7,8 +7,8 @@ namespace shopack\aaa\frontend\common\models;
 
 use Yii;
 use yii\base\Model;
-use shopack\base\common\helpers\HttpHelper;
 use yii\web\ForbiddenHttpException;
+use shopack\base\common\helpers\HttpHelper;
 
 class LoginForm extends Model
 {

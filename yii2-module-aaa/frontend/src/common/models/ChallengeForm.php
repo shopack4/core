@@ -7,10 +7,10 @@ namespace shopack\aaa\frontend\common\models;
 
 use Yii;
 use yii\base\Model;
+use yii\web\ForbiddenHttpException;
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\HttpHelper;
 use shopack\base\frontend\common\helpers\Html;
-use yii\web\ForbiddenHttpException;
 
 class ChallengeForm extends Model
 {

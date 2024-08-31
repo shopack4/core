@@ -6,10 +6,10 @@
 namespace shopack\aaa\frontend\common\models;
 
 use Yii;
+use yii\web\NotFoundHttpException;
+use shopack\base\common\helpers\HttpHelper;
 use shopack\base\frontend\common\rest\RestClientActiveRecord;
 use shopack\aaa\common\enums\enuVoucherStatus;
-use shopack\base\common\helpers\HttpHelper;
-use yii\web\NotFoundHttpException;
 
 class VoucherModel extends RestClientActiveRecord
 {

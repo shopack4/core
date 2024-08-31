@@ -127,21 +127,25 @@ class OfflinePaymentModel extends RestClientActiveRecord
     return true;
 	}
 
-	// public static function doReject($id)
-	// {
-	// 	if (empty($id))
-	// 		throw new NotFoundHttpException('Invalid id');
+	public static function doReject($id, $reasons, $comment)
+	{
+		if (empty($id))
+			throw new NotFoundHttpException('Invalid id');
 
-  //   $apiResponse = HttpHelper::callApi('aaa/offline-payment/reject',
-  //     HttpHelper::METHOD_POST,
-  //     [
-  //       'id' => $id,
-  //     ]
-  //   );
+    $apiResponse = HttpHelper::callApi('aaa/offline-payment/reject',
+      HttpHelper::METHOD_POST,
+      [
+        'id' => $id,
+			],
+			[
+        'reasons' => $reasons,
+        'comment' => $comment,
+      ]
+    );
 
-	// 	HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
+		HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
 
-  //   return true;
-	// }
+    return true;
+	}
 
 }

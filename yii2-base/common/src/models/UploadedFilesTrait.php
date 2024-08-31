@@ -7,7 +7,6 @@ namespace shopack\base\common\models;
 
 trait UploadedFilesTrait
 {
-
 	public function getUploadedFilesData()
 	{
 		if (empty($_FILES))

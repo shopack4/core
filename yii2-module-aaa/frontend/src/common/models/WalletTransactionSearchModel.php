@@ -5,7 +5,6 @@
 
 namespace shopack\aaa\frontend\common\models;
 
-use Yii;
 use yii\base\Model;
 use yii\web\ServerErrorHttpException;
 use shopack\base\frontend\common\rest\RestClientDataProvider;

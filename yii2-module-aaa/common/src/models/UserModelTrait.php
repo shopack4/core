@@ -67,14 +67,20 @@ use shopack\base\common\helpers\GeneralHelper;
 */
 trait UserModelTrait
 {
+  //input:
   public $usrPassword;
-  public $hasPassword = false;
 
+  //output:
+  public $hasPassword = false;
+	// public $sessionCount;
+	// public $lastActivity;
   //just used for export to client
   public function adhocColumnsInfo()
   {
     return [
       'hasPassword' => ModelColumnHelper::adhoc(),
+      // 'sessionCount' => ModelColumnHelper::adhoc(),
+      // 'lastActivity' => ModelColumnHelper::adhoc(),
     ];
   }
 
