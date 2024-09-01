@@ -134,9 +134,9 @@ class BankSamanPaymentGateway
 		$token = $result['token'];
 
 		return [
-			/* $response     */ 'ok',
-			/* $paymentToken */ $token,
-			/* $paymentUrl   */ [
+			/* response     */ 'ok',
+			/* paymentToken */ $token,
+			/* paymentUrl   */ [
 				'post',
 				self::URL_PayStart,
 				'Token' => $token,
@@ -163,8 +163,12 @@ class BankSamanPaymentGateway
 		];
 	}
 
-	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse)
-	{
+	public function verify(
+		&$gatewayModel,
+		$onlinePaymentModel,
+		$pgwResponse,
+		$fnCheckDoubleSpending
+	) {
 		$terminal_id = $this->extensionModel->gtwPluginParameters[self::PARAM_TERMINAL_ID];
 
 		Yii::debug($pgwResponse, __METHOD__ . ':' . __LINE__);
@@ -206,13 +210,16 @@ class BankSamanPaymentGateway
 		}
 
 		//1: validate data
+		if (empty($RefNum)) {
+			throw new UnprocessableEntityHttpException("Error: transaction number is empty");
+		}
+
 		if ($terminal_id != $TerminalId) {
 			throw new UnprocessableEntityHttpException("Error: mismatched Terminal Id");
 		}
 
 		//2: check double spending
-		//todo: check double spending
-		//$RefNum
+		$fnCheckDoubleSpending($RefNum);
 
 		//3: verify
 		$verify_result = $this->callApi('POST', self::URL_Verify, [], [
@@ -234,11 +241,12 @@ class BankSamanPaymentGateway
 
 		//4: settlement
 
-		//
+		//$result, $transactionNumber, $trackNumber, $rrn
 		return [
-			$transactionDetail, //'ok',
-			$transactionDetail['StraceNo'],
-			$transactionDetail['RRN'],
+			/* result            */ $transactionDetail, //'ok',
+			/* transactionNumber */ $RefNum,
+			/* trackNumber       */ $transactionDetail['StraceNo'],
+			/* rrn               */ $transactionDetail['RRN'],
 			// 'traceNo'				=> $payGateTransactionId,
 			// 'referenceNo'		=> $result['rrn'],
 			// 'transactionId'	=> $result['refID'],

@@ -9,5 +9,10 @@ interface IPaymentGateway
 {
 	public function prepare(&$gatewayModel, $onlinePaymentModel, $callbackUrl);
 	public function pay(&$gatewayModel, $onlinePaymentModel);
-	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse);
+	public function verify(
+		&$gatewayModel,
+		$onlinePaymentModel,
+		$pgwResponse,
+		$fnCheckDoubleSpending
+	);
 }

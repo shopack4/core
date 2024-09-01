@@ -95,15 +95,23 @@ HTML;
 		];
 	}
 
-	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse)
-	{
+	public function verify(
+		&$gatewayModel,
+		$onlinePaymentModel,
+		$pgwResponse,
+		$fnCheckDoubleSpending
+	) {
 		$result = $pgwResponse['result'] ?? null;
 
+		$fnCheckDoubleSpending('trans-' . $onlinePaymentModel->onpUUID);
+
 		if ($result == 'ok') {
+			//$result, $transactionNumber, $trackNumber, $rrn
 			return [
-				$pgwResponse, //'ok',
-				'trace-' . $onlinePaymentModel->onpUUID,
-				'rrn-' . $onlinePaymentModel->onpUUID,
+				/* result            */ $pgwResponse, //'ok',
+				/* transactionNumber */ 'trans-' . $onlinePaymentModel->onpUUID,
+				/* trackNumber       */ 'trace-' . $onlinePaymentModel->onpUUID,
+				/* rrn               */ 'rrn-'   . $onlinePaymentModel->onpUUID,
 			];
 		}
 

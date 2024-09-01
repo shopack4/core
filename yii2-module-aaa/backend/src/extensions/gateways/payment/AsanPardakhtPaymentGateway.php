@@ -173,8 +173,12 @@ class AsanPardakhtPaymentGateway
 		];
 	}
 
-	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse)
-	{
+	public function verify(
+		&$gatewayModel,
+		$onlinePaymentModel,
+		$pgwResponse,
+		$fnCheckDoubleSpending
+	) {
 		Yii::debug($pgwResponse, __METHOD__ . ':' . __LINE__);
 
 		$merchant_id = $this->extensionModel->gtwPluginParameters[self::PARAM_MERCHANT_ID];
@@ -214,11 +218,12 @@ class AsanPardakhtPaymentGateway
 			'payGateTranId' => (int)$payGateTransactionId,
 		]);
 
-		//
+		//$result, $transactionNumber, $trackNumber, $rrn
 		return [
-			$result, //'ok',
-			$result['rrn'], //todo: must be Tracking Number
-			$result['rrn'],
+			/* result            */ $result, //'ok',
+			/* transactionNumber */ null, //todo: complete this
+			/* trackNumber       */ $result['rrn'], //todo: must be Tracking Number
+			/* rrn               */ $result['rrn'],
 			// 'traceNo'				=> $payGateTransactionId,
 			// 'referenceNo'		=> $result['rrn'],
 			// 'transactionId'	=> $result['refID'],

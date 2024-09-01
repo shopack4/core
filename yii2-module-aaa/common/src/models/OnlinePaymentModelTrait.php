@@ -20,6 +20,7 @@ use shopack\aaa\common\enums\enuOnlinePaymentStatus;
 'onpCallbackUrl',
 'onpWalletID',
 'onpPaymentToken',
+'onpTransactionNumber',
 'onpTrackNumber',
 'onpRRN',
 'onpResult',
@@ -92,6 +93,14 @@ trait OnlinePaymentModelTrait
 				enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
 			'onpPaymentToken' => [
+				enuColumnInfo::type       => ['string', 'max' => 64],
+				enuColumnInfo::validator  => null,
+				enuColumnInfo::default    => null,
+				enuColumnInfo::required   => false,
+				enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::like,
+			],
+			'onpTransactionNumber' => [
 				enuColumnInfo::type       => ['string', 'max' => 64],
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,

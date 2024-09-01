@@ -465,8 +465,29 @@ SQL;
     $gatewayClass = $onlinePaymentModel->gateway->getGatewayClass();
 
     try {
-      list ($result, $trackNumber, $rrn) = $gatewayClass->verify($onlinePaymentModel->gateway, $onlinePaymentModel, $pgwResponse);
+      list ($result, $transactionNumber, $trackNumber, $rrn) = $gatewayClass->verify(
+        $onlinePaymentModel->gateway,
+        $onlinePaymentModel,
+        $pgwResponse,
+        function($transNumber) use ($onlinePaymentModel) {
+          //check double spending
+          $qry =<<<SQL
+    SELECT  onpID
+      FROM  tbl_AAA_OnlinePayment onp
+INNER JOIN  tbl_AAA_Gateway gtw
+        ON  gtw.gtwID = onp.onpGatewayID
+     WHERE  onp.onpTransactionNumber = '{$transNumber}'
+       AND  gtw.gtwPluginName = '{$onlinePaymentModel->gateway->gtwPluginName}'
+       AND  onp.onpID != {$onlinePaymentModel->onpID}
+SQL;
+          $data = Yii::$app->db->createCommand($qry)->queryOne();
+          if (empty($data) == false) {
+            throw new UnprocessableEntityHttpException('Duplicate payment transaction number');
+          }
+        }
+      );
 
+      $onlinePaymentModel->onpTransactionNumber = $transactionNumber;
       $onlinePaymentModel->onpTrackNumber = $trackNumber;
       $onlinePaymentModel->onpRRN         = $rrn;
       $onlinePaymentModel->onpResult      = (array)$result;

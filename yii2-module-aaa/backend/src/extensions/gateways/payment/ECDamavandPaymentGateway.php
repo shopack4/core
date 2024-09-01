@@ -175,10 +175,13 @@ class ECDamavandPaymentGateway
 		];
 	}
 
-	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse)
-	{
-		try
-		{
+	public function verify(
+		&$gatewayModel,
+		$onlinePaymentModel,
+		$pgwResponse,
+		$fnCheckDoubleSpending
+	) {
+		try {
 			/*
 			$pgwResponse: {
 				'State'							: "1",
@@ -264,12 +267,12 @@ class ECDamavandPaymentGateway
 			// }
 
 			//------------------
+			//$result, $transactionNumber, $trackNumber, $rrn
 			return [
-				$pgwResponse, //'ok',
-				$res_TrackingNumber,
-				$res_ReferenceNumber,
-				// 'referenceNo'		=> $res_ReferenceNumber,
-				// 'transactionId'	=> $res_TrackingNumber,
+				/* result            */ $pgwResponse, //'ok',
+				/* transactionNumber */ null, //todo: complete this
+				/* trackNumber       */ $res_TrackingNumber,
+				/* rrn               */ $res_ReferenceNumber,
 			];
 
 		} catch (\Exception $exp) {

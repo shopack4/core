@@ -61,8 +61,12 @@ class BankMellatPaymentGateway
 		return 'aaaaa';
 	}
 
-	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse)
-	{
+	public function verify(
+		&$gatewayModel,
+		$onlinePaymentModel,
+		$pgwResponse,
+		$fnCheckDoubleSpending
+	) {
 	}
 
 }

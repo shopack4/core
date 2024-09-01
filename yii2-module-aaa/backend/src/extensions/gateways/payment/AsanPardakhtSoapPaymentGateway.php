@@ -152,8 +152,12 @@ class AsanPardakhtSoapPaymentGateway
 		];
 	}
 
-	public function verify(&$gatewayModel, $onlinePaymentModel, $pgwResponse)
-	{
+	public function verify(
+		&$gatewayModel,
+		$onlinePaymentModel,
+		$pgwResponse,
+		$fnCheckDoubleSpending
+	) {
 		$username = $this->extensionModel->gtwPluginParameters[self::PARAM_USERNAME];
 		$password = $this->extensionModel->gtwPluginParameters[self::PARAM_PASSWORD];
 		$merchant_id = $this->extensionModel->gtwPluginParameters[self::PARAM_MERCHANT_ID];
@@ -235,10 +239,12 @@ class AsanPardakhtSoapPaymentGateway
 		}
 		//echo('<div style="width:250px; margin:100px auto; direction:rtl; font:bold 14px Tahoma">تراکنش با موفقیت Settlement شد.</div>');
 
+		//$result, $transactionNumber, $trackNumber, $rrn
 		return [
-			'ok',
-			$RRN, //todo: must be Tracking Number
-			$RRN,
+			/* result            */ 'ok',
+			/* transactionNumber */ null, //todo: complete this
+			/* trackNumber       */ $RRN, //todo: must be Tracking Number
+			/* rrn               */ $RRN,
 		];
 	}
 
