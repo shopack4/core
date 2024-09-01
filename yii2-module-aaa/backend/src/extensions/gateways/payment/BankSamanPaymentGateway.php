@@ -215,7 +215,16 @@ class BankSamanPaymentGateway
 		}
 
 		if ($terminal_id != $TerminalId) {
-			throw new UnprocessableEntityHttpException("Error: mismatched Terminal Id");
+			throw new UnprocessableEntityHttpException("Error: mismatched terminal id");
+		}
+
+		if ($ResNum != $onlinePaymentModel->onpID) {
+			throw new UnprocessableEntityHttpException("Error: mismatched reservation id");
+		}
+
+		$price = $onlinePaymentModel->onpAmount * 10; //toman -> rial
+		if ($Amount != $price) {
+			throw new UnprocessableEntityHttpException("Error: mismatched amount");
 		}
 
 		//2: check double spending
