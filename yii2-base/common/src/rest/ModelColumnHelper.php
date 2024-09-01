@@ -91,7 +91,7 @@ class ModelColumnHelper
 			enuColumnInfo::default    => null,
 			enuColumnInfo::required   => false,
 			enuColumnInfo::selectable => true,
-			enuColumnInfo::filter     => $filter ?? function($model, $fieldName, $isInRelation) {
+			enuColumnInfo::beFilter   => $filter ?? function($model, $fieldName, $isInRelation) {
 				return (Yii::$app->user->isGuest || ($model->$fieldName != Yii::$app->user->id));
 			},
 		];
@@ -116,7 +116,7 @@ class ModelColumnHelper
 			enuColumnInfo::default    => null,
 			enuColumnInfo::required   => false,
 			enuColumnInfo::selectable => true,
-			enuColumnInfo::filter     => $filter ?? function($model, $fieldName, $isInRelation) {
+			enuColumnInfo::beFilter   => $filter ?? function($model, $fieldName, $isInRelation) {
 				return (Yii::$app->user->isGuest || ($model->$fieldName != Yii::$app->user->id));
 			},
 		];
@@ -141,7 +141,7 @@ class ModelColumnHelper
 			enuColumnInfo::default    => null,
 			enuColumnInfo::required   => false,
 			enuColumnInfo::selectable => true,
-			enuColumnInfo::filter     => $filter ?? function($model, $fieldName, $isInRelation) {
+			enuColumnInfo::beFilter   => $filter ?? function($model, $fieldName, $isInRelation) {
 				return (Yii::$app->user->isGuest || ($model->$fieldName != Yii::$app->user->id));
 			},
 		];

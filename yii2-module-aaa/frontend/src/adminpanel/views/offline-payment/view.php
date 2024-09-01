@@ -133,7 +133,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'ofpType',
                 'value' => enuOfflinePaymentType::getLabel($model->ofpType),
               ],
-              'ofpDestCartNumber',
+              [
+                'attribute' => 'ofpDestCartID',
+                'value' => (empty($model->ofpDestCartID) ? null : $model->destBankKart->bdfName),
+              ],
               'ofpDestAccountNumber',
               'ofpDestISBN',
               [

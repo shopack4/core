@@ -62,7 +62,7 @@ trait RoleModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => function($model, $fieldName, $isInRelation) {
+        enuColumnInfo::beFilter   => function($model, $fieldName, $isInRelation) {
           return $isInRelation;
         },
       ],

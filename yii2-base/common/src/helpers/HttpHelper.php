@@ -359,7 +359,7 @@ class HttpHelper
 			try {
         $errno = null;
         $errstr = null;
-				$fp = fsockopen($proxy['host'], $proxy['port'] ?? 80, $errno, $errstr, 0.5);
+				$fp = fsockopen($proxy['host'], $proxy['port'] ?? 80, $errno, $errstr, 0.15);
 				if ($fp) {
 					fclose($fp);
 					$clientConfig['proxy'] = constant('YII_DEV_LOCAL_PROXY');

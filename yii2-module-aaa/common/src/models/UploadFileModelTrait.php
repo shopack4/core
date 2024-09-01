@@ -75,7 +75,7 @@ trait UploadFileModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => true,
+        enuColumnInfo::beFilter   => true,
       ],
       'uflOriginalFileName' => [
         enuColumnInfo::type       => ['string', 'max' => 256],
@@ -97,7 +97,7 @@ trait UploadFileModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => true,
+        enuColumnInfo::beFilter   => true,
       ],
       'uflSize' => [
         enuColumnInfo::type       => 'integer',
@@ -126,7 +126,7 @@ trait UploadFileModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => true,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => true,
+        enuColumnInfo::beFilter   => true,
       ],
       'uflDeleteLocalFileAfterUpload' => [
         enuColumnInfo::type       => 'boolean',
@@ -134,7 +134,7 @@ trait UploadFileModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => true,
+        enuColumnInfo::beFilter   => true,
       ],
       'uflStatus' => [
         enuColumnInfo::isStatus   => true,

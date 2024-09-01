@@ -5,9 +5,9 @@
 
 /** @var yii\web\View $this */
 
-use shopack\base\frontend\common\widgets\PopoverX;
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\HttpHelper;
+use shopack\base\frontend\common\widgets\PopoverX;
 use shopack\base\frontend\common\widgets\DetailView;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\common\enums\enuGatewayStatus;
@@ -29,7 +29,6 @@ $this->params['breadcrumbs'][] = $this->title;
         <?= $model->canUndelete() ? Html::undeleteButton(null, ['id' => $model->gtwID]) : '' ?>
         <?php
           PopoverX::begin([
-            // 'header' => 'Hello world',
             'closeButton' => false,
             'toggleButton' => [
               'label' => Yii::t('app', 'Logs'),
@@ -71,6 +70,25 @@ $this->params['breadcrumbs'][] = $this->title;
 		</div>
     <div class='card-body'>
       <?php
+        $pluginCategories = [];
+        $pluginTitles = [];
+
+        $apiResponse = HttpHelper::callApi('aaa/gateway/plugin-list');
+        if ($apiResponse['status'] == 200) {
+          foreach ($apiResponse['body'] as $k => $v) {
+            $pluginCategories = array_merge($pluginCategories, [
+              $k => Yii::t('aaa', $k), //array_keys($v),
+            ]);
+
+            foreach ($v as $_k => $_v) {
+              if (empty($searchModel->gtwPluginType) || ($searchModel->gtwPluginType == $k))
+                $pluginTitles[$_k] = $_v['title'];
+            }
+          }
+        }
+
+        asort($pluginTitles, SORT_STRING);
+
         $attributes = [
           'gtwID',
           [
@@ -87,9 +105,10 @@ $this->params['breadcrumbs'][] = $this->title;
             'attribute' => 'gtwPluginType',
             'value' => Yii::t('aaa', $model->gtwPluginType),
           ],
-          'gtwPluginName',
-          // 'gtwRemovedAt',
-          // 'gtwRemovedBy',
+          [
+            'attribute' => 'gtwPluginName',
+            'value' => $pluginTitles[$model->gtwPluginName] ?? $model->gtwPluginName,
+          ],
         ];
 
         $fnShowKindSchema = function($kind, $prop) use($model, &$attributes) {

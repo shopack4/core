@@ -6,6 +6,7 @@
 namespace shopack\aaa\common\models;
 
 use Yii;
+use shopack\base\common\helpers\GeneralHelper;
 use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\rest\enuColumnSearchType;
@@ -13,7 +14,6 @@ use shopack\base\common\validators\JsonValidator;
 use shopack\base\common\validators\GroupRequiredValidator;
 use shopack\aaa\common\enums\enuRole;
 use shopack\base\backend\helpers\PrivHelper;
-use shopack\base\common\helpers\GeneralHelper;
 
 /*
 'usrID',
@@ -124,7 +124,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrFirstName_en' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -133,7 +133,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrLastName' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -142,7 +142,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrLastName_en' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -151,7 +151,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrFatherName' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -160,7 +160,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrFatherName_en' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -169,7 +169,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrEmail' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -178,7 +178,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
 			'usrEmailApprovedAt' => [
         enuColumnInfo::type       => 'safe',
@@ -186,7 +186,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrMobile' => [
         enuColumnInfo::type       => ['string', 'max' => 32],
@@ -195,7 +195,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrMobileApprovedAt' => [
         enuColumnInfo::type       => 'safe',
@@ -203,7 +203,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrSSID' => [
         enuColumnInfo::type       => ['string', 'min' => 10, 'max' => 10],
@@ -212,7 +212,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrBirthCertID' => [
         enuColumnInfo::type       => ['string', 'max' => 16],
@@ -221,7 +221,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrRoleID' => [
         enuColumnInfo::type       => 'integer',
@@ -229,7 +229,7 @@ trait UserModelTrait
         enuColumnInfo::default    => enuRole::User,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrPrivs' => [
         enuColumnInfo::type       => JsonValidator::class,
@@ -237,7 +237,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => function($model, $fieldName, $isInRelation)
+        enuColumnInfo::beFilter   => function($model, $fieldName, $isInRelation)
         use (&$fnFilterByOwner) {
           return ($isInRelation || $fnFilterByOwner($model, $fieldName, $isInRelation));
         },
@@ -257,7 +257,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => false,
         enuColumnInfo::virtual    => true,
-        enuColumnInfo::filter     => true,
+        enuColumnInfo::beFilter   => true,
       ],
       'usrPasswordHash' => [
         enuColumnInfo::type       => ['string', 'max' => 255],
@@ -265,7 +265,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => false,
-        enuColumnInfo::filter     => true,
+        enuColumnInfo::beFilter   => true,
       ],
       'usrPasswordCreatedAt' => [
         enuColumnInfo::type       => 'safe',
@@ -273,7 +273,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrMustChangePassword' => [
         enuColumnInfo::type       => 'boolean',
@@ -281,7 +281,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usr2FA' => [
         enuColumnInfo::type       => JsonValidator::class,
@@ -289,7 +289,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrBirthDate' => [
         enuColumnInfo::type       => 'safe',
@@ -297,7 +297,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrBirthCityID' => [
         enuColumnInfo::type       => 'integer',
@@ -305,7 +305,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrCountryID' => [
         enuColumnInfo::type       => 'integer',
@@ -313,7 +313,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrStateID' => [
         enuColumnInfo::type       => 'integer',
@@ -321,7 +321,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrCityOrVillageID' => [
         enuColumnInfo::type       => 'integer',
@@ -329,7 +329,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrTownID' => [
         enuColumnInfo::type       => 'integer',
@@ -337,7 +337,7 @@ trait UserModelTrait
         enuColumnInfo::default    => null,
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrHomeAddress' => [
         enuColumnInfo::type       => ['string', 'max' => 2048],
@@ -346,7 +346,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrZipCode' => [
         enuColumnInfo::type       => ['string', 'max' => 32],
@@ -355,7 +355,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrPhones' => [
         enuColumnInfo::type       => ['string', 'max' => 1024],
@@ -364,7 +364,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrWorkAddress' => [
         enuColumnInfo::type       => ['string', 'max' => 2048],
@@ -373,7 +373,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrWorkPhones' => [
         enuColumnInfo::type       => ['string', 'max' => 1024],
@@ -382,7 +382,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrWebsite' => [
         enuColumnInfo::type       => ['string', 'max' => 1024],
@@ -391,7 +391,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrImageFileID' => [
         enuColumnInfo::type       => 'safe', //'integer',
@@ -400,7 +400,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => false, //true
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
 
       'usrEducationLevel' => [
@@ -410,7 +410,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::exact,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrFieldOfStudy' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -419,7 +419,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrYearOfGraduation' => [
         enuColumnInfo::type       => 'integer',
@@ -428,7 +428,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::exact,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrEducationPlace' => [
         enuColumnInfo::type       => ['string', 'max' => 128],
@@ -437,7 +437,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::exact,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrMaritalStatus' => [
         enuColumnInfo::type       => ['string', 'max' => 1],
@@ -446,7 +446,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::exact,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
       'usrMilitaryStatus' => [
         enuColumnInfo::type       => ['string', 'max' => 1],
@@ -455,7 +455,7 @@ trait UserModelTrait
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::exact,
-        enuColumnInfo::filter     => $fnFilterByOwner,
+        enuColumnInfo::beFilter   => $fnFilterByOwner,
       ],
 
       'usrStatus' => [

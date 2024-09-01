@@ -5,12 +5,12 @@
 
 namespace shopack\aaa\common\models;
 
+use Yii;
 use shopack\base\common\rest\ModelColumnHelper;
 use shopack\base\common\rest\enuColumnInfo;
 use shopack\base\common\rest\enuColumnSearchType;
 use shopack\base\common\validators\JsonValidator;
 use shopack\aaa\common\enums\enuGatewayStatus;
-use Yii;
 
 /*
 'gtwID',
@@ -31,6 +31,15 @@ use Yii;
 */
 trait GatewayModelTrait
 {
+	//todo: use php 8.2:
+	// public const ENTITY_PATH					= 'aaa/gateway';
+	// public const PERMISSION_LIST			= ['crud', '0100'];
+	// public const PERMISSION_INFO			= ['crud', '0100'];
+	// public const PERMISSION_CREATE		= ['crud', '1000'];
+	// public const PERMISSION_UPDATE		= ['crud', '0010'];
+	// public const PERMISSION_DELETE		= ['crud', '0001'];
+	// public const PERMISSION_UNDELETE	= 'undelete';
+
 	public static $primaryKey = ['gtwID'];
 
 	public function primaryKeyValue() {
@@ -78,12 +87,20 @@ trait GatewayModelTrait
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => true,
-				enuColumnInfo::selectable => true, /*[
-					['aaa/gateway/crud', '1000'],
-					['aaa/gateway/crud', '0010']
-				], //only for admins with create OR update permission
-				*/
-				enuColumnInfo::filter     => (Yii::$app->isBackend == false),
+				enuColumnInfo::selectable => true,
+				enuColumnInfo::beFilter   => function($model, $fieldName, $isInRelation) {
+					//only for admins with create OR update permission
+					/*[
+							['aaa/gateway/crud', '1000'],
+							['aaa/gateway/crud', '0010']
+						]
+					*/
+					return (Yii::$app->user->isGuest
+						|| ((\shopack\base\backend\helpers\PrivHelper::hasPriv('aaa/gateway/crud', '1000') == false)
+							&& (\shopack\base\backend\helpers\PrivHelper::hasPriv('aaa/gateway/crud', '0010') == false)
+						)
+					);
+				},
 			],
 			'gtwRestrictions' => [
 				enuColumnInfo::type       => JsonValidator::class,

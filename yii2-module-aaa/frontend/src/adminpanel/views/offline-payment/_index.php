@@ -113,7 +113,7 @@ use shopack\aaa\frontend\common\models\OfflinePaymentModel;
       'enumClass' => enuOfflinePaymentType::class,
       'attribute' => 'ofpType',
     ],
-    // 'ofpDestCartNumber',
+    // 'ofpDestCartID',
     // 'ofpDestAccountNumber',
     // 'ofpDestISBN',
     // 'ofpDestBankID',

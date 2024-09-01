@@ -160,13 +160,30 @@ JS;
 			['@col-break'],
 
 			[
-				'ofpDestCartNumber',
+				'ofpDestCartID',
 				'visibleConditions' => [
 					'ofpType' => [
 						enuOfflinePaymentType::ToCart,
 					],
 				],
+				'type' => FormBuilder::FIELD_WIDGET,
+				'widget' => Select2::class,
+				'widgetOptions' => [
+					'data' => ArrayHelper::map(BasicDefinitionModel::find()
+						->where(['bdfType' => enuBasicDefinitionType::BankKart])
+						->noLimit()
+						->asArray()
+						->all(),
+						'bdfID',
+						'bdfName'
+					),
+					'options' => [
+						'placeholder' => Yii::t('app', '-- Choose --'),
+						'dir' => 'rtl',
+					],
+				]
 			],
+
 			[
 				'ofpDestAccountNumber',
 				'visibleConditions' => [

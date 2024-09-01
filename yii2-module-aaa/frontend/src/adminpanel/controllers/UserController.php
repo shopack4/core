@@ -38,7 +38,15 @@ class UserController extends BaseCrudController
 	public function actionSelect2List($q=null, $id=null, $page=0, $perPage=20)
 	{
 		$out['total_count'] = 0;
-		$out['items'] = [['id' => '', 'firstname' => '', 'lastname' => '', 'email' => '']];
+		$out['items'] = [
+			[
+				'id'		=> '',
+				'name'	=> '',
+				// 'firstname' => '',
+				// 'lastname' => '',
+				// 'email' => '',
+			],
+		];
 
     if (!empty($q)) {
 			$q = strtolower(trim($q));
@@ -76,9 +84,10 @@ class UserController extends BaseCrudController
 				foreach ($models as $model) {
 					$arr[] = [
 						'id'        => $model->usrID,
-						'firstname' => $model->usrFirstName,
-						'lastname'  => $model->usrLastName,
-						'email'     => $model->usrEmail,
+						'name'      => $model->displayText(),
+						// 'firstname' => $model->usrFirstName,
+						// 'lastname'  => $model->usrLastName,
+						// 'email'     => $model->usrEmail,
 					];
 				}
 			}
@@ -87,14 +96,15 @@ class UserController extends BaseCrudController
 			$out['items'] = $arr;
 
 		} elseif ($id > 0) {
-			$user = UserModel::findOne($id);
+			$model = UserModel::findOne($id);
 			$out['total_count'] = 1;
 			$out['items'] = [
 				[
 					'id'        => $id,
-					'firstname' => $user->usrFirstName,
-					'lastname'  => $user->usrLastName,
-					'email'     => $user['usrEmail'],
+					'name'      => $model->displayText(),
+					// 'firstname' => $model->usrFirstName,
+					// 'lastname'  => $model->usrLastName,
+					// 'email'     => $model['usrEmail'],
 				],
 			];
 		}

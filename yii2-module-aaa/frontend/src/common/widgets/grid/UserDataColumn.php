@@ -7,8 +7,6 @@ namespace shopack\aaa\frontend\common\widgets\grid;
 
 use Yii;
 use yii\web\JsExpression;
-use shopack\base\common\helpers\Url;
-use shopack\base\common\helpers\ArrayHelper;
 use shopack\base\frontend\common\widgets\Select2;
 use shopack\aaa\frontend\common\models\UserModel;
 
@@ -17,15 +15,13 @@ class UserDataColumn extends \kartik\grid\DataColumn
 	protected function renderFilterCellContent()
 	{
 		$formatJs =<<<JS
-var formatUser = function(user) {
-	if (user.loading)
-		return 'در حال جستجو...'; //user.text;
-	return '<div style="overflow:hidden;">' + '<b>' + user.firstname + ' ' + user.lastname + '</b> - ' + user.email + '</div>';
+var formatUser = function(item) {
+	if (item.loading)
+		return 'در حال جستجو...'; //item.text;
+	return '<div style="overflow:hidden;"><b>' + item.name + '</b></div>';
 };
-var formatUserSelection = function(user) {
-	if (user.text)
-		return user.text;
-	return user.firstname + ' ' + user.lastname + ' - ' + user.email;
+var formatUserSelection = function(item) {
+	return item.name;
 }
 JS;
 			$this->grid->view->registerJs($formatJs, \yii\web\View::POS_HEAD);

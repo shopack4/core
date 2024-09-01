@@ -14,7 +14,7 @@ class enuColumnInfo //extends BaseEnum
 	const default			= 'default';
 	const required		= 'required';
 	const selectable	= 'selectable';
-	const filter			= 'filter';				//remove column from result in backend
+	const beFilter		= 'beFilter';			//remove column from result in backend
 	const virtual			= 'virtual';
 	const adhoc				= 'adhoc';				//just used for export column to client
 	const search			= 'search';

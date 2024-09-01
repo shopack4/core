@@ -189,11 +189,11 @@ return [
 	// 'Offline Payments' => 'پرداخت‌های آفلاین',
 	// 'Offline Payment' => 'پرداخت آفلاین',
 
-	'Offline Payments' => 'پرداخت‌های نقدی / چک',
-	'Offline Payment' => 'پرداخت نقدی / چک',
-	'Create Offline Payment' => 'ثبت پرداخت نقدی / چک',
+	'Offline Payments' => 'پرداخت‌های بانکی',
+	'Offline Payment' => 'پرداخت بانکی',
+	'Create Offline Payment' => 'ثبت پرداخت بانکی',
 
-	'Membership renewal based on cash/cheque payment' => 'تمدید عضویت بر اساس پرداخت نقدی / چک',
+	'Membership renewal based on cash/cheque payment' => 'تمدید عضویت بر اساس پرداخت بانکی',
 
 	'Payment Type' => 'روش پرداخت',
 	'Cash' => 'نقد',
@@ -723,5 +723,7 @@ return [
 	'UNKNOWN_MIME_TYPE'			=> 'نوع فایل مشخص نیست. فایل: ({name})',
 	'INVALID_MIME_TYPE'			=> 'نوع فایل مجاز نیست. فایل: ({name}) نوع: ({mimeType})',
 
-	'Offline Payment Reject Reason' => 'دلیل رد پرداخت نقدی / چک',
+	'Bank' => 'بانک',
+	'Bank Kart' => 'کارت بانکی',
+	'Offline Payment Reject Reason' => 'دلیل رد پرداخت بانکی',
 ];

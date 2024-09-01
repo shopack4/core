@@ -71,7 +71,7 @@ class OfflinePaymentSearchModel extends OfflinePaymentModel
 					],
 				],
 				'defaultOrder' => [
-					'ofpPayDate' => SORT_DESC,
+					'ofpID' => SORT_DESC,
 				],
 			],
 		]);

@@ -20,7 +20,7 @@ use shopack\base\common\validators\JsonValidator;
 'ofpOwnerUserID',
 'ofpVoucherID',
 'ofpType',
-'ofpDestCartNumber',
+'ofpDestCartID',
 'ofpDestAccountNumber',
 'ofpDestISBN',
 'ofpDestBankID',
@@ -88,8 +88,8 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::selectable => true,
 				enuColumnInfo::search     => enuColumnSearchType::exact,
 			],
-			'ofpDestCartNumber' => [
-				enuColumnInfo::type       => ['string', 'max' => 64],
+			'ofpDestCartID' => [
+				enuColumnInfo::type       => 'integer',
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => [
@@ -202,7 +202,7 @@ trait OfflinePaymentModelTrait
 				enuColumnInfo::type       => ['string', 'max' => 64],
 				enuColumnInfo::validator  => null,
 				enuColumnInfo::default    => null,
-				enuColumnInfo::required   => [
+				enuColumnInfo::required   => false, /*[
           'when' => function ($model) {
             return (in_array($model->ofpType, [
 							enuOfflinePaymentType::Pos,
@@ -219,7 +219,7 @@ trait OfflinePaymentModelTrait
 							enuOfflinePaymentType::ToISBN,
 						],
 					],
-				],
+				],*/
 				enuColumnInfo::selectable => true,
         enuColumnInfo::search     => enuColumnSearchType::like,
 			],
@@ -434,6 +434,17 @@ trait OfflinePaymentModelTrait
 			$className = '\shopack\aaa\frontend\common\models\BasicDefinitionModel';
 
 		return $this->hasOne($className, ['bdfID' => 'ofpDestBankID']);
+	}
+
+	public function getDestBankKart() {
+		$className = get_called_class();
+
+		if (str_contains($className, '\\backend\\'))
+			$className = '\shopack\aaa\backend\models\BasicDefinitionModel';
+		else
+			$className = '\shopack\aaa\frontend\common\models\BasicDefinitionModel';
+
+		return $this->hasOne($className, ['bdfID' => 'ofpDestCartID']);
 	}
 
 }

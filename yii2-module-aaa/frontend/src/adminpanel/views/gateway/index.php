@@ -6,9 +6,9 @@
 /** @var yii\web\View $this */
 
 use shopack\base\common\helpers\HttpHelper;
-use shopack\base\frontend\common\widgets\grid\GridView;
-use shopack\base\frontend\common\helpers\Html;
 use shopack\base\common\helpers\StringHelper;
+use shopack\base\frontend\common\helpers\Html;
+use shopack\base\frontend\common\widgets\grid\GridView;
 use shopack\aaa\common\enums\enuGatewayStatus;
 use shopack\aaa\frontend\common\models\GatewayModel;
 
@@ -30,14 +30,23 @@ $this->params['breadcrumbs'][] = $this->title;
     <div class='card-body'>
       <?php
         $pluginCategories = [];
+        $pluginTitles = [];
+
         $apiResponse = HttpHelper::callApi('aaa/gateway/plugin-list');
         if ($apiResponse['status'] == 200) {
           foreach ($apiResponse['body'] as $k => $v) {
             $pluginCategories = array_merge($pluginCategories, [
               $k => Yii::t('aaa', $k), //array_keys($v),
             ]);
+
+            foreach ($v as $_k => $_v) {
+              if (empty($searchModel->gtwPluginType) || ($searchModel->gtwPluginType == $k))
+                $pluginTitles[$_k] = $_v['title'];
+            }
           }
         }
+
+        asort($pluginTitles, SORT_STRING);
 
         echo GridView::widget([
           'id' => StringHelper::generateRandomId(),
@@ -61,20 +70,17 @@ $this->params['breadcrumbs'][] = $this->title;
             ],
             // 'gtwUUID',
 
-            // [
-            //   'attribute' => 'gtwPluginType',
-            //   'value' => function ($model, $key, $index, $widget) {
-            //     return Yii::t('aaa', $model->gtwPluginType);
-            //   },
-            // ],
             [
               'class' => \shopack\base\frontend\common\widgets\grid\LookupDataColumn::class,
               'lookupData' => $pluginCategories,
               'attribute' => 'gtwPluginType',
             ],
 
-            'gtwPluginName',
-            // 'gtwPluginParameters',
+            [
+              'class' => \shopack\base\frontend\common\widgets\grid\LookupDataColumn::class,
+              'lookupData' => $pluginTitles,
+              'attribute' => 'gtwPluginName',
+            ],
 
             [
               'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,

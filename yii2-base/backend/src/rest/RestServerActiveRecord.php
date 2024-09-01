@@ -140,8 +140,8 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 			if ($value === null)
 				continue;
 
-			if (array_key_exists(enuColumnInfo::filter, $columnInfo)) {
-				$filter = $columnInfo[enuColumnInfo::filter];
+			if (array_key_exists(enuColumnInfo::beFilter, $columnInfo)) {
+				$filter = $columnInfo[enuColumnInfo::beFilter];
 
 				if ($filter instanceof Closure || is_array($filter) && is_callable($filter))
 					$filter = call_user_func($filter, $this, $column, $isInRelation);
