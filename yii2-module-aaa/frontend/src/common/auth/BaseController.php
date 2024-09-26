@@ -7,7 +7,6 @@ namespace shopack\aaa\frontend\common\auth;
 
 use Yii;
 use yii\filters\VerbFilter;
-use yii\web\HttpException;
 use yii\web\ForbiddenHttpException;
 use yii\web\UnauthorizedHttpException;
 use shopack\base\common\auth\AuthHelper;
@@ -42,11 +41,7 @@ class BaseController extends \shopack\base\frontend\common\classes\BaseControlle
 	{
 		return parent::runAction($id, $params);
 
-
-
-
-
-
+		/*
 		$refreshToken = false;
 
 		try {
@@ -87,6 +82,7 @@ class BaseController extends \shopack\base\frontend\common\classes\BaseControlle
 			//
 			return parent::runAction($id, $params);
 		}
+		*/
 	}
 
 }

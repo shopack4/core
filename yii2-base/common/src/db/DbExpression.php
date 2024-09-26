@@ -22,4 +22,9 @@ class DbExpression extends \yii\db\Expression
 		return new self('NOT NULL');
 	}
 
+	public static function concat(...$parts)
+	{
+		return new self('CONCAT(' . implode(',', $parts) . ')');
+	}
+
 }

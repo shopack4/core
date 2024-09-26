@@ -12,19 +12,17 @@ class m240103_133257_aaa_create_ev_clear_tbl_SYS_ActionLogs extends Migration
     $this->execute("DROP EVENT IF EXISTS ev_clear_tbl_SYS_ActionLogs;");
     $this->execute(<<<SQL
 CREATE EVENT `ev_clear_tbl_SYS_ActionLogs`
-	ON SCHEDULE
-		EVERY 1 DAY
-	ON COMPLETION PRESERVE
-	ENABLE
-	COMMENT ''
-	DO BEGIN
-    DELETE FROM tbl_SYS_ActionLogs
-		WHERE atlAt <= DATE_SUB(NOW(), INTERVAL 1 MONTH)
-		;
+ON SCHEDULE EVERY 1 DAY
+ON COMPLETION PRESERVE
+ENABLE
+COMMENT ''
+DO BEGIN
+  DELETE FROM tbl_SYS_ActionLogs
+  WHERE atlAt <= DATE_SUB(NOW(), INTERVAL 6 MONTH);
 END
 SQL
     );
-
+//SET GLOBAL event_scheduler=ON
   }
 
   public function safeDown()

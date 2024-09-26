@@ -198,6 +198,9 @@ class AsanPardakhtPaymentGateway
 
 		$payGateTransactionId = $result['payGateTranID'];
 
+		//todo: check double spending
+		// $fnCheckDoubleSpending(???);
+
 		//step1: verify
 		$verify_result = $this->callApi('POST', self::URLVerify, [], [
 			'merchantConfigurationId' => (int)$merchant_id,

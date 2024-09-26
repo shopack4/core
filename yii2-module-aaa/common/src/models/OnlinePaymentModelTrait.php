@@ -106,6 +106,7 @@ trait OnlinePaymentModelTrait
 				enuColumnInfo::default    => null,
 				enuColumnInfo::required   => false,
 				enuColumnInfo::selectable => true,
+				enuColumnInfo::beFilter   => true, //do not expose to the client
         enuColumnInfo::search     => enuColumnSearchType::like,
 			],
 			'onpTrackNumber' => [

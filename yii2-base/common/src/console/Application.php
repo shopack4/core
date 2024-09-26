@@ -24,7 +24,7 @@ class Application extends \yii\console\Application
 		//trigger db
 		if ($this->has('db')) {
 			$this->db->open();
-			echo "DB Datetime: " . $this->db->utcNow->format('Y-m-d H:i:s P') . "\n";
+			// echo "DB Datetime: " . $this->db->utcNow->format('Y-m-d H:i:s P') . "\n";
 		}
 	}
 

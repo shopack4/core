@@ -372,6 +372,7 @@ return [
 	'Work Address' => 'آدرس محل کار',
 	'Work Phones' => 'تلفن‌های محل کار',
 	'Website' => 'وب سایت',
+	'User ID' => 'کد کاربری',
 	'First Name' => 'نام',
 	'First Name (en)' => 'نام لاتین',
 	'Last Name' => 'نام خانوادگی',

@@ -36,7 +36,12 @@ class ArrayHelper extends \yii\helpers\ArrayHelper
 	public static function FilterRecursive($array)
 	{
 		$original = $array;
-		$array = array_filter($array);
+
+		$fnCheckNonZeroEmpty = function($value) {
+			return ((empty($value) == false) || ($value !== 0) || ($value !== '0'));
+		};
+		$array = array_filter($array, $fnCheckNonZeroEmpty);
+
 		$array = array_map(function ($e) {
 			return is_array($e) ? static::FilterRecursive($e) : $e;
 		}, $array);

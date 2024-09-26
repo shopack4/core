@@ -122,7 +122,7 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 		return [];
 	}
 
-	public function exposeAttributes($isInRelation = false)
+	public function exposeAttributes($isInRelation = false, $checkExposeFilter = true)
 	{
 		$result = [];
 
@@ -140,7 +140,7 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 			if ($value === null)
 				continue;
 
-			if (array_key_exists(enuColumnInfo::beFilter, $columnInfo)) {
+			if ($checkExposeFilter && array_key_exists(enuColumnInfo::beFilter, $columnInfo)) {
 				$filter = $columnInfo[enuColumnInfo::beFilter];
 
 				if ($filter instanceof Closure || is_array($filter) && is_callable($filter))
@@ -159,7 +159,7 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 		if (empty($relations) == false) {
 			foreach ($relations as $k => $v) {
 				if ($v !== null)
-					$result[$k] = (empty($v) ? $v : $v->exposeAttributes(true));
+					$result[$k] = (empty($v) ? $v : $v->exposeAttributes(true, $checkExposeFilter));
 			}
 		}
 

@@ -412,7 +412,7 @@ trait ActiveRecordTrait
 					}
 
 					$columnValue = ArrayHelper::FilterRecursive($columnValue);
-				}
+				} //jsonSchema
 			} //json
 
 			//

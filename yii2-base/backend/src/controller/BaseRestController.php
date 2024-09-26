@@ -32,9 +32,13 @@ class BaseRestController extends BaseController
 		return $behaviors;
 	}
 
-	public function queryAllToResponse($query)
+	public function queryAllToResponse($query, $checkExposeFilter = true)
 	{
-		$query->asArray(false);
+		//todo: this is temporary. complete expose model
+		if ($checkExposeFilter)
+			$query->asArray(false);
+		else
+			$query->asArray(true);
 
 		$noLimit = false;
 		if (array_key_exists('per-page', $_GET)) {
@@ -61,10 +65,14 @@ class BaseRestController extends BaseController
 
 		$allModels = [];
 
-		if (empty($models) == false) {
-			foreach ($models as $k => $model) {
-				$allModels[$k] = $this->exposeModel($model);
+		if ($checkExposeFilter) {
+			if (empty($models) == false) {
+				foreach ($models as $k => $model) {
+					$allModels[$k] = $this->exposeModel($model, $checkExposeFilter);
+				}
 			}
+		} else {
+			$allModels = $models;
 		}
 
 		return [
@@ -88,12 +96,12 @@ class BaseRestController extends BaseController
 		return $this->exposeModel($model);
   }
 
-  public function exposeModel($model)
+  public function exposeModel($model, $checkExposeFilter = true)
   {
 		if ($model == null)
 			return [];
 
-		return $model->exposeAttributes();
+		return $model->exposeAttributes(false, $checkExposeFilter);
   }
 
 	public function modelToResponse($model)

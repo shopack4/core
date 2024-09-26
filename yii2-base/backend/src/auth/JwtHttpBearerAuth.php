@@ -11,10 +11,10 @@ use yii\web\UnauthorizedHttpException;
 
 class JwtHttpBearerAuth extends BaseJwtHttpBearerAuth
 {
-	public function init(): void
-	{
-		parent::init();
-	}
+	// public function init(): void
+	// {
+	// 	parent::init();
+	// }
 
 	public function processToken(string $data): ?Token
 	{

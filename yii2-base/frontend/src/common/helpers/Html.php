@@ -272,7 +272,9 @@ class Html extends \yii\bootstrap5\Html
 		if (empty($imageFileModel))
 			return ($longMessage ? Yii::t('aaa', 'File Not Set') : '');
 
-		if (empty($imageFileModel->fullFileUrl))
+		$fullFileUrl = (is_array($imageFileModel) ? $imageFileModel['fullFileUrl'] ?? null : $imageFileModel->fullFileUrl);
+
+		if (empty($fullFileUrl))
 			return ($longMessage ? Yii::t('aaa', 'Uploading...') : Html::tag('span', '...', [
 				'title' => Yii::t('aaa', 'Uploading...'),
 			]));
@@ -280,13 +282,13 @@ class Html extends \yii\bootstrap5\Html
 		if ($imageFileModel->isImage()) {
 
 			//todo: create ability to display large image on mouse hover
-			return Html::a(Html::img($imageFileModel->fullFileUrl, ['style' => ['width' => $width]]),
-			$imageFileModel->fullFileUrl, [
+			return Html::a(Html::img($fullFileUrl, ['style' => ['width' => $width]]),
+			$fullFileUrl, [
 				'target' => 'blank',
 			]);
 		}
 
-		return Html::a(Yii::t('app', 'Download'), $imageFileModel->fullFileUrl);
+		return Html::a(Yii::t('app', 'Download'), $fullFileUrl);
 	}
 
 	public static function asTable($rows, $headers = null)
