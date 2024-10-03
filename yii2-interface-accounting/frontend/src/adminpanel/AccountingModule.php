@@ -3,7 +3,7 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-namespace shopack\base\frontend\adminpanel\accounting;
+namespace shopack\interface\accounting\frontend\adminpanel;
 
 use yii\base\BootstrapInterface;
 

@@ -3,7 +3,7 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-namespace shopack\base\frontend\adminpanel\accounting\controllers;
+namespace shopack\interface\accounting\frontend\adminpanel\controllers;
 
 use shopack\aaa\frontend\common\auth\BaseCrudController;
 
