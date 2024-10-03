@@ -6,7 +6,7 @@
 /** @var yii\web\View $this */
 
 use yii\data\ArrayDataProvider;
-use shopack\base\common\accounting\enums\enuProductType;
+use shopack\interface\accounting\common\enums\enuProductType;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\DetailView;
 use shopack\base\frontend\common\widgets\grid\GridView;

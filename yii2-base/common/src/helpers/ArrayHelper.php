@@ -33,18 +33,27 @@ class ArrayHelper extends \yii\helpers\ArrayHelper
 		return array_merge_recursive($args);
 	}
 
-	public static function FilterRecursive($array)
+	public static function FilterRecursive(?array $array)
 	{
+		if ($array === null)
+			return null;
+
 		$original = $array;
 
 		$fnCheckNonZeroEmpty = function($value) {
-			return ((empty($value) == false) || ($value !== 0) || ($value !== '0'));
+			$f = ((is_array($value) && empty($value))
+				|| (is_string($value) && ($value === ''))
+				|| ($value === 0)
+				|| ($value === '0')
+			);
+			return !$f;
 		};
 		$array = array_filter($array, $fnCheckNonZeroEmpty);
 
 		$array = array_map(function ($e) {
 			return is_array($e) ? static::FilterRecursive($e) : $e;
 		}, $array);
+
 		return $original === $array ? $array : static::FilterRecursive($array);
 	}
 

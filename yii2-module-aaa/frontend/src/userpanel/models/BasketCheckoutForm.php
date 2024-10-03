@@ -10,7 +10,7 @@ use yii\base\Model;
 use shopack\base\common\helpers\Url;
 use shopack\base\common\helpers\Json;
 use shopack\base\common\helpers\HttpHelper;
-use shopack\base\common\accounting\enums\enuProductType;
+use shopack\interface\accounting\common\enums\enuProductType;
 use shopack\base\frontend\common\helpers\Html;
 use shopack\aaa\frontend\common\models\DeliveryMethodModel;
 use shopack\aaa\frontend\common\models\WalletModel;
