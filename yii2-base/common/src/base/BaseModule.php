@@ -9,6 +9,18 @@ use Yii;
 
 class BaseModule extends \yii\base\Module
 {
+	public function getFullId()
+	{
+		$id = [];
+
+		if ($this->module != Yii::$app)
+			$id[] = $this->module->id;
+
+		$id[] = $this->id;
+
+		return implode('/', $id);
+	}
+
 	public function init()
 	{
 		parent::init();
@@ -17,13 +29,17 @@ class BaseModule extends \yii\base\Module
 		$reflector = new \ReflectionClass($class);
 
 		$dir = dirname($reflector->getFileName());
-		Yii::setAlias('@' . $this->id, $dir);
+		Yii::setAlias('@' . $this->fullId, $dir);
 
 		$commonDir = dirname($dir) . DIRECTORY_SEPARATOR . 'common';
 		if (is_dir($commonDir))
-			Yii::setAlias('@' . $this->id . '/common', $commonDir);
+			Yii::setAlias('@' . $this->fullId . '/common', $commonDir);
 		else
 			$commonDir = null;
+
+
+		// print_r(Yii::$aliases);
+
 
 		$this->initI18N($dir, $commonDir);
 
@@ -33,7 +49,7 @@ class BaseModule extends \yii\base\Module
 
 	private function initI18N($dir, $commonDir)
 	{
-		$msgRoot = '@' . $this->id;
+		$msgRoot = '@' . $this->fullId;
 		if (!is_dir($dir . DIRECTORY_SEPARATOR . 'messages')) {
 			if (empty($commonDir))
 				return;

@@ -32,9 +32,14 @@ class Application extends \yii\console\Application
 	{
 		$commands = parent::coreCommands();
 
-		$commands = array_replace_recursive($commands, [
-			'migrate' => \shopack\base\common\console\controllers\MigrateController::class,
-		]);
+		if (YII_ENV_DEV) {
+			if (isset($commands['migrate']))
+				unset($commands['migrate']);
+		} else {
+			$commands = array_replace_recursive($commands, [
+				'migrate' => \shopack\base\common\console\controllers\MigrateController::class,
+			]);
+		}
 
 		return $commands;
 	}

@@ -5,6 +5,7 @@
 
 namespace shopack\interface\accounting\backend;
 
+use Yii;
 use yii\base\BootstrapInterface;
 use yii\base\InvalidConfigException;
 
@@ -24,6 +25,9 @@ abstract class AccountingModule
 	{
 		if (empty($this->id))
 			$this->id = 'accounting';
+
+		// $dir = dirname(__FILE__);
+		// Yii::setAlias('@shopack/' . $this->id, $dir);
 
 		parent::init();
 

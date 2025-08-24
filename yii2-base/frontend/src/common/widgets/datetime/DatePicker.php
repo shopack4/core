@@ -189,7 +189,8 @@ JS;
 	var dt = new Date(unixDate);
 	return dt.getFullYear() + '/' + (dt.getMonth()+1) + '/' + dt.getDate()
 	{$__time__};
-}
+},
+calendar: { persian: { leapYearMode: 'astronomical' } }
 }));
 \$('#{$containerID}').bind('change', function() { if (\$(this).val() == '') \$('#{$hiddenID}').val(''); } );
 var v = \$('#{$containerID}').attr('defaultdate');
