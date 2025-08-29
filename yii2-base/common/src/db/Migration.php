@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -11,24 +12,23 @@ class Migration extends \yii\db\Migration
 {
 	// public function up()
 	// {
-		// return $this->safeUp();
+	// return $this->safeUp();
 	// }
 
 	// public $compact = true;
 
 	// public function init()
 	// {
-		// parent::init();
-		// $this->compact = true;
+	// parent::init();
+	// $this->compact = true;
 	// }
 
 	protected function beginCommand($description)
 	{
-		if (!$this->compact)
-		{
+		if (!$this->compact) {
 			$p = strpos($description, "\n");
 			if ($p)
-				$description = substr($description, 0, $p-1);
+				$description = substr($description, 0, $p - 1);
 			echo "    > $description ...";
 		}
 
@@ -42,7 +42,7 @@ class Migration extends \yii\db\Migration
 		$sql = $cmd->getRawSql();
 		$sql = 'INSERT IGNORE' . substr($sql, 6);
 		$cmd->setRawSql($sql);
-// echo "\n\n$sql\n\n";
+		// echo "\n\n$sql\n\n";
 		$cmd->execute();
 		$this->endCommand($time);
 	}
@@ -74,5 +74,4 @@ class Migration extends \yii\db\Migration
 
 		return $result;
 	}
-
 }

@@ -8,10 +8,12 @@ namespace shopack\base\common\console\controllers;
 
 use Yii;
 use yii\db\Connection;
+use yii\db\Query;
 use yii\di\Instance;
 use yii\base\BaseObject;
 use yii\base\InvalidConfigException;
 use yii\console\Controller;
+use yii\helpers\Console;
 use yii\helpers\FileHelper;
 
 class MigrateController extends \yii\console\controllers\MigrateController
@@ -71,6 +73,30 @@ class MigrateController extends \yii\console\controllers\MigrateController
 		}
 
 		return false;
+	}
+
+	protected function includeMigrationFile($class)
+	{
+		$class = trim($class, '\\');
+		if (strpos($class, '\\') === false) {
+			if (is_array($this->migrationPath)) {
+				foreach ($this->migrationPath as $k => $path) {
+					if (is_array($path)) {
+						$file = $k . DIRECTORY_SEPARATOR . $class . '.php';
+					} else {
+						$file = $path . DIRECTORY_SEPARATOR . $class . '.php';
+					}
+
+					if (is_file($file)) {
+						require_once $file;
+						break;
+					}
+				}
+			} else {
+				$file = $this->migrationPath . DIRECTORY_SEPARATOR . $class . '.php';
+				require_once $file;
+			}
+		}
 	}
 
 	protected function getNewMigrations()
@@ -140,17 +166,69 @@ class MigrateController extends \yii\console\controllers\MigrateController
 
 	protected function createMigration($class)
 	{
-		list ($_class, $module) = explode("@", $class, 2);
+		$parts = explode("@", $class, 2);
+		$_class = $parts[0];
+		$module = $parts[1] ?? null;
 
 		$this->includeMigrationFile($_class);
 
 		$migration = Yii::createObject($_class);
-		$migration->currentModuleName = $module;
-
+		/* >> */
+		if (property_exists($migration, "currentModuleName"))
+			$migration->currentModuleName = $module;
+		/* << */
 		if ($migration instanceof BaseObject && $migration->canSetProperty('compact')) {
 			$migration->compact = $this->compact;
 		}
 
 		return $migration;
+	}
+
+	public function addMigrationHistory($version)
+	{
+		parent::addMigrationHistory($version);
+	}
+
+	public function isMigrationInHistory($version)
+	{
+		$query = (new Query())
+			->select(['version', 'apply_time'])
+			->from($this->migrationTable)
+			->where(['version' => $version]);
+
+		$row = $query->one($this->db);
+
+		return (empty($row) == false);
+	}
+
+	protected function migrateUp($class)
+	{
+		if ($class === self::BASE_MIGRATION) {
+			return true;
+		}
+
+		$this->stdout("*** applying $class\n", Console::FG_YELLOW);
+		$start = microtime(true);
+		$migration = $this->createMigration($class);
+
+		/* >> */
+		if ($this->isMigrationInHistory($class)) {
+			$this->stdout("    applied before $class\n\n", Console::FG_YELLOW);
+			return true;
+		}
+		/* << */
+
+		if ($migration->up() !== false) {
+			$this->addMigrationHistory($class);
+			$time = microtime(true) - $start;
+			$this->stdout("    applied $class (time: " . sprintf('%.3f', $time) . "s)\n\n", Console::FG_GREEN);
+
+			return true;
+		}
+
+		$time = microtime(true) - $start;
+		$this->stdout("    failed to apply $class (time: " . sprintf('%.3f', $time) . "s)\n\n", Console::FG_RED);
+
+		return false;
 	}
 }

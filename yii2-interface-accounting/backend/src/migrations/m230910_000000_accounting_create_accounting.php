@@ -108,7 +108,6 @@ CREATE TABLE `tbl_{{MODULE}}_Accounting_Product` (
 	`prdUpdatedBy` BIGINT(20) UNSIGNED NULL DEFAULT NULL,
 	`prdRemovedAt` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`prdRemovedBy` BIGINT(20) UNSIGNED NULL DEFAULT NULL,
-	`prdMhaType` CHAR(1) NOT NULL COMMENT 'M:Membership, C:Card Print, P:Post Packet' COLLATE 'utf8mb4_unicode_ci',
 	PRIMARY KEY (`prdID`) USING BTREE,
 	UNIQUE INDEX `prdUUID` (`prdUUID`) USING BTREE,
 	UNIQUE INDEX `prdCode_prdRemovedAt` (`prdCode`, `prdRemovedAt`) USING BTREE,
@@ -440,7 +439,6 @@ CREATE TRIGGER trg_updatelog_tbl_{{MODULE}}_Accounting_Product AFTER UPDATE ON t
   IF ISNULL(OLD.prdReturnedQty) != ISNULL(NEW.prdReturnedQty) OR OLD.prdReturnedQty != NEW.prdReturnedQty THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("prdReturnedQty", IF(ISNULL(OLD.prdReturnedQty), NULL, OLD.prdReturnedQty))); END IF;
   IF ISNULL(OLD.prdI18NData) != ISNULL(NEW.prdI18NData) OR OLD.prdI18NData != NEW.prdI18NData THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("prdI18NData", IF(ISNULL(OLD.prdI18NData), NULL, OLD.prdI18NData))); END IF;
   IF ISNULL(OLD.prdStatus) != ISNULL(NEW.prdStatus) OR OLD.prdStatus != NEW.prdStatus THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("prdStatus", IF(ISNULL(OLD.prdStatus), NULL, OLD.prdStatus))); END IF;
-  IF ISNULL(OLD.prdMhaType) != ISNULL(NEW.prdMhaType) OR OLD.prdMhaType != NEW.prdMhaType THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("prdMhaType", IF(ISNULL(OLD.prdMhaType), NULL, OLD.prdMhaType))); END IF;
 
   IF JSON_LENGTH(Changes) > 0 THEN
 --    IF ISNULL(NEW.prdUpdatedBy) THEN

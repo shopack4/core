@@ -134,14 +134,12 @@ ALTER TABLE `tbl_{{MODULE}}_Accounting_Discount`
 	CHANGE COLUMN `dscSaleableBasedMultiplier` `dscSaleableBasedMultiplier` JSON NULL DEFAULT NULL AFTER `dscTargetSaleableIDs`,
 	CHANGE COLUMN `dscAmount` `dscAmount` INT(10) UNSIGNED NOT NULL AFTER `dscSaleableBasedMultiplier`,
 	CHANGE COLUMN `dscAmountType` `dscAmountType` CHAR(1) NOT NULL DEFAULT '%' COMMENT '%:Percent, $:Amount' COLLATE 'utf8mb4_unicode_ci' AFTER `dscAmount`,
-	CHANGE COLUMN `dscMaxAmount` `dscMaxAmount` INT(10) UNSIGNED NULL DEFAULT NULL AFTER `dscAmountType`,
-	ADD COLUMN `dscTargetProductMhaTypes` JSON NULL DEFAULT NULL AFTER `dscTargetKanoonIDs`;
+	CHANGE COLUMN `dscMaxAmount` `dscMaxAmount` INT(10) UNSIGNED NULL DEFAULT NULL AFTER `dscAmountType`;
 SQL
     );
 		///JSON
     $this->alterColumn('tbl_{{MODULE}}_Accounting_Discount', 'dscTargetProductIDs', $this->json());
     $this->alterColumn('tbl_{{MODULE}}_Accounting_Discount', 'dscTargetSaleableIDs', $this->json());
-    $this->alterColumn('tbl_{{MODULE}}_Accounting_Discount', 'dscTargetProductMhaTypes', $this->json());
 
 		$this->execute(<<<SQL
 ALTER TABLE `tbl_{{MODULE}}_Accounting_Discount`
@@ -197,7 +195,6 @@ CREATE TRIGGER trg_updatelog_tbl_{{MODULE}}_Accounting_Discount AFTER UPDATE ON 
   IF ISNULL(OLD.dscTargetKanoonIDs) != ISNULL(NEW.dscTargetKanoonIDs) OR OLD.dscTargetKanoonIDs != NEW.dscTargetKanoonIDs THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscTargetKanoonIDs", IF(ISNULL(OLD.dscTargetKanoonIDs), NULL, OLD.dscTargetKanoonIDs))); END IF;
   IF ISNULL(OLD.dscTargetMemberGroupIDs) != ISNULL(NEW.dscTargetMemberGroupIDs) OR OLD.dscTargetMemberGroupIDs != NEW.dscTargetMemberGroupIDs THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscTargetMemberGroupIDs", IF(ISNULL(OLD.dscTargetMemberGroupIDs), NULL, OLD.dscTargetMemberGroupIDs))); END IF;
   IF ISNULL(OLD.dscTargetProductIDs) != ISNULL(NEW.dscTargetProductIDs) OR OLD.dscTargetProductIDs != NEW.dscTargetProductIDs THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscTargetProductIDs", IF(ISNULL(OLD.dscTargetProductIDs), NULL, OLD.dscTargetProductIDs))); END IF;
-  IF ISNULL(OLD.dscTargetProductMhaTypes) != ISNULL(NEW.dscTargetProductMhaTypes) OR OLD.dscTargetProductMhaTypes != NEW.dscTargetProductMhaTypes THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscTargetProductMhaTypes", IF(ISNULL(OLD.dscTargetProductMhaTypes), NULL, OLD.dscTargetProductMhaTypes))); END IF;
   IF ISNULL(OLD.dscTargetSaleableIDs) != ISNULL(NEW.dscTargetSaleableIDs) OR OLD.dscTargetSaleableIDs != NEW.dscTargetSaleableIDs THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscTargetSaleableIDs", IF(ISNULL(OLD.dscTargetSaleableIDs), NULL, OLD.dscTargetSaleableIDs))); END IF;
   IF ISNULL(OLD.dscTargetUserIDs) != ISNULL(NEW.dscTargetUserIDs) OR OLD.dscTargetUserIDs != NEW.dscTargetUserIDs THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscTargetUserIDs", IF(ISNULL(OLD.dscTargetUserIDs), NULL, OLD.dscTargetUserIDs))); END IF;
   IF ISNULL(OLD.dscTotalMaxCount) != ISNULL(NEW.dscTotalMaxCount) OR OLD.dscTotalMaxCount != NEW.dscTotalMaxCount THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscTotalMaxCount", IF(ISNULL(OLD.dscTotalMaxCount), NULL, OLD.dscTotalMaxCount))); END IF;
