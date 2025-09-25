@@ -23,22 +23,22 @@ trait BackendSaleableModelTrait
     $saleableTableName = static::tableName();
     $productTableName = $productModelClass::tableName();
 
+    //  , slbUpdatedAt = NOW()
+    //  , slbUpdatedBy = {$actorID}
     $qry =<<<SQL
 UPDATE {$saleableTableName}
    SET slbOrderedQty = IFNULL(slbOrderedQty, 0) + {$qty}
-     , slbUpdatedAt = NOW()
-     , slbUpdatedBy = {$actorID}
  WHERE slbID = {$slbID}
 SQL;
     Yii::$app->db->createCommand($qry)->execute();
 
+        //  , prdUpdatedAt = NOW()
+        //  , prdUpdatedBy = {$actorID}
     $qry =<<<SQL
     UPDATE {$productTableName}
 INNER JOIN {$saleableTableName}
         ON {$saleableTableName}.slbProductID = {$productTableName}.prdID
        SET prdOrderedQty = IFNULL(prdOrderedQty, 0) + {$qty}
-         , prdUpdatedAt = NOW()
-         , prdUpdatedBy = {$actorID}
      WHERE slbID = {$slbID}
 SQL;
     Yii::$app->db->createCommand($qry)->execute();
@@ -59,22 +59,22 @@ SQL;
     $saleableTableName = static::tableName();
     $productTableName = $productModelClass::tableName();
 
+    //  , slbUpdatedAt = NOW()
+    //  , slbUpdatedBy = {$actorID}
     $qry =<<<SQL
 UPDATE {$saleableTableName}
    SET slbOrderedQty = IFNULL(slbOrderedQty, 0) - {$qty}
-     , slbUpdatedAt = NOW()
-     , slbUpdatedBy = {$actorID}
  WHERE slbID = {$slbID}
 SQL;
     Yii::$app->db->createCommand($qry)->execute();
 
+        //  , prdUpdatedAt = NOW()
+        //  , prdUpdatedBy = {$actorID}
     $qry =<<<SQL
     UPDATE {$productTableName}
 INNER JOIN {$saleableTableName}
         ON {$saleableTableName}.slbProductID = {$productTableName}.prdID
        SET prdOrderedQty = IFNULL(prdOrderedQty, 0) - {$qty}
-         , prdUpdatedAt = NOW()
-         , prdUpdatedBy = {$actorID}
      WHERE slbID = {$slbID}
 SQL;
     Yii::$app->db->createCommand($qry)->execute();
