@@ -43,8 +43,10 @@ class ArrayHelper extends \yii\helpers\ArrayHelper
 		$fnCheckNonZeroEmpty = function($value) {
 			$f = ((is_array($value) && empty($value))
 				|| (is_string($value) && ($value === ''))
-				|| ($value === 0)
-				|| ($value === '0')
+
+				//fix bug: this lines removes array of '0' value in case of `[x] has not` in reports
+				// || ($value === 0)
+				// || ($value === '0')
 			);
 			return !$f;
 		};
