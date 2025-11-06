@@ -253,7 +253,7 @@ class UserModel extends RestClientActiveRecord
   public function displayName($format = null)
   {
     if (empty($format))
-      $format = '[' . Yii::t('app', 'ID') . ': {id}] {fn} {ln} {em} {mob}';
+      $format = '[' . Yii::t('app', 'ID') . ': {id}] {fn} {ln} ({ssid}) {em} {mob}';
 
     if ($this->usrEmail)
       $email = "<span class='d-inline-block dir-ltr'>" . $this->usrEmail . "</span>";
@@ -266,6 +266,7 @@ class UserModel extends RestClientActiveRecord
       '{id}' => $this->usrID,
       '{fn}' => $this->usrFirstName ?? '',
       '{ln}' => $this->usrLastName ?? '',
+      '{ssid}' => $this->usrSSID ?? '',
       '{em}' => $email ?? '',
       '{mob}' => $mobile ?? '',
     ]));

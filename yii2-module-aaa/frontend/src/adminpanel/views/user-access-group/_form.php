@@ -48,12 +48,12 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 var formatUser = function(user) {
 	if (user.loading)
 		return 'در حال جستجو...'; //item.text;
-	return '<div style="overflow:hidden;">' + '<b>' + user.firstname + ' ' + user.lastname + '</b> - ' + user.email + '</div>';
+	return '<div style="overflow:hidden;">' + user.name + '</div>';
 };
 var formatUserSelection = function(user) {
 	if (user.text)
 		return user.text;
-	return user.firstname + ' ' + user.lastname + ' - ' + user.email;
+	return user.name;
 }
 JS;
 			$this->registerJs($formatJs, \yii\web\View::POS_HEAD);
@@ -81,7 +81,7 @@ JS;
 				$initValueText = null;
 			else {
 				$userModel = UserModel::findOne($model->usragpUserID);
-				$initValueText = $userModel->usrFirstName . ' ' . $userModel->usrLastName . ' - ' . $userModel->usrEmail;
+				$initValueText = $userModel->displayName();
 			}
 
 			$builder->fields([

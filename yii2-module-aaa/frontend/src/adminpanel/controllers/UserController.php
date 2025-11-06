@@ -51,11 +51,13 @@ class UserController extends BaseCrudController
     if (!empty($q)) {
 			$q = strtolower(trim($q));
 			$query = UserModel::find()
-				// ->orWhere("usrID = '{$q}'")
-				->orWhere("LOWER(usrLastName) LIKE '%{$q}%'")
-				->orWhere("LOWER(usrFirstName) LIKE '%{$q}%'")
-				->orWhere("LOWER(usrEmail) LIKE '%{$q}%'")
-			;
+	      ->addUrlParameter('q', $q);
+			// 	->orWhere("LOWER(usrLastName) LIKE '%{$q}%'")
+			// 	->orWhere("LOWER(usrFirstName) LIKE '%{$q}%'")
+			// 	->orWhere("LOWER(usrEmail) LIKE '%{$q}%'")
+			// 	->orWhere("LOWER(usrMobile) LIKE '%{$q}%'")
+			// 	->orWhere("LOWER(usrSSID) LIKE '%{$q}%'")
+			// ;
 
 			$dataProvider = new RestClientDataProvider([
 				'query' => $query,
@@ -83,11 +85,8 @@ class UserController extends BaseCrudController
       if (!empty($models)) {
 				foreach ($models as $model) {
 					$arr[] = [
-						'id'        => $model->usrID,
-						'name'      => $model->displayText(),
-						// 'firstname' => $model->usrFirstName,
-						// 'lastname'  => $model->usrLastName,
-						// 'email'     => $model->usrEmail,
+						'id'   => $model->usrID,
+						'name' => $model->displayName(),
 					];
 				}
 			}
@@ -100,11 +99,8 @@ class UserController extends BaseCrudController
 			$out['total_count'] = 1;
 			$out['items'] = [
 				[
-					'id'        => $id,
-					'name'      => $model->displayText(),
-					// 'firstname' => $model->usrFirstName,
-					// 'lastname'  => $model->usrLastName,
-					// 'email'     => $model['usrEmail'],
+					'id'   => $id,
+					'name' => $model->displayName(),
 				],
 			];
 		}

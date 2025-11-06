@@ -78,6 +78,23 @@ class UserController extends BaseCrudController
 		];
 	}
 
+	public function fillGlobalSearchFromRequest(\yii\db\ActiveQuery $query, $q)
+	{
+		if (empty($q) || ($q == '***'))
+			return;
+
+		$query->andWhere([
+			'OR',
+			['LIKE', 'usrFirstName', $q],
+			['LIKE', 'usrFirstName_en', $q],
+			['LIKE', 'usrLastName', $q],
+			['LIKE', 'usrLastName_en', $q],
+			['LIKE', 'usrEmail', $q],
+			['LIKE', 'usrMobile', $q],
+			['LIKE', 'usrSSID', $q],
+		]);
+	}
+
 	public function actionWhoAmI()
 	{
 		return [
