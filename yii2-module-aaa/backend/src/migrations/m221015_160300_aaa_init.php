@@ -50,6 +50,7 @@ SQL
     $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_GeoCountry` (
   `cntrID` smallint unsigned NOT NULL AUTO_INCREMENT,
+  `cntrUUID` VARCHAR(38) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `cntrName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `cntrCreatedAt` datetime DEFAULT CURRENT_TIMESTAMP,
   `cntrCreatedBy` bigint unsigned DEFAULT NULL,
@@ -66,6 +67,7 @@ SQL
     $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_GeoState` (
   `sttID` mediumint unsigned NOT NULL AUTO_INCREMENT,
+  `sttUUID` VARCHAR(38) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `sttName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `sttCountryID` smallint unsigned NOT NULL,
   `sttCreatedAt` datetime DEFAULT CURRENT_TIMESTAMP,
@@ -85,6 +87,7 @@ SQL
     $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_GeoCityOrVillage` (
   `ctvID` mediumint unsigned NOT NULL AUTO_INCREMENT,
+  `ctvUUID` VARCHAR(38) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `ctvName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `ctvStateID` mediumint unsigned NOT NULL,
   `ctvType` char(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'C' COMMENT 'C:City, V:Village',
@@ -105,6 +108,7 @@ SQL
     $this->execute(<<<SQL
 CREATE TABLE IF NOT EXISTS `tbl_AAA_GeoTown` (
   `twnID` mediumint unsigned NOT NULL AUTO_INCREMENT,
+  `twnUUID` VARCHAR(38) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `twnName` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `twnCityID` mediumint unsigned NOT NULL,
   `twnCreatedAt` datetime DEFAULT CURRENT_TIMESTAMP,
