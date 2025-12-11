@@ -65,7 +65,12 @@ SQL
 
     $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_User`
-	ADD COLUMN `usrImageFileID` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `usrImage`,
+	ADD COLUMN `usrImageFileID` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `usrImage`;
+SQL
+    );
+
+    $this->execute(<<<SQL
+ALTER TABLE `tbl_AAA_User`
 	ADD CONSTRAINT `FK_tbl_AAA_User_tbl_AAA_UploadFile` FOREIGN KEY (`usrImageFileID`) REFERENCES `tbl_AAA_UploadFile` (`uflID`) ON UPDATE NO ACTION ON DELETE NO ACTION;
 SQL
     );
@@ -128,6 +133,9 @@ CREATE FUNCTION `fnApplyCounterToFileName`(
   `iCounter` INT UNSIGNED
 )
 RETURNS text CHARSET utf8mb4
+LANGUAGE SQL
+NOT DETERMINISTIC
+READS SQL DATA
 BEGIN
   DECLARE vName TEXT;
   DECLARE vExt TEXT;
@@ -332,7 +340,6 @@ BEGIN
 END ;
 SQL
     );
-
   }
 
 	public function safeDown()

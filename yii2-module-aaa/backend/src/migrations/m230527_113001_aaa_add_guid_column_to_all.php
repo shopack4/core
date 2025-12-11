@@ -83,10 +83,10 @@ SQL
 		);
 
 		//------------------
-		$this->addUUIDTo('tbl_AAA_GeoCityOrVillage',	'ctv');
-		$this->addUUIDTo('tbl_AAA_GeoCountry',				'cntr');
-		$this->addUUIDTo('tbl_AAA_GeoState',					'stt');
-		$this->addUUIDTo('tbl_AAA_GeoTown',						'twn');
+		// $this->addUUIDTo('tbl_AAA_GeoCityOrVillage',	'ctv');
+		// $this->addUUIDTo('tbl_AAA_GeoCountry',				'cntr');
+		// $this->addUUIDTo('tbl_AAA_GeoState',					'stt');
+		// $this->addUUIDTo('tbl_AAA_GeoTown',						'twn');
 		$this->addUUIDTo('tbl_AAA_Message',						'msg');
 		$this->addUUIDTo('tbl_AAA_MessageTemplate',		'mst');
 

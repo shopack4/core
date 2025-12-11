@@ -19,7 +19,9 @@ class PerModuleMigration extends Migration
 			throw new \Exception("currentModuleName not defined");
 		}
 
-		return strtr($text, static::ModuleMarker, $this->currentModuleName);
+		return strtr($text, [
+			static::ModuleMarker => strtoupper($this->currentModuleName)
+		]);
 	}
 
 	public function execute($sql, $params = [])

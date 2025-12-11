@@ -9,51 +9,51 @@ use shopack\base\common\db\Migration;
 
 class m240824_102202_aaa_add_type_to_offline_payment extends Migration
 {
-	public function safeUp()
-	{
-		$this->execute(<<<SQL
+    public function safeUp()
+    {
+        $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_OfflinePayment`
-	ADD COLUMN `ofpType` CHAR(1) NOT NULL DEFAULT 'P' COMMENT 'C:Cash, P:Pos, K:To Cart, A:To Account Number, B:To ISBN, Q:Cheque' AFTER `ofpVoucherID`;
+    ADD COLUMN `ofpType` CHAR(1) NOT NULL DEFAULT 'P' COMMENT 'C:Cash, P:Pos, K:To Cart, A:To Account Number, B:To ISBN, Q:Cheque' AFTER `ofpVoucherID`;
 SQL
-		);
+        );
 
-		$this->execute(<<<SQL
+        $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_OfflinePayment`
-	CHANGE COLUMN `ofpType` `ofpType` CHAR(1) NOT NULL COMMENT 'C:Cash, P:Pos, K:To Cart, A:To Account Number, B:To ISBN, Q:Cheque' COLLATE 'utf8mb4_unicode_ci' AFTER `ofpVoucherID`;
+    CHANGE COLUMN `ofpType` `ofpType` CHAR(1) NOT NULL COMMENT 'C:Cash, P:Pos, K:To Cart, A:To Account Number, B:To ISBN, Q:Cheque' COLLATE 'utf8mb4_unicode_ci' AFTER `ofpVoucherID`;
 SQL
-		);
+        );
 
-		$this->execute(<<<SQL
+        $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_OfflinePayment`
-	ADD COLUMN `ofpDestCartNumber` VARCHAR(64) NULL AFTER `ofpBankOrCart`,
-	ADD COLUMN `ofpDestAccountNumber` VARCHAR(64) NULL AFTER `ofpDestCartNumber`,
-	ADD COLUMN `ofpDestISBN` VARCHAR(64) NULL AFTER `ofpDestAccountNumber`,
-	ADD COLUMN `ofpDestBankID` INT UNSIGNED NULL DEFAULT NULL AFTER `ofpDestISBN`,
-	ADD COLUMN `ofpDestName` VARCHAR(64) NULL AFTER `ofpDestBankID`,
-	ADD COLUMN `ofpDueDate` TIMESTAMP NULL DEFAULT NULL AFTER `ofpDestName`;
+    ADD COLUMN `ofpDestCartNumber` VARCHAR(64) NULL AFTER `ofpBankOrCart`,
+    ADD COLUMN `ofpDestAccountNumber` VARCHAR(64) NULL AFTER `ofpDestCartNumber`,
+    ADD COLUMN `ofpDestISBN` VARCHAR(64) NULL AFTER `ofpDestAccountNumber`,
+    ADD COLUMN `ofpDestBankID` INT UNSIGNED NULL DEFAULT NULL AFTER `ofpDestISBN`,
+    ADD COLUMN `ofpDestName` VARCHAR(64) NULL AFTER `ofpDestBankID`,
+    ADD COLUMN `ofpDueDate` TIMESTAMP NULL DEFAULT NULL AFTER `ofpDestName`;
 SQL
-		);
+        );
 
-		$this->execute(<<<SQL
+        $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_OfflinePayment`
-	ADD CONSTRAINT `FK_tbl_AAA_OfflinePayment_tbl_AAA_BasicDefinition` FOREIGN KEY (`ofpDestBankID`) REFERENCES `tbl_AAA_BasicDefinition` (`bdfID`) ON UPDATE NO ACTION ON DELETE NO ACTION;
+    ADD CONSTRAINT `FK_tbl_AAA_OfflinePayment_tbl_AAA_BasicDefinition` FOREIGN KEY (`ofpDestBankID`) REFERENCES `tbl_AAA_BasicDefinition` (`bdfID`) ON UPDATE NO ACTION ON DELETE NO ACTION;
 SQL
-		);
+        );
 
-		$this->execute(<<<SQL
+        $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_OfflinePayment`
-	CHANGE COLUMN `ofpBankOrCart` `ofpBankOrCart_OLD` VARCHAR(64) NULL COLLATE 'utf8mb4_unicode_ci' AFTER `ofpType`;
+    CHANGE COLUMN `ofpBankOrCart` `ofpBankOrCart_OLD` VARCHAR(64) NULL COLLATE 'utf8mb4_unicode_ci' AFTER `ofpType`;
 SQL
-		);
+        );
 
-		$this->execute(<<<SQL
+        $this->execute(<<<SQL
 ALTER TABLE `tbl_AAA_BasicDefinition`
-	CHANGE COLUMN `bdfType` `bdfType` CHAR(1) NOT NULL COMMENT 'O:Offline Payment Reject Reason, B:Bank' COLLATE 'utf8mb4_unicode_ci' AFTER `bdfUUID`;
+    CHANGE COLUMN `bdfType` `bdfType` CHAR(1) NOT NULL COMMENT 'O:Offline Payment Reject Reason, B:Bank' COLLATE 'utf8mb4_unicode_ci' AFTER `bdfUUID`;
 SQL
-		);
+        );
 
-		$this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_OfflinePayment;");
-		$this->execute(<<<SQL
+        $this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_OfflinePayment;");
+        $this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_AAA_OfflinePayment AFTER UPDATE ON tbl_AAA_OfflinePayment FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -93,43 +93,43 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_OfflinePayment AFTER UPDATE ON tbl_AAA_Offl
   END IF;
 END
 SQL
-		);
+        );
 
-		$bankModels = $this->queryAll(<<<SQL
+        $bankModels = $this->queryAll(<<<SQL
    SELECT ofpBankOrCart_OLD
-	      , bdfID
+        , ANY_VALUE(bdfID) AS bdfID
      FROM tbl_AAA_OfflinePayment
 LEFT JOIN tbl_AAA_BasicDefinition
        ON tbl_AAA_BasicDefinition.bdfName = ofpBankOrCart_OLD
     WHERE ofpBankOrCart_OLD IS NOT NULL
  GROUP BY ofpBankOrCart_OLD
 SQL
-		);
+        );
 
-		//name => id
-		$banks = [];
-		if (empty($bankModels) == false) {
-			foreach ($bankModels as $bankModel) {
-				if (empty($bankModel['bdfID'])) {
-					$basicDefinitionModel = new BasicDefinitionModel;
+        //name => id
+        $banks = [];
+        if (empty($bankModels) == false) {
+            foreach ($bankModels as $bankModel) {
+                if (empty($bankModel['bdfID'])) {
+                    $basicDefinitionModel = new BasicDefinitionModel;
 
-					$basicDefinitionModel->bdfName = $bankModel['ofpBankOrCart_OLD'];
-					$basicDefinitionModel->bdfType = enuBasicDefinitionType::Bank;
+                    $basicDefinitionModel->bdfName = $bankModel['ofpBankOrCart_OLD'];
+                    $basicDefinitionModel->bdfType = enuBasicDefinitionType::Bank;
 
-					if ($basicDefinitionModel->save() == false)
-						throw new \Exception(implode('\n', $basicDefinitionModel->getErrorSummary(true)));
+                    if ($basicDefinitionModel->save() == false)
+                        throw new \Exception(implode('\n', $basicDefinitionModel->getErrorSummary(true)));
 
-					$banks[] = "WHEN '{$bankModel['ofpBankOrCart_OLD']}' THEN {$basicDefinitionModel->bdfID}";
-				} else {
-					$banks[] = "WHEN '{$bankModel['ofpBankOrCart_OLD']}' THEN {$bankModel['bdfID']}";
-				}
-			}
-		}
+                    $banks[] = "WHEN '{$bankModel['ofpBankOrCart_OLD']}' THEN {$basicDefinitionModel->bdfID}";
+                } else {
+                    $banks[] = "WHEN '{$bankModel['ofpBankOrCart_OLD']}' THEN {$bankModel['bdfID']}";
+                }
+            }
+        }
 
-		if (empty($banks) == false) {
-			$banks = implode("\n         ", $banks);
+        if (empty($banks) == false) {
+            $banks = implode("\n         ", $banks);
 
-			$this->execute(<<<SQL
+            $this->execute(<<<SQL
 UPDATE tbl_AAA_OfflinePayment
    SET ofpDestBankID = CASE ofpBankOrCart_OLD
          {$banks}
@@ -138,28 +138,28 @@ UPDATE tbl_AAA_OfflinePayment
  WHERE ofpBankOrCart_OLD IS NOT NULL
    AND ofpDestBankID IS NULL;
 SQL
-			);
-		}
+            );
+        }
 
-	}
+    }
 
-	public function safeDown()
-	{
-		echo "m240824_102202_aaa_add_type_to_offline_payment cannot be reverted.\n";
-		return false;
-	}
+    public function safeDown()
+    {
+        echo "m240824_102202_aaa_add_type_to_offline_payment cannot be reverted.\n";
+        return false;
+    }
 
-	/*
-	// Use up()/down() to run migration code without a transaction.
-	public function up()
-	{
-	}
+    /*
+    // Use up()/down() to run migration code without a transaction.
+    public function up()
+    {
+    }
 
-	public function down()
-	{
-		echo "m240824_102202_aaa_add_type_to_offline_payment cannot be reverted.\n";
-		return false;
-	}
-	*/
+    public function down()
+    {
+        echo "m240824_102202_aaa_add_type_to_offline_payment cannot be reverted.\n";
+        return false;
+    }
+    */
 
 }

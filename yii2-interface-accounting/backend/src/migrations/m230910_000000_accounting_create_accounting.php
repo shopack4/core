@@ -326,30 +326,6 @@ END
 SQL
     );
 
-		$this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_{{MODULE}}_Membership;");
-
-    $this->execute(<<<SQL
-RENAME TABLE `tbl_{{MODULE}}_Membership` TO `DELETED_tbl_{{MODULE}}_Membership`;
-SQL
-    );
-
-    $this->execute(<<<SQL
-ALTER TABLE `tbl_{{MODULE}}_MemberMembership`
-	DROP FOREIGN KEY `FK_tbl_{{MODULE}}_MemberMembership_tbl_{{MODULE}}_Membership`,
-	DROP FOREIGN KEY `FK_tbl_{{MODULE}}_MemberMembership_tbl_{{MODULE}}_Member`,
-	DROP FOREIGN KEY `FK_tbl_{{MODULE}}_MemberMembership_tbl_AAA_Voucher`;
-SQL
-    );
-
-    $this->execute("DROP TRIGGER IF EXISTS trg_tbl_{{MODULE}}_MemberMembership_after_insert;");
-    $this->execute("DROP TRIGGER IF EXISTS trg_tbl_{{MODULE}}_MemberMembership_after_update;");
-		$this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_{{MODULE}}_MemberMembership;");
-
-    $this->execute(<<<SQL
-RENAME TABLE `tbl_{{MODULE}}_MemberMembership` TO `DELETED_tbl_{{MODULE}}_MemberMembership`;
-SQL
-    );
-
     $this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_{{MODULE}}_Accounting_Unit;");
     $this->execute(<<<SQL
 CREATE TRIGGER trg_updatelog_tbl_{{MODULE}}_Accounting_Unit AFTER UPDATE ON tbl_{{MODULE}}_Accounting_Unit FOR EACH ROW BEGIN
