@@ -11,8 +11,8 @@ class m231113_000000_accounting_rename_coupon_to_discount extends PerModuleMigra
 	{
 		$this->execute(<<<SQL
 ALTER TABLE `tbl_{{MODULE}}_Accounting_UserAsset`
-	DROP INDEX `FK_tbl_{{MODULE}}_Accounting_UserAsset_tbl_Coupon`,
-	DROP FOREIGN KEY `FK_tbl_{{MODULE}}_Accounting_UserAsset_tbl_Coupon`;
+	DROP INDEX `FK_tbl_{{MODULE}}_Acc_UserAsset_tbl_Coupon`,
+	DROP FOREIGN KEY `FK_tbl_{{MODULE}}_Acc_UserAsset_tbl_Coupon`;
 SQL
     );
 
@@ -98,7 +98,7 @@ SQL
 		$this->execute(<<<SQL
 ALTER TABLE `tbl_{{MODULE}}_Accounting_UserAsset`
 	CHANGE COLUMN `uasCouponID` `uasDiscountID` INT(10) UNSIGNED NULL DEFAULT NULL AFTER `uasVoucherItemInfo`,
-	ADD CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_UserAsset_tbl_{{MODULE}}_Accounting_Discount` FOREIGN KEY (`uasDiscountID`) REFERENCES `tbl_{{MODULE}}_Accounting_Discount` (`dscID`) ON UPDATE NO ACTION ON DELETE NO ACTION;
+	ADD CONSTRAINT `FK_tbl_{{MODULE}}_Acc_UserAsset_tbl_{{MODULE}}_Acc_Discount` FOREIGN KEY (`uasDiscountID`) REFERENCES `tbl_{{MODULE}}_Accounting_Discount` (`dscID`) ON UPDATE NO ACTION ON DELETE NO ACTION;
 SQL
     );
 

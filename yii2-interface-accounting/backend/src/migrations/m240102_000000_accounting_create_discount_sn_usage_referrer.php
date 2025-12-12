@@ -52,8 +52,8 @@ CREATE TABLE `tbl_{{MODULE}}_Accounting_DiscountSerial` (
 	`dscsnSN` VARCHAR(64) NOT NULL COLLATE 'utf8mb4_unicode_ci',
 	PRIMARY KEY (`dscsnID`) USING BTREE,
 	UNIQUE INDEX `dscsnDiscountID_dscsnSN` (`dscsnDiscountID`, `dscsnSN`) USING BTREE,
-	INDEX `FK_tbl_{{MODULE}}_Accounting_DiscountSerial_tbl_{{MODULE}}_Accounting_Discount` (`dscsnDiscountID`) USING BTREE,
-	CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_DiscountSerial_tbl_{{MODULE}}_Accounting_Discount` FOREIGN KEY (`dscsnDiscountID`) REFERENCES `tbl_{{MODULE}}_Accounting_Discount` (`dscID`) ON UPDATE NO ACTION ON DELETE CASCADE
+	INDEX `FK_tbl_{{MODULE}}_Acc_DiscountSerial_tbl_{{MODULE}}_Accounting_Discount` (`dscsnDiscountID`) USING BTREE,
+	CONSTRAINT `FK_tbl_{{MODULE}}_Acc_DiscountSerial_tbl_{{MODULE}}_Accounting_Discount` FOREIGN KEY (`dscsnDiscountID`) REFERENCES `tbl_{{MODULE}}_Accounting_Discount` (`dscID`) ON UPDATE NO ACTION ON DELETE CASCADE
 )
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
@@ -73,11 +73,11 @@ CREATE TABLE `tbl_{{MODULE}}_Accounting_DiscountUsage` (
 	`dscusgCreatedAt` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (`dscusgID`) USING BTREE,
 	UNIQUE INDEX `dscusgDiscountID_dscusgDiscountSerialID_dscusgUserAssetID` (`dscusgDiscountID`, `dscusgDiscountSerialID`, `dscusgUserAssetID`) USING BTREE,
-	INDEX `FK_tbl_{{MODULE}}_Accounting_DiscountUsage_Serial` (`dscusgDiscountSerialID`) USING BTREE,
-	INDEX `FK_tbl_{{MODULE}}_Accounting_DiscountUsage_tbl_{{MODULE}}_Accounting_UserAsset` (`dscusgUserAssetID`) USING BTREE,
-	CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_DiscountUsage_Serial` FOREIGN KEY (`dscusgDiscountSerialID`) REFERENCES `tbl_{{MODULE}}_Accounting_DiscountSerial` (`dscsnID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
-	CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_DiscountUsage_tbl_{{MODULE}}_Accounting_Discount` FOREIGN KEY (`dscusgDiscountID`) REFERENCES `tbl_{{MODULE}}_Accounting_Discount` (`dscID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
-	CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_DiscountUsage_tbl_{{MODULE}}_Accounting_UserAsset` FOREIGN KEY (`dscusgUserAssetID`) REFERENCES `tbl_{{MODULE}}_Accounting_UserAsset` (`uasID`) ON UPDATE NO ACTION ON DELETE CASCADE
+	INDEX `FK_tbl_{{MODULE}}_Acc_DiscountUsage_Serial` (`dscusgDiscountSerialID`) USING BTREE,
+	INDEX `FK_tbl_{{MODULE}}_Acc_DiscountUsage_tbl_{{MODULE}}_Accounting_UserAsset` (`dscusgUserAssetID`) USING BTREE,
+	CONSTRAINT `FK_tbl_{{MODULE}}_Acc_DiscountUsage_Serial` FOREIGN KEY (`dscusgDiscountSerialID`) REFERENCES `tbl_{{MODULE}}_Accounting_DiscountSerial` (`dscsnID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT `FK_tbl_{{MODULE}}_Acc_DiscountUsage_tbl_{{MODULE}}_Accounting_Discount` FOREIGN KEY (`dscusgDiscountID`) REFERENCES `tbl_{{MODULE}}_Accounting_Discount` (`dscID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT `FK_tbl_{{MODULE}}_Acc_DiscountUsage_tbl_{{MODULE}}_Accounting_UserAsset` FOREIGN KEY (`dscusgUserAssetID`) REFERENCES `tbl_{{MODULE}}_Accounting_UserAsset` (`uasID`) ON UPDATE NO ACTION ON DELETE CASCADE
 )
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
@@ -139,8 +139,6 @@ CREATE TRIGGER trg_updatelog_tbl_{{MODULE}}_Accounting_Discount AFTER UPDATE ON 
   IF ISNULL(OLD.dscReferrers) != ISNULL(NEW.dscReferrers) OR OLD.dscReferrers != NEW.dscReferrers THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscReferrers", IF(ISNULL(OLD.dscReferrers), NULL, OLD.dscReferrers))); END IF;
   IF ISNULL(OLD.dscSaleableBasedMultiplier) != ISNULL(NEW.dscSaleableBasedMultiplier) OR OLD.dscSaleableBasedMultiplier != NEW.dscSaleableBasedMultiplier THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscSaleableBasedMultiplier", IF(ISNULL(OLD.dscSaleableBasedMultiplier), NULL, OLD.dscSaleableBasedMultiplier))); END IF;
   IF ISNULL(OLD.dscStatus) != ISNULL(NEW.dscStatus) OR OLD.dscStatus != NEW.dscStatus THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscStatus", IF(ISNULL(OLD.dscStatus), NULL, OLD.dscStatus))); END IF;
-  IF ISNULL(OLD.dscTargetKanoonIDs) != ISNULL(NEW.dscTargetKanoonIDs) OR OLD.dscTargetKanoonIDs != NEW.dscTargetKanoonIDs THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscTargetKanoonIDs", IF(ISNULL(OLD.dscTargetKanoonIDs), NULL, OLD.dscTargetKanoonIDs))); END IF;
-  IF ISNULL(OLD.dscTargetMemberGroupIDs) != ISNULL(NEW.dscTargetMemberGroupIDs) OR OLD.dscTargetMemberGroupIDs != NEW.dscTargetMemberGroupIDs THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscTargetMemberGroupIDs", IF(ISNULL(OLD.dscTargetMemberGroupIDs), NULL, OLD.dscTargetMemberGroupIDs))); END IF;
   IF ISNULL(OLD.dscTargetProductIDs) != ISNULL(NEW.dscTargetProductIDs) OR OLD.dscTargetProductIDs != NEW.dscTargetProductIDs THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscTargetProductIDs", IF(ISNULL(OLD.dscTargetProductIDs), NULL, OLD.dscTargetProductIDs))); END IF;
   IF ISNULL(OLD.dscTargetSaleableIDs) != ISNULL(NEW.dscTargetSaleableIDs) OR OLD.dscTargetSaleableIDs != NEW.dscTargetSaleableIDs THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscTargetSaleableIDs", IF(ISNULL(OLD.dscTargetSaleableIDs), NULL, OLD.dscTargetSaleableIDs))); END IF;
   IF ISNULL(OLD.dscTargetUserIDs) != ISNULL(NEW.dscTargetUserIDs) OR OLD.dscTargetUserIDs != NEW.dscTargetUserIDs THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("dscTargetUserIDs", IF(ISNULL(OLD.dscTargetUserIDs), NULL, OLD.dscTargetUserIDs))); END IF;
@@ -172,8 +170,8 @@ SQL
 		//asset
 		$this->execute(<<<SQL
 ALTER TABLE `tbl_{{MODULE}}_Accounting_UserAsset`
-	DROP FOREIGN KEY `FK_tbl_{{MODULE}}_Accounting_UserAsset_tbl_{{MODULE}}_Accounting_Discount`,
-	DROP INDEX `FK_tbl_{{MODULE}}_Accounting_UserAsset_tbl_{{MODULE}}_Accounting_Discount`,
+	DROP FOREIGN KEY `FK_tbl_{{MODULE}}_Acc_UserAsset_tbl_{{MODULE}}_Acc_Discount`,
+	DROP INDEX `FK_tbl_{{MODULE}}_Acc_UserAsset_tbl_{{MODULE}}_Acc_Discount`,
 	DROP INDEX `uas_invID`,
 	ADD INDEX `uasVoucherID` (`uasVoucherID`) USING BTREE;
 SQL

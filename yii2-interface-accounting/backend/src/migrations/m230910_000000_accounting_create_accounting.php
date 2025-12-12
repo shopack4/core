@@ -119,8 +119,8 @@ CREATE TABLE `tbl_{{MODULE}}_Accounting_Product` (
 	INDEX `prdUpdatedBy` (`prdUpdatedBy`) USING BTREE,
 	INDEX `prdValidFromTime` (`prdValidFromHour`) USING BTREE,
 	INDEX `prdValidToTime` (`prdValidToHour`) USING BTREE,
-	INDEX `FK_tbl_{{MODULE}}_Accounting_Product_tbl_Unit` (`prdUnitID`) USING BTREE,
-	CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_Product_tbl_{{MODULE}}_Accounting_Unit` FOREIGN KEY (`prdUnitID`) REFERENCES `tbl_{{MODULE}}_Accounting_Unit` (`untID`) ON UPDATE CASCADE ON DELETE NO ACTION
+	INDEX `FK_tbl_{{MODULE}}_Acc_Product_tbl_Unit` (`prdUnitID`) USING BTREE,
+	CONSTRAINT `FK_tbl_{{MODULE}}_Acc_Product_tbl_{{MODULE}}_Acc_Unit` FOREIGN KEY (`prdUnitID`) REFERENCES `tbl_{{MODULE}}_Accounting_Unit` (`untID`) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
@@ -166,8 +166,8 @@ CREATE TABLE `tbl_{{MODULE}}_Accounting_Saleable` (
 	INDEX `slbUpdatedBy` (`slbUpdatedBy`) USING BTREE,
 	INDEX `slbAvailableToDate` (`slbAvailableToDate`) USING BTREE,
 	INDEX `slbAvailableFromDate` (`slbAvailableFromDate`) USING BTREE,
-	INDEX `FK_tbl_{{MODULE}}_Accounting_Saleable_tbl_Product` (`slbProductID`) USING BTREE,
-	CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_Saleable_tbl_Product` FOREIGN KEY (`slbProductID`) REFERENCES `tbl_{{MODULE}}_Accounting_Product` (`prdID`) ON UPDATE CASCADE ON DELETE CASCADE
+	INDEX `FK_tbl_{{MODULE}}_Acc_Saleable_tbl_Product` (`slbProductID`) USING BTREE,
+	CONSTRAINT `FK_tbl_{{MODULE}}_Acc_Saleable_tbl_Product` FOREIGN KEY (`slbProductID`) REFERENCES `tbl_{{MODULE}}_Accounting_Product` (`prdID`) ON UPDATE CASCADE ON DELETE CASCADE
 )
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
@@ -197,9 +197,9 @@ CREATE TABLE `tbl_{{MODULE}}_Accounting_SaleableFile` (
 	`slfRemovedAt` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`slfRemovedBy` BIGINT(20) UNSIGNED NULL DEFAULT NULL,
 	PRIMARY KEY (`slfID`) USING BTREE,
-	INDEX `FK_tbl_{{MODULE}}_Accounting_SaleableFile_tbl_Saleable` (`slfSaleableID`) USING BTREE,
+	INDEX `FK_tbl_{{MODULE}}_Acc_SaleableFile_tbl_Saleable` (`slfSaleableID`) USING BTREE,
 	INDEX `slfCreatedAt` (`slfCreatedAt`) USING BTREE,
-	CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_SaleableFile_tbl_Saleable` FOREIGN KEY (`slfSaleableID`) REFERENCES `tbl_{{MODULE}}_Accounting_Saleable` (`slbID`) ON UPDATE NO ACTION ON DELETE CASCADE
+	CONSTRAINT `FK_tbl_{{MODULE}}_Acc_SaleableFile_tbl_Saleable` FOREIGN KEY (`slfSaleableID`) REFERENCES `tbl_{{MODULE}}_Accounting_Saleable` (`slbID`) ON UPDATE NO ACTION ON DELETE CASCADE
 )
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
@@ -238,11 +238,11 @@ CREATE TABLE `tbl_{{MODULE}}_Accounting_UserAsset` (
 	INDEX `uasUpdatedBy` (`uasUpdatedBy`) USING BTREE,
 	INDEX `uas_invID` (`uasVoucherID`) USING BTREE,
 	INDEX `uasActorID` (`uasActorID`) USING BTREE,
-	INDEX `FK_tbl_{{MODULE}}_Accounting_UserAsset_tbl_Saleable` (`uasSaleableID`) USING BTREE,
-	INDEX `FK_tbl_{{MODULE}}_Accounting_UserAsset_tbl_Coupon` (`uasCouponID`) USING BTREE,
+	INDEX `FK_tbl_{{MODULE}}_Acc_UserAsset_tbl_Saleable` (`uasSaleableID`) USING BTREE,
+	INDEX `FK_tbl_{{MODULE}}_Acc_UserAsset_tbl_Coupon` (`uasCouponID`) USING BTREE,
 	INDEX `uasCreatedAt` (`uasCreatedAt`) USING BTREE,
-	CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_UserAsset_tbl_Coupon` FOREIGN KEY (`uasCouponID`) REFERENCES `tbl_{{MODULE}}_Accounting_Coupon` (`cpnID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
-	CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_UserAsset_tbl_Saleable` FOREIGN KEY (`uasSaleableID`) REFERENCES `tbl_{{MODULE}}_Accounting_Saleable` (`slbID`) ON UPDATE NO ACTION ON DELETE NO ACTION
+	CONSTRAINT `FK_tbl_{{MODULE}}_Acc_UserAsset_tbl_Coupon` FOREIGN KEY (`uasCouponID`) REFERENCES `tbl_{{MODULE}}_Accounting_Coupon` (`cpnID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT `FK_tbl_{{MODULE}}_Acc_UserAsset_tbl_Saleable` FOREIGN KEY (`uasSaleableID`) REFERENCES `tbl_{{MODULE}}_Accounting_Saleable` (`slbID`) ON UPDATE NO ACTION ON DELETE NO ACTION
 )
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
@@ -264,12 +264,12 @@ CREATE TABLE `tbl_{{MODULE}}_Accounting_UserAsset_File` (
 	`uasuflRemovedAt` INT(10) UNSIGNED NOT NULL DEFAULT '0',
 	`uasuflRemovedBy` BIGINT(20) UNSIGNED NULL DEFAULT NULL,
 	PRIMARY KEY (`uasuflID`) USING BTREE,
-	INDEX `FK_tbl_{{MODULE}}_Accounting_UserAsset_File_tbl_UserAsset` (`uasuflUserAssetID`) USING BTREE,
-	INDEX `FK_tbl_{{MODULE}}_Accounting_UserAsset_File_tbl_AAA_UploadFile` (`uasuflFileID`) USING BTREE,
-	INDEX `FK_tbl_{{MODULE}}_Accounting_UserAsset_File_tbl_SaleableFile` (`uasuflSaleableFileID`) USING BTREE,
-	CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_UserAsset_File_tbl_AAA_UploadFile` FOREIGN KEY (`uasuflFileID`) REFERENCES `tbl_AAA_UploadFile` (`uflID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
-	CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_UserAsset_File_tbl_SaleableFile` FOREIGN KEY (`uasuflSaleableFileID`) REFERENCES `tbl_{{MODULE}}_Accounting_SaleableFile` (`slfID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
-	CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_UserAsset_File_tbl_UserAsset` FOREIGN KEY (`uasuflUserAssetID`) REFERENCES `tbl_{{MODULE}}_Accounting_UserAsset` (`uasID`) ON UPDATE NO ACTION ON DELETE NO ACTION
+	INDEX `FK_tbl_{{MODULE}}_Acc_UserAsset_File_tbl_UserAsset` (`uasuflUserAssetID`) USING BTREE,
+	INDEX `FK_tbl_{{MODULE}}_Acc_UserAsset_File_tbl_AAA_UploadFile` (`uasuflFileID`) USING BTREE,
+	INDEX `FK_tbl_{{MODULE}}_Acc_UserAsset_File_tbl_SaleableFile` (`uasuflSaleableFileID`) USING BTREE,
+	CONSTRAINT `FK_tbl_{{MODULE}}_Acc_UserAsset_File_tbl_AAA_UploadFile` FOREIGN KEY (`uasuflFileID`) REFERENCES `tbl_AAA_UploadFile` (`uflID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT `FK_tbl_{{MODULE}}_Acc_UserAsset_File_tbl_SaleableFile` FOREIGN KEY (`uasuflSaleableFileID`) REFERENCES `tbl_{{MODULE}}_Accounting_SaleableFile` (`slfID`) ON UPDATE NO ACTION ON DELETE NO ACTION,
+	CONSTRAINT `FK_tbl_{{MODULE}}_Acc_UserAsset_File_tbl_UserAsset` FOREIGN KEY (`uasuflUserAssetID`) REFERENCES `tbl_{{MODULE}}_Accounting_UserAsset` (`uasID`) ON UPDATE NO ACTION ON DELETE NO ACTION
 )
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
@@ -295,7 +295,7 @@ CREATE TABLE `tbl_{{MODULE}}_Accounting_AssetUsage` (
 	UNIQUE INDEX `usgUniqueMD5` (`usgUniqueMD5`) USING BTREE,
 	INDEX `usgUserAssetID` (`usgUserAssetID`) USING BTREE,
 	INDEX `usgCreatedAt` (`usgCreatedAt`) USING BTREE,
-	CONSTRAINT `FK_tbl_{{MODULE}}_Accounting_AssetUsage_tbl_UserAsset` FOREIGN KEY (`usgUserAssetID`) REFERENCES `tbl_{{MODULE}}_Accounting_UserAsset` (`uasID`) ON UPDATE CASCADE ON DELETE NO ACTION
+	CONSTRAINT `FK_tbl_{{MODULE}}_Acc_AssetUsage_tbl_UserAsset` FOREIGN KEY (`usgUserAssetID`) REFERENCES `tbl_{{MODULE}}_Accounting_UserAsset` (`uasID`) ON UPDATE CASCADE ON DELETE NO ACTION
 )
 COLLATE='utf8mb4_unicode_ci'
 ENGINE=InnoDB
