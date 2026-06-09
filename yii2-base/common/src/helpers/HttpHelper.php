@@ -367,6 +367,10 @@ class HttpHelper
 			} catch (\Throwable $th) { ; }
 		}
 
+		//----------------------------------------
+		$clientConfig["verify"] = false;
+		//----------------------------------------
+
 		$httpClient = new GuzzleHttpClient($clientConfig);
 
 		// $response = self::_guzzleRequest($httpClient, $method, $url, $callOptions);
