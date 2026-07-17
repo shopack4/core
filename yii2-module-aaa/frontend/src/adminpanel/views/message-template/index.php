@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -19,13 +20,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="message-template-index w-100">
   <div class='card'>
-		<div class='card-header'>
-			<div class="float-end">
+    <div class='card-header'>
+      <div class="float-end">
         <?= MessageTemplateModel::canCreate() ? Html::createButton() : '' ?>
-			</div>
+      </div>
       <div class='card-title'><?= Html::encode($this->title) ?></div>
-			<div class="clearfix"></div>
-		</div>
+      <div class="clearfix"></div>
+    </div>
 
     <div class='card-body'>
       <?php
@@ -47,11 +48,12 @@ $this->params['breadcrumbs'][] = $this->title;
               if (empty($model->mstBody))
                 return '';
 
-              return '<pre class="text-start">' . str_replace('\n', '<br>', $model->mstBody) . '</pre>';
+              return '<span class="text-start dir-rtl">' . str_replace("\n", "<br>", $model->mstBody) . '</span>';
             },
           ],
           'mstID',
-          'mstKey',
+          'mstName',
+          // 'mstKey',
           [
             'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
             'enumClass' => enuMessageTemplateMedia::class,
@@ -88,7 +90,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'noWrap' => true,
             'format' => 'raw',
             'label' => 'ایجاد / ویرایش',
-            'value' => function($model) {
+            'value' => function ($model) {
               return Html::formatRowDates(
                 $model->mstCreatedAt,
                 $model->createdByUser,

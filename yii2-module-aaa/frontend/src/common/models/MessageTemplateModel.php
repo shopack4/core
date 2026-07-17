@@ -18,6 +18,7 @@ class MessageTemplateModel extends RestClientActiveRecord
 	{
 		return [
 			'mstID'             => Yii::t('app', 'ID'),
+			'mstName'           => Yii::t('app', 'Name'),
 			'mstKey'            => Yii::t('app', 'Key'),
 			'mstMedia'          => Yii::t('aaa', 'Media'),
 			'mstLanguage'       => Yii::t('aaa', 'Language'),
@@ -25,6 +26,7 @@ class MessageTemplateModel extends RestClientActiveRecord
 			'mstBody'           => Yii::t('aaa', 'Body'),
 			'mstParamsPrefix'   => Yii::t('aaa', 'Params Prefix'),
 			'mstParamsSuffix'   => Yii::t('aaa', 'Params Suffix'),
+			'mstParams'         => Yii::t('app', 'Parameters'),
 			'mstIsSystem'       => Yii::t('aaa', 'System Template'),
 			'mstStatus'         => Yii::t('app', 'Status'),
 			'mstCreatedAt'      => Yii::t('app', 'Created At'),

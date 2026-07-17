@@ -30,8 +30,8 @@ class MessageTemplateSearchModel extends MessageTemplateModel
 				// 'enableMultiSort' => true,
 				'attributes' => [
 					'mstID',
-					// 'mstName',
-					// 'mstStatus',
+					'mstName',
+					'mstStatus',
 					'mstCreatedAt' => [
 						'default' => SORT_DESC,
 					],
@@ -46,7 +46,7 @@ class MessageTemplateSearchModel extends MessageTemplateModel
 					'mstRemovedBy',
 				],
 				'defaultOrder' => [
-					'mstCreatedAt' => SORT_ASC,
+					'mstID' => SORT_ASC,
 				],
 			],
 		]);

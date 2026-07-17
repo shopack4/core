@@ -31,6 +31,7 @@ use shopack\aaa\common\enums\enuMessageTemplateMedia;
 					'inline' => true,
 				],
 			],
+			['mstName'],
 		]);
 
 		if (($model->isNewRecord == false) && ($model->mstIsSystem)) {
@@ -38,7 +39,7 @@ use shopack\aaa\common\enums\enuMessageTemplateMedia;
 			$builder->fields([
 				['mstKey',
 					'type' => FormBuilder::FIELD_STATIC,
-					'staticValue' => $model->mstKey,
+					'staticValue' => Html::div($model->mstKey, ['class' => ['dir-ltr']]),
 				],
 				['@col' => 2],
 				['mstMedia',
@@ -47,12 +48,14 @@ use shopack\aaa\common\enums\enuMessageTemplateMedia;
 				],
 				['mstLanguage',
 					'type' => FormBuilder::FIELD_STATIC,
-					'staticValue' => $model->mstLanguage,
+					'staticValue' => Html::div($model->mstLanguage, ['class' => ['dir-ltr']]),
 				],
 			]);
 		} else {
 			$builder->fields([
-				['mstKey'],
+				['mstKey',
+					'widgetOptions' => ['class' => ['dir-ltr']],
+				],
 				['@col' => 2],
 				['mstMedia',
 					'type' => FormBuilder::FIELD_RADIOLIST,
@@ -61,7 +64,9 @@ use shopack\aaa\common\enums\enuMessageTemplateMedia;
 						'inline' => true,
 					],
 				],
-				['mstLanguage'],
+				['mstLanguage',
+					'widgetOptions' => ['class' => ['dir-ltr']],
+				],
 			]);
 		}
 
@@ -81,6 +86,22 @@ use shopack\aaa\common\enums\enuMessageTemplateMedia;
 				],
 			],
 		]);
+
+		if (($model->isNewRecord == false) && ($model->mstIsSystem)) {
+			//static
+			$builder->fields([
+				['mstParams',
+					'type' => FormBuilder::FIELD_STATIC,
+					'staticValue' => Html::div($model->mstParams, ['class' => ['dir-ltr']]),
+				],
+			]);
+		} else {
+			$builder->fields([
+				['mstParams',
+					'widgetOptions' => ['class' => ['dir-ltr']],
+				],
+			]);
+		}
 	?>
 
 	<?php $builder->beginFooter(); ?>

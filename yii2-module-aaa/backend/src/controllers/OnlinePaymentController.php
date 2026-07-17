@@ -191,7 +191,7 @@ HTML;
 			$errors = $onlinePaymentModel->getErrorSummary(true);
 
 		if (empty($errors) == false)
-			$url .= '&errors=' . urlencode(implode('\n', $errors));
+			$url .= '&errors=' . urlencode(implode("\n", $errors));
 
 		$this->redirect($url);
 

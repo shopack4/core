@@ -213,7 +213,7 @@ class MeliPayamakSmsGateway
 					// $response = $sms->sendByBaseNumber($params, $to, $bid);
 					$response = self::sendByPattern($consoleKey, $params, $to, $bid);
 					Yii::debug('after sending sms with sendByBaseNumber: response('
-						. implode('\n', (array)($response ?? []))
+						. implode("\n", (array)($response ?? []))
 						. ')'
 					);
 

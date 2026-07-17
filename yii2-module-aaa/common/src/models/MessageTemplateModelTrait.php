@@ -15,6 +15,7 @@ use shopack\aaa\common\enums\enuMessageTemplateMedia;
 /*
 'mstID',
 'mstUUID',
+'mstName',
 'mstKey',
 'mstMedia',
 'mstLanguage',
@@ -22,6 +23,7 @@ use shopack\aaa\common\enums\enuMessageTemplateMedia;
 'mstBody',
 'mstParamsPrefix',
 'mstParamsSuffix',
+'mstParams',
 'mstIsSystem',
 'mstStatus',
 'mstCreatedAt',
@@ -50,6 +52,14 @@ trait MessageTemplateModelTrait
         enuColumnInfo::selectable => true,
 			],
       'mstUUID' => ModelColumnHelper::UUID(),
+			'mstName' => [
+				enuColumnInfo::type       => ['string', 'max' => 256],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => true,
+        enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::like,
+			],
 			'mstKey' => [
 				enuColumnInfo::type       => ['string', 'max' => 64],
         enuColumnInfo::validator  => null,
@@ -102,6 +112,14 @@ trait MessageTemplateModelTrait
         enuColumnInfo::default    => '}}',
         enuColumnInfo::required   => false,
         enuColumnInfo::selectable => true,
+			],
+			'mstParams' => [
+				enuColumnInfo::type       => ['string', 'max' => 1024],
+        enuColumnInfo::validator  => null,
+        enuColumnInfo::default    => null,
+        enuColumnInfo::required   => false,
+        enuColumnInfo::selectable => true,
+        enuColumnInfo::search     => enuColumnSearchType::like,
 			],
       'mstIsSystem' => [
 				enuColumnInfo::type       => 'boolean',
