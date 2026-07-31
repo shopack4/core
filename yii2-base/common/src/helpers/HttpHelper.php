@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -43,9 +44,9 @@ class HttpHelper
 	// public static $provider = (YII_ENV_DEV ? self::PROVIDER_GUZZLE : self::PROVIDER_CURL);
 
 	public static $unserializers = [
-	  'application/json' => [
-	    'class' => JsonUnserializer::class
-	  ]
+		'application/json' => [
+			'class' => JsonUnserializer::class
+		]
 	];
 
 	static function callApi(
@@ -89,7 +90,7 @@ class HttpHelper
 				$callOptions['headers'][Request::HEADER_X_TIMEZONE] = $timeZone;
 		}
 
-		$fnCallApi = function($provider) use (
+		$fnCallApi = function ($provider) use (
 			$isLocalApiServer,
 			$url,
 			$method,
@@ -147,7 +148,7 @@ class HttpHelper
 			}
 		}
 
-		list ($resultStatus, $responseHeaders, $responseBody) = $fnCallApi(self::$provider);
+		list($resultStatus, $responseHeaders, $responseBody) = $fnCallApi(self::$provider);
 
 		$refreshToken = (($resultStatus == 401)
 			&& $isLocalApiServer
@@ -178,7 +179,7 @@ class HttpHelper
 
 			$callOptions['headers']['Authorization'] = 'Bearer ' . $newToken;
 
-			list ($resultStatus, $responseHeaders, $responseBody) = $fnCallApi(self::$provider);
+			list($resultStatus, $responseHeaders, $responseBody) = $fnCallApi(self::$provider);
 
 			//still invalid jwt?
 			if (($resultStatus == 401) && (Yii::$app->isBackend == false)) {
@@ -215,10 +216,9 @@ class HttpHelper
 			->setUrlParams($urlParams)
 			->setBodParams($bodyParams)
 			->setFormFiles($formFiles)
-			->setOptions($options)
-		;
+			->setOptions($options);
 
-		list ($resultStatus, $responseHeaders, $responseBody) = $curl->execute();
+		list($resultStatus, $responseHeaders, $responseBody) = $curl->execute();
 
 		return self::formatResponse($resultStatus, $responseHeaders, $responseBody);
 	}
@@ -264,8 +264,19 @@ class HttpHelper
 			foreach ($urlParams as $k => $v) {
 				if (($v === null) || ($v === ''))
 					$UrlParamsParts[$k] = null;
-				else if (is_array($v))
-					$UrlParamsParts[$k] = implode(',', $v);
+				else if (is_array($v)) {
+					$asJson = false;
+					foreach ($v as $_k => $_v) {
+						if (is_array($_v)) {
+							$asJson = true;
+							break;
+						}
+					}
+					if ($asJson)
+						$UrlParamsParts[$k] = json_encode($v);
+					else
+						$UrlParamsParts[$k] = implode(',', $v);
+				}
 				// else if ($v == '')
 				// 	$UrlParamsParts[$k] = $k;
 				else
@@ -354,17 +365,18 @@ class HttpHelper
 		$clientConfig['headers'] = $headers;
 
 		if (defined('YII_DEV_LOCAL_PROXY')) {
-      $proxy = parse_url(constant('YII_DEV_LOCAL_PROXY'));
+			$proxy = parse_url(constant('YII_DEV_LOCAL_PROXY'));
 
 			try {
-        $errno = null;
-        $errstr = null;
+				$errno = null;
+				$errstr = null;
 				$fp = fsockopen($proxy['host'], $proxy['port'] ?? 80, $errno, $errstr, 0.15);
 				if ($fp) {
 					fclose($fp);
 					$clientConfig['proxy'] = constant('YII_DEV_LOCAL_PROXY');
 				}
-			} catch (\Throwable $th) { ; }
+			} catch (\Throwable $th) {;
+			}
 		}
 
 		//----------------------------------------
@@ -407,10 +419,8 @@ class HttpHelper
 			}
 
 			return $responseBody;
-
 		} catch (InvalidArgumentException $e) {
 			return $responseBody;
-
 		} catch (InvalidParamException $e) {
 			return $responseBody;
 		}
@@ -493,7 +503,8 @@ class HttpHelper
 			if (isset($responseBody['message'])) {
 				try {
 					$json = Json::decode($responseBody['message']);
-				} catch (\Throwable $th) { }
+				} catch (\Throwable $th) {
+				}
 
 				if (empty($json))
 					$resultBody = [
@@ -527,8 +538,7 @@ class HttpHelper
 					"ttl": 120,
 					"remained": "2:0"
 				]
-		*/
-		else if (isset($responseBody['message'])) {
+		*/ else if (isset($responseBody['message'])) {
 			$message = (array)$responseBody['message'];
 			unset($responseBody['message']);
 
@@ -575,16 +585,11 @@ class HttpHelper
 					],
 				],
 			]
-		*/
-		else if (isset($responseBody['rows'])) {
+		*/ else if (isset($responseBody['rows'])) {
 			$resultBody = $responseBody;
-		}
-
-		else if (isset($responseBody['data'])) {
+		} else if (isset($responseBody['data'])) {
 			$resultBody = $responseBody;
-		}
-
-		else
+		} else
 			$resultBody = $responseBody;
 
 		return [$resultStatus, $responseHeaders, $resultBody];
