@@ -314,6 +314,12 @@ class Module
 					'controller' => [$this->id . '/upload-file'],
 					'pluralize' => false,
 				],
+				[
+					'class' => \shopack\base\common\rest\UrlRule::class,
+					// 'prefix' => 'v1',
+					'controller' => [$this->id . '/upload-queue'],
+					'pluralize' => false,
+				],
 			];
 
 			$app->urlManager->addRules($rules, false);

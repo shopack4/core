@@ -8,31 +8,31 @@ namespace shopack\aaa\backend\controllers;
 
 use Yii;
 use shopack\base\backend\controller\BaseCrudController;
-use shopack\aaa\backend\models\UploadFileModel;
+use shopack\aaa\backend\models\UploadQueueModel;
 
-class UploadFileController extends BaseCrudController
+class UploadQueueController extends BaseCrudController
 {
-    public $modelClass = UploadFileModel::class;
+    public $modelClass = UploadQueueModel::class;
 
     public function permissions()
     {
         $checkOwner = function ($model): bool {
-            return (($model != null) && ($model['uflOwnerUserID'] == Yii::$app->user->id));
+            return (($model != null) && ($model['uquUserID'] == Yii::$app->user->id));
         };
 
         return [
             'index'  => [
-                'aaa/upload-file/crud' => '0100',
+                'aaa/upload-queue/crud' => '0100',
                 'filter' => function ($query) {
                     Yii::$app->user->assertIsNotGuest();
-                    $query->andWhere(['uflOwnerUserID' => Yii::$app->user->id]);
+                    $query->andWhere(['uquUserID' => Yii::$app->user->id]);
                 },
             ],
-            'view'   => ['aaa/upload-file/crud' => '0100', 'checker' => $checkOwner],
-            'create' => ['aaa/upload-file/crud' => '1000', 'checker' => $checkOwner],
-            'update' => ['aaa/upload-file/crud' => '0010', 'checker' => $checkOwner],
-            'delete' => ['aaa/upload-file/crud' => '0001', 'checker' => $checkOwner],
-            'undelete' => ['aaa/upload-file/undelete'],
+            'view'   => ['aaa/upload-queue/crud' => '0100', 'checker' => $checkOwner],
+            // 'create' => ['aaa/upload-queue/crud' => '1000', 'checker' => $checkOwner],
+            // 'update' => ['aaa/upload-queue/crud' => '0010', 'checker' => $checkOwner],
+            // 'delete' => ['aaa/upload-queue/crud' => '0001', 'checker' => $checkOwner],
+            // 'undelete' => ['aaa/upload-queue/undelete'],
         ];
     }
 
@@ -41,7 +41,8 @@ class UploadFileController extends BaseCrudController
         return [
             'index' => function ($query) {
                 $query
-                    ->with('owner')
+                    ->with('uploadFile')
+                    ->with('gateway')
                     ->with('createdByUser')
                     ->with('updatedByUser')
                     ->with('removedByUser')
@@ -49,7 +50,8 @@ class UploadFileController extends BaseCrudController
             },
             'view' => function ($query) {
                 $query
-                    ->with('owner')
+                    ->with('uploadFile')
+                    ->with('gateway')
                     ->with('createdByUser')
                     ->with('updatedByUser')
                     ->with('removedByUser')
