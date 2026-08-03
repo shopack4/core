@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -65,554 +66,575 @@ use shopack\base\backend\helpers\PrivHelper;
 'usrRemovedAt',
 'usrRemovedBy',
 */
+
 trait UserModelTrait
 {
-  //input:
-  public $usrPassword;
+     //input:
+     public $usrPassword;
 
-  //output:
-  public $hasPassword = false;
-	// public $sessionCount;
-	// public $lastActivity;
-  //just used for export to client
-  public function adhocColumnsInfo()
-  {
-    return [
-      'hasPassword' => ModelColumnHelper::adhoc(),
-      // 'sessionCount' => ModelColumnHelper::adhoc(),
-      // 'lastActivity' => ModelColumnHelper::adhoc(),
-    ];
-  }
+     //output:
+     public $hasPassword = false;
+     // public $sessionCount;
+     // public $lastActivity;
+     //just used for export to client
+     public function adhocColumnsInfo()
+     {
+          return [
+               'hasPassword' => ModelColumnHelper::adhoc(),
+               // 'sessionCount' => ModelColumnHelper::adhoc(),
+               // 'lastActivity' => ModelColumnHelper::adhoc(),
+          ];
+     }
 
-  public static $primaryKey = ['usrID'];
+     public static $primaryKey = ['usrID'];
 
-	public function primaryKeyValue() {
-		return $this->usrID;
-	}
+     public function primaryKeyValue()
+     {
+          return $this->usrID;
+     }
 
-  public function columnsInfo()
-  {
-    $fnFilterByOwner = function($model, $fieldName, $isInRelation) {
-      return (Yii::$app->user->isGuest
-        || (($model->usrID != Yii::$app->user->id)
-          && (PrivHelper::hasPriv('aaa/user/crud', '0100') == false)
-        )
-      );
-    };
+     public function columnsInfo()
+     {
+          $fnFilterByOwner = function ($model, $fieldName, $isInRelation) {
+               return (Yii::$app->user->isGuest
+                    || (($model->usrID != Yii::$app->user->id)
+                         && (PrivHelper::hasPriv('aaa/user/crud', '0100') == false)
+                    )
+               );
+          };
 
-    return [
-      'usrID' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::exact,
-      ],
-      'usrUUID' => ModelColumnHelper::UUID(),
-      'usrGender' => [
-        enuColumnInfo::type       => ['string', 'max' => 1],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-      ],
-      'usrFirstName' => [
-        enuColumnInfo::type       => ['string', 'max' => 128],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrFirstName_en' => [
-        enuColumnInfo::type       => ['string', 'max' => 128],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrLastName' => [
-        enuColumnInfo::type       => ['string', 'max' => 128],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrLastName_en' => [
-        enuColumnInfo::type       => ['string', 'max' => 128],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrFatherName' => [
-        enuColumnInfo::type       => ['string', 'max' => 128],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrFatherName_en' => [
-        enuColumnInfo::type       => ['string', 'max' => 128],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrEmail' => [
-        enuColumnInfo::type       => ['string', 'max' => 128],
-        enuColumnInfo::validator  => 'email',
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-			'usrEmailApprovedAt' => [
-        enuColumnInfo::type       => 'safe',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrMobile' => [
-        enuColumnInfo::type       => ['string', 'max' => 32],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrMobileApprovedAt' => [
-        enuColumnInfo::type       => 'safe',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrSSID' => [
-        enuColumnInfo::type       => ['string', 'min' => 10, 'max' => 10],
-        enuColumnInfo::validator  => 'validateSSID',
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrBirthCertID' => [
-        enuColumnInfo::type       => ['string', 'max' => 16],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrRoleID' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => enuRole::User,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrPrivs' => [
-        enuColumnInfo::type       => JsonValidator::class,
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::beFilter   => function($model, $fieldName, $isInRelation)
-        use (&$fnFilterByOwner) {
-          return ($isInRelation || $fnFilterByOwner($model, $fieldName, $isInRelation));
-        },
-      ],
-      // 'hasPassword' => [
-      //   enuColumnInfo::type       => 'boolean',
-      //   enuColumnInfo::validator  => null,
-      //   enuColumnInfo::default    => null,
-      //   enuColumnInfo::required   => false,
-      //   enuColumnInfo::selectable => false,
-      //   enuColumnInfo::virtual    => true,
-      // ],
-      'usrPassword' => [
-        enuColumnInfo::type       => 'string',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => false,
-        enuColumnInfo::virtual    => true,
-        enuColumnInfo::beFilter   => true,
-      ],
-      'usrPasswordHash' => [
-        enuColumnInfo::type       => ['string', 'max' => 255],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => false,
-        enuColumnInfo::beFilter   => true,
-      ],
-      'usrPasswordCreatedAt' => [
-        enuColumnInfo::type       => 'safe',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrMustChangePassword' => [
-        enuColumnInfo::type       => 'boolean',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usr2FA' => [
-        enuColumnInfo::type       => JsonValidator::class,
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrBirthDate' => [
-        enuColumnInfo::type       => 'safe',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrBirthCityID' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrCountryID' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrStateID' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrCityOrVillageID' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrTownID' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrHomeAddress' => [
-        enuColumnInfo::type       => ['string', 'max' => 2048],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrZipCode' => [
-        enuColumnInfo::type       => ['string', 'max' => 32],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrPhones' => [
-        enuColumnInfo::type       => ['string', 'max' => 1024],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrWorkAddress' => [
-        enuColumnInfo::type       => ['string', 'max' => 2048],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrWorkPhones' => [
-        enuColumnInfo::type       => ['string', 'max' => 1024],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrWebsite' => [
-        enuColumnInfo::type       => ['string', 'max' => 1024],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrImageFileID' => [
-        enuColumnInfo::type       => 'safe', //'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => false, //true
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
+          return [
+               'usrID' => [
+                    enuColumnInfo::type       => 'integer',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::exact,
+               ],
+               'usrUUID' => ModelColumnHelper::UUID(),
+               'usrGender' => [
+                    enuColumnInfo::type       => ['string', 'max' => 1],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+               ],
+               'usrFirstName' => [
+                    enuColumnInfo::type       => ['string', 'max' => 128],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrFirstName_en' => [
+                    enuColumnInfo::type       => ['string', 'max' => 128],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrLastName' => [
+                    enuColumnInfo::type       => ['string', 'max' => 128],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrLastName_en' => [
+                    enuColumnInfo::type       => ['string', 'max' => 128],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrFatherName' => [
+                    enuColumnInfo::type       => ['string', 'max' => 128],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrFatherName_en' => [
+                    enuColumnInfo::type       => ['string', 'max' => 128],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrEmail' => [
+                    enuColumnInfo::type       => ['string', 'max' => 128],
+                    enuColumnInfo::validator  => 'email',
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrEmailApprovedAt' => [
+                    enuColumnInfo::type       => 'safe',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrMobile' => [
+                    enuColumnInfo::type       => ['string', 'max' => 32],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrMobileApprovedAt' => [
+                    enuColumnInfo::type       => 'safe',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrSSID' => [
+                    enuColumnInfo::type       => ['string', 'min' => 10, 'max' => 10],
+                    enuColumnInfo::validator  => 'validateSSID',
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrBirthCertID' => [
+                    enuColumnInfo::type       => ['string', 'max' => 16],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrRoleID' => [
+                    enuColumnInfo::type       => 'integer',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => enuRole::User,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrPrivs' => [
+                    enuColumnInfo::type       => JsonValidator::class,
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::beFilter   => function ($model, $fieldName, $isInRelation)
+                    use (&$fnFilterByOwner) {
+                         return ($isInRelation || $fnFilterByOwner($model, $fieldName, $isInRelation));
+                    },
+               ],
+               // 'hasPassword' => [
+               //   enuColumnInfo::type       => 'boolean',
+               //   enuColumnInfo::validator  => null,
+               //   enuColumnInfo::default    => null,
+               //   enuColumnInfo::required   => false,
+               //   enuColumnInfo::selectable => false,
+               //   enuColumnInfo::virtual    => true,
+               // ],
+               'usrPassword' => [
+                    enuColumnInfo::type       => 'string',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => false,
+                    enuColumnInfo::virtual    => true,
+                    enuColumnInfo::beFilter   => true,
+               ],
+               'usrPasswordHash' => [
+                    enuColumnInfo::type       => ['string', 'max' => 255],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => false,
+                    enuColumnInfo::beFilter   => true,
+               ],
+               'usrPasswordCreatedAt' => [
+                    enuColumnInfo::type       => 'safe',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrMustChangePassword' => [
+                    enuColumnInfo::type       => 'boolean',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usr2FA' => [
+                    enuColumnInfo::type       => JsonValidator::class,
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrBirthDate' => [
+                    enuColumnInfo::type       => 'safe',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrBirthCityID' => [
+                    enuColumnInfo::type       => 'integer',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrCountryID' => [
+                    enuColumnInfo::type       => 'integer',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrStateID' => [
+                    enuColumnInfo::type       => 'integer',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrCityOrVillageID' => [
+                    enuColumnInfo::type       => 'integer',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrTownID' => [
+                    enuColumnInfo::type       => 'integer',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrHomeAddress' => [
+                    enuColumnInfo::type       => ['string', 'max' => 2048],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrZipCode' => [
+                    enuColumnInfo::type       => ['string', 'max' => 32],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrPhones' => [
+                    enuColumnInfo::type       => ['string', 'max' => 1024],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrWorkAddress' => [
+                    enuColumnInfo::type       => ['string', 'max' => 2048],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrWorkPhones' => [
+                    enuColumnInfo::type       => ['string', 'max' => 1024],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrWebsite' => [
+                    enuColumnInfo::type       => ['string', 'max' => 1024],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrImageFileID' => [
+                    enuColumnInfo::type       => 'safe', //'integer',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => false, //true
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
 
-      'usrEducationLevel' => [
-        enuColumnInfo::type       => ['string', 'max' => 1],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::exact,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrFieldOfStudy' => [
-        enuColumnInfo::type       => ['string', 'max' => 128],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::like,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrYearOfGraduation' => [
-        enuColumnInfo::type       => 'integer',
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::exact,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrEducationPlace' => [
-        enuColumnInfo::type       => ['string', 'max' => 128],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::exact,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrMaritalStatus' => [
-        enuColumnInfo::type       => ['string', 'max' => 1],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::exact,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
-      'usrMilitaryStatus' => [
-        enuColumnInfo::type       => ['string', 'max' => 1],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::exact,
-        enuColumnInfo::beFilter   => $fnFilterByOwner,
-      ],
+               'usrEducationLevel' => [
+                    enuColumnInfo::type       => ['string', 'max' => 1],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::exact,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrFieldOfStudy' => [
+                    enuColumnInfo::type       => ['string', 'max' => 128],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::like,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrYearOfGraduation' => [
+                    enuColumnInfo::type       => 'integer',
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::exact,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrEducationPlace' => [
+                    enuColumnInfo::type       => ['string', 'max' => 128],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::exact,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrMaritalStatus' => [
+                    enuColumnInfo::type       => ['string', 'max' => 1],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::exact,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrMilitaryStatus' => [
+                    enuColumnInfo::type       => ['string', 'max' => 1],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::exact,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
 
-      'usrStatus' => [
-        enuColumnInfo::isStatus   => true,
-        enuColumnInfo::type       => ['string', 'max' => 1],
-        enuColumnInfo::validator  => null,
-        enuColumnInfo::default    => null,
-        enuColumnInfo::required   => false,
-        enuColumnInfo::selectable => true,
-        enuColumnInfo::search     => enuColumnSearchType::exact,
-      ],
+               'usrStatus' => [
+                    enuColumnInfo::isStatus   => true,
+                    enuColumnInfo::type       => ['string', 'max' => 1],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::exact,
+               ],
 
-      'usrCreatedAt' => ModelColumnHelper::CreatedAt(),
-      'usrCreatedBy' => ModelColumnHelper::CreatedBy(),
-      'usrUpdatedAt' => ModelColumnHelper::UpdatedAt(),
-      'usrUpdatedBy' => ModelColumnHelper::UpdatedBy(),
-      'usrRemovedAt' => ModelColumnHelper::RemovedAt(),
-      'usrRemovedBy' => ModelColumnHelper::RemovedBy(),
-    ];
-  }
+               'usrCreatedAt' => ModelColumnHelper::CreatedAt(),
+               'usrCreatedBy' => ModelColumnHelper::CreatedBy(),
+               'usrUpdatedAt' => ModelColumnHelper::UpdatedAt(),
+               'usrUpdatedBy' => ModelColumnHelper::UpdatedBy(),
+               'usrRemovedAt' => ModelColumnHelper::RemovedAt(),
+               'usrRemovedBy' => ModelColumnHelper::RemovedBy(),
+          ];
+     }
 
-  public function traitExtraRules()
-  {
-    return [
-      [[
-        'usrEmail',
-        'usrMobile'
-      ], GroupRequiredValidator::class,
-        'min' => 1,
-        'in' => [
-          'usrEmail',
-          'usrMobile'
-        ],
-        'message' => Yii::t('aaa', 'One of the email or mobile is required'),
-      ],
-    ];
-  }
+     public function traitExtraRules()
+     {
+          return [
+               [
+                    [
+                         'usrEmail',
+                         'usrMobile'
+                    ],
+                    GroupRequiredValidator::class,
+                    'min' => 1,
+                    'in' => [
+                         'usrEmail',
+                         'usrMobile'
+                    ],
+                    'message' => Yii::t('aaa', 'One of the email or mobile is required'),
+               ],
+          ];
+     }
 
-  public function validateSSID($attribute, $params)
-  {
-    if ((empty($this[$attribute]) == false) && (GeneralHelper::isValidIranSSID($this[$attribute]) == false)) {
-      $this->addError($attribute, Yii::t('aaa', 'Invalid SSID'));
-    }
-  }
+     public function validateSSID($attribute, $params)
+     {
+          $values = $this->getDirtyAttributes([$attribute]);
+          $isDirty = false;
+          if (empty($values) == false) {
+               $oldValue = $this->oldAttributes[$attribute] ?? null;
+               $isDirty = ($oldValue != $this[$attribute]);
+          }
 
-  public function getCreatedByUser() {
-		$className = get_called_class();
+          if ((empty($this[$attribute]) == false) && $isDirty && (GeneralHelper::isValidIranSSID($this[$attribute]) == false)) {
+               $this->addError($attribute, Yii::t('aaa', 'Invalid SSID'));
+          }
+     }
 
-		if (str_contains($className, '\\backend\\'))
-			$className = '\shopack\aaa\backend\models\UserModel';
-		else
-			$className = '\shopack\aaa\frontend\common\models\UserModel';
+     public function getCreatedByUser()
+     {
+          $className = get_called_class();
 
-		return $this->hasOne($className, ['usrID' => 'usrCreatedBy']);
-	}
+          if (str_contains($className, '\\backend\\'))
+               $className = '\shopack\aaa\backend\models\UserModel';
+          else
+               $className = '\shopack\aaa\frontend\common\models\UserModel';
 
-	public function getUpdatedByUser() {
-		$className = get_called_class();
+          return $this->hasOne($className, ['usrID' => 'usrCreatedBy']);
+     }
 
-		if (str_contains($className, '\\backend\\'))
-			$className = '\shopack\aaa\backend\models\UserModel';
-		else
-			$className = '\shopack\aaa\frontend\common\models\UserModel';
+     public function getUpdatedByUser()
+     {
+          $className = get_called_class();
 
-		return $this->hasOne($className, ['usrID' => 'usrUpdatedBy']);
-	}
+          if (str_contains($className, '\\backend\\'))
+               $className = '\shopack\aaa\backend\models\UserModel';
+          else
+               $className = '\shopack\aaa\frontend\common\models\UserModel';
 
-	public function getRemovedByUser() {
-		$className = get_called_class();
+          return $this->hasOne($className, ['usrID' => 'usrUpdatedBy']);
+     }
 
-		if (str_contains($className, '\\backend\\'))
-			$className = '\shopack\aaa\backend\models\UserModel';
-		else
-			$className = '\shopack\aaa\frontend\common\models\UserModel';
+     public function getRemovedByUser()
+     {
+          $className = get_called_class();
 
-		return $this->hasOne($className, ['usrID' => 'usrRemovedBy']);
-	}
+          if (str_contains($className, '\\backend\\'))
+               $className = '\shopack\aaa\backend\models\UserModel';
+          else
+               $className = '\shopack\aaa\frontend\common\models\UserModel';
 
-	public function getCountry() {
-		$className = get_called_class();
+          return $this->hasOne($className, ['usrID' => 'usrRemovedBy']);
+     }
 
-		if (str_contains($className, '\\backend\\'))
-			$className = '\shopack\aaa\backend\models\GeoCountryModel';
-		else
-			$className = '\shopack\aaa\frontend\common\models\GeoCountryModel';
+     public function getCountry()
+     {
+          $className = get_called_class();
 
-		return $this->hasOne($className, ['cntrID' => 'usrCountryID']);
-	}
+          if (str_contains($className, '\\backend\\'))
+               $className = '\shopack\aaa\backend\models\GeoCountryModel';
+          else
+               $className = '\shopack\aaa\frontend\common\models\GeoCountryModel';
 
-  public function getState() {
-    $className = get_called_class();
+          return $this->hasOne($className, ['cntrID' => 'usrCountryID']);
+     }
 
-    if (str_contains($className, '\\backend\\'))
-      $className = '\shopack\aaa\backend\models\GeoStateModel';
-    else
-      $className = '\shopack\aaa\frontend\common\models\GeoStateModel';
+     public function getState()
+     {
+          $className = get_called_class();
 
-    return $this->hasOne($className, ['sttID' => 'usrStateID']);
-  }
+          if (str_contains($className, '\\backend\\'))
+               $className = '\shopack\aaa\backend\models\GeoStateModel';
+          else
+               $className = '\shopack\aaa\frontend\common\models\GeoStateModel';
 
-  public function getCityOrVillage() {
-		$className = get_called_class();
+          return $this->hasOne($className, ['sttID' => 'usrStateID']);
+     }
 
-		if (str_contains($className, '\\backend\\'))
-			$className = '\shopack\aaa\backend\models\GeoCityOrVillageModel';
-		else
-			$className = '\shopack\aaa\frontend\common\models\GeoCityOrVillageModel';
+     public function getCityOrVillage()
+     {
+          $className = get_called_class();
 
-		return $this->hasOne($className, ['ctvID' => 'usrCityOrVillageID']);
-	}
+          if (str_contains($className, '\\backend\\'))
+               $className = '\shopack\aaa\backend\models\GeoCityOrVillageModel';
+          else
+               $className = '\shopack\aaa\frontend\common\models\GeoCityOrVillageModel';
 
-  public function getTown() {
-		$className = get_called_class();
+          return $this->hasOne($className, ['ctvID' => 'usrCityOrVillageID']);
+     }
 
-		if (str_contains($className, '\\backend\\'))
-			$className = '\shopack\aaa\backend\models\GeoTownModel';
-		else
-			$className = '\shopack\aaa\frontend\common\models\GeoTownModel';
+     public function getTown()
+     {
+          $className = get_called_class();
 
-		return $this->hasOne($className, ['twnID' => 'usrTownID']);
-	}
+          if (str_contains($className, '\\backend\\'))
+               $className = '\shopack\aaa\backend\models\GeoTownModel';
+          else
+               $className = '\shopack\aaa\frontend\common\models\GeoTownModel';
 
-  public function getBirthCityOrVillage() {
-		$className = get_called_class();
+          return $this->hasOne($className, ['twnID' => 'usrTownID']);
+     }
 
-		if (str_contains($className, '\\backend\\'))
-			$className = '\shopack\aaa\backend\models\GeoCityOrVillageModel';
-		else
-			$className = '\shopack\aaa\frontend\common\models\GeoCityOrVillageModel';
+     public function getBirthCityOrVillage()
+     {
+          $className = get_called_class();
 
-		return $this->hasOne($className, ['ctvID' => 'usrBirthCityID']);
-	}
+          if (str_contains($className, '\\backend\\'))
+               $className = '\shopack\aaa\backend\models\GeoCityOrVillageModel';
+          else
+               $className = '\shopack\aaa\frontend\common\models\GeoCityOrVillageModel';
 
-  public function getRole() {
-		$className = get_called_class();
+          return $this->hasOne($className, ['ctvID' => 'usrBirthCityID']);
+     }
 
-    if (str_contains($className, '\\backend\\'))
-			$className = '\shopack\aaa\backend\models\RoleModel';
-		else
-			$className = '\shopack\aaa\frontend\common\models\RoleModel';
+     public function getRole()
+     {
+          $className = get_called_class();
 
-    return $this->hasOne($className, ['rolID' => 'usrRoleID']);
-  }
+          if (str_contains($className, '\\backend\\'))
+               $className = '\shopack\aaa\backend\models\RoleModel';
+          else
+               $className = '\shopack\aaa\frontend\common\models\RoleModel';
 
-  public function getImageFile() {
-		$className = get_called_class();
+          return $this->hasOne($className, ['rolID' => 'usrRoleID']);
+     }
 
-    if (str_contains($className, '\\backend\\'))
-			$className = '\shopack\aaa\backend\models\UploadFileModel';
-		else
-			$className = '\shopack\aaa\frontend\common\models\UploadFileModel';
+     public function getImageFile()
+     {
+          $className = get_called_class();
 
-    return $this->hasOne($className, ['uflID' => 'usrImageFileID']);
-  }
+          if (str_contains($className, '\\backend\\'))
+               $className = '\shopack\aaa\backend\models\UploadFileModel';
+          else
+               $className = '\shopack\aaa\frontend\common\models\UploadFileModel';
 
-  //moved to frontend
-  /*
+          return $this->hasOne($className, ['uflID' => 'usrImageFileID']);
+     }
+
+     //moved to frontend
+     /*
   public function displayName($format = null)
   {
     if (empty($format))
@@ -635,8 +657,8 @@ trait UserModelTrait
 	}
   */
 
-  public function getActorName() {
-    return $this->displayName('{id}- {em}');
-  }
-
+     public function getActorName()
+     {
+          return $this->displayName('{id}- {em}');
+     }
 }

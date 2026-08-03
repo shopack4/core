@@ -522,7 +522,7 @@ SQL;
       }
 
       if ($userModel->save() == false)
-        throw new UnprocessableEntityHttpException("could not save user\n" . implode("\n", $userModel->getFirstErrors()));
+        throw new UnprocessableEntityHttpException("could not save user:\n" . implode("\n", $userModel->getFirstErrors()));
 
       //2: apr
       if ($approvalRequestModel->aprUserID == null)
