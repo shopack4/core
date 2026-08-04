@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -14,20 +15,20 @@ use shopack\base\common\db\DbExpression;
 use shopack\base\common\rest\enuColumnInfo;
 
 abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
-	implements \shopack\base\common\rest\ActiveRecordInterface
+implements \shopack\base\common\rest\ActiveRecordInterface
 {
 	use \shopack\base\common\rest\ActiveRecordTrait;
 
-  public $filterKey = 'filter';
+	public $filterKey = 'filter';
 	public $orderByKey = 'order-by';
 
 	public static function find() //: RestServerQuery
 	{
-    $query = \Yii::createObject(RestServerQuery::class, [
-      get_called_class()
-    ]);
+		$query = \Yii::createObject(RestServerQuery::class, [
+			get_called_class()
+		]);
 
-    return $query->select(self::selectableColumns());
+		return $query->select(self::selectableColumns());
 	}
 
 	// public function fillGlobalSearchFromRequest(\yii\db\ActiveQuery $query, $q)
@@ -69,6 +70,8 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 				}
 
 				$query->andWhere([$k => $v]);
+			} else if (property_exists($this, $k)) {
+				$this->$k = $v;
 			}
 		}
 	}
@@ -83,7 +86,7 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 
 		$filters = Json::decode($filters);
 
-		$fnCheckExpressions = function(&$item, $key) use (&$fnCheckExpressions) {
+		$fnCheckExpressions = function (&$item, $key) use (&$fnCheckExpressions) {
 			if (is_array($item) == false)
 				return;
 
@@ -113,7 +116,7 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 				$query->addOrderBy([$order => SORT_ASC]);
 		}
 
-		unset ($queryParams[$this->orderByKey]);
+		unset($queryParams[$this->orderByKey]);
 	}
 
 	//just used for export to client
@@ -165,5 +168,4 @@ abstract class RestServerActiveRecord extends \yii\db\ActiveRecord
 
 		return $result;
 	}
-
 }
