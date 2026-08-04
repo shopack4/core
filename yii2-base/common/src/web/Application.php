@@ -26,4 +26,14 @@ class Application extends \yii\web\Application
 			$this->db->open();
 	}
 
+	public function handleRequest($request)
+    {
+		if ($this->isBackend) {
+			if ($request->headers->has('accept-language'))
+				$this->language = $request->headers->get('accept-language', $this->language);
+		}
+
+        return parent::handleRequest($request);
+    }
+
 }

@@ -189,7 +189,7 @@ abstract class BaseEnum extends BaseObject
 		$result = [];
 		foreach ($value as $v) {
 			if (isset($list[$v]))
-				$result[] = $list[$v];
+				$result[] = Yii::t(static::$messageCategory, $list[$v]);
 		}
 
 		return implode('|', $result);
