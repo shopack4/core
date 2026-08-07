@@ -11,34 +11,25 @@ use yii\base\Model;
 use yii\web\UnprocessableEntityHttpException;
 use shopack\base\common\helpers\HttpHelper;
 
-class PasswordResetForm extends Model
+class SetDeadtimeForm extends Model
 {
     public $userID;
-    public $newPassword;
-    public $retypePassword;
+    public $deadAt;
 
     public function rules()
     {
         return [
             ['userID', 'integer'],
-            [['newPassword', 'retypePassword'], 'string'],
-            [['userID', 'newPassword', 'retypePassword'], 'required'],
-
-            [
-                'retypePassword',
-                'compare',
-                'compareAttribute' => 'newPassword',
-                'message' => Yii::t('aaa', "Passwords don't match"),
-            ],
+            [['deadAt'], 'safe'],
+            [['userID', 'deadAt'], 'required'],
         ];
     }
 
     public function attributeLabels()
     {
         return [
-            'userID'  => Yii::t('aaa', 'User'),
-            'newPassword'    => Yii::t('aaa', 'New Password'),
-            'retypePassword' => Yii::t('aaa', 'Retype Password'),
+            'userID' => Yii::t('aaa', 'User'),
+            'deadAt' => Yii::t('aaa', 'Dead At'),
         ];
     }
 
@@ -48,13 +39,13 @@ class PasswordResetForm extends Model
             throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
         $apiResponse = HttpHelper::callApi(
-            'aaa/user/password-reset',
+            'aaa/user/set-deadtime',
             HttpHelper::METHOD_POST,
             [
                 'id' => $this->userID,
             ],
             [
-                'newPassword' => $this->newPassword,
+                'deadAt' => $this->deadAt,
             ]
         );
 

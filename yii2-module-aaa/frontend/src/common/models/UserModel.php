@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -8,176 +9,181 @@ namespace shopack\aaa\frontend\common\models;
 use Yii;
 use shopack\base\frontend\common\rest\RestClientActiveRecord;
 use shopack\aaa\common\enums\enuUserStatus;
+use shopack\base\common\helpers\HttpHelper;
+use yii\web\NotFoundHttpException;
 
 class UserModel extends RestClientActiveRecord
-  implements \yii\web\IdentityInterface
+implements \yii\web\IdentityInterface
 {
-  use \shopack\aaa\common\models\UserModelTrait;
+    use \shopack\aaa\common\models\UserModelTrait;
 
-  public static $resourceName = 'aaa/user';
+    public static $resourceName = 'aaa/user';
 
-  // public $usrID;
-  public $username;
-  // public $password;
-  // public $firstName;
-  // public $lastName;
-  // public $usrEmail;
-  // public $usrMobile;
-  // public $authKey;
-  public $accessToken;
-  public $jwtPayload;
+    // public $usrID;
+    public $username;
+    // public $password;
+    // public $firstName;
+    // public $lastName;
+    // public $usrEmail;
+    // public $usrMobile;
+    // public $authKey;
+    public $accessToken;
+    public $jwtPayload;
 
-	public $usrRetypePassword;
+    public $usrRetypePassword;
 
-  public function extraRules()
-  {
-    $rules = [
-      ['usrRetypePassword', 'string'],
-      ['usrRetypePassword', 'compare',
-        'compareAttribute' => 'usrPassword',
-        'message' => Yii::t('aaa', "Passwords don't match"),
-      ],
-    ];
+    public function extraRules()
+    {
+        $rules = [
+            ['usrRetypePassword', 'string'],
+            [
+                'usrRetypePassword',
+                'compare',
+                'compareAttribute' => 'usrPassword',
+                'message' => Yii::t('aaa', "Passwords don't match"),
+            ],
+        ];
 
-    if (($this->isNewRecord == false) && (Yii::$app->id == 'userpanel')) {
-      $rules = array_merge($rules, [
-        [[
-          'usrGender',
-          'usrFirstName',
-          'usrFirstName_en',
-          'usrLastName',
-          'usrLastName_en',
-          'usrFatherName',
-          'usrFatherName_en',
-        ], 'required']
-      ]);
+        if (($this->isNewRecord == false) && (Yii::$app->id == 'userpanel')) {
+            $rules = array_merge($rules, [
+                [[
+                    'usrGender',
+                    'usrFirstName',
+                    'usrFirstName_en',
+                    'usrLastName',
+                    'usrLastName_en',
+                    'usrFatherName',
+                    'usrFatherName_en',
+                ], 'required']
+            ]);
+        }
+
+        return $rules;
     }
 
-    return $rules;
-  }
+    public function attributeLabels()
+    {
+        return [
+            'usrID'                 => Yii::t('app', 'ID'),
+            'usrGender'             => Yii::t('aaa', 'Gender'),
+            'usrFirstName'          => Yii::t('aaa', 'First Name'),
+            'usrFirstName_en'       => Yii::t('aaa', 'First Name (en)'),
+            'usrLastName'           => Yii::t('aaa', 'Last Name'),
+            'usrLastName_en'        => Yii::t('aaa', 'Last Name (en)'),
+            'usrFatherName'         => Yii::t('aaa', 'Father Name'),
+            'usrFatherName_en'      => Yii::t('aaa', 'Father Name (en)'),
+            'usrEmail'              => Yii::t('aaa', 'Email'),
+            'usrEmailApprovedAt'    => Yii::t('aaa', 'Email Approved At'),
+            'usrMobile'             => Yii::t('aaa', 'Mobile'),
+            'usrMobileApprovedAt'   => Yii::t('aaa', 'Mobile Approved At'),
+            'usrSSID'               => Yii::t('aaa', 'SSID'),
+            'usrBirthCertID'          => Yii::t('aaa', 'Birth Cert ID'),
+            'usrRoleID'             => Yii::t('aaa', 'Role'),
+            'usrPrivs'              => Yii::t('aaa', 'Exclusive Privs'),
+            'usrPassword'           => Yii::t('aaa', 'Password'),
+            'usrRetypePassword'     => Yii::t('aaa', 'Retype Password'),
+            'usrPasswordHash'       => Yii::t('aaa', 'Password Hash'),
+            'usrPasswordCreatedAt'  => Yii::t('aaa', 'Password Created At'),
+            'usrMustChangePassword' => Yii::t('aaa', 'Must Change Password'),
+            'usr2FA'                                => Yii::t('aaa', 'Two Factor Authentication'),
+            'usrBirthDate'          => Yii::t('aaa', 'Birth Date'),
+            'usrBirthCityID'          => Yii::t('aaa', 'Birth Location'),
+            'usrCountryID'          => Yii::t('aaa', 'Country'),
+            'usrStateID'            => Yii::t('aaa', 'State'),
+            'usrCityOrVillageID'    => Yii::t('aaa', 'City Or Village'),
+            'usrTownID'             => Yii::t('aaa', 'Town'),
+            'usrHomeAddress'        => Yii::t('aaa', 'Home Address'),
+            'usrZipCode'            => Yii::t('aaa', 'Zip Code'),
+            'usrPhones'             => Yii::t('aaa', 'Phones'),
+            'usrWorkAddress'        => Yii::t('aaa', 'Work Address'),
+            'usrWorkPhones'         => Yii::t('aaa', 'Work Phones'),
+            'usrWebsite'            => Yii::t('aaa', 'Website'),
+            'usrImage'              => Yii::t('aaa', 'Official Personal Photo'),
+            'usrImageFileID'        => Yii::t('aaa', 'Official Personal Photo'),
 
-  public function attributeLabels()
-	{
-		return [
-      'usrID'                 => Yii::t('app', 'ID'),
-      'usrGender'             => Yii::t('aaa', 'Gender'),
-      'usrFirstName'          => Yii::t('aaa', 'First Name'),
-      'usrFirstName_en'       => Yii::t('aaa', 'First Name (en)'),
-      'usrLastName'           => Yii::t('aaa', 'Last Name'),
-      'usrLastName_en'        => Yii::t('aaa', 'Last Name (en)'),
-      'usrFatherName'         => Yii::t('aaa', 'Father Name'),
-      'usrFatherName_en'      => Yii::t('aaa', 'Father Name (en)'),
-      'usrEmail'              => Yii::t('aaa', 'Email'),
-      'usrEmailApprovedAt'    => Yii::t('aaa', 'Email Approved At'),
-      'usrMobile'             => Yii::t('aaa', 'Mobile'),
-      'usrMobileApprovedAt'   => Yii::t('aaa', 'Mobile Approved At'),
-      'usrSSID'               => Yii::t('aaa', 'SSID'),
-			'usrBirthCertID'      	=> Yii::t('aaa', 'Birth Cert ID'),
-      'usrRoleID'             => Yii::t('aaa', 'Role'),
-      'usrPrivs'              => Yii::t('aaa', 'Exclusive Privs'),
-      'usrPassword'           => Yii::t('aaa', 'Password'),
-      'usrRetypePassword'     => Yii::t('aaa', 'Retype Password'),
-      'usrPasswordHash'       => Yii::t('aaa', 'Password Hash'),
-      'usrPasswordCreatedAt'  => Yii::t('aaa', 'Password Created At'),
-      'usrMustChangePassword' => Yii::t('aaa', 'Must Change Password'),
-			'usr2FA'								=> Yii::t('aaa', 'Two Factor Authentication'),
-			'usrBirthDate'          => Yii::t('aaa', 'Birth Date'),
-      'usrBirthCityID'      	=> Yii::t('aaa', 'Birth Location'),
-			'usrCountryID'          => Yii::t('aaa', 'Country'),
-			'usrStateID'            => Yii::t('aaa', 'State'),
-			'usrCityOrVillageID'    => Yii::t('aaa', 'City Or Village'),
-			'usrTownID'             => Yii::t('aaa', 'Town'),
-			'usrHomeAddress'        => Yii::t('aaa', 'Home Address'),
-			'usrZipCode'            => Yii::t('aaa', 'Zip Code'),
-      'usrPhones'             => Yii::t('aaa', 'Phones'),
-      'usrWorkAddress'        => Yii::t('aaa', 'Work Address'),
-      'usrWorkPhones'         => Yii::t('aaa', 'Work Phones'),
-      'usrWebsite'            => Yii::t('aaa', 'Website'),
-			'usrImage'              => Yii::t('aaa', 'Official Personal Photo'),
-			'usrImageFileID'        => Yii::t('aaa', 'Official Personal Photo'),
+            'usrEducationLevel'     => Yii::t('aaa', 'Education Level'),
+            'usrFieldOfStudy'       => Yii::t('aaa', 'Field Of Study'),
+            'usrYearOfGraduation'   => Yii::t('aaa', 'Year Of Graduation'),
+            'usrEducationPlace'     => Yii::t('aaa', 'Education Place'),
+            'usrMaritalStatus'      => Yii::t('aaa', 'Marital Status'),
+            'usrMilitaryStatus'     => Yii::t('aaa', 'Military Status'),
+            'usrDeadAt'             => Yii::t('aaa', 'Dead At'),
 
-      'usrEducationLevel'     => Yii::t('aaa', 'Education Level'),
-      'usrFieldOfStudy'       => Yii::t('aaa', 'Field Of Study'),
-      'usrYearOfGraduation'   => Yii::t('aaa', 'Year Of Graduation'),
-      'usrEducationPlace'     => Yii::t('aaa', 'Education Place'),
-      'usrMaritalStatus'      => Yii::t('aaa', 'Marital Status'),
-      'usrMilitaryStatus'     => Yii::t('aaa', 'Military Status'),
+            'usrStatus'             => Yii::t('app', 'Status'),
+            'usrCreatedAt'          => Yii::t('app', 'Created At'),
+            'usrCreatedBy'          => Yii::t('app', 'Created By'),
+            'usrCreatedBy_User'     => Yii::t('app', 'Created By'),
+            'usrUpdatedAt'          => Yii::t('app', 'Updated At'),
+            'usrUpdatedBy'          => Yii::t('app', 'Updated By'),
+            'usrUpdatedBy_User'     => Yii::t('app', 'Updated By'),
+            'usrRemovedAt'          => Yii::t('app', 'Removed At'),
+            'usrRemovedBy'          => Yii::t('app', 'Removed By'),
+            'usrRemovedBy_User'     => Yii::t('app', 'Removed By'),
 
-      'usrStatus'             => Yii::t('app', 'Status'),
-      'usrCreatedAt'          => Yii::t('app', 'Created At'),
-      'usrCreatedBy'          => Yii::t('app', 'Created By'),
-      'usrCreatedBy_User'     => Yii::t('app', 'Created By'),
-      'usrUpdatedAt'          => Yii::t('app', 'Updated At'),
-      'usrUpdatedBy'          => Yii::t('app', 'Updated By'),
-      'usrUpdatedBy_User'     => Yii::t('app', 'Updated By'),
-      'usrRemovedAt'          => Yii::t('app', 'Removed At'),
-      'usrRemovedBy'          => Yii::t('app', 'Removed By'),
-      'usrRemovedBy_User'     => Yii::t('app', 'Removed By'),
+            'hasPassword'           => Yii::t('aaa', 'Has Password'),
+        ];
+    }
 
-      'hasPassword'           => Yii::t('aaa', 'Has Password'),
-    ];
-	}
+    public function isSoftDeleted()
+    {
+        return ($this->usrStatus == enuUserStatus::Removed);
+    }
 
- 	public function isSoftDeleted()
-  {
-    return ($this->usrStatus == enuUserStatus::Removed);
-  }
+    public static function findIdentity($id)
+    {
+        $authCookie = Yii::$app->user->getJwtByCookie();
+        if ($authCookie !== null) {
+            $user = self::findIdentityByAccessToken($authCookie);
+            if ($user == null)
+                return null; //throw new \yii\web\ForbiddenHttpException('Invalid token');
 
-  public static function findIdentity($id)
-  {
-    $authCookie = Yii::$app->user->getJwtByCookie();
-    if ($authCookie !== null) {
-      $user = self::findIdentityByAccessToken($authCookie);
-      if ($user == null)
-        return null; //throw new \yii\web\ForbiddenHttpException('Invalid token');
+            if ($user->usrID == $id)
+                return $user;
+        }
 
-      if ($user->usrID == $id)
+        return null;
+        // $user = new self;
+        // $user->id = $id;
+        // return $user;
+    }
+
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        // $parts = explode('.', $token);
+        // if (count($parts) != 3)
+        //   return null;
+        // $jwtPayload = base64_decode($parts[1]);
+        // $jwtPayload = Json::decode($jwtPayload);
+
+        $parsedToken = Yii::$app->jwt->parse($token);
+        $jwtPayload = $parsedToken->claims()->all();
+
+        //validate
+        if (Yii::$app->user->validateJwtPayload($jwtPayload) == false)
+            return null;
+
+        $user = new self;
+        // $user->authKey = $token;
+        $user->accessToken = $token;
+        $user->jwtPayload = $jwtPayload;
+
+        $user->usrID = $user->jwtPayload['uid'];
+        $user->usrEmail = $user->jwtPayload['email'] ?? null;
+        $user->usrMobile = $user->jwtPayload['mobile'] ?? null;
+
+        $user->username = $user->jwtPayload['username'] ?? null;
+        $user->usrFirstName = $user->jwtPayload['firstName'] ?? null;
+        $user->usrLastName = $user->jwtPayload['lastName'] ?? null;
+
         return $user;
     }
 
-    return null;
-    // $user = new self;
-    // $user->id = $id;
-    // return $user;
-  }
-
-  public static function findIdentityByAccessToken($token, $type = null)
-  {
-    // $parts = explode('.', $token);
-    // if (count($parts) != 3)
-    //   return null;
-    // $jwtPayload = base64_decode($parts[1]);
-    // $jwtPayload = Json::decode($jwtPayload);
-
-    $parsedToken = Yii::$app->jwt->parse($token);
-    $jwtPayload = $parsedToken->claims()->all();
-
-    //validate
-    if (Yii::$app->user->validateJwtPayload($jwtPayload) == false)
-      return null;
-
-    $user = new self;
-    // $user->authKey = $token;
-    $user->accessToken = $token;
-    $user->jwtPayload = $jwtPayload;
-
-    $user->usrID = $user->jwtPayload['uid'];
-    $user->usrEmail = $user->jwtPayload['email'] ?? null;
-    $user->usrMobile = $user->jwtPayload['mobile'] ?? null;
-
-    $user->username = $user->jwtPayload['username'] ?? null;
-    $user->usrFirstName = $user->jwtPayload['firstName'] ?? null;
-    $user->usrLastName = $user->jwtPayload['lastName'] ?? null;
-
-    return $user;
-  }
-
-  /**
-   * Finds user by username
-   *
-   * @param string $username
-   * @return static|null
-   */
+    /**
+     * Finds user by username
+     *
+     * @param string $username
+     * @return static|null
+     */
   /*public static function findByUsername($username)
   {
     foreach (self::$users as $user) {
@@ -189,101 +195,122 @@ class UserModel extends RestClientActiveRecord
     return null;
   }*/
 
-  /**
-   * {@inheritdoc}
-   */
-  public function getId()
-  {
-    return $this->usrID;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getAuthKey()
-  {
-    return $this->accessToken; //$this->authKey;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function validateAuthKey($authKey)
-  {
-    return true; //$this->authKey === $authKey;
-  }
-
-  /**
-   * Validates password
-   *
-   * @param string $password password to validate
-   * @return bool if password provided is valid for current user
-   */
-  public function validatePassword($password)
-  {
-    return $this->usrPassword === $password;
-  }
-
-  public function getPublicIdentity()
-  {
-    if ($this->usrEmail) {
-      return $this->usrEmail;
+    /**
+     * {@inheritdoc}
+     */
+    public function getId()
+    {
+        return $this->usrID;
     }
 
-    return $this->usrMobile;
-  }
+    /**
+     * {@inheritdoc}
+     */
+    public function getAuthKey()
+    {
+        return $this->accessToken; //$this->authKey;
+    }
 
-  public static function canCreate() {
-		return true;
-	}
+    /**
+     * {@inheritdoc}
+     */
+    public function validateAuthKey($authKey)
+    {
+        return true; //$this->authKey === $authKey;
+    }
 
-	public function canUpdate() {
-		return ($this->usrStatus != enuUserStatus::Removed);
-	}
+    /**
+     * Validates password
+     *
+     * @param string $password password to validate
+     * @return bool if password provided is valid for current user
+     */
+    public function validatePassword($password)
+    {
+        return $this->usrPassword === $password;
+    }
 
-	public function canDelete() {
-		return ($this->usrStatus != enuUserStatus::Removed);
-	}
+    public function getPublicIdentity()
+    {
+        if ($this->usrEmail) {
+            return $this->usrEmail;
+        }
 
-	public function canUndelete() {
-		return ($this->usrStatus == enuUserStatus::Removed);
-	}
+        return $this->usrMobile;
+    }
 
-  //moved from trait
-  public function displayName($format = null)
-  {
-    if (empty($format))
-      $format = '[' . Yii::t('app', 'ID') . ': {id}] {fn} {ln} ({ssid}) {em} {mob}';
+    public static function canCreate()
+    {
+        return true;
+    }
 
-    if ($this->usrEmail)
-      $email = "<span class='d-inline-block dir-ltr'>" . $this->usrEmail . "</span>";
+    public function canUpdate()
+    {
+        return ($this->usrStatus != enuUserStatus::Removed);
+    }
 
-    if ($this->usrMobile)
-      $mobile = Yii::$app->formatter->asPhone($this->usrMobile);
-      // $mobile = "<span class='d-inline-block dir-ltr'>" . $this->usrMobile . "</span>";
+    public function canDelete()
+    {
+        return ($this->usrStatus != enuUserStatus::Removed);
+    }
 
-    return str_replace('  ', ' ', strtr($format, [
-      '{id}' => $this->usrID,
-      '{fn}' => $this->usrFirstName ?? '',
-      '{ln}' => $this->usrLastName ?? '',
-      '{ssid}' => $this->usrSSID ?? '',
-      '{em}' => $email ?? '',
-      '{mob}' => $mobile ?? '',
-    ]));
-	}
+    public function canUndelete()
+    {
+        return ($this->usrStatus == enuUserStatus::Removed);
+    }
 
-  public static function toString(?array $ids)
-	{
-		if (empty($ids))
-			return null;
+    //moved from trait
+    public function displayName($format = null)
+    {
+        if (empty($format))
+            $format = '[' . Yii::t('app', 'ID') . ': {id}] {fn} {ln} ({ssid}) {em} {mob}';
 
-		$models = self::findAll($ids);
-		$desc = [];
-		foreach ($models as $item) {
-			$desc[] = $item->displayName();
-		}
+        if ($this->usrEmail)
+            $email = "<span class='d-inline-block dir-ltr'>" . $this->usrEmail . "</span>";
 
-		return implode('|', $desc);
-	}
+        if ($this->usrMobile)
+            $mobile = Yii::$app->formatter->asPhone($this->usrMobile);
+        // $mobile = "<span class='d-inline-block dir-ltr'>" . $this->usrMobile . "</span>";
 
+        return str_replace('  ', ' ', strtr($format, [
+            '{id}' => $this->usrID,
+            '{fn}' => $this->usrFirstName ?? '',
+            '{ln}' => $this->usrLastName ?? '',
+            '{ssid}' => $this->usrSSID ?? '',
+            '{em}' => $email ?? '',
+            '{mob}' => $mobile ?? '',
+        ]));
+    }
+
+    public static function toString(?array $ids)
+    {
+        if (empty($ids))
+            return null;
+
+        $models = self::findAll($ids);
+        $desc = [];
+        foreach ($models as $item) {
+            $desc[] = $item->displayName();
+        }
+
+        return implode('|', $desc);
+    }
+
+    public static function doRemoveDeadtime($id)
+    {
+        if (empty($id))
+            throw new NotFoundHttpException('Invalid id');
+
+        $apiResponse = HttpHelper::callApi(
+            'aaa/user/remove-deadtime',
+            HttpHelper::METHOD_POST,
+            [
+                'id' => $id,
+            ]
+        );
+
+        HttpHelper::throwApiResponseIfFailed($apiResponse, 'aaa');
+
+        return true;
+    }
 }

@@ -74,6 +74,7 @@ return [
 	'Education Place' => 'محل تحصیل',
 	'Marital Status' => 'وضعیت تاهل',
 	'Military Status' => 'وضعیت سربازی',
+	'Dead At' => 'تاریخ فوت',
 
 	//enuUserEducationLevel:
 	'Student' => 'دانش آموز',

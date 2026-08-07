@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -16,6 +17,7 @@ use shopack\aaa\backend\models\Active2FAForm;
 use shopack\aaa\backend\models\EmailChangeForm;
 use shopack\aaa\backend\models\MobileChangeForm;
 use shopack\aaa\backend\models\PasswordResetForm;
+use shopack\aaa\backend\models\SetDeadtimeForm;
 use shopack\aaa\backend\models\UserSendMessageForm;
 use shopack\aaa\backend\models\UpdateImageForm;
 use shopack\aaa\backend\models\UserModel;
@@ -26,30 +28,32 @@ class UserController extends BaseCrudController
 
 	public function permissions()
 	{
-		$checkOwner = function($model) : bool {
+		$checkOwner = function ($model): bool {
 			return (($model != null) && ($model['usrID'] == Yii::$app->user->id));
 		};
 
 		return [
 			'index'  => [
 				'aaa/user/crud' => '0100',
-				'filter' => function($query) {
+				'filter' => function ($query) {
 					Yii::$app->user->assertIsNotGuest();
 					$query->andWhere(['usrID' => Yii::$app->user->id]);
 				},
 			],
-			'view'   => ['aaa/user/crud' => '0100', 'checker' => $checkOwner],
-			'create' => ['aaa/user/crud' => '1000'],
-			'update' => ['aaa/user/crud' => '0010', 'checker' => $checkOwner],
-			'delete' => ['aaa/user/crud' => '0001', 'checker' => $checkOwner],
-			'undelete' => ['aaa/user/undelete'],
+			'view'            => ['aaa/user/crud' => '0100', 'checker' => $checkOwner],
+			'create'          => ['aaa/user/crud' => '1000'],
+			'update'          => ['aaa/user/crud' => '0010', 'checker' => $checkOwner],
+			'delete'          => ['aaa/user/crud' => '0001', 'checker' => $checkOwner],
+			'undelete'        => ['aaa/user/undelete'],
+			'set-deadtime'    => ['aaa/user/crud' => '0010'],
+			'remove-deadtime' => ['aaa/user/crud' => '0010'],
 		];
 	}
 
 	public function queryAugmentaters()
 	{
 		return [
-			'index' => function($query) {
+			'index' => function ($query) {
 				$query
 					->joinWith('role')
 					->joinWith('country')
@@ -61,7 +65,7 @@ class UserController extends BaseCrudController
 					->with('removedByUser')
 				;
 			},
-			'view' => function($query) {
+			'view' => function ($query) {
 				$query
 					->joinWith('role')
 					->joinWith('country')
@@ -118,8 +122,7 @@ class UserController extends BaseCrudController
 				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
 
 			return $result;
-
-		} catch(\Exception $exp) {
+		} catch (\Exception $exp) {
 			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
 			throw new UnprocessableEntityHttpException($msg);
 		}
@@ -139,8 +142,7 @@ class UserController extends BaseCrudController
 				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
 
 			return $result;
-
-		} catch(\Exception $exp) {
+		} catch (\Exception $exp) {
 			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
 			throw new UnprocessableEntityHttpException($msg);
 		}
@@ -167,8 +169,7 @@ class UserController extends BaseCrudController
 				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
 
 			return $result;
-
-		} catch(\Exception $exp) {
+		} catch (\Exception $exp) {
 			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
 			throw new UnprocessableEntityHttpException($msg);
 		}
@@ -208,8 +209,7 @@ class UserController extends BaseCrudController
 				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
 
 			return $result;
-
-		} catch(\Exception $exp) {
+		} catch (\Exception $exp) {
 			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
 			throw new UnprocessableEntityHttpException($msg);
 		}
@@ -229,8 +229,7 @@ class UserController extends BaseCrudController
 				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
 
 			return $result;
-
-		} catch(\Exception $exp) {
+		} catch (\Exception $exp) {
 			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
 			throw new UnprocessableEntityHttpException($msg);
 		}
@@ -250,8 +249,7 @@ class UserController extends BaseCrudController
 				throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
 
 			return $result;
-
-		} catch(\Exception $exp) {
+		} catch (\Exception $exp) {
 			$msg = ExceptionHelper::CheckDuplicate($exp, $model);
 			throw new UnprocessableEntityHttpException($msg);
 		}
@@ -269,4 +267,34 @@ class UserController extends BaseCrudController
 		];
 	}
 
+	public function actionSetDeadtime($id)
+	{
+		$this->checkPermission(NULL, NULL);
+
+		$model = new SetDeadtimeForm();
+		$model->userID = $id;
+
+		if ($model->load(Yii::$app->request->getBodyParams(), '') == false)
+			throw new NotFoundHttpException("parameters not provided");
+
+		if ($model->save() == false)
+			throw new UnprocessableEntityHttpException(implode("\n", $model->getFirstErrors()));
+
+		return [
+			'result' => true,
+		];
+	}
+
+	public function actionRemoveDeadtime($id)
+	{
+		$this->checkPermission(NULL, NULL);
+
+		$model = $this->findModel($id);
+
+		$model->doRemoveDeadtime();
+
+		return [
+			'result' => true,
+		];
+	}
 }

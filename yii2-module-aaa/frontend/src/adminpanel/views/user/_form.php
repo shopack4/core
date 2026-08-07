@@ -35,6 +35,7 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 
 		//https://github.com/Borales/yii2-phone-input
 		$builder->fields([
+			['@col' => 2],
 			['usrGender',
 				'type' => FormBuilder::FIELD_RADIOLIST,
 				'data' => enuGender::listData(),
@@ -42,7 +43,21 @@ use shopack\base\frontend\common\widgets\datetime\DatePicker;
 					'inline' => true,
 				],
 			],
-			['@col' => 2],
+			[
+				'usrDeadAt',
+				'type' => FormBuilder::FIELD_WIDGET,
+				'widget' => DatePicker::class,
+				'fieldOptions' => [
+					'addon' => [
+						'append' => [
+							'content' => '<i class="far fa-calendar-alt"></i>',
+						],
+					],
+				],
+				'widgetOptions' => [
+					'allowClear' => true,
+				],
+			],
 			[
 				'usrEmail',
 				'widgetOptions' => [

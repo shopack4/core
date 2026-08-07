@@ -98,9 +98,7 @@ $this->params['breadcrumbs'][] = $this->title;
                       'attribute' => 'usrGender',
                       'value' => enuGender::getLabel($model->usrGender),
                     ],
-                    [
-                      'group' => true,
-                    ],
+                    'usrDeadAt:jalali',
                     'usrSSID',
                     'usrBirthCertID',
                     'usrFirstName',

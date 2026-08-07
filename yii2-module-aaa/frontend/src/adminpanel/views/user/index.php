@@ -102,6 +102,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 return $model->role->rolName ?? null;
               },
             ],
+            'usrDeadAt:jalali',
             [
               'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
               'enumClass' => enuUserStatus::class,

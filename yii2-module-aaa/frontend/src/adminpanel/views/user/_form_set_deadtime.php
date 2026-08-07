@@ -7,10 +7,11 @@
 use shopack\base\frontend\common\helpers\Html;
 use shopack\base\frontend\common\widgets\ActiveForm;
 use shopack\base\frontend\common\widgets\FormBuilder;
+use shopack\base\frontend\common\widgets\datetime\DatePicker;
 use shopack\aaa\frontend\common\models\UserModel;
 ?>
 
-<div class='password-reset-form'>
+<div class='set-deadtime-form'>
 	<?php
 	$form = ActiveForm::begin([
 		'model' => $model,
@@ -30,17 +31,15 @@ use shopack\aaa\frontend\common\models\UserModel;
 
 	$builder->fields([
 		[
-			'newPassword',
-			'type' => FormBuilder::FIELD_PASSWORD,
-			'widgetOptions' => [
-				'style' => 'direction:ltr',
-			],
-		],
-		[
-			'retypePassword',
-			'type' => FormBuilder::FIELD_PASSWORD,
-			'widgetOptions' => [
-				'style' => 'direction:ltr',
+			'deadAt',
+			'type' => FormBuilder::FIELD_WIDGET,
+			'widget' => DatePicker::class,
+			'fieldOptions' => [
+				'addon' => [
+					'append' => [
+						'content' => '<i class="far fa-calendar-alt"></i>',
+					],
+				],
 			],
 		],
 	]);

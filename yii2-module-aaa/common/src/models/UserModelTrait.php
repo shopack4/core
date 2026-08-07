@@ -58,6 +58,7 @@ use shopack\base\backend\helpers\PrivHelper;
 'usrEducationPlace',
 'usrMaritalStatus',
 'usrMilitaryStatus',
+'usrDeadAt',
 'usrStatus',
 'usrCreatedAt',
 'usrCreatedBy',
@@ -453,6 +454,15 @@ trait UserModelTrait
                ],
                'usrMilitaryStatus' => [
                     enuColumnInfo::type       => ['string', 'max' => 1],
+                    enuColumnInfo::validator  => null,
+                    enuColumnInfo::default    => null,
+                    enuColumnInfo::required   => false,
+                    enuColumnInfo::selectable => true,
+                    enuColumnInfo::search     => enuColumnSearchType::exact,
+                    enuColumnInfo::beFilter   => $fnFilterByOwner,
+               ],
+               'usrDeadAt' => [
+                    enuColumnInfo::type       => 'safe',
                     enuColumnInfo::validator  => null,
                     enuColumnInfo::default    => null,
                     enuColumnInfo::required   => false,

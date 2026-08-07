@@ -65,6 +65,9 @@ class UserSearchModel extends UserModel
 						// 'desc' => ['usrssn.usrssnLoginDateTime' => SORT_DESC],
 						// 'default' => SORT_DESC
 					// ],
+					'usrDeadAt' => [
+						'default' => SORT_DESC
+					],
 					'usrCreatedAt' => [
 						'default' => SORT_DESC
 					],

@@ -261,4 +261,10 @@ class UserModel extends AAAActiveRecord
     // return md5($salt . $this->usrPasswordHash) == $password;
   }
 
+	public function doRemoveDeadtime()
+  {
+    $this->usrDeadAt = NULL;
+    return $this->save();
+  }
+
 }
