@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -13,90 +14,93 @@ use shopack\base\common\helpers\ArrayHelper;
 
 class GatewayModel extends AAAActiveRecord
 {
-	use \shopack\aaa\common\models\GatewayModelTrait;
+    use \shopack\aaa\common\models\GatewayModelTrait;
 
-  use \shopack\base\common\db\SoftDeleteActiveRecordTrait;
-  public function initSoftDelete()
-  {
-    $this->softdelete_RemovedStatus  = enuGatewayStatus::Removed;
-    // $this->softdelete_StatusField    = 'gtwStatus';
-    $this->softdelete_RemovedAtField = 'gtwRemovedAt';
-    $this->softdelete_RemovedByField = 'gtwRemovedBy';
-	}
+    use \shopack\base\common\db\SoftDeleteActiveRecordTrait;
+    public function initSoftDelete()
+    {
+        $this->softdelete_RemovedStatus  = enuGatewayStatus::Removed;
+        // $this->softdelete_StatusField    = 'gtwStatus';
+        $this->softdelete_RemovedAtField = 'gtwRemovedAt';
+        $this->softdelete_RemovedByField = 'gtwRemovedBy';
+    }
 
-	public static function tableName()
-	{
-		return '{{%AAA_Gateway}}';
-	}
+    public static function tableName()
+    {
+        return '{{%AAA_Gateway}}';
+    }
 
-	public function behaviors()
-	{
-		return [
-			[
-				'class' => \shopack\base\common\behaviors\RowDatesAttributesBehavior::class,
-				'createdAtAttribute' => 'gtwCreatedAt',
-				'createdByAttribute' => 'gtwCreatedBy',
-				'updatedAtAttribute' => 'gtwUpdatedAt',
-				'updatedByAttribute' => 'gtwUpdatedBy',
-			],
-		];
-	}
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => \shopack\base\common\behaviors\RowDatesAttributesBehavior::class,
+                'createdAtAttribute' => 'gtwCreatedAt',
+                'createdByAttribute' => 'gtwCreatedBy',
+                'updatedAtAttribute' => 'gtwUpdatedAt',
+                'updatedByAttribute' => 'gtwUpdatedBy',
+            ],
+        ];
+    }
 
-	public function save($runValidation = true, $attributeNames = null)
-  {
-		if (empty($this->gtwPluginParameters) == false) {
-			$paramsSchema = yii::$app->controller->module->GatewayPluginParamsSchema($this->gtwPluginName);
+    public function beforeSave($insert)
+    {
+        if (false == parent::beforeSave($insert))
+            return false;
 
-			if (empty($paramsSchema) == false) {
-				$gtwPluginParameters = $this->gtwPluginParameters;
+        if (empty($this->gtwPluginParameters) == false) {
+            $paramsSchema = yii::$app->controller->module->GatewayPluginParamsSchema($this->gtwPluginName);
 
-				$gtwPluginParameters = ArrayHelper::filterNullOrEmpty($gtwPluginParameters);
+            if (empty($paramsSchema) == false) {
+                $gtwPluginParameters = $this->gtwPluginParameters;
 
-				foreach ($paramsSchema as $v) {
-					if (empty($gtwPluginParameters[$v['id']]) == false) {
-						if ($v['type'] == 'kvp-multi') {
-							$paramValue = $gtwPluginParameters[$v['id']];
+                $gtwPluginParameters = ArrayHelper::filterNullOrEmpty($gtwPluginParameters);
 
-							foreach ($paramValue as $kp => $vp) {
-								if (empty($vp['key']) || empty($vp['value'])) {
-									unset($paramValue[$kp]);
-								}
-							}
+                foreach ($paramsSchema as $v) {
+                    if (empty($gtwPluginParameters[$v['id']]) == false) {
+                        if ($v['type'] == 'kvp-multi') {
+                            $paramValue = $gtwPluginParameters[$v['id']];
 
-							if (empty($paramValue))
-								unset($gtwPluginParameters[$v['id']]);
-							else
-								//array_values used for reindexing keys from zero
-								$gtwPluginParameters[$v['id']] = array_values($paramValue);
-						}
-					}
-				}
+                            foreach ($paramValue as $kp => $vp) {
+                                if (empty($vp['key']) || empty($vp['value'])) {
+                                    unset($paramValue[$kp]);
+                                }
+                            }
 
-				$this->gtwPluginParameters = $gtwPluginParameters;
-			}
-		}
+                            if (empty($paramValue))
+                                unset($gtwPluginParameters[$v['id']]);
+                            else
+                                //array_values used for reindexing keys from zero
+                                $gtwPluginParameters[$v['id']] = array_values($paramValue);
+                        }
+                    }
+                }
 
-    return parent::save($runValidation, $attributeNames);
-  }
+                $this->gtwPluginParameters = $gtwPluginParameters;
+            }
+        }
 
-	public function insert($runValidation = true, $attributes = null)
-	{
-		if (empty($this->gtwUUID))
-			$this->gtwUUID = Uuid::uuid4()->toString();
-			// $this->gtwUUID = Yii::$app->security->generateRandomString();
+        return true;
+        // return parent::save($runValidation, $attributeNames);
+    }
 
-		return parent::insert($runValidation, $attributes);
-	}
+    public function insert($runValidation = true, $attributes = null)
+    {
+        if (empty($this->gtwUUID))
+            $this->gtwUUID = Uuid::uuid4()->toString();
+        // $this->gtwUUID = Yii::$app->security->generateRandomString();
 
-	private $_gatewayClass = null;
-	public function getGatewayClass()
-	{
-		if ($this->_gatewayClass == null) {
-			$aaaModule = Yii::$app->getModule('aaa');
-			$this->_gatewayClass = clone $aaaModule->GatewayClass($this->gtwPluginName);
-			$this->_gatewayClass->extensionModel = $this;
-		}
-		return $this->_gatewayClass;
-	}
+        return parent::insert($runValidation, $attributes);
+    }
 
+    private $_gatewayClass = null;
+    public function getGatewayClass()
+    {
+        if ($this->_gatewayClass == null) {
+            $aaaModule = Yii::$app->getModule('aaa');
+            $this->_gatewayClass = clone $aaaModule->GatewayClass($this->gtwPluginName);
+            $this->_gatewayClass->extensionModel = $this;
+        }
+        return $this->_gatewayClass;
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -18,110 +19,117 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <div class="gateway-index w-100">
-  <div class='card'>
-		<div class='card-header'>
-			<div class="float-end">
-        <?= GatewayModel::canCreate() ? Html::createButton() : '' ?>
-			</div>
-      <div class='card-title'><?= Html::encode($this->title) ?></div>
-			<div class="clearfix"></div>
-		</div>
+    <div class='card'>
+        <div class='card-header'>
+            <div class="float-end">
+                <?= GatewayModel::canCreate() ? Html::createButton(null, null, ['data-popup-size' => 'lg', 'title' => Yii::t('aaa', 'Create Gateway')]) : '' ?>
+            </div>
+            <div class='card-title'><?= Html::encode($this->title) ?></div>
+            <div class="clearfix"></div>
+        </div>
 
-    <div class='card-body'>
-      <?php
-        $pluginCategories = [];
-        $pluginTitles = [];
+        <div class='card-body'>
+            <?php
+            $pluginCategories = [];
+            $pluginTitles = [];
 
-        $apiResponse = HttpHelper::callApi('aaa/gateway/plugin-list');
-        if ($apiResponse['status'] == 200) {
-          foreach ($apiResponse['body'] as $k => $v) {
-            $pluginCategories = array_merge($pluginCategories, [
-              $k => Yii::t('aaa', $k), //array_keys($v),
-            ]);
+            $apiResponse = HttpHelper::callApi('aaa/gateway/plugin-list');
+            if ($apiResponse['status'] == 200) {
+                foreach ($apiResponse['body'] as $k => $v) {
+                    $pluginCategories = array_merge($pluginCategories, [
+                        $k => Yii::t('aaa', $k), //array_keys($v),
+                    ]);
 
-            foreach ($v as $_k => $_v) {
-              if (empty($searchModel->gtwPluginType) || ($searchModel->gtwPluginType == $k))
-                $pluginTitles[$_k] = $_v['title'];
+                    foreach ($v as $_k => $_v) {
+                        if (empty($searchModel->gtwPluginType) || ($searchModel->gtwPluginType == $k))
+                            $pluginTitles[$_k] = $_v['title'];
+                    }
+                }
             }
-          }
-        }
 
-        asort($pluginTitles, SORT_STRING);
+            asort($pluginTitles, SORT_STRING);
 
-        echo GridView::widget([
-          'id' => StringHelper::generateRandomId(),
-          'dataProvider' => $dataProvider,
-          'filterModel' => $searchModel,
-          'rowOptions' => function ($model) {
-            if ($model->gtwStatus == enuGatewayStatus::Removed)
-              return ['class' => 'table-danger'];
-          },
-          'columns' => [
-            [
-              'class' => 'kartik\grid\SerialColumn',
-            ],
-            'gtwID',
-            [
-              'attribute' => 'gtwName',
-              'format' => 'raw',
-              'value' => function ($model, $key, $index, $widget) {
-                return Html::a($model->gtwName, ['view', 'id' => $model->gtwID]);
-              },
-            ],
-            // 'gtwUUID',
-
-            [
-              'class' => \shopack\base\frontend\common\widgets\grid\LookupDataColumn::class,
-              'lookupData' => $pluginCategories,
-              'attribute' => 'gtwPluginType',
-            ],
-
-            [
-              'class' => \shopack\base\frontend\common\widgets\grid\LookupDataColumn::class,
-              'lookupData' => $pluginTitles,
-              'attribute' => 'gtwPluginName',
-            ],
-
-            [
-              'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
-              'enumClass' => enuGatewayStatus::class,
-              'attribute' => 'gtwStatus',
-            ],
-            [
-              'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
-              'header' => GatewayModel::canCreate() ? Html::createButton() : Yii::t('app', 'Actions'),
-              'template' => '{update} {delete}{undelete}',
-              'visibleButtons' => [
-                'update' => function ($model, $key, $index) {
-                  return $model->canUpdate();
+            echo GridView::widget([
+                'id' => StringHelper::generateRandomId(),
+                'dataProvider' => $dataProvider,
+                'filterModel' => $searchModel,
+                'rowOptions' => function ($model) {
+                    if ($model->gtwStatus == enuGatewayStatus::Removed)
+                        return ['class' => 'table-danger'];
                 },
-                'delete' => function ($model, $key, $index) {
-                  return $model->canDelete();
-                },
-                'undelete' => function ($model, $key, $index) {
-                  return $model->canUndelete();
-                },
-              ],
-            ],
-            [
-              'attribute' => 'rowDate',
-              'noWrap' => true,
-              'format' => 'raw',
-              'label' => 'ایجاد / ویرایش',
-              'value' => function($model) {
-                return Html::formatRowDates(
-                  $model->gtwCreatedAt,
-                  $model->createdByUser,
-                  $model->gtwUpdatedAt,
-                  $model->updatedByUser,
-                  $model->gtwRemovedAt,
-                  $model->removedByUser,
-                );
-              },
-            ],
-          ],
-        ]);
-      ?>
+                'columns' => [
+                    [
+                        'class' => 'kartik\grid\SerialColumn',
+                    ],
+                    'gtwID',
+                    [
+                        'attribute' => 'gtwName',
+                        'format' => 'raw',
+                        'value' => function ($model, $key, $index, $widget) {
+                            return Html::a($model->gtwName, ['view', 'id' => $model->gtwID]);
+                        },
+                    ],
+                    // 'gtwUUID',
+
+                    [
+                        'class' => \shopack\base\frontend\common\widgets\grid\LookupDataColumn::class,
+                        'lookupData' => $pluginCategories,
+                        'attribute' => 'gtwPluginType',
+                    ],
+
+                    [
+                        'class' => \shopack\base\frontend\common\widgets\grid\LookupDataColumn::class,
+                        'lookupData' => $pluginTitles,
+                        'attribute' => 'gtwPluginName',
+                    ],
+
+                    [
+                        'class' => \shopack\base\frontend\common\widgets\grid\EnumDataColumn::class,
+                        'enumClass' => enuGatewayStatus::class,
+                        'attribute' => 'gtwStatus',
+                    ],
+                    [
+                        'class' => \shopack\base\frontend\common\widgets\ActionColumn::class,
+                        'header' => GatewayModel::canCreate() ? Html::createButton(null, null, [
+                            'data-popup-size' => 'lg',
+                            'title' => Yii::t('aaa', 'Create Gateway'),
+                        ]) : Yii::t('app', 'Actions'),
+                        'template' => '{update} {delete}{undelete}',
+                        'updateOptions' => [
+                            'modal' => true,
+                            'data-popup-size' => 'lg',
+                        ],
+                        'visibleButtons' => [
+                            'update' => function ($model, $key, $index) {
+                                return $model->canUpdate();
+                            },
+                            'delete' => function ($model, $key, $index) {
+                                return $model->canDelete();
+                            },
+                            'undelete' => function ($model, $key, $index) {
+                                return $model->canUndelete();
+                            },
+                        ],
+                    ],
+                    [
+                        'attribute' => 'rowDate',
+                        'noWrap' => true,
+                        'format' => 'raw',
+                        'label' => 'ایجاد / ویرایش',
+                        'value' => function ($model) {
+                            return Html::formatRowDates(
+                                $model->gtwCreatedAt,
+                                $model->createdByUser,
+                                $model->gtwUpdatedAt,
+                                $model->updatedByUser,
+                                $model->gtwRemovedAt,
+                                $model->removedByUser,
+                            );
+                        },
+                    ],
+                ],
+            ]);
+            ?>
+        </div>
     </div>
-  </div>
 </div>
