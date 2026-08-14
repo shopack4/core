@@ -238,6 +238,7 @@ return [
 	'Remained Amount' => 'موجودی',
 	'Total Paid' => 'پرداخت شده',
 	'Order Items' => 'اقلام سفارش',
+	'Financial Balance' => 'مانده موجودی',
 
 	'Increase Balance' => 'افزایش موجودی',
 	'Wallet Increase' => 'افزایش موجودی کیف پول',
@@ -259,7 +260,6 @@ return [
 	'Unit Info' => 'مشخصات واحد شمارش',
 	'Create Unit' => 'ایجاد واحد شمارش',
 	'Update Unit' => 'ویرایش واحد شمارش',
-
 
 	'Verification Code' => 'کد تصویری',
 	'Application Management' => 'مدیریت سیستم',
