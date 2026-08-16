@@ -87,7 +87,7 @@ abstract class BaseS3ObjectStorageGateway extends BaseObjectStorageGateway
     }
     public function getRegion()
     {
-        return $this->extensionModel->gtwPluginParameters[self::PARAM_REION] ?? null;
+        return $this->extensionModel->gtwPluginParameters[self::PARAM_REGION] ?? null;
     }
 
     /**
