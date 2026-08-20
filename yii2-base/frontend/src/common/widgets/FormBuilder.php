@@ -18,21 +18,21 @@ use shopack\base\common\helpers\StringHelper;
 
 class FormBuilder extends \yii\base\Component
 {
-    const FIELD_TEXT                                        = 'text';
-    const FIELD_TEXT_MULTILANGUAGE            = 'ml_text';
-    const FIELD_TEXTAREA                                = 'textarea';
-    const FIELD_TEXTAREA_MULTILANGUAGE    = 'ml_textarea';
-    const FIELD_PASSWORD                                = 'password';
-    const FIELD_FILE                                        = 'file';
-    const FIELD_WIDGET                                    = 'widget';
-    const FIELD_CHECKBOX                                = 'checkbox';
-    const FIELD_CHECKBOXLIST                        = 'checkboxlist';
-    const FIELD_RADIOLIST                                = 'radiolist';
-    const FIELD_DUALDATEPICKER                    = 'dualdatepicker';
-    const FIELD_MULTIPLEFIELDS                    = 'multipleFields';
-    const FIELD_STATIC                                    = 'static';
-    const FIELD_GEOMAP                                    = 'geomap';
-    const FIELD_PERCENT                                    = 'percent';
+    const FIELD_TEXT                   = 'text';
+    const FIELD_TEXT_MULTILANGUAGE     = 'ml_text';
+    const FIELD_TEXTAREA               = 'textarea';
+    const FIELD_TEXTAREA_MULTILANGUAGE = 'ml_textarea';
+    const FIELD_PASSWORD               = 'password';
+    const FIELD_FILE                   = 'file';
+    const FIELD_WIDGET                 = 'widget';
+    const FIELD_CHECKBOX               = 'checkbox';
+    const FIELD_CHECKBOXLIST           = 'checkboxlist';
+    const FIELD_RADIOLIST              = 'radiolist';
+    const FIELD_DUALDATEPICKER         = 'dualdatepicker';
+    const FIELD_MULTIPLEFIELDS         = 'multipleFields';
+    const FIELD_STATIC                 = 'static';
+    const FIELD_GEOMAP                 = 'geomap';
+    const FIELD_PERCENT                = 'percent';
 
     public $form;
     protected $fields = [];
