@@ -8,7 +8,7 @@ use shopack\base\frontend\common\helpers\Html;
 $this->title = Yii::t('aaa', 'Update Voucher');
 $this->params['breadcrumbs'][] = Yii::t('aaa', 'System');
 $this->params['breadcrumbs'][] = ['label' => Yii::t('aaa', 'Vouchers'), 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $model->vchName, 'url' => ['view', 'id' => $model->vchID]];
+$this->params['breadcrumbs'][] = ['label' => $model->vchID, 'url' => ['view', 'id' => $model->vchID]];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 

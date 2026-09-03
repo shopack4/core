@@ -34,7 +34,7 @@ use yii\web\JsExpression;
 					'inline' => true,
 				],
 			],
-			['vchName'],
+			// ['vchName'],
 		]);
 
 		$pluginCategories = [];
