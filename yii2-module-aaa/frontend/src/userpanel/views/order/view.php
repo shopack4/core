@@ -416,28 +416,32 @@ HTML;
                 },
               ],
               [
-                'attribute' => 'credit',
-                'label' => 'واریز',
-                'contentOptions' => [
-                  'class' => ['text-nowrap', 'tabular-nums'],
-                ],
-                'value' => function($model) {
-                  if ($model->wtrAmount > 0)
-                    return Yii::$app->formatter->asToman($model->wtrAmount);
-                  return '';
-                },
+                'attribute' => 'wtrDepositAmount',
+                'format' => 'toman',
+                // 'attribute' => 'credit',
+                // 'label' => 'واریز',
+                // 'contentOptions' => [
+                //   'class' => ['text-nowrap', 'tabular-nums'],
+                // ],
+                // 'value' => function($model) {
+                //   if ($model->wtrAmount > 0)
+                //     return Yii::$app->formatter->asToman($model->wtrAmount);
+                //   return '';
+                // },
               ],
               [
-                'attribute' => 'debit',
-                'label' => 'برداشت',
-                'contentOptions' => [
-                  'class' => ['text-nowrap', 'tabular-nums'],
-                ],
-                'value' => function($model) {
-                  if ($model->wtrAmount < 0)
-                    return Yii::$app->formatter->asToman(abs($model->wtrAmount));
-                  return '';
-                },
+                'attribute' => 'wtrWithdrawalAmount',
+                'format' => 'toman',
+                // 'attribute' => 'debit',
+                // 'label' => 'برداشت',
+                // 'contentOptions' => [
+                //   'class' => ['text-nowrap', 'tabular-nums'],
+                // ],
+                // 'value' => function($model) {
+                //   if ($model->wtrAmount < 0)
+                //     return Yii::$app->formatter->asToman(abs($model->wtrAmount));
+                //   return '';
+                // },
               ],
               [
                 'attribute' => 'wtrVoucherID',

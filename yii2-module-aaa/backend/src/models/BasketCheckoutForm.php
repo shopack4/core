@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -21,7 +22,7 @@ class BasketCheckoutForm extends Model
 	public $deliveryMethod;
 	public $walletID;
 	public $gatewayType;
-  public $callbackUrl;
+	public $callbackUrl;
 
 	public function rules()
 	{
@@ -30,15 +31,14 @@ class BasketCheckoutForm extends Model
 				'deliveryMethod',
 				'walletID',
 				'gatewayType',
-        'callbackUrl',
+				'callbackUrl',
 			], 'string'],
 
 			[[
 				// 'gatewayType',
-        'callbackUrl',
+				'callbackUrl',
 			], 'required'],
 		];
-
 	}
 
 	public function checkout()
@@ -62,8 +62,8 @@ class BasketCheckoutForm extends Model
 		// }
 
 		//--
-    if ($this->validate() == false)
-      throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
+		if ($this->validate() == false)
+			throw new UnprocessableEntityHttpException(implode("\n", $this->getFirstErrors()));
 
 		if (empty($this->deliveryMethod) == false) {
 			$deliveryMethodModel = DeliveryMethodModel::find()->andWhere([
@@ -76,7 +76,7 @@ class BasketCheckoutForm extends Model
 				$voucherModel->vchDeliveryAmount = $deliveryMethodModel->dlvAmount;
 
 				$voucherModel->vchTotalAmount =
-						$voucherModel->vchTotalAmount
+					$voucherModel->vchTotalAmount
 					+ $voucherModel->vchDeliveryAmount;
 			}
 
@@ -116,34 +116,36 @@ class BasketCheckoutForm extends Model
 		if (($remainedAmount > 0) && empty($this->gatewayType))
 			throw new UnprocessableEntityHttpException('Payment type not provided');
 
-    //start transaction
+		//start transaction
 		if ($walletAmount > 0 || $remainedAmount > 0)
 			$transaction = Yii::$app->db->beginTransaction();
 
 		$walletTableName = WalletModel::tableName();
 		$voucherTableName = VoucherModel::tableName();
 
-		$fnGetConstQouted = function($value) { return "'{$value}'"; };
+		$fnGetConstQouted = function ($value) {
+			return "'{$value}'";
+		};
 
 		try {
 			if ($walletAmount > 0) {
 				//2.1: create wallet transaction
 				$walletTransactionModel = new WalletTransactionModel();
-				$walletTransactionModel->wtrWalletID	= $this->walletID;
-				$walletTransactionModel->wtrVoucherID	= $voucherModel->vchID;
-				$walletTransactionModel->wtrAmount		= (-1) * $walletAmount;
+				$walletTransactionModel->wtrWalletID	     = $this->walletID;
+				$walletTransactionModel->wtrVoucherID	     = $voucherModel->vchID;
+				$walletTransactionModel->wtrWithdrawalAmount = $walletAmount;
 				$walletTransactionModel->save();
 
 				//2.2: decrease wallet amount
-				$qry =<<<SQL
-	UPDATE	{$walletTableName}
-		 SET	walRemainedAmount = walRemainedAmount - {$walletAmount}
-	 WHERE	walID = {$walletTransactionModel->wtrWalletID}
+				$qry = <<<SQL
+	UPDATE  {$walletTableName}
+       SET  walRemainedAmount = walRemainedAmount - {$walletAmount}
+	 WHERE  walID = {$walletTransactionModel->wtrWalletID}
 SQL;
 				$rowsCount = Yii::$app->db->createCommand($qry)->execute();
 
 				//3: save to the voucher
-				$qry =<<<SQL
+				$qry = <<<SQL
 	UPDATE	{$voucherTableName}
 		 SET	vchPaidByWallet = IFNULL(vchPaidByWallet, 0) + {$walletAmount}
 		 	 ,	vchTotalPaid = IFNULL(vchTotalPaid, 0) + {$walletAmount}
@@ -152,7 +154,7 @@ SQL;
 SQL;
 				$rowsCount = Yii::$app->db->createCommand($qry)->execute();
 
-				$qry =<<<SQL
+				$qry = <<<SQL
 	UPDATE	{$voucherTableName}
 		 SET	vchStatus = IF(vchTotalAmount = IFNULL(vchTotalPaid, 0),
 			 			{$fnGetConstQouted(enuVoucherStatus::Settled)},
@@ -180,16 +182,15 @@ SQL;
 			//commit
 			if (isset($transaction))
 				$transaction->commit();
-
-    } catch (\Exception $e) {
+		} catch (\Exception $e) {
 			if (isset($transaction))
-	      $transaction->rollBack();
-      throw $e;
+				$transaction->rollBack();
+			throw $e;
 		} catch (\Throwable $e) {
 			if (isset($transaction))
 				$transaction->rollBack();
-      throw $e;
-    }
+			throw $e;
+		}
 
 		if ($remainedAmount > 0) {
 			//create online payment
@@ -203,13 +204,11 @@ SQL;
 			if ($onpResult instanceof \Throwable)
 				throw $onpResult;
 
-			list ($onpUUID, $paymentUrl) = $onpResult;
+			list($onpUUID, $paymentUrl) = $onpResult;
 			return [
 				'onpkey' => $onpUUID,
 				'paymentUrl' => $paymentUrl,
 			];
 		}
-
-  }
-
+	}
 }

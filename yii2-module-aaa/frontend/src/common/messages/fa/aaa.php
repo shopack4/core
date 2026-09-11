@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -276,7 +277,6 @@ return [
 	'This mobile number has already been taken.' => 'این شماره موبایل قبلا توسط شخص دیگری استفاده شده است.',
 	"Passwords don't match" => 'رمز و تکرار آن برابر نیستند.',
 	'{attribute} "{value}" has already been taken.' => '{attribute} "{value}" توسط شخص دیگری استفاده شده است.',
-	'System' => 'سیستم',
 	'System Settings' => 'تنظیمات سیستم',
 	'Permissions' => 'دسترسی‌ها',
 	'List Permissions' => 'لیست دسترسی‌ها',
@@ -582,6 +582,9 @@ return [
 	'Transfer From' => 'انتقال از',
 	'Prize' => 'جایزه',
 
+	'Deposit Amount'    => 'واریز',
+	'Withdrawal Amount' => 'برداشت',
+
 	'Delivery Methods' => 'روش‌های ارسال',
 	'Delivery Method' => 'روش ارسال',
 	'Delivery Method Info' => 'مشخصات روش ارسال',
@@ -639,8 +642,6 @@ return [
 	'Basket checked out' => 'سبد خرید شما تسویه و ثبت شد',
 	'Error in checkout' => 'خطا در ثبت سفارش',
 	'Error in checkout ({0})' => 'خطا در ثبت سفارش ({0})',
-
-	'Credit' => 'اعتبار',
 
 	'New' => 'جدید',
 	'Pending' => 'در انتظار',

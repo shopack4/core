@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -16,13 +17,13 @@ class WalletModel extends AAAActiveRecord
 {
 	use \shopack\aaa\common\models\WalletModelTrait;
 
-  use \shopack\base\common\db\SoftDeleteActiveRecordTrait;
-  public function initSoftDelete()
-  {
-    $this->softdelete_RemovedStatus  = enuWalletStatus::Removed;
-    // $this->softdelete_StatusField    = 'walStatus';
-    $this->softdelete_RemovedAtField = 'walRemovedAt';
-    $this->softdelete_RemovedByField = 'walRemovedBy';
+	use \shopack\base\common\db\SoftDeleteActiveRecordTrait;
+	public function initSoftDelete()
+	{
+		$this->softdelete_RemovedStatus  = enuWalletStatus::Removed;
+		// $this->softdelete_StatusField    = 'walStatus';
+		$this->softdelete_RemovedAtField = 'walRemovedAt';
+		$this->softdelete_RemovedByField = 'walRemovedBy';
 	}
 
 	public static function tableName()
@@ -97,23 +98,23 @@ class WalletModel extends AAAActiveRecord
 			$voucherModel->vchType						= enuVoucherType::Credit;
 			$voucherModel->vchAmount					=
 				$voucherModel->vchTotalAmount		= $returnAmount;
-      $voucherModel->vchItems       = [
-        'inc-wallet-id' => $walID,
-      ];
-      if ($voucherModel->save() == false)
-        throw new ServerErrorHttpException('It is not possible to create a return voucher');
+			$voucherModel->vchItems       = [
+				'inc-wallet-id' => $walID,
+			];
+			if ($voucherModel->save() == false)
+				throw new ServerErrorHttpException('It is not possible to create a return voucher');
 
 			//create wallet transaction
 			$walletTransactionModel = new WalletTransactionModel();
-			$walletTransactionModel->wtrWalletID	= $walID;
-			$walletTransactionModel->wtrVoucherID	= $voucherModel->vchID;
-			$walletTransactionModel->wtrAmount		= $returnAmount;
+			$walletTransactionModel->wtrWalletID	  = $walID;
+			$walletTransactionModel->wtrVoucherID	  = $voucherModel->vchID;
+			$walletTransactionModel->wtrDepositAmount = $returnAmount;
 			if ($walletTransactionModel->save() == false)
 				throw new ServerErrorHttpException('It is not possible to create wallet transaction');
 
 			//increase wallet amount
 			$walletTableName = WalletModel::tableName();
-			$qry =<<<SQL
+			$qry = <<<SQL
   UPDATE {$walletTableName}
      SET walRemainedAmount = walRemainedAmount + {$returnAmount}
    WHERE walID = {$walID}
@@ -125,13 +126,11 @@ SQL;
 
 			if (isset($transaction))
 				$transaction->commit();
-
-    } catch (\Throwable $exp) {
+		} catch (\Throwable $exp) {
 			if (isset($transaction))
-	      $transaction->rollBack();
+				$transaction->rollBack();
 
-      throw $exp;
-    }
+			throw $exp;
+		}
 	}
-
 }

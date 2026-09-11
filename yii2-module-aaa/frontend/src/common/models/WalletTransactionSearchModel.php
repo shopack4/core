@@ -37,7 +37,8 @@ class WalletTransactionSearchModel extends WalletTransactionModel
 					'wtrVoucherID',
 					'wtrOnlinePaymentID',
 					'wtrOfflinePaymentID',
-					'wtrAmount',
+					'wtrDepositAmount',
+					'wtrWithdrawalAmount',
 					'wtrStatus',
 					'wtrCreatedAt' => [
 						'asc'		=> ['wtrCreatedAt' => SORT_ASC,		'wtrID' => SORT_ASC],

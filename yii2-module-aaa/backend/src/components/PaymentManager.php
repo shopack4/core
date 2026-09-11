@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -28,113 +29,114 @@ use shopack\aaa\common\enums\enuOfflinePaymentStatus;
 
 class PaymentManager extends Component
 {
-  //used for central payment callback. e.g: *www.x.com -> api.x.com -> ui.x.com
-  public $topmostPayCallback = null;
+    //used for central payment callback. e.g: *www.x.com -> api.x.com -> ui.x.com
+    public $topmostPayCallback = null;
 
-  public function log($message, $type='INFO')
-  {
-		if (Yii::$app->isConsole == false)
-			return;
+    public function log($message, $type = 'INFO')
+    {
+        if (Yii::$app->isConsole == false)
+            return;
 
-    if ($message instanceof \Throwable) {
-			$message = $message->getMessage();
-      $type = 'ERROR';
+        if ($message instanceof \Throwable) {
+            $message = $message->getMessage();
+            $type = 'ERROR';
+        }
+
+        if (empty($type))
+            echo "[" . date('Y/m/d H:i:s') . "] {$message}\n";
+        else
+            echo "[" . date('Y/m/d H:i:s') . "][{$type}] {$message}\n";
     }
 
-		if (empty($type))
-    	echo "[" . date('Y/m/d H:i:s') . "] {$message}\n";
-		else
-    	echo "[" . date('Y/m/d H:i:s') . "][{$type}] {$message}\n";
-  }
+    /**
+     * return [onpkey, paymentUrl]
+     * or $exp
+     */
+    public function createOnlinePayment(
+        $voucherModel,
+        $gatewayType,
+        $callbackUrl,
+        $walletID = null
+    ) {
+        if (empty($walletID)) {
+            $walletModel = WalletModel::ensureIHaveDefaultWallet();
+            $walletID = $walletModel->walID;
+        }
 
-  /**
-   * return [onpkey, paymentUrl]
-   * or $exp
-   */
-  public function createOnlinePayment(
-    $voucherModel,
-    $gatewayType,
-    $callbackUrl,
-    $walletID = null
-  ) {
-    if (empty($walletID)) {
-      $walletModel = WalletModel::ensureIHaveDefaultWallet();
-      $walletID = $walletModel->walID;
-    }
+        $payAmount = $voucherModel->vchTotalAmount - ($voucherModel->vchTotalPaid ?? 0);
 
-    $payAmount = $voucherModel->vchTotalAmount - ($voucherModel->vchTotalPaid ?? 0);
+        //1: find gateway
+        $gatewayModel = $this->findBestPaymentGateway($gatewayType, $payAmount);
+        if ($gatewayModel == null)
+            throw new NotFoundHttpException('Payment gateway not found');
 
-    //1: find gateway
-    $gatewayModel = $this->findBestPaymentGateway($gatewayType, $payAmount);
-    if ($gatewayModel == null)
-      throw new NotFoundHttpException('Payment gateway not found');
+        //2: create online payment
+        $onlinePaymentModel = new OnlinePaymentModel;
+        // $onlinePaymentModel->onpID
+        $onlinePaymentModel->onpUUID        = Uuid::uuid4()->toString();
+        $onlinePaymentModel->onpGatewayID    = $gatewayModel->gtwID;
+        $onlinePaymentModel->onpVoucherID    = $voucherModel->vchID;
+        $onlinePaymentModel->onpAmount      = $payAmount;
+        $onlinePaymentModel->onpCallbackUrl  = $callbackUrl;
+        $onlinePaymentModel->onpWalletID    = $walletID;
+        if ($onlinePaymentModel->save() == false)
+            throw new ServerErrorHttpException('It is not possible to create an online payment');
 
-    //2: create online payment
-    $onlinePaymentModel = new OnlinePaymentModel;
-    // $onlinePaymentModel->onpID
-    $onlinePaymentModel->onpUUID				= Uuid::uuid4()->toString();
-    $onlinePaymentModel->onpGatewayID		= $gatewayModel->gtwID;
-    $onlinePaymentModel->onpVoucherID		= $voucherModel->vchID;
-    $onlinePaymentModel->onpAmount			= $payAmount;
-    $onlinePaymentModel->onpCallbackUrl	= $callbackUrl;
-    $onlinePaymentModel->onpWalletID		= $walletID;
-    if ($onlinePaymentModel->save() == false)
-      throw new ServerErrorHttpException('It is not possible to create an online payment');
+        //3: prepare gateway
+        $backendCallback = Url::to([
+            '/aaa/online-payment/callback',
+            'action' => 'verify',
+            'paymentkey' => $onlinePaymentModel->onpUUID,
+        ], true);
 
-    //3: prepare gateway
-    $backendCallback = Url::to([
-      '/aaa/online-payment/callback',
-      'action' => 'verify',
-      'paymentkey' => $onlinePaymentModel->onpUUID,
-    ], true);
+        if (empty($this->topmostPayCallback) == false) {
+            // if (str_ends_with($this->topmostPayCallback, '/') == false)
+            //   $this->topmostPayCallback .= '/';
 
-    if (empty($this->topmostPayCallback) == false) {
-      // if (str_ends_with($this->topmostPayCallback, '/') == false)
-      //   $this->topmostPayCallback .= '/';
+            $ch = (strpos($this->topmostPayCallback, '?') === false ? '?' : '&');
+            $backendCallback = $this->topmostPayCallback . $ch . 'done=' . urlencode($backendCallback);
+        }
 
-      $ch = (strpos($this->topmostPayCallback, '?') === false ? '?' : '&');
-      $backendCallback = $this->topmostPayCallback . $ch . 'done=' . urlencode($backendCallback);
-    }
+        $gatewayClass = $gatewayModel->getGatewayClass();
 
-    $gatewayClass = $gatewayModel->getGatewayClass();
+        try {
+            list($response, $paymentToken, $paymentUrl) = $gatewayClass->prepare(
+                $gatewayModel,
+                $onlinePaymentModel,
+                $backendCallback
+            );
 
-    try {
-      list ($response, $paymentToken, $paymentUrl) = $gatewayClass->prepare(
-        $gatewayModel,
-        $onlinePaymentModel,
-        $backendCallback
-      );
+            $paymentUrl = Url::to([
+                '/aaa/online-payment/pay',
+                'paymentkey' => $onlinePaymentModel->onpUUID,
+            ], true);
+        } catch (\Throwable $exp) {
+            $onlinePaymentModel->onpResult = [
+                'error' => $exp->getMessage(),
+            ];
+            $onlinePaymentModel->onpStatus = enuOnlinePaymentStatus::Error;
+            if ($onlinePaymentModel->save() == false)
+                throw new ServerErrorHttpException('It is not possible to update online payment');
 
-      $paymentUrl = Url::to([
-        '/aaa/online-payment/pay',
-        'paymentkey' => $onlinePaymentModel->onpUUID,
-      ], true);
+            return $exp;
 
-    } catch (\Throwable $exp) {
-      $onlinePaymentModel->onpResult = [
-        'error' => $exp->getMessage(),
-      ];
-      $onlinePaymentModel->onpStatus = enuOnlinePaymentStatus::Error;
-      if ($onlinePaymentModel->save() == false)
-        throw new ServerErrorHttpException('It is not possible to update online payment');
+            // throw $exp;
+        }
 
-      return $exp;
+        //4: save to onp
+        $onlinePaymentModel->onpPaymentToken  = $paymentToken;
+        $onlinePaymentModel->onpResult        = (array)$response;
+        $onlinePaymentModel->onpStatus        = enuOnlinePaymentStatus::Pending;
+        if ($onlinePaymentModel->save() == false)
+            throw new ServerErrorHttpException('It is not possible to update online payment');
 
-      // throw $exp;
-    }
+        //5: update gateway usage
+        $fnGetConst = function ($value) {
+            return $value;
+        };
+        $gatewayTableName = GatewayModel::tableName();
 
-    //4: save to onp
-    $onlinePaymentModel->onpPaymentToken	= $paymentToken;
-    $onlinePaymentModel->onpResult		  	= (array)$response;
-    $onlinePaymentModel->onpStatus			  = enuOnlinePaymentStatus::Pending;
-    if ($onlinePaymentModel->save() == false)
-      throw new ServerErrorHttpException('It is not possible to update online payment');
-
-    //5: update gateway usage
-    $fnGetConst = function($value) { return $value; };
-    $gatewayTableName = GatewayModel::tableName();
-
-    $qry =<<<SQL
+        $qry = <<<SQL
   UPDATE {$gatewayTableName}
      SET gtwUsages = JSON_MERGE_PATCH(
            COALESCE(JSON_REMOVE(gtwUsages, '$.{$fnGetConst(BasePaymentGateway::USAGE_LAST_TRANSACTION_DATE)}', '$.{$fnGetConst(BasePaymentGateway::USAGE_TODAY_USED_AMOUNT)}'), '{}'),
@@ -151,50 +153,53 @@ class PaymentManager extends Component
          )
    WHERE gtwID = {$gatewayModel->gtwID}
 SQL;
-    Yii::$app->db->createCommand($qry)->execute();
+        Yii::$app->db->createCommand($qry)->execute();
 
-    //
-    return [$onlinePaymentModel->onpUUID, $paymentUrl];
-  }
-
-  public function findBestPaymentGateway(
-    $gatewayType,
-    $amount
-  ) {
-    $gatewayNames = [];
-    $extensions = Yii::$app->controller->module->GatewayList('payment');
-    foreach ($extensions as $pluginName => $extension) {
-      $gtwclass = Yii::$app->controller->module->GatewayClass($pluginName);
-      if ($gtwclass->getPaymentGatewayType() == $gatewayType) {
-        $gatewayNames[] = $pluginName;
-      }
+        //
+        return [$onlinePaymentModel->onpUUID, $paymentUrl];
     }
 
-    if (empty($gatewayNames))
-      return null;
+    public function findBestPaymentGateway(
+        $gatewayType,
+        $amount
+    ) {
+        $gatewayNames = [];
+        $extensions = Yii::$app->controller->module->GatewayList('payment');
+        foreach ($extensions as $pluginName => $extension) {
+            $gtwclass = Yii::$app->controller->module->GatewayClass($pluginName);
+            if ($gtwclass->getPaymentGatewayType() == $gatewayType) {
+                $gatewayNames[] = $pluginName;
+            }
+        }
 
-    $fnGetConst = function($value) { return $value; };
-    $gatewayTableName = GatewayModel::tableName();
+        if (empty($gatewayNames))
+            return null;
 
-    $gatewayModel = GatewayModel::find()
-      ->select([
-        "{$gatewayTableName}.*",
-        'tmptbl_inner.inner_pgwSumTodayPaidAmount',
-        'tmptbl_inner.inner_pgwTransactionFeeAmount',
-      ])
-      ->innerJoin([
-        'tmptbl_inner' => GatewayModel::find()
-          ->select([
-            'gtwID',
+        $fnGetConst = function ($value) {
+            return $value;
+        };
+        $gatewayTableName = GatewayModel::tableName();
 
-            "IF(JSON_EXTRACT(gtwPluginParameters, '$.{$fnGetConst(BasePaymentGateway::PARAM_GATEWAY_COMMISSION_TYPE)}') = '%'
+        $gatewayModel = GatewayModel::find()
+            ->select([
+                "{$gatewayTableName}.*",
+                'tmptbl_inner.inner_pgwSumTodayPaidAmount',
+                'tmptbl_inner.inner_pgwTransactionFeeAmount',
+            ])
+            ->innerJoin(
+                [
+                    'tmptbl_inner' => GatewayModel::find()
+                        ->select([
+                            'gtwID',
+
+                            "IF(JSON_EXTRACT(gtwPluginParameters, '$.{$fnGetConst(BasePaymentGateway::PARAM_GATEWAY_COMMISSION_TYPE)}') = '%'
 
               , JSON_UNQUOTE(JSON_EXTRACT(gtwPluginParameters, '$.{$fnGetConst(BasePaymentGateway::PARAM_GATEWAY_COMMISSION)}')) * {$amount} / 100
 
               , JSON_UNQUOTE(JSON_EXTRACT(gtwPluginParameters, '$.{$fnGetConst(BasePaymentGateway::PARAM_GATEWAY_COMMISSION)}'))
             ) AS `inner_pgwTransactionFeeAmount`",
 
-            "IF(JSON_EXTRACT(gtwUsages, '$.{$fnGetConst(BasePaymentGateway::USAGE_LAST_TRANSACTION_DATE)}') IS NULL
+                            "IF(JSON_EXTRACT(gtwUsages, '$.{$fnGetConst(BasePaymentGateway::USAGE_LAST_TRANSACTION_DATE)}') IS NULL
               OR JSON_UNQUOTE(JSON_EXTRACT(gtwUsages, '$.{$fnGetConst(BasePaymentGateway::USAGE_LAST_TRANSACTION_DATE)}')) < CURDATE()
 
               , 0
@@ -202,81 +207,84 @@ SQL;
               , JSON_UNQUOTE(JSON_EXTRACT(gtwUsages, '$.{$fnGetConst(BasePaymentGateway::USAGE_TODAY_USED_AMOUNT)}'))
             ) AS `inner_pgwSumTodayPaidAmount`",
 
-            // "COALESCE(JSON_UNQUOTE(JSON_EXTRACT(tblPaymentGatewayTypesI18N.i18nData, '$.pgtName.'fa')), tblPaymentGatewayTypes.pgtName) AS `pgtName`",
-          ])
-          // LEFT JOIN tblPaymentGatewayTypes
-          // 		 ON tblPaymentGatewayTypes.pgtType = {$gatewayTableName}.pgwType
-          // LEFT JOIN tblPaymentGatewayTypesI18N
-          // 		 ON tblPaymentGatewayTypesI18N.i18nPID = tblPaymentGatewayTypes.pgtID
-          ->andWhere("gtwStatus != '{$fnGetConst(enuGatewayStatus::Removed)}'")
-          ->andWhere(['IN', 'gtwPluginName', $gatewayNames])
-          ->andWhere(['OR',
-            "JSON_EXTRACT(gtwRestrictions, '$.{$fnGetConst(BasePaymentGateway::RESTRICTION_MIN_TRANSACTION_AMOUNT)}') IS NULL",
+                            // "COALESCE(JSON_UNQUOTE(JSON_EXTRACT(tblPaymentGatewayTypesI18N.i18nData, '$.pgtName.'fa')), tblPaymentGatewayTypes.pgtName) AS `pgtName`",
+                        ])
+                        // LEFT JOIN tblPaymentGatewayTypes
+                        // 		 ON tblPaymentGatewayTypes.pgtType = {$gatewayTableName}.pgwType
+                        // LEFT JOIN tblPaymentGatewayTypesI18N
+                        // 		 ON tblPaymentGatewayTypesI18N.i18nPID = tblPaymentGatewayTypes.pgtID
+                        ->andWhere("gtwStatus != '{$fnGetConst(enuGatewayStatus::Removed)}'")
+                        ->andWhere(['IN', 'gtwPluginName', $gatewayNames])
+                        ->andWhere([
+                            'OR',
+                            "JSON_EXTRACT(gtwRestrictions, '$.{$fnGetConst(BasePaymentGateway::RESTRICTION_MIN_TRANSACTION_AMOUNT)}') IS NULL",
 
-            "JSON_UNQUOTE(JSON_EXTRACT(gtwRestrictions, '$.{$fnGetConst(BasePaymentGateway::RESTRICTION_MIN_TRANSACTION_AMOUNT)}')) <= {$amount}"
-          ])
-          ->andWhere(['OR',
-            "JSON_EXTRACT(gtwRestrictions, '$.{$fnGetConst(BasePaymentGateway::RESTRICTION_MAX_TRANSACTION_AMOUNT)}') IS NULL",
+                            "JSON_UNQUOTE(JSON_EXTRACT(gtwRestrictions, '$.{$fnGetConst(BasePaymentGateway::RESTRICTION_MIN_TRANSACTION_AMOUNT)}')) <= {$amount}"
+                        ])
+                        ->andWhere([
+                            'OR',
+                            "JSON_EXTRACT(gtwRestrictions, '$.{$fnGetConst(BasePaymentGateway::RESTRICTION_MAX_TRANSACTION_AMOUNT)}') IS NULL",
 
-            "JSON_UNQUOTE(JSON_EXTRACT(gtwRestrictions, '$.{$fnGetConst(BasePaymentGateway::RESTRICTION_MAX_TRANSACTION_AMOUNT)}')) >= {$amount}"
-          ])
-          ->andWhere(['OR',
-            "JSON_EXTRACT(gtwRestrictions, '$.{$fnGetConst(BasePaymentGateway::RESTRICTION_MAX_DAILY_TOTAL_AMOUNT)}') IS NULL",
+                            "JSON_UNQUOTE(JSON_EXTRACT(gtwRestrictions, '$.{$fnGetConst(BasePaymentGateway::RESTRICTION_MAX_TRANSACTION_AMOUNT)}')) >= {$amount}"
+                        ])
+                        ->andWhere([
+                            'OR',
+                            "JSON_EXTRACT(gtwRestrictions, '$.{$fnGetConst(BasePaymentGateway::RESTRICTION_MAX_DAILY_TOTAL_AMOUNT)}') IS NULL",
 
-            "JSON_EXTRACT(gtwUsages, '$.{$fnGetConst(BasePaymentGateway::USAGE_LAST_TRANSACTION_DATE)}') IS NULL",
+                            "JSON_EXTRACT(gtwUsages, '$.{$fnGetConst(BasePaymentGateway::USAGE_LAST_TRANSACTION_DATE)}') IS NULL",
 
-            "JSON_UNQUOTE(JSON_EXTRACT(gtwUsages, '$.{$fnGetConst(BasePaymentGateway::USAGE_LAST_TRANSACTION_DATE)}')) < CURDATE()",
+                            "JSON_UNQUOTE(JSON_EXTRACT(gtwUsages, '$.{$fnGetConst(BasePaymentGateway::USAGE_LAST_TRANSACTION_DATE)}')) < CURDATE()",
 
-            "JSON_UNQUOTE(JSON_EXTRACT(gtwUsages, '$.{$fnGetConst(BasePaymentGateway::USAGE_TODAY_USED_AMOUNT)}')) <= JSON_UNQUOTE(JSON_EXTRACT(gtwRestrictions, '$.{$fnGetConst(BasePaymentGateway::RESTRICTION_MAX_DAILY_TOTAL_AMOUNT)}')) - {$amount}",
-          ])
-        ],
-        "tmptbl_inner.gtwID = {$gatewayTableName}.gtwID"
-      )
-      ->andWhere(['gtwStatus' => enuGatewayStatus::Active])
-      // ->andWhere(['IN', "{$gatewayTableName}gtwPluginName", $gatewayNames])
-      // ->andWhere("LOWER({$gatewayTableName}.pgwAllowedDomainName) = 'dev.test'")
-      ->orderBy([
-        'tmptbl_inner.inner_pgwTransactionFeeAmount' => SORT_ASC,
-        'tmptbl_inner.inner_pgwSumTodayPaidAmount' => SORT_ASC,
-        'RAND()' => SORT_ASC,
-      ])
-      ->one();
+                            "JSON_UNQUOTE(JSON_EXTRACT(gtwUsages, '$.{$fnGetConst(BasePaymentGateway::USAGE_TODAY_USED_AMOUNT)}')) <= JSON_UNQUOTE(JSON_EXTRACT(gtwRestrictions, '$.{$fnGetConst(BasePaymentGateway::RESTRICTION_MAX_DAILY_TOTAL_AMOUNT)}')) - {$amount}",
+                        ])
+                ],
+                "tmptbl_inner.gtwID = {$gatewayTableName}.gtwID"
+            )
+            ->andWhere(['gtwStatus' => enuGatewayStatus::Active])
+            // ->andWhere(['IN', "{$gatewayTableName}gtwPluginName", $gatewayNames])
+            // ->andWhere("LOWER({$gatewayTableName}.pgwAllowedDomainName) = 'dev.test'")
+            ->orderBy([
+                'tmptbl_inner.inner_pgwTransactionFeeAmount' => SORT_ASC,
+                'tmptbl_inner.inner_pgwSumTodayPaidAmount' => SORT_ASC,
+                'RAND()' => SORT_ASC,
+            ])
+            ->one();
 
-    return $gatewayModel;
-  }
-
-  //redirect to payment page
-  public function pay($paymentkey)
-  {
-    $onlinePaymentModel = OnlinePaymentModel::find()
-      ->with('gateway')
-      ->with('voucher')
-      ->andWhere(['onpUUID' => $paymentkey])
-      ->one();
-
-    if ($onlinePaymentModel == null) {
-      Yii::error('The requested online payment does not exist.', __METHOD__);
-      throw new NotFoundHttpException('The requested online payment does not exist.');
+        return $gatewayModel;
     }
 
-    if ($onlinePaymentModel->onpStatus != enuOnlinePaymentStatus::Pending)
-      throw new UnprocessableEntityHttpException('This payment is not in pending state.');
+    //redirect to payment page
+    public function pay($paymentkey)
+    {
+        $onlinePaymentModel = OnlinePaymentModel::find()
+            ->with('gateway')
+            ->with('voucher')
+            ->andWhere(['onpUUID' => $paymentkey])
+            ->one();
 
-    $gatewayClass = $onlinePaymentModel->gateway->getGatewayClass();
+        if ($onlinePaymentModel == null) {
+            Yii::error('The requested online payment does not exist.', __METHOD__);
+            throw new NotFoundHttpException('The requested online payment does not exist.');
+        }
 
-    $result = $gatewayClass->pay($onlinePaymentModel->gateway, $onlinePaymentModel);
+        if ($onlinePaymentModel->onpStatus != enuOnlinePaymentStatus::Pending)
+            throw new UnprocessableEntityHttpException('This payment is not in pending state.');
 
-    if ($result['type'] == 'form') {
-      Yii::$app->controller->response->format = \yii\web\Response::FORMAT_HTML;
-      Yii::$app->controller->layout = false;
+        $gatewayClass = $onlinePaymentModel->gateway->getGatewayClass();
 
-      $params = [];
-      foreach ($result['params'] as $k => $v) {
-        $params[] = "<input type='hidden' name='{$k}' value='{$v}'>";
-      }
-      $params = implode("\n", $params);
+        $result = $gatewayClass->pay($onlinePaymentModel->gateway, $onlinePaymentModel);
 
-      $html = <<<HTML
+        if ($result['type'] == 'form') {
+            Yii::$app->controller->response->format = \yii\web\Response::FORMAT_HTML;
+            Yii::$app->controller->layout = false;
+
+            $params = [];
+            foreach ($result['params'] as $k => $v) {
+                $params[] = "<input type='hidden' name='{$k}' value='{$v}'>";
+            }
+            $params = implode("\n", $params);
+
+            $html = <<<HTML
 <html>
   <head>
   </head>
@@ -288,13 +296,12 @@ SQL;
 </html>
 HTML;
 
-      return Yii::$app->controller->renderContent($html);
+            return Yii::$app->controller->renderContent($html);
+        } else if ($result['type'] == 'html') {
+            Yii::$app->controller->response->format = \yii\web\Response::FORMAT_HTML;
+            Yii::$app->controller->layout = false;
 
-    } else if ($result['type'] == 'html') {
-      Yii::$app->controller->response->format = \yii\web\Response::FORMAT_HTML;
-      Yii::$app->controller->layout = false;
-
-      $html = <<<HTML
+            $html = <<<HTML
 <html>
   <head>
   </head>
@@ -304,174 +311,172 @@ HTML;
 </html>
 HTML;
 
-      return Yii::$app->controller->renderContent($html);
+            return Yii::$app->controller->renderContent($html);
+        } else if ($result['type'] == 'link') {
 
-    } else if ($result['type'] == 'link') {
+            return Yii::$app->controller->redirect($result['url']);
 
-      return Yii::$app->controller->redirect($result['url']);
+            // //redirect in frontend
+            // return [
+            //   'url' => $result['url'],
+            // ];
+        }
 
-      // //redirect in frontend
-      // return [
-      //   'url' => $result['url'],
-      // ];
+        throw new UnprocessableEntityHttpException("Unknown payment page type ({$result['type']})");
     }
 
-    throw new UnprocessableEntityHttpException("Unknown payment page type ({$result['type']})");
-  }
+    /**
+     * $pgwResponse: array|null response data back from payment gateway
+     */
+    public function approveOnlinePayment(
+        OnlinePaymentModel|string $paymentkey,
+        $pgwResponse
+    ): OnlinePaymentModel {
+        $fnGetConstQouted = function ($value) {
+            return "'{$value}'";
+        };
 
-  /**
-   * $pgwResponse: array|null response data back from payment gateway
-   */
-  public function approveOnlinePayment(
-    OnlinePaymentModel|string $paymentkey,
-    $pgwResponse
-  ) : OnlinePaymentModel
-  {
-    $fnGetConstQouted = function($value) { return "'{$value}'"; };
+        if (is_string($paymentkey)) {
+            $onlinePaymentModel = OnlinePaymentModel::find()
+                ->with('gateway')
+                ->with('voucher')
+                ->andWhere(['onpUUID' => $paymentkey])
+                ->one();
+        } else {
+            $onlinePaymentModel = $paymentkey;
+        }
 
-    if (is_string($paymentkey)) {
-      $onlinePaymentModel = OnlinePaymentModel::find()
-        ->with('gateway')
-        ->with('voucher')
-        ->andWhere(['onpUUID' => $paymentkey])
-        ->one();
-    } else {
-      $onlinePaymentModel = $paymentkey;
-    }
+        if ($onlinePaymentModel == null) {
+            Yii::error('The requested online payment does not exist.', __METHOD__);
+            throw new NotFoundHttpException('The requested online payment does not exist.');
+        }
 
-    if ($onlinePaymentModel == null) {
-      Yii::error('The requested online payment does not exist.', __METHOD__);
-      throw new NotFoundHttpException('The requested online payment does not exist.');
-    }
+        if ($onlinePaymentModel->onpStatus != enuOnlinePaymentStatus::Pending)
+            throw new UnprocessableEntityHttpException('This payment is not in pending state.');
 
-    if ($onlinePaymentModel->onpStatus != enuOnlinePaymentStatus::Pending)
-      throw new UnprocessableEntityHttpException('This payment is not in pending state.');
+        //1: verify and settle via gateway
+        try {
+            $this->verifyOnlinePayment($onlinePaymentModel, $pgwResponse);
+        } catch (\Throwable $th) {
+            Yii::error($th, __METHOD__);
 
-    //1: verify and settle via gateway
-    try {
-      $this->verifyOnlinePayment($onlinePaymentModel, $pgwResponse);
+            // if ($onlinePaymentModel->voucher->vchType != enuVoucherType::Basket) {
+            if ($onlinePaymentModel->voucher->vchType == enuVoucherType::Credit) {
+                $voucherTableName = VoucherModel::tableName();
 
-    } catch (\Throwable $th) {
-      Yii::error($th, __METHOD__);
-
-      // if ($onlinePaymentModel->voucher->vchType != enuVoucherType::Basket) {
-      if ($onlinePaymentModel->voucher->vchType == enuVoucherType::Credit) {
-        $voucherTableName = VoucherModel::tableName();
-
-        $qry =<<<SQL
+                $qry = <<<SQL
   UPDATE {$voucherTableName}
      SET vchStatus = {$fnGetConstQouted(enuVoucherStatus::Error)}
    WHERE vchID = {$onlinePaymentModel->onpVoucherID}
 SQL;
-        $rowsCount = Yii::$app->db->createCommand($qry)->execute();
-      }
+                $rowsCount = Yii::$app->db->createCommand($qry)->execute();
+            }
 
-      return $onlinePaymentModel;
-    }
+            return $onlinePaymentModel;
+        }
 
-    //start transaction
-    $transaction = Yii::$app->db->beginTransaction();
+        //start transaction
+        $transaction = Yii::$app->db->beginTransaction();
 
-    $walletTableName = WalletModel::tableName();
-    $voucherTableName = VoucherModel::tableName();
+        $walletTableName = WalletModel::tableName();
+        $voucherTableName = VoucherModel::tableName();
 
-    try {
-      //2.1: create wallet transaction
-      $walletTransactionModel = new WalletTransactionModel();
-      $walletTransactionModel->wtrWalletID				= $onlinePaymentModel->onpWalletID;
-      $walletTransactionModel->wtrVoucherID				= $onlinePaymentModel->onpVoucherID;
-      $walletTransactionModel->wtrOnlinePaymentID	= $onlinePaymentModel->onpID;
-      $walletTransactionModel->wtrAmount					= $onlinePaymentModel->onpAmount;
-      $walletTransactionModel->save();
+        try {
+            //2.1: create wallet transaction
+            $walletTransactionModel = new WalletTransactionModel();
+            $walletTransactionModel->wtrWalletID        = $onlinePaymentModel->onpWalletID;
+            $walletTransactionModel->wtrVoucherID        = $onlinePaymentModel->onpVoucherID;
+            $walletTransactionModel->wtrOnlinePaymentID  = $onlinePaymentModel->onpID;
+            $walletTransactionModel->wtrDepositAmount   = $onlinePaymentModel->onpAmount;
+            $walletTransactionModel->save();
 
-      //2.2: add to the wallet amount
-      $qry =<<<SQL
+            //2.2: add to the wallet amount
+            $qry = <<<SQL
   UPDATE {$walletTableName}
      SET walRemainedAmount = walRemainedAmount + {$onlinePaymentModel->onpAmount}
    WHERE walID = {$walletTransactionModel->wtrWalletID}
 SQL;
-      $rowsCount = Yii::$app->db->createCommand($qry)->execute();
+            $rowsCount = Yii::$app->db->createCommand($qry)->execute();
 
-      //save to the voucher
-      if (in_array($onlinePaymentModel->voucher->vchType, [
-        enuVoucherType::Basket,
-        enuVoucherType::Invoice,
-      ])) {
-        //2.1: create decrease wallet transaction
-        $walletTransactionModel = new WalletTransactionModel();
-        $walletTransactionModel->wtrWalletID	= $onlinePaymentModel->onpWalletID;
-        $walletTransactionModel->wtrVoucherID	= $onlinePaymentModel->onpVoucherID;
-        $walletTransactionModel->wtrAmount		= (-1) * $onlinePaymentModel->onpAmount;
-        $walletTransactionModel->save();
+            //save to the voucher
+            if (in_array($onlinePaymentModel->voucher->vchType, [
+                enuVoucherType::Basket,
+                enuVoucherType::Invoice,
+            ])) {
+                //2.1: create decrease wallet transaction
+                $walletTransactionModel = new WalletTransactionModel();
+                $walletTransactionModel->wtrWalletID         = $onlinePaymentModel->onpWalletID;
+                $walletTransactionModel->wtrVoucherID        = $onlinePaymentModel->onpVoucherID;
+                $walletTransactionModel->wtrWithdrawalAmount = $onlinePaymentModel->onpAmount;
+                $walletTransactionModel->save();
 
-        //2.2: decrease wallet amount
-        $qry =<<<SQL
+                //2.2: decrease wallet amount
+                $qry = <<<SQL
   UPDATE {$walletTableName}
      SET walRemainedAmount = walRemainedAmount - {$onlinePaymentModel->onpAmount}
    WHERE walID = {$walletTransactionModel->wtrWalletID}
 SQL;
-        $rowsCount = Yii::$app->db->createCommand($qry)->execute();
+                $rowsCount = Yii::$app->db->createCommand($qry)->execute();
 
-        $field = 'vchPaidByWallet';
-      } else { //other than Basket or Invoice
-        $field = 'vchOnlinePaid';
-      }
+                $field = 'vchPaidByWallet';
+            } else { //other than Basket or Invoice
+                $field = 'vchOnlinePaid';
+            }
 
-      $qry =<<<SQL
+            $qry = <<<SQL
   UPDATE  {$voucherTableName}
      SET  {$field} = IFNULL({$field}, 0) + {$onlinePaymentModel->onpAmount}
        ,  vchTotalPaid = IFNULL(vchTotalPaid, 0) + {$onlinePaymentModel->onpAmount}
-			 ,	vchType = IF(vchType = {$fnGetConstQouted(enuVoucherType::Basket)}, {$fnGetConstQouted(enuVoucherType::Invoice)}, vchType)
+       ,	vchType = IF(vchType = {$fnGetConstQouted(enuVoucherType::Basket)}, {$fnGetConstQouted(enuVoucherType::Invoice)}, vchType)
    WHERE  vchID = {$onlinePaymentModel->onpVoucherID}
 SQL;
-      $rowsCount = Yii::$app->db->createCommand($qry)->execute();
+            $rowsCount = Yii::$app->db->createCommand($qry)->execute();
 
-      $qry =<<<SQL
+            $qry = <<<SQL
   UPDATE  {$voucherTableName}
      SET  vchStatus = IF(vchTotalAmount = IFNULL(vchTotalPaid, 0),
-			 			{$fnGetConstQouted(enuVoucherStatus::Settled)},
-						{$fnGetConstQouted(enuVoucherStatus::WaitForPayment)}
-			 		)
+             {$fnGetConstQouted(enuVoucherStatus::Settled)},
+            {$fnGetConstQouted(enuVoucherStatus::WaitForPayment)}
+           )
    WHERE  vchID = {$onlinePaymentModel->onpVoucherID}
 SQL;
-      $rowsCount = Yii::$app->db->createCommand($qry)->execute();
+            $rowsCount = Yii::$app->db->createCommand($qry)->execute();
 
-      $onlinePaymentModel->voucher->refresh();
+            $onlinePaymentModel->voucher->refresh();
 
-      // if (in_array($onlinePaymentModel->voucher->vchType, [
-      //     enuVoucherType::Basket,
-      //     enuVoucherType::Invoice,
-      //   ]) && ($onlinePaymentModel->voucher->vchTotalAmount == $onlinePaymentModel->voucher->vchTotalPaid ?? 0)
-      // ) {
-      //   $onlinePaymentModel->voucher->vchType = enuVoucherType::Invoice;
-      //   $onlinePaymentModel->voucher->vchStatus = enuVoucherStatus::Settled;
-      //   $onlinePaymentModel->voucher->save();
-      // }
+            // if (in_array($onlinePaymentModel->voucher->vchType, [
+            //     enuVoucherType::Basket,
+            //     enuVoucherType::Invoice,
+            //   ]) && ($onlinePaymentModel->voucher->vchTotalAmount == $onlinePaymentModel->voucher->vchTotalPaid ?? 0)
+            // ) {
+            //   $onlinePaymentModel->voucher->vchType = enuVoucherType::Invoice;
+            //   $onlinePaymentModel->voucher->vchStatus = enuVoucherStatus::Settled;
+            //   $onlinePaymentModel->voucher->save();
+            // }
 
-      //commit
-      $transaction->commit();
+            //commit
+            $transaction->commit();
 
-      return $onlinePaymentModel;
-
-    } catch (\Exception | \Throwable $e) {
-      $transaction->rollBack();
-      throw $e;
+            return $onlinePaymentModel;
+        } catch (\Exception | \Throwable $e) {
+            $transaction->rollBack();
+            throw $e;
+        }
     }
-  }
 
-  //verify and settle online payment
-  private function verifyOnlinePayment($onlinePaymentModel, $pgwResponse)
-  {
-    $gatewayClass = $onlinePaymentModel->gateway->getGatewayClass();
+    //verify and settle online payment
+    private function verifyOnlinePayment($onlinePaymentModel, $pgwResponse)
+    {
+        $gatewayClass = $onlinePaymentModel->gateway->getGatewayClass();
 
-    try {
-      list ($result, $transactionNumber, $trackNumber, $rrn) = $gatewayClass->verify(
-        $onlinePaymentModel->gateway,
-        $onlinePaymentModel,
-        $pgwResponse,
-        function($transNumber) use ($onlinePaymentModel) {
-          //check double spending
-          $qry =<<<SQL
+        try {
+            list($result, $transactionNumber, $trackNumber, $rrn) = $gatewayClass->verify(
+                $onlinePaymentModel->gateway,
+                $onlinePaymentModel,
+                $pgwResponse,
+                function ($transNumber) use ($onlinePaymentModel) {
+                    //check double spending
+                    $qry = <<<SQL
     SELECT  onpID
       FROM  tbl_AAA_OnlinePayment onp
 INNER JOIN  tbl_AAA_Gateway gtw
@@ -480,40 +485,41 @@ INNER JOIN  tbl_AAA_Gateway gtw
        AND  gtw.gtwPluginName = '{$onlinePaymentModel->gateway->gtwPluginName}'
        AND  onp.onpID != {$onlinePaymentModel->onpID}
 SQL;
-          $data = Yii::$app->db->createCommand($qry)->queryOne();
-          if (empty($data) == false) {
-            throw new UnprocessableEntityHttpException('Duplicate payment transaction number');
-          }
-        }
-      );
+                    $data = Yii::$app->db->createCommand($qry)->queryOne();
+                    if (empty($data) == false) {
+                        throw new UnprocessableEntityHttpException('Duplicate payment transaction number');
+                    }
+                }
+            );
 
-      $onlinePaymentModel->onpTransactionNumber = $transactionNumber;
-      $onlinePaymentModel->onpTrackNumber = $trackNumber;
-      $onlinePaymentModel->onpRRN         = $rrn;
-      $onlinePaymentModel->onpResult      = (array)$result;
-      $onlinePaymentModel->onpStatus      = enuOnlinePaymentStatus::Paid;
-      if ($onlinePaymentModel->save() == false) {
-        //todo: ???
-      }
+            $onlinePaymentModel->onpTransactionNumber = $transactionNumber;
+            $onlinePaymentModel->onpTrackNumber = $trackNumber;
+            $onlinePaymentModel->onpRRN         = $rrn;
+            $onlinePaymentModel->onpResult      = (array)$result;
+            $onlinePaymentModel->onpStatus      = enuOnlinePaymentStatus::Paid;
+            if ($onlinePaymentModel->save() == false) {
+                //todo: ???
+            }
+        } catch (\Throwable $exp) {
+            $onlinePaymentModel->onpResult = [
+                'error' => $exp->getMessage(),
+            ];
+            $onlinePaymentModel->onpStatus = enuOnlinePaymentStatus::Error;
+            if ($onlinePaymentModel->save() == false) {
+                //todo: ???
+            }
 
-    } catch (\Throwable $exp) {
-      $onlinePaymentModel->onpResult = [
-        'error' => $exp->getMessage(),
-      ];
-      $onlinePaymentModel->onpStatus = enuOnlinePaymentStatus::Error;
-      if ($onlinePaymentModel->save() == false) {
-        //todo: ???
-      }
+            //---------------
+            //decrease USAGE_TODAY_USED_AMOUNT ($onlinePaymentModel->onpAmount)
+            // if USAGE_LAST_TRANSACTION_DATE = CURDATE()
 
-      //---------------
-      //decrease USAGE_TODAY_USED_AMOUNT ($onlinePaymentModel->onpAmount)
-      // if USAGE_LAST_TRANSACTION_DATE = CURDATE()
+            $fnGetConst = function ($value) {
+                return $value;
+            };
 
-      $fnGetConst = function($value) { return $value; };
+            $gatewayTableName = GatewayModel::tableName();
 
-      $gatewayTableName = GatewayModel::tableName();
-
-      $qry =<<<SQL
+            $qry = <<<SQL
   UPDATE {$gatewayTableName}
      SET gtwUsages = JSON_MERGE_PATCH(
            COALESCE(JSON_REMOVE(gtwUsages, '$.{$fnGetConst(BasePaymentGateway::USAGE_TODAY_USED_AMOUNT)}'), '{}'),
@@ -524,93 +530,91 @@ SQL;
    WHERE gtwID = {$onlinePaymentModel->onpGatewayID}
      AND JSON_UNQUOTE(JSON_EXTRACT(gtwUsages, '$.{$fnGetConst(BasePaymentGateway::USAGE_LAST_TRANSACTION_DATE)}')) = CURDATE()
 SQL;
-      Yii::$app->db->createCommand($qry)->execute();
+            Yii::$app->db->createCommand($qry)->execute();
 
-      //---------------
-      throw $exp;
+            //---------------
+            throw $exp;
+        }
     }
-  }
 
-	public function approveOfflinePayment($offlinePaymentModel)
-  {
-    if ($offlinePaymentModel->ofpStatus != enuOfflinePaymentStatus::WaitForApprove)
-      throw new UnprocessableEntityHttpException('This payment is not in pending state.');
+    public function approveOfflinePayment($offlinePaymentModel)
+    {
+        if ($offlinePaymentModel->ofpStatus != enuOfflinePaymentStatus::WaitForApprove)
+            throw new UnprocessableEntityHttpException('This payment is not in pending state.');
 
-    //start transaction
-    $transaction = Yii::$app->db->beginTransaction();
+        //start transaction
+        $transaction = Yii::$app->db->beginTransaction();
 
-    try {
-      //1- create voucher
-      $voucherModel = new VoucherModel;
-      $voucherModel->vchOwnerUserID = $offlinePaymentModel->ofpOwnerUserID;
-      $voucherModel->vchType        = enuVoucherType::Credit;
-      $voucherModel->vchAmount      =
-        $voucherModel->vchTotalAmount = $offlinePaymentModel->ofpAmount;
-      $voucherModel->vchOfflinePaid = $offlinePaymentModel->ofpAmount;
-      $voucherModel->vchItems       = [
-        'inc-wallet-id' => $offlinePaymentModel->ofpWalletID,
-      ];
-      $voucherModel->vchStatus      = enuVoucherStatus::Finished;
-      if ($voucherModel->save() == false)
-        throw new ServerErrorHttpException('It is not possible to create a voucher');
+        try {
+            //1- create voucher
+            $voucherModel = new VoucherModel;
+            $voucherModel->vchOwnerUserID = $offlinePaymentModel->ofpOwnerUserID;
+            $voucherModel->vchType        = enuVoucherType::Credit;
+            $voucherModel->vchAmount      =
+                $voucherModel->vchTotalAmount = $offlinePaymentModel->ofpAmount;
+            $voucherModel->vchOfflinePaid = $offlinePaymentModel->ofpAmount;
+            $voucherModel->vchItems       = [
+                'inc-wallet-id' => $offlinePaymentModel->ofpWalletID,
+            ];
+            $voucherModel->vchStatus      = enuVoucherStatus::Finished;
+            if ($voucherModel->save() == false)
+                throw new ServerErrorHttpException('It is not possible to create a voucher');
 
-      //2- create wallet transaction
-      $walletTransactionModel = new WalletTransactionModel();
-      $walletTransactionModel->wtrWalletID		= $offlinePaymentModel->ofpWalletID;
-      $walletTransactionModel->wtrVoucherID		= $voucherModel->vchID;
-      $walletTransactionModel->wtrOfflinePaymentID = $offlinePaymentModel->ofpID;
-      $walletTransactionModel->wtrAmount			= $offlinePaymentModel->ofpAmount;
-      if ($walletTransactionModel->save() == false)
-        throw new ServerErrorHttpException('It is not possible to create wallet transaction');
+            //2- create wallet transaction
+            $walletTransactionModel = new WalletTransactionModel();
+            $walletTransactionModel->wtrWalletID         = $offlinePaymentModel->ofpWalletID;
+            $walletTransactionModel->wtrVoucherID        = $voucherModel->vchID;
+            $walletTransactionModel->wtrOfflinePaymentID = $offlinePaymentModel->ofpID;
+            $walletTransactionModel->wtrDepositAmount    = $offlinePaymentModel->ofpAmount;
+            if ($walletTransactionModel->save() == false)
+                throw new ServerErrorHttpException('It is not possible to create wallet transaction');
 
-      //3- update wallet
-      $walletTableName = WalletModel::tableName();
-      $qry =<<<SQL
+            //3- update wallet
+            $walletTableName = WalletModel::tableName();
+            $qry = <<<SQL
   UPDATE {$walletTableName}
      SET walRemainedAmount = walRemainedAmount + {$offlinePaymentModel->ofpAmount}
    WHERE walID = {$offlinePaymentModel->ofpWalletID}
 SQL;
-			$rowsCount = Yii::$app->db->createCommand($qry)->execute();
+            $rowsCount = Yii::$app->db->createCommand($qry)->execute();
 
-      //4- update offline payment
-      $offlinePaymentModel->ofpVoucherID = $voucherModel->vchID;
-      $offlinePaymentModel->ofpStatus    = enuOfflinePaymentStatus::Approved;
-      if ($offlinePaymentModel->save() == false)
-        throw new ServerErrorHttpException('It is not possible to create an offline payment');
+            //4- update offline payment
+            $offlinePaymentModel->ofpVoucherID = $voucherModel->vchID;
+            $offlinePaymentModel->ofpStatus    = enuOfflinePaymentStatus::Approved;
+            if ($offlinePaymentModel->save() == false)
+                throw new ServerErrorHttpException('It is not possible to create an offline payment');
 
-      //commit
-      $transaction->commit();
+            //commit
+            $transaction->commit();
 
-      return $offlinePaymentModel;
-
-    } catch (\Throwable $exp) {
-      $transaction->rollBack();
-      throw $exp;
-    }
-  }
-
-  public function rejectOfflinePayment($offlinePaymentModel, $reasons = null, $comment = null)
-  {
-    if ($offlinePaymentModel->ofpStatus != enuOfflinePaymentStatus::WaitForApprove)
-      throw new UnprocessableEntityHttpException('This payment is not in pending state.');
-
-    $offlinePaymentModel->ofpStatus = enuOfflinePaymentStatus::Rejected;
-
-    if (empty($reasons) == false) {
-      if (is_string($reasons)) {
-        $array = json_decode($reasons, true);
-        if (empty($array) == false)
-          $offlinePaymentModel->ofpRejectReasonIDs = $array;
-      } else if (is_array($reasons))
-        $offlinePaymentModel->ofpRejectReasonIDs = $reasons;
+            return $offlinePaymentModel;
+        } catch (\Throwable $exp) {
+            $transaction->rollBack();
+            throw $exp;
+        }
     }
 
-    $offlinePaymentModel->ofpComment = $comment;
+    public function rejectOfflinePayment($offlinePaymentModel, $reasons = null, $comment = null)
+    {
+        if ($offlinePaymentModel->ofpStatus != enuOfflinePaymentStatus::WaitForApprove)
+            throw new UnprocessableEntityHttpException('This payment is not in pending state.');
 
-    if ($offlinePaymentModel->save() == false)
-      throw new ServerErrorHttpException('It is not possible to reject offline payment');
+        $offlinePaymentModel->ofpStatus = enuOfflinePaymentStatus::Rejected;
 
-    return $offlinePaymentModel;
-  }
+        if (empty($reasons) == false) {
+            if (is_string($reasons)) {
+                $array = json_decode($reasons, true);
+                if (empty($array) == false)
+                    $offlinePaymentModel->ofpRejectReasonIDs = $array;
+            } else if (is_array($reasons))
+                $offlinePaymentModel->ofpRejectReasonIDs = $reasons;
+        }
 
+        $offlinePaymentModel->ofpComment = $comment;
+
+        if ($offlinePaymentModel->save() == false)
+            throw new ServerErrorHttpException('It is not possible to reject offline payment');
+
+        return $offlinePaymentModel;
+    }
 }

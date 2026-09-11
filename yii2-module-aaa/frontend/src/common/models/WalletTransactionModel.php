@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -11,37 +12,37 @@ use shopack\aaa\common\enums\enuWalletTransactionStatus;
 
 class WalletTransactionModel extends RestClientActiveRecord
 {
-	use \shopack\aaa\common\models\WalletTransactionModelTrait;
+    use \shopack\aaa\common\models\WalletTransactionModelTrait;
 
-	public static $resourceName = 'aaa/wallet-transaction';
+    public static $resourceName = 'aaa/wallet-transaction';
 
-	public function attributeLabels()
-	{
-		return [
-			'wtrID'								=> Yii::t('app', 'ID'),
-			'wtrWalletID'					=> Yii::t('aaa', 'Wallet'),
-			'wtrVoucherID'				=> Yii::t('aaa', 'Voucher'),
-			'wtrOnlinePaymentID'	=> Yii::t('aaa', 'Online Payment'),
-			'wtrOfflinePaymentID'	=> Yii::t('aaa', 'Offline Payment'),
-			'wtrAmount'						=> Yii::t('aaa', 'Amount'),
-			'wtrStatus'						=> Yii::t('app', 'Status'),
-			'wtrCreatedAt'        => Yii::t('app', 'Created At'),
-			'wtrCreatedBy'        => Yii::t('app', 'Created By'),
-			'wtrCreatedBy_User'   => Yii::t('app', 'Created By'),
-			'wtrUpdatedAt'        => Yii::t('app', 'Updated At'),
-			'wtrUpdatedBy'        => Yii::t('app', 'Updated By'),
-			'wtrUpdatedBy_User'   => Yii::t('app', 'Updated By'),
-			'wtrRemovedAt'        => Yii::t('app', 'Removed At'),
-			'wtrRemovedBy'        => Yii::t('app', 'Removed By'),
-			'wtrRemovedBy_User'   => Yii::t('app', 'Removed By'),
+    public function attributeLabels()
+    {
+        return [
+            'wtrID'               => Yii::t('app', 'ID'),
+            'wtrWalletID'         => Yii::t('aaa', 'Wallet'),
+            'wtrVoucherID'        => Yii::t('aaa', 'Voucher'),
+            'wtrOnlinePaymentID'  => Yii::t('aaa', 'Online Payment'),
+            'wtrOfflinePaymentID' => Yii::t('aaa', 'Offline Payment'),
+            'wtrDepositAmount'    => Yii::t('aaa', 'Deposit Amount'),
+            'wtrWithdrawalAmount' => Yii::t('aaa', 'Withdrawal Amount'),
+            'wtrStatus'           => Yii::t('app', 'Status'),
+            'wtrCreatedAt'        => Yii::t('app', 'Created At'),
+            'wtrCreatedBy'        => Yii::t('app', 'Created By'),
+            'wtrCreatedBy_User'   => Yii::t('app', 'Created By'),
+            'wtrUpdatedAt'        => Yii::t('app', 'Updated At'),
+            'wtrUpdatedBy'        => Yii::t('app', 'Updated By'),
+            'wtrUpdatedBy_User'   => Yii::t('app', 'Updated By'),
+            'wtrRemovedAt'        => Yii::t('app', 'Removed At'),
+            'wtrRemovedBy'        => Yii::t('app', 'Removed By'),
+            'wtrRemovedBy_User'   => Yii::t('app', 'Removed By'),
 
-			'vchOriginVoucherID'  => Yii::t('aaa', 'Origin Voucher'),
-		];
-	}
+            'vchOriginVoucherID'  => Yii::t('aaa', 'Origin Voucher'),
+        ];
+    }
 
-	public function isSoftDeleted()
-  {
-    return ($this->wtrStatus == enuWalletTransactionStatus::Removed);
-  }
-
+    public function isSoftDeleted()
+    {
+        return ($this->wtrStatus == enuWalletTransactionStatus::Removed);
+    }
 }
