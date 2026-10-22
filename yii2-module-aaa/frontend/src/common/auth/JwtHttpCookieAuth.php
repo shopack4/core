@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -15,24 +16,24 @@ use shopack\aaa\frontend\common\models\UserModel;
 
 class JwtHttpCookieAuth extends \yii\filters\auth\AuthMethod
 {
-  // public $cookieName = 'token';
-  public $pattern; // = '/^Bearer\s+(.*?)$/';
-  // public $realm = 'api';
+    // public $cookieName = 'token';
+    public $pattern; // = '/^Bearer\s+(.*?)$/';
+    // public $realm = 'api';
 
-  public function authenticate($user, $request, $response)
-  {
-    $token = Yii::$app->user->getJwtByCookie();
-    if ($token !== null) {
-      if ($this->pattern !== null) {
-        if (preg_match($this->pattern, $token, $matches)) {
-          $token = $matches[1];
-        } else {
-          return null;
-        }
-      }
+    public function authenticate($user, $request, $response)
+    {
+        $token = Yii::$app->user->getJwtByCookie();
+        if ($token !== null) {
+            if ($this->pattern !== null) {
+                if (preg_match($this->pattern, $token, $matches)) {
+                    $token = $matches[1];
+                } else {
+                    return null;
+                }
+            }
 
-      //validate
-      /*
+            //validate
+            /*
       $parsedToken = Yii::$app->jwt->parse($token);
       $jwtPayload = $parsedToken->claims()->all();
 
@@ -69,31 +70,30 @@ class JwtHttpCookieAuth extends \yii\filters\auth\AuthMethod
       }
       */
 
-      //
-      $identity = $user->loginByAccessToken($token, get_class($this));
-      if ($identity === null) {
-        $this->challenge($response);
-        $this->handleFailure($response);
-      }
+            //
+            $identity = $user->loginByAccessToken($token, get_class($this));
+            if ($identity === null) {
+                $this->challenge($response);
+                $this->handleFailure($response);
+            }
 
-      return $identity;
+            return $identity;
+        }
+
+        return null;
     }
 
-    return null;
-  }
-
-  // public function challenge($response)
-  // {
+    // public function challenge($response)
+    // {
     // $response->getHeaders()->set('WWW-Authenticate', "Bearer realm=\"{$this->realm}\"");
-  // }
+    // }
 
-  public function handleFailure($response)
-  {
-    $loginUrl = (array)Yii::$app->user->loginUrl;
+    public function handleFailure($response)
+    {
+        $loginUrl = (array)Yii::$app->user->loginUrl;
 
-    $loginUrl['donelink'] = Url::current([], true);
+        $loginUrl['donelink'] = Url::current([], true);
 
-    return $response->redirect($loginUrl);
-  }
-
+        return $response->redirect($loginUrl);
+    }
 }

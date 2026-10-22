@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -13,113 +14,114 @@ use shopack\base\frontend\common\helpers\PrivHelper;
 
 class User extends BaseUser
 {
-	public $identityClass = \shopack\aaa\frontend\common\models\UserModel::class;
-	public $enableAutoLogin = true;
-	public $loginUrl = ['/aaa/auth/login'];
-	public $autoRenewCookie = false;
+    public $identityClass = \shopack\aaa\frontend\common\models\UserModel::class;
+    public $enableAutoLogin = true;
+    public $loginUrl = ['/aaa/auth/login'];
+    public $autoRenewCookie = false;
 
-	public $identityCookie = [
-		'name' => '_jwt',
-		'httpOnly' => true,
-	// 	// 'sameSite' => '', //\yii\web\Cookie::SAME_SITE_STRICT,
-	];
+    public $identityCookie = [
+        'name' => '_jwt',
+        'httpOnly' => true,
+        // 	// 'sameSite' => '', //\yii\web\Cookie::SAME_SITE_STRICT,
+    ];
 
-	//current sessions jwt token dataset
-	public ?\Lcobucci\JWT\Token\Plain $accessToken = null;
+    //current sessions jwt token dataset
+    public ?\Lcobucci\JWT\Token\Plain $accessToken = null;
 
-	public function replaceToken($token)
-	{
-		$identity = $this->loginByAccessToken($token);
+    public function replaceToken($token)
+    {
+        $identity = $this->loginByAccessToken($token);
 
-		if ($identity && $this->enableAutoLogin)
-			$this->sendIdentityCookie($identity, 3600*24*30);
+        if ($identity && $this->enableAutoLogin)
+            $this->sendIdentityCookie($identity, 3600 * 24 * 30);
 
-		return $identity;
-	}
+        return $identity;
+    }
 
-	public function getJwtByCookie()
-	{
-    $cookieName = $this->identityCookie['name'];
-    $authCookie = Yii::$app->request->getCookies()->getValue($cookieName);
+    public function getJwtByCookie()
+    {
+        $cookieName = $this->identityCookie['name'];
+        $authCookie = Yii::$app->request->getCookies()->getValue($cookieName);
 
-    if ($authCookie == null)
-			return null;
+        if ($authCookie == null)
+            return null;
 
-		$authCookie = Json::decode($authCookie);
-		$authCookie = $authCookie[1];
+        $authCookie = Json::decode($authCookie);
+        $authCookie = $authCookie[1];
 
-		// $jwtPayload = explode('.', $authCookie);
-		// $jwtPayload = $jwtPayload[1];
-		// $jwtPayload = base64_decode($jwtPayload);
-		// $jwtPayload = Json::decode($jwtPayload);
+        // $jwtPayload = explode('.', $authCookie);
+        // $jwtPayload = $jwtPayload[1];
+        // $jwtPayload = base64_decode($jwtPayload);
+        // $jwtPayload = Json::decode($jwtPayload);
 
-		// if ($this->validateJwtPayload($jwtPayload) == false) {
-		// 	//is remember me checked? -> renew jwt
-		// 	if ($jwtPayload['rmmbr'] ?? 0) {
+        // if ($this->validateJwtPayload($jwtPayload) == false) {
+        // 	//is remember me checked? -> renew jwt
+        // 	if ($jwtPayload['rmmbr'] ?? 0) {
 
-		// 	}
+        // 	}
 
-		// 	//else: login again
-		// 	return null;
-		// }
+        // 	//else: login again
+        // 	return null;
+        // }
 
-		return $authCookie;
-	}
+        return $authCookie;
+    }
 
-	public function validateJwtPayload($jwtPayload)
-	{
-		//checking expire datetime moved to the backend
-		return true;
-
-
+    public function validateJwtPayload($jwtPayload)
+    {
+        //checking expire datetime moved to the backend
+        // return true;
 
 
 
-		if (empty($jwtPayload))
-			return false;
 
-		if (empty($jwtPayload['exp']))
-			return false;
+        //check long expire
 
-		$exp = $jwtPayload['exp'];
-		if (($exp instanceof \DateTimeImmutable) == false) {
-			$exp = number_format((float)$exp, 6, '.', '');
-			$exp = \DateTimeImmutable::createFromFormat('U.u', $exp);
-		}
+        if (empty($jwtPayload))
+            return false;
 
-		$now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        if (empty($jwtPayload['lexp']))
+            return false;
 
-		return ($now < $exp);
-	}
+        $exp = $jwtPayload['lexp'];
+        if (($exp instanceof \DateTimeImmutable) == false) {
+            $exp = number_format((float)$exp, 6, '.', '');
+            $exp = \DateTimeImmutable::createFromFormat('U.u', $exp);
+        }
 
-	protected function regenerateCsrfToken()
-	{
-		$request = Yii::$app->getRequest();
-		if ($request->enableCsrfCookie || $this->enableSession) {
-			/*-*/ // $request->getCsrfToken(true);
-			/*+*/ $request->getCsrfToken(false);
-		}
-	}
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
-	public function loginByAccessToken($token, $type = null)
-	{
-		$identity = parent::loginByAccessToken($token, $type);
+        return ($now < $exp);
+    }
 
-		if ($identity)
-			$this->accessToken = Yii::$app->jwt->parse($token);
+    protected function regenerateCsrfToken()
+    {
+        $request = Yii::$app->getRequest();
+        if ($request->enableCsrfCookie || $this->enableSession) {
+            /*-*/ // $request->getCsrfToken(true);
+            /*+*/
+            $request->getCsrfToken(false);
+        }
+    }
 
-		return $identity;
-	}
+    public function loginByAccessToken($token, $type = null)
+    {
+        $identity = parent::loginByAccessToken($token, $type);
 
-	public function hasPriv($path, $priv='1')
-	{
-		return PrivHelper::hasPriv($path, $priv);
-	}
+        if ($identity)
+            $this->accessToken = Yii::$app->jwt->parse($token);
 
-	public function assertIsNotGuest()
-	{
-		if ($this->isGuest)
-			throw new ForbiddenHttpException('guest not allowed');
-	}
+        return $identity;
+    }
 
+    public function hasPriv($path, $priv = '1')
+    {
+        return PrivHelper::hasPriv($path, $priv);
+    }
+
+    public function assertIsNotGuest()
+    {
+        if ($this->isGuest)
+            throw new ForbiddenHttpException('guest not allowed');
+    }
 }
