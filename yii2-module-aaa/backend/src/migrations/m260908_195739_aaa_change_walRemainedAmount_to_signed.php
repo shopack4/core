@@ -28,7 +28,6 @@ SQL
 		$this->execute("DROP TRIGGER IF EXISTS trg_updatelog_tbl_AAA_WalletTransaction;");
 		$this->execute(
 			<<<SQL
-DELIMITER ;;
 CREATE TRIGGER trg_updatelog_tbl_AAA_WalletTransaction AFTER UPDATE ON tbl_AAA_WalletTransaction FOR EACH ROW BEGIN
   DECLARE Changes JSON DEFAULT JSON_OBJECT();
 
@@ -53,8 +52,7 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_WalletTransaction AFTER UPDATE ON tbl_AAA_W
           , atlTarget = "tbl_AAA_WalletTransaction"
           , atlInfo   = JSON_OBJECT("wtrID", OLD.wtrID, "old", Changes);
   END IF;
-END;;
-DELIMITER ;
+END;
 SQL
 		);
 
