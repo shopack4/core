@@ -656,6 +656,7 @@ return [
 	'First Try' => 'سعی اول',
 	'Second Try' => 'سعی دوم',
 	'Sent' => 'ارسال شد',
+	'Stored' => 'ذخیره شد',
 
 	'Payment Token' => 'کلید پرداخت',
 	'Track Number' => 'شماره پیگیری',
