@@ -20,8 +20,8 @@ SQL
 		$this->execute(
 			<<<SQL
 ALTER TABLE `tbl_AAA_WalletTransaction`
-	CHANGE COLUMN `wtrAmount` `wtrDipositAmount` DOUBLE NULL DEFAULT NULL AFTER `wtrOfflinePaymentID`,
-	ADD COLUMN `wtrWithdrawalAmount` DOUBLE UNSIGNED NULL DEFAULT NULL AFTER `wtrDipositAmount`;
+	CHANGE COLUMN `wtrAmount` `wtrDepositAmount` DOUBLE NULL DEFAULT NULL AFTER `wtrOfflinePaymentID`,
+	ADD COLUMN `wtrWithdrawalAmount` DOUBLE UNSIGNED NULL DEFAULT NULL AFTER `wtrDepositAmount`;
 SQL
 		);
 
@@ -36,7 +36,7 @@ CREATE TRIGGER trg_updatelog_tbl_AAA_WalletTransaction AFTER UPDATE ON tbl_AAA_W
   IF ISNULL(OLD.wtrVoucherID) != ISNULL(NEW.wtrVoucherID) OR OLD.wtrVoucherID != NEW.wtrVoucherID THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("wtrVoucherID", IF(ISNULL(OLD.wtrVoucherID), NULL, OLD.wtrVoucherID))); END IF;
   IF ISNULL(OLD.wtrOnlinePaymentID) != ISNULL(NEW.wtrOnlinePaymentID) OR OLD.wtrOnlinePaymentID != NEW.wtrOnlinePaymentID THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("wtrOnlinePaymentID", IF(ISNULL(OLD.wtrOnlinePaymentID), NULL, OLD.wtrOnlinePaymentID))); END IF;
   IF ISNULL(OLD.wtrOfflinePaymentID) != ISNULL(NEW.wtrOfflinePaymentID) OR OLD.wtrOfflinePaymentID != NEW.wtrOfflinePaymentID THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("wtrOfflinePaymentID", IF(ISNULL(OLD.wtrOfflinePaymentID), NULL, OLD.wtrOfflinePaymentID))); END IF;
-  IF ISNULL(OLD.wtrDipositAmount) != ISNULL(NEW.wtrDipositAmount) OR OLD.wtrDipositAmount != NEW.wtrDipositAmount THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("wtrDipositAmount", IF(ISNULL(OLD.wtrDipositAmount), NULL, OLD.wtrDipositAmount))); END IF;
+  IF ISNULL(OLD.wtrDepositAmount) != ISNULL(NEW.wtrDepositAmount) OR OLD.wtrDepositAmount != NEW.wtrDepositAmount THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("wtrDepositAmount", IF(ISNULL(OLD.wtrDepositAmount), NULL, OLD.wtrDepositAmount))); END IF;
   IF ISNULL(OLD.wtrWithdrawalAmount) != ISNULL(NEW.wtrWithdrawalAmount) OR OLD.wtrWithdrawalAmount != NEW.wtrWithdrawalAmount THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("wtrWithdrawalAmount", IF(ISNULL(OLD.wtrWithdrawalAmount), NULL, OLD.wtrWithdrawalAmount))); END IF;
   IF ISNULL(OLD.wtrStatus) != ISNULL(NEW.wtrStatus) OR OLD.wtrStatus != NEW.wtrStatus THEN SET Changes = JSON_MERGE_PRESERVE(Changes, JSON_OBJECT("wtrStatus", IF(ISNULL(OLD.wtrStatus), NULL, OLD.wtrStatus))); END IF;
 
@@ -59,15 +59,15 @@ SQL
 		$this->execute(
 			<<<SQL
 UPDATE tbl_AAA_WalletTransaction
-	SET wtrWithdrawalAmount = ABS(wtrDipositAmount)
-	WHERE wtrDipositAmount < 0;
+	SET wtrWithdrawalAmount = ABS(wtrDepositAmount)
+	WHERE wtrDepositAmount < 0;
 SQL
 		);
 
 		$this->execute(
 			<<<SQL
 ALTER TABLE `tbl_AAA_WalletTransaction`
-	CHANGE COLUMN `wtrDipositAmount` `wtrDipositAmount` DOUBLE UNSIGNED NULL DEFAULT NULL AFTER `wtrOfflinePaymentID`;
+	CHANGE COLUMN `wtrDepositAmount` `wtrDepositAmount` DOUBLE UNSIGNED NULL DEFAULT NULL AFTER `wtrOfflinePaymentID`;
 SQL
 		);
 	}
