@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -9,18 +10,26 @@ use shopack\base\common\base\BaseEnum;
 
 abstract class enuUploadQueueStatus extends BaseEnum
 {
-  const New 		= 'N';
-	const Stored  = 'S';
-	const Error   = 'E';
-  const Removed = 'R';
+    // -----------------------------------------------------
+    // |A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|
+    // |x|x| | |x| | | | | | | | |x| | | |x|x| | | | | | | |
+    // -----------------------------------------------------
 
-	public static $messageCategory = 'aaa';
+    const New        = 'N';
+    const FirstTry   = 'A';
+    const SecondTry  = 'B';
+    const Stored     = 'S';
+    const Error      = 'E';
+    const Removed    = 'R';
 
-	public static $list = [
-		self::New 		=> 'New',
-		self::Stored	=> 'Stored',
-		self::Error 	=> 'Error',
-		self::Removed => 'Removed',
-	];
+    public static $messageCategory = 'aaa';
 
+    public static $list = [
+        self::New        => 'New',
+        self::FirstTry   => 'First Try',
+        self::SecondTry  => 'Second Try',
+        self::Stored     => 'Stored',
+        self::Error      => 'Error',
+        self::Removed    => 'Removed',
+    ];
 };

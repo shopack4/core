@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
@@ -25,58 +26,60 @@ use shopack\aaa\backend\classes\BaseSmsGateway;
 
 class MessageManager extends Component
 {
-  private $defaultSmsGatewayModel = null;
+    private $defaultSmsGatewayModel = null;
 
-  public function log($message, $type='INFO')
-  {
-		if (Yii::$app->isConsole == false)
-			return;
+    public function log($message, $type = 'INFO')
+    {
+        if (Yii::$app->isConsole == false)
+            return;
 
-    if ($message instanceof \Throwable) {
-			$message = $message->getMessage();
-      $type = 'ERROR';
+        if ($message instanceof \Throwable) {
+            $message = $message->getMessage();
+            $type = 'ERROR';
+        }
+
+        if (empty($type))
+            echo "[" . date('Y/m/d H:i:s') . "] {$message}\n";
+        else
+            echo "[" . date('Y/m/d H:i:s') . "][{$type}] {$message}\n";
     }
 
-		if (empty($type))
-    	echo "[" . date('Y/m/d H:i:s') . "] {$message}\n";
-		else
-    	echo "[" . date('Y/m/d H:i:s') . "][{$type}] {$message}\n";
-  }
+    public function getDefaultSmsGateway()
+    {
+        if ($this->defaultSmsGatewayModel == null) {
+            $this->defaultSmsGatewayModel = GatewayModel::find()
+                ->andWhere(['gtwPluginType' => 'sms'])
+                ->andWhere(['gtwStatus' => enuGatewayStatus::Active])
+                ->orderBy([
+                    'RAND()' => SORT_ASC,
+                ])
+                ->one();
 
-	public function getDefaultSmsGateway()
-	{
-		if ($this->defaultSmsGatewayModel == null) {
-      $this->defaultSmsGatewayModel = GatewayModel::find()
-        ->andWhere(['gtwPluginType' => 'sms'])
-        ->andWhere(['gtwStatus' => enuGatewayStatus::Active])
-        ->orderBy([
-          'RAND()' => SORT_ASC,
-        ])
-        ->one();
+            if ($this->defaultSmsGatewayModel == null)
+                return null;
+            // throw new NotFoundHttpException('sms gateway not found');
+        }
 
-      if ($this->defaultSmsGatewayModel == null)
-        return null;
-        // throw new NotFoundHttpException('sms gateway not found');
-		}
+        return $this->defaultSmsGatewayModel;
+    }
 
-		return $this->defaultSmsGatewayModel;
-	}
+    /**
+     * return: [status(bool), result]
+     * status = true
+     * 		result =
+     */
+    public function sendSms($message, $to, $from = null, $templateName = null, $templateParams = null): SmsSendResult
+    {
+        $result = $this->defaultSmsGateway->gatewayClass->send($message, $to, $from, $templateName, $templateParams);
 
-	/**
-	 * return: [status(bool), result]
-	 * status = true
-	 * 		result =
-	 */
-	public function sendSms($message, $to, $from = null, $templateName = null, $templateParams = null) : SmsSendResult
-	{
-    $result = $this->defaultSmsGateway->gatewayClass->send($message, $to, $from, $templateName, $templateParams);
+        try {
+            //update gateway usage
+            $fnGetConst = function ($value) {
+                return $value;
+            };
+            $gatewayTableName = GatewayModel::tableName();
 
-    try {
-      //update gateway usage
-      $fnGetConst = function($value) { return $value; };
-      $gatewayTableName = GatewayModel::tableName();
-
-  		$qry =<<<SQL
+            $qry = <<<SQL
   UPDATE {$gatewayTableName}
      SET gtwUsages = JSON_MERGE_PATCH(
            COALESCE(JSON_REMOVE(gtwUsages, '$.{$fnGetConst(BaseSmsGateway::USAGE_LAST_SEND_DATE)}', '$.{$fnGetConst(BaseSmsGateway::USAGE_SENT_COUNT)}'), '{}'),
@@ -91,24 +94,26 @@ class MessageManager extends Component
          )
    WHERE gtwID = {$this->defaultSmsGateway->gtwID}
 SQL;
-  		Yii::$app->db->createCommand($qry)->execute();
+            Yii::$app->db->createCommand($qry)->execute();
+        } catch (\Throwable $exp) {
+        }
 
-    } catch (\Throwable $exp) {}
+        return $result;
+    }
 
-		return $result;
-	}
+    public function processQueue($maxItemCount = 100, $messageID = 0)
+    {
+        $fnGetConst = function ($value) {
+            return "'{$value}'";
+        };
 
-	public function processQueue($maxItemCount = 100, $messageID = 0)
-  {
-    $fnGetConst = function($value) { return "'{$value}'"; };
+        try {
+            $instanceID = Yii::$app->getInstanceID();
+            // $this->log("*** instance id: {$instanceID}");
 
-    try {
-      $instanceID = Yii::$app->getInstanceID();
-      // $this->log("*** instance id: {$instanceID}");
+            $lastTryInterval = (YII_ENV_DEV ? 0 : 10);
 
-      $lastTryInterval = (YII_ENV_DEV ? 1 : 10);
-
-/*
+            /*
       //unlock old
       $qry = <<<SQL
       UPDATE tbl_AAA_Message
@@ -128,12 +133,12 @@ SQL;
       $this->log("unlocked count: {$rowsCount}");
 /**/
 
-      //lock
-      // INNER JOIN tbl_AAA_MessageTemplate
-      //         ON tbl_AAA_MessageTemplate.mstKey = tbl_AAA_Message.msgTypeKey
-      //  AND tbl_AAA_MessageTemplate.mstLanguage = tbl_AAA_Message.msgLanguage
-			if (empty($messageID)) {
-	      $qry = <<<SQL
+            //lock
+            // INNER JOIN tbl_AAA_MessageTemplate
+            //         ON tbl_AAA_MessageTemplate.mstKey = tbl_AAA_Message.msgTypeKey
+            //  AND tbl_AAA_MessageTemplate.mstLanguage = tbl_AAA_Message.msgLanguage
+            if (empty($messageID)) {
+                $qry = <<<SQL
       UPDATE  tbl_AAA_Message
          SET  msgLockedAt = NOW()
            ,  msgLockedBy = '{$instanceID}'
@@ -159,282 +164,288 @@ SQL;
        LIMIT {$maxItemCount}
 SQL;
 
-      	// $this->log(lock query:\n{$qry}");
+                // $this->log(lock query:\n{$qry}");
 
-	      $rowsCount = Yii::$app->db->createCommand($qry)->execute();
-      	// $this->log("locked count: {$rowsCount}");
-			}
-
-      //fetch
-      //  AND tbl_AAA_MessageTemplate.mstLanguage = tbl_AAA_Message.msgLanguage
-//       $qry = <<<SQL
-//       SELECT *
-//         FROM tbl_AAA_Message
-//   INNER JOIN tbl_AAA_MessageTemplate
-//           ON tbl_AAA_MessageTemplate.mstKey = tbl_AAA_Message.msgTypeKey
-//        WHERE msgLockedBy = '{$instanceID}'
-//          AND (msgStatus = {$fnGetConst(enuMessageStatus::New)}
-//           OR (msgStatus = {$fnGetConst(enuMessageStatus::Error)}
-//          AND msgLastTryAt < DATE_SUB(NOW(), INTERVAL {$lastTryInterval} MINUTE)
-//              )
-//              )
-//     ORDER BY msgCreatedAt ASC
-// SQL;
-
-      // $this->log("fetch query:\n{$qry}");
-// $messagesModels = Yii::$app->db->createCommand($qry)->queryAll();
-
-			$query = MessageModel::find()
-        ->innerJoinWith('messageTemplate')
-        ->andWhere(['msgLockedBy' => $instanceID])
-        ->andWhere(['OR',
-          ['msgStatus' => enuMessageStatus::New],
-          ['AND',
-            ['IN', 'msgStatus', [enuMessageStatus::FirstTry, enuMessageStatus::SecondTry]],
-            ['<', 'msgLastTryAt', new DbExpression("DATE_SUB(NOW(), INTERVAL {$lastTryInterval} MINUTE)")]
-          ]
-        ])
-        ->orderBy('msgCreatedAt');
-
-			if ($messageID > 0) {
-				$query->andWhere(['msgID' => $messageID]);
-			} else {
-				// $query->andWhere(['OR',
-				// 	['msgLockedAt IS NULL'],
-				// 	['<', 'msgLockedAt', new DbExpression('DATE_SUB(NOW(), INTERVAL 1 HOUR)')],
-				// 	['msgLockedBy' => $instanceID],
-				// ]);
-			}
-
-			$messagesModels = $query->all();
-
-      // $this->log("fetched count: " . count($messagesModels));
-
-      if (empty($messagesModels)) {
-        // $this->log("nothing to do");
-        return; // ExitCode::OK;
-      }
-
-      $defaultSmsGateway = $this->defaultSmsGateway;
-
-      $expNow = DbExpression::now();
-
-      foreach ($messagesModels as $messageModel) {
-        if (empty($messageModel->messageTemplate->mstParamsPrefix) == false
-          || empty($messageModel->messageTemplate->mstParamsSuffix) == false)
-        {
-          $replacements = [];
-          foreach ($messageModel->msgInfo as $k => $v) {
-            $replacements[
-              ($messageModel->messageTemplate->mstParamsPrefix ?? '')
-              . $k
-              . ($messageModel->messageTemplate->mstParamsSuffix ?? '')
-            ] = $v;
-          }
-        } else
-          $replacements = $messageModel->msgInfo;
-
-        $title = strtr($messageModel->messageTemplate->mstTitle ?? '', $replacements);
-        $body = strtr($messageModel->messageTemplate->mstBody ?? '', $replacements);
-
-        $errorCount = 0;
-        $now = date('U');
-
-        $msgResult = $messageModel->msgResult;
-        if ($msgResult == null)
-          $msgResult = [];
-
-				if (empty($messageID))
-          $this->log("processing message ({$messageModel->msgID}):");
-
-        //-- email -----
-        try {
-          $key = enuMessageTemplateMedia::Email;
-
-          if (in_array($messageModel->messageTemplate->mstMedia, [$key, 'A'])
-              && (($msgResult[$key]['status'] ?? enuMessageResultStatus::New) != enuMessageResultStatus::Sent)
-          ) {
-            if (empty($messageID))
-              $this->log("  Send Email to " . $messageModel->msgTarget . ": ");
-
-            $refID = $this->sendEmailForItem($messageModel, $title, $body);
-
-            if (empty($messageID))
-              $this->log("    OK. ref: " . $refID);
-
-            $msgResult[$key] = [
-              'status' => enuMessageResultStatus::Sent,
-              'ref-id' => $refID,
-              'sent-at' => $now,
-            ];
-          }
-        } catch(\Throwable $exp) {
-          if (empty($messageID))
-            $this->log("    Error " . $exp->getMessage());
-
-          ++$errorCount;
-
-          $msgResult[$key] = [
-            'status' => enuMessageResultStatus::Error,
-            // 'at' => $expNow,
-          ];
-        }
-
-        //-- sms -----
-        try {
-          $key = enuMessageTemplateMedia::Sms;
-
-          if (in_array($messageModel->messageTemplate->mstMedia, [$key, 'A'])
-              && (($msgResult[$key]['status'] ?? enuMessageResultStatus::New) != enuMessageResultStatus::Sent)
-          ) {
-            if (empty($messageID))
-              $this->log("  Send Sms to " . $messageModel->msgTarget . ": ");
-
-            if ($defaultSmsGateway === null) {
-              $this->log("  ERROR: sms gateway not defined.");
-
-              ++$errorCount;
-
-              $msgResult[$key] = [
-                'status' => enuMessageResultStatus::Error,
-                'message' => 'sms gateway not defined.',
-              ];
-
-            } else {
-              $refID = $this->sendSmsForItem(
-                $messageModel,
-                $title,
-                $body,
-                $messageModel->msgTypeKey,
-                $messageModel->msgInfo
-              );
-
-              if (empty($messageID))
-                $this->log("    OK. ref: " . $refID);
-
-              $msgResult[$key] = [
-                'status'  => enuMessageResultStatus::Sent,
-                'ref-id'  => $refID,
-                'sent-at' => $now,
-                'gtwid'   => $defaultSmsGateway->gtwID,
-              ];
+                $rowsCount = Yii::$app->db->createCommand($qry)->execute();
+                // $this->log("locked count: {$rowsCount}");
             }
-          }
-        } catch(\Throwable $exp) {
-          if (empty($messageID))
-            $this->log($exp);
 
-          ++$errorCount;
+            //fetch
+            //  AND tbl_AAA_MessageTemplate.mstLanguage = tbl_AAA_Message.msgLanguage
+            //       $qry = <<<SQL
+            //       SELECT *
+            //         FROM tbl_AAA_Message
+            //   INNER JOIN tbl_AAA_MessageTemplate
+            //           ON tbl_AAA_MessageTemplate.mstKey = tbl_AAA_Message.msgTypeKey
+            //        WHERE msgLockedBy = '{$instanceID}'
+            //          AND (msgStatus = {$fnGetConst(enuMessageStatus::New)}
+            //           OR (msgStatus = {$fnGetConst(enuMessageStatus::Error)}
+            //          AND msgLastTryAt < DATE_SUB(NOW(), INTERVAL {$lastTryInterval} MINUTE)
+            //              )
+            //              )
+            //     ORDER BY msgCreatedAt ASC
+            // SQL;
 
-          $msgResult[$key] = [
-            'status' => enuMessageResultStatus::Error,
-            // 'at' => $expNow,
-            'gtwid'   => $defaultSmsGateway->gtwID,
-          ];
-        }
+            // $this->log("fetch query:\n{$qry}");
+            // $messagesModels = Yii::$app->db->createCommand($qry)->queryAll();
 
-        //-- push -----
+            $query = MessageModel::find()
+                ->innerJoinWith('messageTemplate')
+                ->andWhere(['msgLockedBy' => $instanceID])
+                ->andWhere([
+                    'OR',
+                    ['msgStatus' => enuMessageStatus::New],
+                    [
+                        'AND',
+                        ['IN', 'msgStatus', [enuMessageStatus::FirstTry, enuMessageStatus::SecondTry]],
+                        ['<', 'msgLastTryAt', new DbExpression("DATE_SUB(NOW(), INTERVAL {$lastTryInterval} MINUTE)")]
+                    ]
+                ])
+                ->orderBy('msgCreatedAt');
 
-        //--
-        $messageModel->msgLockedAt  = null;
-        $messageModel->msgLockedBy  = null;
-        $messageModel->msgLastTryAt = $expNow;
-        $messageModel->msgSentAt    = ($errorCount == 0 ? $expNow : null);
-        $messageModel->msgResult    = empty($msgResult) ? null : $msgResult;
+            if ($messageID > 0) {
+                $query->andWhere(['msgID' => $messageID]);
+            } else {
+                // $query->andWhere(['OR',
+                // 	['msgLockedAt IS NULL'],
+                // 	['<', 'msgLockedAt', new DbExpression('DATE_SUB(NOW(), INTERVAL 1 HOUR)')],
+                // 	['msgLockedBy' => $instanceID],
+                // ]);
+            }
 
-        if ($errorCount == 0)
-          $messageModel->msgStatus = enuMessageStatus::Sent;
-        else if ($messageModel->msgStatus == enuMessageStatus::New)
-          $messageModel->msgStatus = enuMessageStatus::FirstTry;
-        else if ($messageModel->msgStatus == enuMessageStatus::FirstTry)
-          $messageModel->msgStatus = enuMessageStatus::SecondTry;
-        else
-          $messageModel->msgStatus = enuMessageStatus::Error;
+            $messagesModels = $query->all();
 
-        $messageModel->save();
+            // $this->log("fetched count: " . count($messagesModels));
 
-        if ($messageModel->msgStatus == enuMessageStatus::Sent) {
-          $qry = '';
+            if (empty($messagesModels)) {
+                // $this->log("nothing to do");
+                return; // ExitCode::OK;
+            }
 
-          if (empty($messageModel->msgApprovalRequestID) == false) {
-            $qry = <<<SQL
+            $defaultSmsGateway = $this->defaultSmsGateway;
+
+            $expNow = DbExpression::now();
+
+            foreach ($messagesModels as $messageModel) {
+                if (
+                    empty($messageModel->messageTemplate->mstParamsPrefix) == false
+                    || empty($messageModel->messageTemplate->mstParamsSuffix) == false
+                ) {
+                    $replacements = [];
+                    foreach ($messageModel->msgInfo as $k => $v) {
+                        $replacements[($messageModel->messageTemplate->mstParamsPrefix ?? '')
+                            . $k
+                            . ($messageModel->messageTemplate->mstParamsSuffix ?? '')] = $v;
+                    }
+                } else
+                    $replacements = $messageModel->msgInfo;
+
+                $title = strtr($messageModel->messageTemplate->mstTitle ?? '', $replacements);
+                $body = strtr($messageModel->messageTemplate->mstBody ?? '', $replacements);
+
+                $errorCount = 0;
+                $now = date('U');
+
+                $msgResult = $messageModel->msgResult;
+                if ($msgResult == null)
+                    $msgResult = [];
+
+                if (empty($messageID))
+                    $this->log("processing message ({$messageModel->msgID}):");
+
+                //-- email -----
+                try {
+                    $key = enuMessageTemplateMedia::Email;
+
+                    if (
+                        in_array($messageModel->messageTemplate->mstMedia, [$key, 'A'])
+                        && (($msgResult[$key]['status'] ?? enuMessageResultStatus::New) != enuMessageResultStatus::Sent)
+                    ) {
+                        if (empty($messageID))
+                            $this->log("  Send Email to " . $messageModel->msgTarget . ": ");
+
+                        $refID = $this->sendEmailForItem($messageModel, $title, $body);
+
+                        if (empty($messageID))
+                            $this->log("    OK. ref: " . $refID);
+
+                        $msgResult[$key] = [
+                            'status' => enuMessageResultStatus::Sent,
+                            'ref-id' => $refID,
+                            'sent-at' => $now,
+                        ];
+                    }
+                } catch (\Throwable $exp) {
+                    if (empty($messageID))
+                        $this->log("    Error " . $exp->getMessage());
+
+                    ++$errorCount;
+
+                    $msgResult[$key] = [
+                        'status' => enuMessageResultStatus::Error,
+                        // 'at' => $expNow,
+                    ];
+                }
+
+                //-- sms -----
+                try {
+                    $key = enuMessageTemplateMedia::Sms;
+
+                    if (
+                        in_array($messageModel->messageTemplate->mstMedia, [$key, 'A'])
+                        && (($msgResult[$key]['status'] ?? enuMessageResultStatus::New) != enuMessageResultStatus::Sent)
+                    ) {
+                        if (empty($messageID))
+                            $this->log("  Send Sms to " . $messageModel->msgTarget . ": ");
+
+                        if ($defaultSmsGateway === null) {
+                            $this->log("  ERROR: sms gateway not defined.");
+
+                            ++$errorCount;
+
+                            $msgResult[$key] = [
+                                'status' => enuMessageResultStatus::Error,
+                                'message' => 'sms gateway not defined.',
+                            ];
+                        } else {
+                            $refID = $this->sendSmsForItem(
+                                $messageModel,
+                                $title,
+                                $body,
+                                $messageModel->msgTypeKey,
+                                $messageModel->msgInfo
+                            );
+
+                            if (empty($messageID))
+                                $this->log("    OK. ref: " . $refID);
+
+                            $msgResult[$key] = [
+                                'status'  => enuMessageResultStatus::Sent,
+                                'ref-id'  => $refID,
+                                'sent-at' => $now,
+                                'gtwid'   => $defaultSmsGateway->gtwID,
+                            ];
+                        }
+                    }
+                } catch (\Throwable $exp) {
+                    if (empty($messageID))
+                        $this->log($exp);
+
+                    ++$errorCount;
+
+                    $msgResult[$key] = [
+                        'status' => enuMessageResultStatus::Error,
+                        // 'at' => $expNow,
+                        'gtwid'   => $defaultSmsGateway->gtwID,
+                    ];
+                }
+
+                //-- push -----
+
+                //--
+                $messageModel->msgLockedAt  = null;
+                $messageModel->msgLockedBy  = null;
+                $messageModel->msgLastTryAt = $expNow;
+                $messageModel->msgSentAt    = ($errorCount == 0 ? $expNow : null);
+                $messageModel->msgResult    = empty($msgResult) ? null : $msgResult;
+
+                if ($errorCount == 0)
+                    $messageModel->msgStatus = enuMessageStatus::Sent;
+                else if ($messageModel->msgStatus == enuMessageStatus::New)
+                    $messageModel->msgStatus = enuMessageStatus::FirstTry;
+                else if ($messageModel->msgStatus == enuMessageStatus::FirstTry)
+                    $messageModel->msgStatus = enuMessageStatus::SecondTry;
+                else
+                    $messageModel->msgStatus = enuMessageStatus::Error;
+
+                $messageModel->save();
+
+                if ($messageModel->msgStatus == enuMessageStatus::Sent) {
+                    $qry = '';
+
+                    if (empty($messageModel->msgApprovalRequestID) == false) {
+                        $qry = <<<SQL
        UPDATE tbl_AAA_ApprovalRequest
           SET aprStatus = {$fnGetConst(enuApprovalRequestStatus::Sent)}
             , aprSentAt = NOW()
         WHERE aprID = {$messageModel->msgApprovalRequestID}
 SQL;
-          } else if (empty($messageModel->msgForgotPasswordRequestID) == false) {
-            $qry = <<<SQL
+                    } else if (empty($messageModel->msgForgotPasswordRequestID) == false) {
+                        $qry = <<<SQL
      UPDATE tbl_AAA_ForgotPasswordRequest
         SET fprStatus = {$fnGetConst(enuForgotPasswordRequestStatus::Sent)}
           , fprSentAt = NOW()
       WHERE fprID = {$messageModel->msgForgotPasswordRequestID}
 SQL;
-          }
+                    }
 
-          if (empty($qry) == false) {
-            $rowsCount = Yii::$app->db->createCommand($qry)->execute();
-          }
+                    if (empty($qry) == false) {
+                        $rowsCount = Yii::$app->db->createCommand($qry)->execute();
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            if (empty($messageID))
+                $this->log($e);
+            Yii::error($e, __METHOD__);
         }
-      }
+    }
 
-		} catch(\Throwable $e) {
-      if (empty($messageID))
-        $this->log($e);
-			Yii::error($e, __METHOD__);
-		}
-	}
+    /**
+     * return: refID : string
+     */
+    private function sendEmailForItem($messageModel, $title, $body)
+    {
+        if (empty(Yii::$app->params['senderEmail']))
+            throw new \Exception("error in send email: senderEmail not set in config file");
 
-  /**
-   * return: refID : string
-   */
-  private function sendEmailForItem($messageModel, $title, $body) {
-    if (empty(Yii::$app->params['senderEmail']))
-      throw new \Exception("error in send email: senderEmail not set in config file");
+        $email = Yii::$app->mailer
+            ->compose(
+                //['html' => 'aaa-html', 'text' => 'aaa-text'],
+                //['user' => $user]
+            )
+            ->setFrom(Yii::$app->params['senderEmail'])
+            ->setTo($messageModel->msgTarget)
+            ->setSubject($title)
+            ->setTextBody($body)
+            ->setHtmlBody($body);
 
-    $email = Yii::$app->mailer
-			->compose(
-				//['html' => 'aaa-html', 'text' => 'aaa-text'],
-				//['user' => $user]
-			)
-			->setFrom(Yii::$app->params['senderEmail'])
-			->setTo($messageModel->msgTarget)
-			->setSubject($title)
-			->setTextBody($body)
-			->setHtmlBody($body);
+        $result = $email->send();
 
-    $result = $email->send();
+        if ($result)
+            return 'ok';
 
-    if ($result)
-      return 'ok';
+        throw new \Exception("error in send email");
+    }
 
-    throw new \Exception("error in send email");
-  }
+    /**
+     * return: refID : string
+     */
+    private function sendSmsForItem(
+        $messageModel,
+        $title,
+        $body,
+        $templateName = null,
+        $templateParams = null
+    ) {
+        // $msg_mstCode = $row['msg_mstCode'];
+        // $mstLanguage = $row["mstLanguage"];
 
-  /**
-   * return: refID : string
-   */
-  private function sendSmsForItem(
-    $messageModel, $title, $body, $templateName = null, $templateParams = null
-  ) {
-    // $msg_mstCode = $row['msg_mstCode'];
-    // $mstLanguage = $row["mstLanguage"];
+        $result = $this->sendSms(
+            $body,
+            $messageModel->msgTarget,
+            null,
+            $templateName,
+            $templateParams
+        );
 
-    $result = $this->sendSms(
-      $body,
-      $messageModel->msgTarget,
-      null,
-      $templateName,
-      $templateParams
-    );
+        if ($result->status)
+            return $result->refID;
 
-    if ($result->status)
-      return $result->refID;
+        throw new \Exception("error in send sms: " . $result->message . " (" . $result->refID . ")");
+    }
 
-    throw new \Exception("error in send sms: " . $result->message . " (" . $result->refID . ")");
-  }
-
-  /*
+    /*
      SELECT *
        FROM tbl_AAA_User
   LEFT JOIN (
@@ -452,75 +463,72 @@ SQL;
         AND DAY(usrBirthDate) = DAY(NOW())
         AND msgID IS NULL
   */
-  public function sendBirthdayGreetings()
-  {
-    $query = UserModel::find(false)
-      ->addSelect(MessageModel::selectableColumns())
-      ->leftJoin(
-        [
-          'msg' => MessageModel::find()
-            ->andWhere(['msgTypeKey' => 'happyBirthday'])
-            ->andWhere(new DbExpression('DATE(msgCreatedAt) = CURDATE()'))
-        ],
-        'msg.msgUserID = usrID'
-      )
-      ->andWhere(['IS', 'usrBirthDate', DbExpression::notNull()])
-      ->andWhere(['IS', 'usrMobile', DbExpression::notNull()])
-      ->andWhere(['IS', 'usrMobileApprovedAt', DbExpression::notNull()])
-      ->andWhere(['!=', 'usrStatus', enuUserStatus::Removed])
-      ->andWhere(new DbExpression('MONTH(usrBirthDate) = MONTH(CURRENT_TIMESTAMP)'))
-      ->andWhere(new DbExpression('DAY(usrBirthDate) = DAY(CURRENT_TIMESTAMP)'))
-      ->andWhere(['IS', 'msgID', DbExpression::null()])
-    ;
+    public function sendBirthdayGreetings()
+    {
+        $query = UserModel::find(false)
+            ->addSelect(MessageModel::selectableColumns())
+            ->leftJoin(
+                [
+                    'msg' => MessageModel::find()
+                        ->andWhere(['msgTypeKey' => 'happyBirthday'])
+                        ->andWhere(new DbExpression('DATE(msgCreatedAt) = CURDATE()'))
+                ],
+                'msg.msgUserID = usrID'
+            )
+            ->andWhere(['IS', 'usrBirthDate', DbExpression::notNull()])
+            ->andWhere(['IS', 'usrMobile', DbExpression::notNull()])
+            ->andWhere(['IS', 'usrMobileApprovedAt', DbExpression::notNull()])
+            ->andWhere(['!=', 'usrStatus', enuUserStatus::Removed])
+            ->andWhere(new DbExpression('MONTH(usrBirthDate) = MONTH(CURRENT_TIMESTAMP)'))
+            ->andWhere(new DbExpression('DAY(usrBirthDate) = DAY(CURRENT_TIMESTAMP)'))
+            ->andWhere(['IS', 'msgID', DbExpression::null()]);
 
-    $userModels = $query
-      ->indexBy(function($row) {
-        return implode('.', [
-          $row['usrID'] ?? 'NULL',
-          $row['msgID'] ?? 'NULL'
-        ]);
-      })
-      ->asArray()
-      ->all()
-    ;
+        $userModels = $query
+            ->indexBy(function ($row) {
+                return implode('.', [
+                    $row['usrID'] ?? 'NULL',
+                    $row['msgID'] ?? 'NULL'
+                ]);
+            })
+            ->asArray()
+            ->all();
 
-    if (empty($userModels))
-      return 0;
+        if (empty($userModels))
+            return 0;
 
-    $rowsCount = 0;
+        $rowsCount = 0;
 
-    foreach ($userModels as $userModel) {
-      $memberFullName = [];
-      if ((empty($userModel['usrGender']) == false)
-          && ($userModel['usrGender'] != enuGender::NotSet))
-        $memberFullName[] = enuGender::getAbrLabel($userModel['usrGender']);
-      if (empty($userModel['usrFirstName']) == false)
-        $memberFullName[] = $userModel['usrFirstName'];
-      if (empty($userModel['usrLastName']) == false)
-        $memberFullName[] = $userModel['usrLastName'];
-      $memberFullName = implode(' ', $memberFullName);
+        foreach ($userModels as $userModel) {
+            $memberFullName = [];
+            if ((empty($userModel['usrGender']) == false)
+                && ($userModel['usrGender'] != enuGender::NotSet)
+            )
+                $memberFullName[] = enuGender::getAbrLabel($userModel['usrGender']);
+            if (empty($userModel['usrFirstName']) == false)
+                $memberFullName[] = $userModel['usrFirstName'];
+            if (empty($userModel['usrLastName']) == false)
+                $memberFullName[] = $userModel['usrLastName'];
+            $memberFullName = implode(' ', $memberFullName);
 
-      //
-      $messageModel = new MessageModel;
+            //
+            $messageModel = new MessageModel;
 
-      $messageModel->msgIssuer  = 'aaa:sendBirthdayGreetings';
-      $messageModel->msgUserID  = $userModel['usrID'];
-      $messageModel->msgTypeKey = 'happyBirthday';
-      $messageModel->msgTarget  = $userModel['usrMobile'];
-      $messageModel->msgInfo    = [
-        'mobile'    => $userModel['usrMobile'],
-        'gender'    => $userModel['usrGender'],
-        'firstName' => $userModel['usrFirstName'],
-        'lastName'  => $userModel['usrLastName'],
-        'member'    => $memberFullName,
-      ];
+            $messageModel->msgIssuer  = 'aaa:sendBirthdayGreetings';
+            $messageModel->msgUserID  = $userModel['usrID'];
+            $messageModel->msgTypeKey = 'happyBirthday';
+            $messageModel->msgTarget  = $userModel['usrMobile'];
+            $messageModel->msgInfo    = [
+                'mobile'    => $userModel['usrMobile'],
+                'gender'    => $userModel['usrGender'],
+                'firstName' => $userModel['usrFirstName'],
+                'lastName'  => $userModel['usrLastName'],
+                'member'    => $memberFullName,
+            ];
 
-      if ($messageModel->save())
-        ++$rowsCount;
+            if ($messageModel->save())
+                ++$rowsCount;
+        }
+
+        return $rowsCount;
     }
-
-    return $rowsCount;
-
-  }
-
 }
